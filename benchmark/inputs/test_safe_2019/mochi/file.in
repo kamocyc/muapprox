@@ -1,0 +1,25 @@
+%HES
+MAIN  =v
+  (arg1 <= 0 \/ (arg2 <= 0 \/ F true false true false 3 (\u.true)) /\ (arg2 > 0 \/ F true false false true 1 (\u.true)))
+  /\ (arg1 > 0
+      \/ (arg2 <= 0 \/ F false true true false 1 (\u.true)) /\ (arg2 > 0 \/ F false true false true 0 (\u.true))).
+F x_pos_15 x_neg_15 y_pos y_neg st_14 k_f =v
+  (x_neg_15
+   \/ (st_14 != 1
+       \/ (y_neg \/ F x_pos_15 x_neg_15 y_pos y_neg 1 k_f) /\ (y_pos \/ F x_pos_15 x_neg_15 y_pos y_neg 1 k_f))
+      /\ (st_14 = 1
+          \/ (st_14 != 3
+              \/ (y_neg
+                  \/ (st_14 != 1 \/ F x_pos_15 x_neg_15 y_pos y_neg 1 k_f)
+                     /\ (st_14 = 1 \/ (st_14 != 3 \/ F x_pos_15 x_neg_15 y_pos y_neg st_14 k_f) /\ st_14 = 3))
+                 /\ (y_pos \/ F x_pos_15 x_neg_15 y_pos y_neg st_14 k_f))
+             /\ st_14 = 3))
+  /\ (x_pos_15
+      \/ (y_neg
+          \/ (st_14 != 1 \/ F x_pos_15 x_neg_15 y_pos y_neg 1 k_f)
+             /\ (st_14 = 1 \/ (st_14 != 3 \/ F x_pos_15 x_neg_15 y_pos y_neg st_14 k_f) /\ st_14 = 3))
+         /\ (y_pos \/ F x_pos_15 x_neg_15 y_pos y_neg st_14 k_f)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

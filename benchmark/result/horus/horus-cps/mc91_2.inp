@@ -1,0 +1,29 @@
+environment
+is91: int -> bool
+mc91 : int -> (int -> bool) -> (int -> bool) -> bool
+app_mc91 : (int -> bool) -> (int -> bool) -> int -> bool
+neg_is91: int -> bool
+neg_mc91 : int -> (int -> bool) -> (int -> bool) -> bool
+neg_app_mc91 : (int -> bool) -> (int -> bool) -> int -> bool
+;
+program
+x /= 91 => neg_is91 x
+x > 100  ^ neg_k (x - 10) => neg_mc91 x k neg_k
+x <= 100 ^ neg_mc91 (x + 11) (app_mc91 k neg_k) (neg_app_mc91 k neg_k) => neg_mc91 x k neg_k
+neg_mc91 x k neg_k => neg_app_mc91 k neg_k x
+
+x = 91 => is91 x
+x <= 100 \/ k (x - 10) => mc91 x k neg_k
+x > 100 \/ mc91 (x + 11) (app_mc91 k neg_k) (neg_app_mc91 k neg_k) => mc91 x k neg_k
+mc91 x k neg_k => app_mc91 k neg_k x
+;
+
+goal
+E ext_1:int. (ext_1 <= 101) ^ (neg_mc91 ext_1 is91 neg_is91)
+
+# MAIN =v (ext_1 > 101) \/
+#         (mc91 ext_1 is91).
+# is91 x =v x = 91.
+# mc91 x_6 k_mc91 =v
+#  ((x_6 <= 100) \/ (k_mc91 (x_6 - 10))) /\
+#  ((x_6 > 100) \/ (mc91 (x_6 + 11) (\x_5. mc91 x_5 k_mc91))).

@@ -1,0 +1,10 @@
+%HES
+S =v Init 0 n (MakeArray n) (\x.
+      i < 0 \/ i >= n \/ x i (\r. r >= 1)).
+MakeArray n i k =v 0 <= i /\ i < n /\ k 0.
+Init i n a k =v 
+  (i < n \/ k a) /\
+  (i >= n \/ Init (i+1) n (Update i a 1) k).
+Update i a x j k =v
+  (j <= i - 1 \/ j > i \/ k x) /\
+  (((j > i - 1) /\ (j <= i)) \/ a j k).

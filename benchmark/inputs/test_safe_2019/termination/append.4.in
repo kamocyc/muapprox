@@ -1,0 +1,13 @@
+%HES
+MAIN  =v APPEND_WITHOUT_CHECKING_62 true 0 0 l1 true 0 0 l2 (\u_3606.true).
+APPEND_WITHOUT_CHECKING_62 x_13 x_12 x_11 xs_10 x_9 x_8 x_7 ys_6 k_append_without_checking_62 =v
+  (xs_10 > 0 \/ k_append_without_checking_62 ys_6)
+  /\ (xs_10 <= 0
+      \/ ((xs_10 <= xs_10 - 1 \/ xs_10 - 1 < 0)
+          \/ APPEND_WITHOUT_CHECKING_62 true 0 0 (xs_10 - 1) true 0 0 ys_6
+              (\x_5.k_append_without_checking_62 (1 + x_5)))
+         /\ (xs_10 > xs_10 - 1 /\ xs_10 - 1 >= 0)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

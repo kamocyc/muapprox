@@ -1,0 +1,10 @@
+%HES
+MAIN_11  =v Exists (\w_59.Exists (\x_56.Exists (\y_52.STATE_0 w_59 x_56 y_52 (\main_47.false)))).
+STATE_0 w_9 x_8 y_7 k_state_0 =v
+  (y_7 > x_8 \/ k_state_0 true)
+  /\ (y_7 <= x_8
+      \/ (x_8 > w_9 \/ k_state_0 true) /\ (x_8 <= w_9 \/ Exists (\rho_64.STATE_0 w_9 rho_64 (w_9 - 1) k_state_0))).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

@@ -1,0 +1,11 @@
+%HES
+MAIN  =v FILTER (\n_6.\k_f.k_f true) arg1 (\x_1.x_1 <= arg1).
+FILTER f n k_filter =v
+  (n != 0 \/ k_filter 0)
+  /\ (n = 0
+      \/ Forall
+          (\x_5.(x_5 != 0 \/ FILTER f (n - 1) (\x_4.k_filter (1 + x_4))) /\ (x_5 = 0 \/ FILTER f (n - 1) k_filter))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

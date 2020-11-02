@@ -1,0 +1,9 @@
+%HES
+S =v Max F x y z m \/
+     F x m n \/
+     (m >= n /\ n >= m).
+Max m x y z r =v Forall 0 (\p.  m x y p \/ m p z r).
+F x y r =v
+  (x >= y \/ r != y) /\
+  (y > x \/ r != x).
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.

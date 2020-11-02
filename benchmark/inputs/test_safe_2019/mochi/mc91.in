@@ -1,0 +1,7 @@
+%HES
+MAIN  =v arg1 > 101 \/ MC91 arg1 (\x_3.x_3 = 91).
+MC91 x_7 k_mc91 =v (x_7 <= 100 \/ k_mc91 (x_7 - 10)) /\ (x_7 > 100 \/ MC91 (x_7 + 11) (\x_6.MC91 x_6 k_mc91)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

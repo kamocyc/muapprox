@@ -1,0 +1,23 @@
+%HES
+MAIN  =v MAKE_LIST arg1 (\xs0.\xs1.FOLD_RIGHT (\x_5.\y.\k_add.k_add (x_5 + y)) xs0 xs1 arg2 (\x_1.x_1 >= arg2)).
+FOLD_RIGHT f xs0_15 xs1_14 acc k_fold_right =v
+  (xs0_15 > 0 \/ k_fold_right acc)
+  /\ (xs0_15 <= 0
+      \/ (xs0_15 <= 0
+          \/ xs1_14 0
+              (\x_13.
+                FOLD_RIGHT f (xs0_15 - 1) (\x_11.\k_fold_right_xs_.xs1_14 (x_11 + 1) k_fold_right_xs_) acc
+                 (\x_12.f x_13 x_12 k_fold_right)))).
+MAKE_LIST n k_make_list_10 =v
+  (n >= 0 \/ k_make_list_10 0 (\x_9.\k_make_list_8.true))
+  /\ (n < 0
+      \/ MAKE_LIST (n - 1)
+          (\p0_7.
+            \p1_6.
+             k_make_list_10 (1 + p0_7)
+              (\i.
+                \k_make_list.(i != 0 \/ k_make_list n) /\ (i = 0 \/ MAKE_LIST (n - 1) (\p0.\p1.p1 (i - 1) k_make_list))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

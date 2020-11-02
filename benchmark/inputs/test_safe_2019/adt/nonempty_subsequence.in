@@ -1,0 +1,116 @@
+%HES
+MAIN  =v
+  MAKE_UNITLIST true
+   (\arg10.
+     \arg11.
+      NONEMPTY_SUBSEQUENCES arg10 arg11
+       (\x0.
+         \x1.
+          MAP (\x0_24.\x1_23.\k_assert_nonempty.x0_24 > 0 /\ (x0_24 <= 0 \/ k_assert_nonempty true)) x0 x1
+           (\main0.\main1.true))).
+FOLD_RIGHT f_56 l0_55 l1_54 accu0 accu1 k_fold_right_53 =v
+  (l0_55 > 0 \/ k_fold_right_53 accu0 accu1)
+  /\ (l0_55 <= 0
+      \/ (l0_55 <= 0
+          \/ l1_54 0
+              (\a0.
+                \a1.
+                 FOLD_RIGHT f_56 (1 + (l0_55 - 1))
+                  (\i_50.
+                    \k_fold_right.
+                     (i_50 != 0 \/ k_fold_right a0 a1) /\ (i_50 = 0 \/ l1_54 ((i_50 - 1) + 1) k_fold_right))
+                  accu0 accu1 (\x0_52.\x1_51.f_56 a0 a1 x0_52 x1_51 k_fold_right_53)))).
+NONEMPTY_SUBSEQUENCES l0 l1 k_nonempty_subsequences_49 =v
+  (l0 > 0 \/ k_nonempty_subsequences_49 0 (\x_48.\k_nonempty_subsequences_47.true))
+  /\ (l0 <= 0
+      \/ (l0 <= 0
+          \/ l1 0
+              (\x_46.
+                NONEMPTY_SUBSEQUENCES (l0 - 1)
+                 (\x_25.\k_nonempty_subsequences_xs.l1 (x_25 + 1) k_nonempty_subsequences_xs)
+                 (\x0_41.
+                   \x1_40.
+                    FOLD_RIGHT
+                     (\ys0.
+                       \ys1.
+                        \r0.
+                         \r1.
+                          \k_nonempty_subsequences_f_44.
+                           k_nonempty_subsequences_f_44 (2 + r0)
+                            (\i_43.
+                              \k_nonempty_subsequences_f.
+                               (i_43 != 0 \/ k_nonempty_subsequences_f ys0 ys1)
+                               /\ (i_43 = 0
+                                   \/ (i_43 != 1
+                                       \/ k_nonempty_subsequences_f (1 + ys0)
+                                           (\i_42.\k_nonempty_subsequences_f_n__f.k_nonempty_subsequences_f_n__f true))
+                                      /\ (i_43 = 1 \/ r1 (i_43 - 2) k_nonempty_subsequences_f))))
+                     0 (\x_26.\k_nonempty_subsequences.true) x0_41 x1_40
+                     (\p0_39.
+                       \p1_38.
+                        k_nonempty_subsequences_49 (1 + p0_39)
+                         (\i_37.
+                           \k_nonempty_subsequences_36.
+                            (i_37 != 0
+                             \/ k_nonempty_subsequences_36 1
+                                 (\i_35.\k_nonempty_subsequences_n__f.k_nonempty_subsequences_n__f true))
+                            /\ (i_37 = 0
+                                \/ NONEMPTY_SUBSEQUENCES (l0 - 1)
+                                    (\x_28.\k_nonempty_subsequences_xs_27.l1 (x_28 + 1) k_nonempty_subsequences_xs_27)
+                                    (\x0_34.
+                                      \x1_33.
+                                       FOLD_RIGHT
+                                        (\ys0.
+                                          \ys1.
+                                           \r0.
+                                            \r1.
+                                             \k_nonempty_subsequences_f_44.
+                                              k_nonempty_subsequences_f_44 (2 + r0)
+                                               (\i_43.
+                                                 \k_nonempty_subsequences_f.
+                                                  (i_43 != 0 \/ k_nonempty_subsequences_f ys0 ys1)
+                                                  /\ (i_43 = 0
+                                                      \/ (i_43 != 1
+                                                          \/ k_nonempty_subsequences_f (1 + ys0)
+                                                              (\i_42.
+                                                                \k_nonempty_subsequences_f_n__f.
+                                                                 k_nonempty_subsequences_f_n__f true))
+                                                         /\ (i_43 = 1 \/ r1 (i_43 - 2) k_nonempty_subsequences_f))))
+                                        0 (\x_30.\k_nonempty_subsequences_29.true) x0_34 x1_33
+                                        (\p0_32.\p1_31.p1_31 (i_37 - 1) k_nonempty_subsequences_36))))))))).
+MAP f x0_21 x1_20 k_map_19 =v
+  (x0_21 > 0 \/ k_map_19 0 (\x_18.\k_map_17.true))
+  /\ (x0_21 <= 0
+      \/ (x0_21 <= 0
+          \/ x1_20 0
+              (\x0_16.
+                \x1_15.
+                 f x0_16 x1_15
+                  (\r_f.
+                    MAP f (x0_21 - 1) (\x_7.\k_map_l.x1_20 (x_7 + 1) k_map_l)
+                     (\p0_14.
+                       \p1_13.
+                        k_map_19 (1 + p0_14)
+                         (\i_12.
+                           \k_map.
+                            (i_12 != 0 \/ k_map true)
+                            /\ (i_12 = 0
+                                \/ MAP f (x0_21 - 1) (\x_9.\k_map_l_8.x1_20 (x_9 + 1) k_map_l_8)
+                                    (\p0_11.\p1_10.p1_10 (i_12 - 1) k_map)))))))).
+MAKE_UNITLIST x_6 k_main_arg1_make_unitlist_5 =v
+  Forall
+   (\x_4.
+     (x_4 != 0 \/ k_main_arg1_make_unitlist_5 0 (\x.\k_main_arg1_make_unitlist_3.true))
+     /\ (x_4 = 0
+         \/ MAKE_UNITLIST true
+             (\p0_2.
+               \p1_1.
+                k_main_arg1_make_unitlist_5 (1 + p0_2)
+                 (\i.
+                   \k_main_arg1_make_unitlist.
+                    (i != 0 \/ k_main_arg1_make_unitlist true)
+                    /\ (i = 0 \/ MAKE_UNITLIST true (\p0.\p1.p1 (i - 1) k_main_arg1_make_unitlist)))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,3 @@
+%HES
+MAIN =v (((ext_3 < 0) \/ (ext_5 < 0)) \/ (Gib ext_3 ext_5 ext_1 (\x. ((x < 0) \/ true) /\ ((x >= 0) \/ false)))) /\ (((ext_3 >= 0) /\ (ext_5 >= 0)) \/ true).
+Gib a_11 b_10 n_9 k_gib =v ((n_9 != 0) \/ (k_gib a_11)) /\ ((n_9 = 0) \/ (((n_9 != 1) \/ (k_gib b_10)) /\ ((n_9 = 1) \/ (Gib a_11 b_10 (n_9 - 1) (\x_8. Gib a_11 b_10 (n_9 - 2) (\x_7. k_gib (x_8 + x_7))))))).

@@ -1,0 +1,6 @@
+%HES
+S =ν Fb 5.
+Fb x =v (x <= 0 \/ App Fa (x - 1)) /\ (x > 0 \/ App Fb 5).
+App h x =μ h x.
+Fa x =μ (x <= 0 \/ App Fa (x - 1)) /\ (x <= 0 \/ App Fb 5).
+

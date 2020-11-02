@@ -1,0 +1,11 @@
+%HES
+MAIN  =v (arg2 < 0 \/ arg3 < 0) \/ GIB 0 1 arg1 (\x_5.x_5 >= 0).
+GIB a_12 b_11 n_10 k_gib =v
+  (n_10 != 0 \/ k_gib a_12)
+  /\ (n_10 = 0
+      \/ (n_10 != 1 \/ k_gib b_11)
+         /\ (n_10 = 1 \/ GIB a_12 b_11 (n_10 - 1) (\x_9.GIB a_12 b_11 (n_10 - 2) (\x_8.k_gib (x_9 + x_8))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

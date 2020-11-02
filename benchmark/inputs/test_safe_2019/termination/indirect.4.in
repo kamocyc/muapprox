@@ -1,0 +1,9 @@
+%HES
+MAIN  =v F_WITHOUT_CHECKING_190 true 0 0 (\x.x true 0 true (\u_8826.true)).
+F_WITHOUT_CHECKING_190 x_8 x_7 x_6 k_f_without_checking_190 =v
+  k_f_without_checking_190
+   (\set_flag_f_182_12.\s_f_x_179_11.\u_10.\k_app.F_WITHOUT_CHECKING_190 true 0 0 (\x_9.x_9 true 0 true k_app)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

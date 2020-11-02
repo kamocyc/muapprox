@@ -1,0 +1,11 @@
+%HES
+S =v n < 0 \/
+     Twice Neg (G n) z \/
+     z >= 0.
+G x r =v x != r.
+Twice f x r =v
+  Forall 0 (\i.
+    Forall 0 (\j.
+      x i \/ f i j \/ f j r)).
+Neg x r =v x + r != 0.
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.

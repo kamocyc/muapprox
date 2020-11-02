@@ -1,0 +1,13 @@
+%HES
+# termination
+#S =u Rand2 0.
+#Loop x =u (b <= 0) \/ Rand1 x.
+#Rand1 x =u Rand1 (x-1) /\ Rand1 (x+1) /\ Loop (x+d).
+#Rand2 x =u Rand2 (x-1) /\ Loop x /\ Rand2 (x+1).
+S =v Rand2 0.
+Loop x =v b > 0 /\ Rand1 x.
+Rand1 x =v Rand1 (x-1) \/ Rand1 (x+1) \/ Loop (x+d).
+Rand2 x =v Rand2 (x-1) \/ Loop x \/ Rand2 (x+1).
+
+%LTS
+s0 a -> s0.

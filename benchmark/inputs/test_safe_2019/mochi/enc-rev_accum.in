@@ -1,0 +1,7 @@
+%HES
+MAIN  =v REV arg1 0 (\x_1.x_1 >= arg1).
+REV n m k_rev =v (n != 0 \/ k_rev m) /\ (n = 0 \/ REV (n - 1) (m + 1) k_rev).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

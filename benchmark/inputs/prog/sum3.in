@@ -1,0 +1,8 @@
+%HES
+S =v SUM n (\y. n <= y).
+SUM x k =v (x > 0 \/ k 0).
+
+%LTS
+s0 a -> s0.
+
+

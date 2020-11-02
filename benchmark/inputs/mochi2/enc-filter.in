@@ -1,0 +1,3 @@
+%HES
+MAIN =v Filter (\n_5. \k_f. k_f (n_5 < 0)) ext_1 (\x. ((x > ext_1) \/ true) /\ ((x <= ext_1) \/ false)).
+Filter f n k_filter =v ((n != 0) \/ (k_filter 0)) /\ ((n = 0) \/ ((((1 != 0) \/ (Filter f (n - 1) (\x_3. k_filter (1 + x_3)))) /\ ((1 = 0) \/ (Filter f (n - 1) k_filter))) \/ (((0 != 0) \/ (Filter f (n - 1) (\x_3. k_filter (1 + x_3)))) /\ ((0 = 0) \/ (Filter f (n - 1) k_filter))))).

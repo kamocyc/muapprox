@@ -1,0 +1,3 @@
+%HES
+MAIN =v Bcopy_aux ext_1 (\_. \k_array1. k_array1 0) (\_. \k_array2. k_array2 0) 0 (\_unit3. true).
+Bcopy_aux m src des_4 i k_bcopy_aux =v ((i < m) \/ (k_bcopy_aux true)) /\ ((i >= m) \/ ((((0 > i) \/ (i > m)) \/ (src i (\x. Bcopy_aux m src (\j. \k_update. ((j != i) \/ (k_update x)) /\ ((j = i) \/ (des_4 j k_update))) (i + 1) k_bcopy_aux))) /\ (((0 <= i) /\ (i <= m)) \/ false))).

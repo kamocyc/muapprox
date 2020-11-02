@@ -1,0 +1,3 @@
+%HES
+MAIN =v Fib ext_1 (\x. ((ext_1 > x) \/ true) /\ ((ext_1 <= x) \/ false)).
+Fib n k_fib =v ((n >= 2) \/ (k_fib 1)) /\ ((n < 2) \/ (Fib (n - 1) (\x_4. Fib (n - 2) (\x_3. k_fib (x_4 + x_3))))).

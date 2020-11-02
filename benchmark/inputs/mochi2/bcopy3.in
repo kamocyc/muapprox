@@ -1,0 +1,3 @@
+%HES
+MAIN =v ((ext_1 > ext_3) \/ (Bcopy_aux ext_1 (\i_12. \k_make_array. (((0 > i_12) \/ (i_12 >= ext_1)) \/ (k_make_array 0)) /\ (((0 <= i_12) /\ (i_12 < ext_1)) \/ false)) (\i_12. \k_make_array. (((0 > i_12) \/ (i_12 >= ext_3)) \/ (k_make_array 0)) /\ (((0 <= i_12) /\ (i_12 < ext_3)) \/ false)) 0 (\_unit9. true))) /\ ((ext_1 <= ext_3) \/ true).
+Bcopy_aux m_6 src des i k_bcopy_aux =v ((i < m_6) \/ (k_bcopy_aux true)) /\ ((i >= m_6) \/ (src i (\x. Bcopy_aux m_6 src des (i + 1) k_bcopy_aux))).

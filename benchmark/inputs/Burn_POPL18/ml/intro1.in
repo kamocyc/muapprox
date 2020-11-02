@@ -1,0 +1,7 @@
+%HES
+S =v (n <= 0) \/ F n H.
+F x g =v g (x+1).
+H y =v y > 0.
+
+%LTS
+s0 a -> s0.

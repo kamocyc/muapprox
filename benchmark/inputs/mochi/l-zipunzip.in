@@ -1,0 +1,14 @@
+%HES
+Main =v Unzip n Zip (\r. true).
+F g x y k =v g (x + 1) (y + 1) k.
+Unzip x k k2 =v
+  (x != 0 \/ k 0 0 k2) /\
+  (x =  0 \/ Unzip (x - 1) (F k) k2).
+Zip x y k =v
+  (x != 0 \/
+    ((y != 0 \/ k x) /\
+     (y = 0 \/ false))) /\
+  (x = 0 \/
+    ((y != 0 \/ false) /\
+     (y = 0 \/
+       Zip (x-1) (y-1) (\r. k (1 + r))))).

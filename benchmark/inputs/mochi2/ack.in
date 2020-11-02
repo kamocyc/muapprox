@@ -1,0 +1,4 @@
+%HES
+MAIN =v (((ext_1 < 0) \/ (ext_3 < 0)) \/ (Ack ext_1 ext_3 (\x. ((x < ext_3) \/ true) /\ ((x >= ext_3) \/ false)))) /\ (((ext_1 >= 0) /\ (ext_3 >= 0)) \/ true).
+
+Ack m_8 n_7 k_ack =v ((m_8 != 0) \/ (k_ack (n_7 + 1))) /\ ((m_8 = 0) \/ (((n_7 != 0) \/ (Ack (m_8 - 1) 1 k_ack)) /\ ((n_7 = 0) \/ (Ack m_8 (n_7 - 1) (\x_6. Ack (m_8 - 1) x_6 k_ack))))).

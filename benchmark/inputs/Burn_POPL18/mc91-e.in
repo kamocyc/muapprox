@@ -1,0 +1,8 @@
+%HES
+S =v x > 102 \/
+     (y >= 91 /\ y <= 91) \/
+     Mc91 x y.
+Mc91 x r =v
+  (x <= 100 \/ r != x - 10) /\
+  (x > 100 \/ Forall 0 (\y. Mc91 (x+11) y \/ Mc91 y r)).
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.

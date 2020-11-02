@@ -1,0 +1,3 @@
+%HES
+MAIN =v (((0 > ext_1) \/ (ext_1 != ext_3)) \/ (Bs_aux ext_1 ext_3 0 (ext_3 - 1) (\_. true))) /\ (((0 <= ext_1) /\ (ext_1 = ext_3)) \/ true).
+Bs_aux key vec l u_4 k_bs_aux =v ((u_4 >= l) \/ (k_bs_aux (-1))) /\ ((u_4 < l) \/ ((((0 > (l + ((u_4 - l) / 2))) \/ ((l + ((u_4 - l) / 2)) >= vec)) \/ (((0 >= key) \/ (Bs_aux key vec ((l + ((u_4 - l) / 2)) + 1) u_4 k_bs_aux)) /\ ((0 < key) \/ (((0 <= key) \/ (Bs_aux key vec l ((l + ((u_4 - l) / 2)) - 1) k_bs_aux)) /\ ((0 > key) \/ (k_bs_aux (l + ((u_4 - l) / 2)))))))) /\ (((0 <= (l + ((u_4 - l) / 2))) /\ ((l + ((u_4 - l) / 2)) < vec)) \/ false))).

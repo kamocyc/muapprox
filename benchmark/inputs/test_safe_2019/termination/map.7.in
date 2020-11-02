@@ -1,0 +1,24 @@
+%HES
+MAIN  =v
+  l < 0
+  \/ MAP true false 0 0 0 true false 0 0
+      (\set_flag_add_282_pos_17.
+        \set_flag_add_282_neg_17.
+         \s_add_x_277_16.
+          \s_add_y_278_15.
+           \x_14.\k_compose.set_flag_add_282_neg_17 /\ (set_flag_add_282_pos_17 \/ k_compose (1 + (2 + x_14))))
+      false true 0 0 l (\u_24061.true).
+MAP x_pos_44 x_neg_44 x_43 x_42 f_EXPARAM_121 x_pos_41 x_neg_41 x_40 x_39 f_38 set_flag_add_282_pos_37 set_flag_add_282_neg_37 s_add_x_277_36 s_add_y_278_35 xs k_map
+  =v
+  (xs != 0 \/ k_map 0)
+  /\ (xs = 0
+      \/ Forall
+          (\x_34.
+            f_38 set_flag_add_282_pos_37 set_flag_add_282_neg_37 0 0 x_34
+             (\x_33.
+               MAP true false 0 0 0 true false 0 0 f_38 set_flag_add_282_pos_37 set_flag_add_282_neg_37 0 0 (xs - 1)
+                (\x_32.k_map (x_33 + x_32))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

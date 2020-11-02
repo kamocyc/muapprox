@@ -1,0 +1,26 @@
+%HES
+MAIN  =v MAKE_LIST arg1 arg2 (\xs0.\xs1.xs0 <= 0 \/ MEM arg2 xs0 xs1 (\x_1.x_1)).
+MEM x_16 xs0_15 xs1_14 k_mem_13 =v
+  (xs0_15 > 0 \/ k_mem_13 false)
+  /\ (xs0_15 <= 0
+      \/ (xs0_15 <= 0
+          \/ xs1_14 0
+              (\x_.
+                (x_16 != x_ \/ k_mem_13 true)
+                /\ (x_16 = x_
+                    \/ MEM x_16 (1 + (xs0_15 - 1))
+                        (\i_12.\k_mem.(i_12 != 0 \/ k_mem x_) /\ (i_12 = 0 \/ xs1_14 ((i_12 - 1) + 1) k_mem)) k_mem_13)))).
+MAKE_LIST n x_11 k_make_list_10 =v
+  (n >= 0 \/ k_make_list_10 0 (\x_9.\k_make_list_8.true))
+  /\ (n < 0
+      \/ MAKE_LIST (n - 1) x_11
+          (\p0_7.
+            \p1_6.
+             k_make_list_10 (1 + p0_7)
+              (\i.
+                \k_make_list.
+                 (i != 0 \/ k_make_list x_11) /\ (i = 0 \/ MAKE_LIST (n - 1) x_11 (\p0.\p1.p1 (i - 1) k_make_list))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

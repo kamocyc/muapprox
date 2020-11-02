@@ -1,0 +1,8 @@
+%HES
+S =v n <= 0 \/ i < 0 \/ i > 0 \/ ArrayMax n i (MakeArray n) (-1) (\m. m >= n).
+ArrayMax n i a m k =v
+  (i < n \/ k m) /\
+  (i >= n \/
+    (a i (\x. (x <= m \/ ArrayMax n (i+1) a x k) /\
+              (x > m \/ ArrayMax n (i+1) a m k)))).
+MakeArray n i k =v k (n - i).

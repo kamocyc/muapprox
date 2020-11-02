@@ -1,0 +1,67 @@
+%HES
+MAIN  =v MAKE_LIST arg1 (\x0.\x1.RISERS x0 x1 (\main0.\main1.true)).
+MAKE_LIST m k_make_list_36 =v
+  (m > 0 \/ k_make_list_36 0 (\x_35.\k_make_list_34.true))
+  /\ (m <= 0
+      \/ Forall
+          (\n_32.
+            MAKE_LIST (m - 1)
+             (\p0_31.
+               \p1_30.
+                k_make_list_36 (1 + p0_31)
+                 (\i_29.
+                   \k_make_list.
+                    (i_29 != 0 \/ k_make_list n_32)
+                    /\ (i_29 = 0 \/ MAKE_LIST (m - 1) (\p0.\p1.p1 (i_29 - 1) k_make_list)))))).
+RISERS xs0 xs1 k_risers_28 =v
+  (xs0 > 0 \/ k_risers_28 0 (\x.\k_risers_11.true))
+  /\ (xs0 <= 0
+      \/ xs1 0
+          (\n.
+            ((xs0 <= 0 \/ xs0 - 1 > 0)
+             \/ (xs0 - 1 > 0 \/ k_risers_28 1 (\i_10.\k_risers_9.k_risers_9 0 (\i_8.\k_risers_n__f.k_risers_n__f 0))))
+            /\ (xs0 > 0 /\ xs0 - 1 <= 0
+                \/ ((xs0 <= 0 \/ xs0 - 1 <= 0)
+                    \/ (xs0 - 1 <= 0
+                        \/ xs1 (0 + 1)
+                            (\y.
+                              (n >= y
+                               \/ RISERS (1 + ((xs0 - 1) - 1))
+                                   (\i_5.
+                                     \k_risers_4.
+                                      (i_5 != 0 \/ k_risers_4 y) /\ (i_5 = 0 \/ xs1 (((i_5 - 1) + 1) + 1) k_risers_4))
+                                   (\x0_7.
+                                     \x1_6.
+                                      x0_7 > 0
+                                      /\ (x0_7 <= 0
+                                          \/ (x0_7 <= 0
+                                              \/ x1_6 0
+                                                  (\s0.
+                                                    \s1.
+                                                     k_risers_28 (1 + (x0_7 - 1))
+                                                      (\i_13.
+                                                        \k_risers_risersThen.
+                                                         k_risers_risersThen 0
+                                                          (\i_12.\k_risers_risersThen_n__f.k_risers_risersThen_n__f 0)))))))
+                              /\ (n < y
+                                  \/ RISERS (1 + ((xs0 - 1) - 1))
+                                      (\i.
+                                        \k_risers.(i != 0 \/ k_risers y) /\ (i = 0 \/ xs1 (((i - 1) + 1) + 1) k_risers))
+                                      (\x0_3.
+                                        \x1_2.
+                                         x0_3 > 0
+                                         /\ (x0_3 <= 0
+                                             \/ (x0_3 <= 0
+                                                 \/ x1_2 0
+                                                     (\s0_22.
+                                                       \s1_21.
+                                                        k_risers_28 (2 + (x0_3 - 1))
+                                                         (\i_20.
+                                                           \k_risers_risersElse.
+                                                            k_risers_risersElse 0
+                                                             (\i_19.
+                                                               \k_risers_risersElse_n__f.k_risers_risersElse_n__f 0))))))))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,39 @@
+%HES
+MAIN_23  =v Exists (\a_243.Exists (\temp0_230.STATE_0 a_243 temp0_230 (\main_188.false))).
+STATE_0 a_13_12 temp0_14_11 k_state_0 =v
+  Exists
+   (\br_251.
+     (br_251 <= 0 \/ k_state_0 true)
+     /\ (br_251 > 0
+         \/ Exists
+             (\br_240.
+               (br_240 <= 0
+                \/ Exists
+                    (\a_208.
+                      (1 <= a_13_12 \/ k_state_0 true)
+                      /\ (1 > a_13_12
+                          \/ Exists
+                              (\nondet_12_202.
+                                (a_13_12 != nondet_12_202 * 2 \/ k_state_0 true)
+                                /\ (a_13_12 = nondet_12_202 * 2
+                                    \/ (1 + a_13_12 * 3 = 1 + a_208 * 3 \/ k_state_0 true)
+                                       /\ (1 + a_13_12 * 3 != 1 + a_208 * 3
+                                           \/ (a_208 != nondet_12_202 * 2 \/ k_state_0 true)
+                                              /\ (a_208 = nondet_12_202 * 2
+                                                  \/ (1 <= a_208 \/ k_state_0 true)
+                                                     /\ (1 > a_208 \/ STATE_0 (1 + a_13_12 * 3) temp0_14_11 k_state_0))))))))
+               /\ (br_240 > 0
+                   \/ (1 <= a_13_12 \/ k_state_0 true)
+                      /\ (1 > a_13_12
+                          \/ Exists
+                              (\nondet_226.
+                                (a_13_12 = nondet_226 * 2 \/ k_state_0 true)
+                                /\ (a_13_12 != nondet_226 * 2
+                                    \/ (nondet_226 = nondet_226 \/ k_state_0 true)
+                                       /\ (nondet_226 != nondet_226
+                                           \/ (1 <= nondet_226 * 2 \/ k_state_0 true)
+                                              /\ (1 > nondet_226 * 2 \/ STATE_0 nondet_226 temp0_14_11 k_state_0))))))))).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

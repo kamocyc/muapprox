@@ -1,0 +1,9 @@
+%HES
+S =v (m < 0) \/ (n < 0) \/ Ack m n (\r. r >= n).
+Ack m n k =v ((m = 0) /\ k (n + 1)) \/
+             ((n = 0) /\ Ack (m - 1) 1 k) \/
+             ((m != 0) /\ (n != 0) /\ Ack m (n - 1) (\x. Ack (m - 1) x k)).
+
+%LTS
+s0 a -> s0.
+

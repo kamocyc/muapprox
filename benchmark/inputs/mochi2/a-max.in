@@ -1,0 +1,3 @@
+%HES
+MAIN =v (((ext_1 <= 0) \/ ((ext_3 < 0) \/ (ext_3 > 0))) \/ (Array_max ext_1 ext_3 (\i_10. \k_make_array. k_make_array (ext_1 - i_10)) (-1) (\m. ((m < ext_1) \/ true) /\ ((m >= ext_1) \/ false)))) /\ (((ext_1 > 0) /\ ((ext_3 >= 0) /\ (ext_3 <= 0))) \/ true).
+Array_max n_9 i_8 a m_7 k_array_max =v ((i_8 < n_9) \/ (k_array_max m_7)) /\ ((i_8 >= n_9) \/ (a i_8 (\x. ((x <= m_7) \/ (Array_max n_9 (i_8 + 1) a x k_array_max)) /\ ((x > m_7) \/ (Array_max n_9 (i_8 + 1) a m_7 k_array_max))))).

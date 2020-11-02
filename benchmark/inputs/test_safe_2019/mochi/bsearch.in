@@ -1,0 +1,14 @@
+%HES
+MAIN  =v (0 > arg1 \/ arg1 != arg2) \/ BS_AUX arg1 arg2 0 (arg2 - 1) (\u.true).
+BS_AUX key vec l u_4 k_bs_aux =v
+  (u_4 >= l \/ k_bs_aux 0)
+  /\ (u_4 < l
+      \/ ((0 > l + (u_4 - l) / 2 \/ l + (u_4 - l) / 2 >= vec)
+          \/ (0 >= key \/ BS_AUX key vec ((l + (u_4 - l) / 2) + 1) u_4 k_bs_aux)
+             /\ (0 < key
+                 \/ (0 <= key \/ BS_AUX key vec l ((l + (u_4 - l) / 2) - 1) k_bs_aux) /\ (0 > key \/ k_bs_aux 0)))
+         /\ (0 <= l + (u_4 - l) / 2 /\ l + (u_4 - l) / 2 < vec)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

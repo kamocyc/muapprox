@@ -1,0 +1,31 @@
+%HES
+MAIN  =v MAKE_INTLIST true (\arg10.\arg11.Forall (\x_9.x_9 != 0 \/ F arg10 arg10 arg11 (\r_f0.\r_f1.r_f0 != 0))).
+F xs0_21 x0 x1 k_mean_f =v
+  x0 > 0
+  /\ (x0 <= 0
+      \/ x1 0
+          (\n_18.
+            ((x0 <= 0 \/ x0 - 1 > 0) \/ (x0 - 1 > 0 \/ k_mean_f 1 n_18))
+            /\ (x0 > 0 /\ x0 - 1 <= 0
+                \/ (x0 <= 0
+                    \/ F xs0_21 (x0 - 1) (\x_15.\k_mean_f_ns.x1 (x_15 + 1) k_mean_f_ns)
+                        (\r_f0_17.\r_f1_16.k_mean_f (r_f0_17 + 1) (n_18 + r_f1_16)))))).
+MAKE_INTLIST x_7 k_main_arg1_make_intlist_6 =v
+  Forall
+   (\x_5.
+     (x_5 != 0 \/ k_main_arg1_make_intlist_6 0 (\x.\k_main_arg1_make_intlist_4.true))
+     /\ (x_5 = 0
+         \/ Forall
+             (\n.
+               MAKE_INTLIST true
+                (\p0_2.
+                  \p1_1.
+                   k_main_arg1_make_intlist_6 (1 + p0_2)
+                    (\i.
+                      \k_main_arg1_make_intlist.
+                       (i != 0 \/ k_main_arg1_make_intlist n)
+                       /\ (i = 0 \/ MAKE_INTLIST true (\p0.\p1.p1 (i - 1) k_main_arg1_make_intlist))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

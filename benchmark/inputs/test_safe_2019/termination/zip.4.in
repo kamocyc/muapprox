@@ -1,0 +1,15 @@
+%HES
+MAIN  =v ZIP_WITHOUT_CHECKING_71 true 0 0 l1 true 0 0 l2 (\u_3761.true).
+ZIP_WITHOUT_CHECKING_71 x_13 x_12 x_11 xs_10 x_9 x_8 x_7 ys_6 k_zip_without_checking_71 =v
+  (xs_10 > 0 \/ k_zip_without_checking_71 0)
+  /\ (xs_10 <= 0
+      \/ (ys_6 > 0 \/ k_zip_without_checking_71 0)
+         /\ (ys_6 <= 0
+             \/ ((xs_10 <= xs_10 - 1 \/ xs_10 - 1 < 0)
+                 \/ ZIP_WITHOUT_CHECKING_71 true 0 0 (xs_10 - 1) true 0 0 (ys_6 - 1)
+                     (\x_5.k_zip_without_checking_71 (1 + x_5)))
+                /\ (xs_10 > xs_10 - 1 /\ xs_10 - 1 >= 0))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

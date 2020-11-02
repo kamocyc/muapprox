@@ -1,0 +1,16 @@
+%HES
+MAIN  =v LOOP2_WITHOUT_CHECKING_82 true 0 x (\u_5761.true).
+LOOP1 set_flag_loop2_75 s_loop2_n2_72 n1 k_loop1 =v
+  (n1 <= 0 \/ LOOP1 true 0 (n1 - 1) k_loop1) /\ (n1 > 0 \/ k_loop1 0).
+LOOP2_WITHOUT_CHECKING_82 x_8 x_7 n2_6 k_loop2_without_checking_82 =v
+  (n2_6 <= 0
+   \/ LOOP1 true 0 n2_6
+       (\x_5.
+         ((n2_6 <= n2_6 - 1 \/ n2_6 - 1 < 0)
+          \/ LOOP2_WITHOUT_CHECKING_82 true 0 (n2_6 - 1) (\x_4.k_loop2_without_checking_82 (x_5 + x_4)))
+         /\ (n2_6 > n2_6 - 1 /\ n2_6 - 1 >= 0)))
+  /\ (n2_6 > 0 \/ k_loop2_without_checking_82 0).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,5 @@
+%HES
+S =v S2 n.
+S2 z =v F z (H z).
+F x g =v g (x+1).
+H z y =v y > z.

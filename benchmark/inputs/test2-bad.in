@@ -1,0 +1,14 @@
+;ababbabbbabbbb.....
+
+%HES
+S =_v F B.
+F x =_v <a>(x (F (G x))).
+G x y =_v <b>(x y).
+B y =_v <b>y.
+
+%LTS
+s0 a -> s1.
+s1 b -> s2.
+s2 b -> s1.
+s2 b -> s2.
+

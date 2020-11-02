@@ -1,0 +1,26 @@
+%HES
+MAIN  =v (x < 0 \/ x_1 < 0) \/ F true false 0 0 x (\x_3.x_3 false true 0 0 0 (\u_5702.true)).
+F set_flag_g_131_pos_12 set_flag_g_131_neg_12 s_g_r_EXPARAM_124_11 s_g_a_126_10 n_9 k_f =v
+  (n_9 != 0 \/ k_f (\x_pos_31.\x_neg_31.\x_30.\x_29.\n_28.\k_succ.k_succ 0))
+  /\ (n_9 = 0
+      \/ F true false 0 0 (n_9 - 1)
+          (\x_8.
+            k_f
+             (\prev_set_flag_g_130_pos.
+               \prev_set_flag_g_130_neg.
+                \s_prev_g_r_EXPARAM_127.
+                 \s_prev_g_a_129.
+                  \a.
+                   \k_g.
+                    (prev_set_flag_g_130_neg
+                     \/ ((4 + (-2) * s_prev_g_r_EXPARAM_127 <= 4 + (-2) * ((-4) * n_9 + 1)
+                          \/ 4 + (-2) * ((-4) * n_9 + 1) < 0)
+                         \/ x_8 true false ((-4) * n_9 + 1) 0 0 (\x_15.x_8 true false ((-4) * n_9 + 1) 0 x_15 k_g))
+                        /\ (4 + (-2) * s_prev_g_r_EXPARAM_127 > 4 + (-2) * ((-4) * n_9 + 1)
+                            /\ 4 + (-2) * ((-4) * n_9 + 1) >= 0))
+                    /\ (prev_set_flag_g_130_pos
+                        \/ x_8 true false ((-4) * n_9 + 1) 0 0 (\x_15.x_8 true false ((-4) * n_9 + 1) 0 x_15 k_g))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

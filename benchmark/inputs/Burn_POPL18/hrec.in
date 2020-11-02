@@ -1,0 +1,10 @@
+%HES
+S =v F Succ n r \/
+     r >= 0.
+Succ x r =v r != x+1.
+F g x r =v
+  (x < 0 \/ g x r) /\
+  (x >= 0 \/
+    Forall 0 (\y.
+      g x y \/ F (F g) y r)).
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.

@@ -1,0 +1,47 @@
+%HES
+MAIN  =v
+  arg1 <= 0
+  \/ LOOP 0 arg1 0 (\i.\k_main_make_vect.((0 > i \/ i >= arg1) \/ k_main_make_vect 0) /\ (0 <= i /\ i < arg1))
+      (\main.true).
+LOOP row size_16 n_15 queenArray_14 k_loop =v
+  queenArray_14 row
+   (\x_8.
+     (x_8 + 1 <= size_16
+      \/ queenArray_14 row
+          (\u_9.
+            (row != 0 \/ k_loop true)
+            /\ (row = 0
+                \/ LOOP (row - 1) size_16 0
+                    (\j.
+                      \k_loop_assign_update.
+                       (row != j \/ k_loop_assign_update j) /\ (row = j \/ queenArray_14 j k_loop_assign_update))
+                    k_loop)))
+     /\ (x_8 + 1 > size_16
+         \/ queenArray_14 row
+             (\u_9.
+               Forall
+                (\x_6.
+                  (x_6 != 0
+                   \/ (row + 1 != size_16
+                       \/ LOOP row size_16 0
+                           (\j.
+                             \k_loop_assign_update.
+                              (row != j \/ k_loop_assign_update j) /\ (row = j \/ queenArray_14 j k_loop_assign_update))
+                           k_loop)
+                      /\ (row + 1 = size_16
+                          \/ LOOP (row + 1) size_16 0
+                              (\j.
+                                \k_loop_assign_update.
+                                 (row != j \/ k_loop_assign_update j)
+                                 /\ (row = j \/ queenArray_14 j k_loop_assign_update))
+                              k_loop))
+                  /\ (x_6 = 0
+                      \/ LOOP row size_16 0
+                          (\j.
+                            \k_loop_assign_update.
+                             (row != j \/ k_loop_assign_update j) /\ (row = j \/ queenArray_14 j k_loop_assign_update))
+                          k_loop))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,4 @@
+%HES
+MAIN =v Zip ext_1 ext_1 (\x_1. Map x_1 (\x. ((x != ext_1) \/ true) /\ ((x = ext_1) \/ false))).
+Zip x_8 y k_zip =v ((x_8 != 0) \/ (((y != 0) \/ (k_zip x_8)) /\ ((y = 0) \/ false))) /\ ((x_8 = 0) \/ (((y != 0) \/ false) /\ ((y = 0) \/ (Zip (x_8 - 1) (y - 1) (\x_6. k_zip (1 + x_6)))))).
+Map x_5 k_map =v ((x_5 != 0) \/ (k_map x_5)) /\ ((x_5 = 0) \/ (Map (x_5 - 1) (\x_4. k_map (1 + x_4)))).

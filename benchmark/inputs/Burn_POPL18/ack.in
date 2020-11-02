@@ -1,0 +1,13 @@
+%HES
+S =v m < 0 \/
+     n < 0 \/
+     Ack m n r \/
+     r >= n.
+Ack m n r =v
+  (m != 0 \/ r != n + 1) /\
+  (m <= 0 \/ n != 0 \/ Ack (m-1) 1 r) /\
+  (m <= 0 \/ n <= 0 \/
+    Forall 0 (\x.
+      Ack m (n-1) x \/
+      Ack (m-1) x r)).
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.

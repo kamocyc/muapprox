@@ -1,0 +1,11 @@
+# Still buggy
+%HES
+S =v X 0.
+X z =v (<a> X z) \/ (<b> Y z z).
+Y n z =v (z = 0 /\ X (n+1)) \/ (<b> Y n (z-1) /\ z >= 0).
+
+%LTS
+s0 a -> s1.
+s1 b -> s0.
+s1 b -> s1.
+

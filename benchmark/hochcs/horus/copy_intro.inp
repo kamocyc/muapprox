@@ -1,0 +1,9 @@
+environment
+copy : int->int->bool;
+
+program
+x = 0 ^ r = 0 => copy x r
+(x < 0 \/ x > 0) ^ (E y:int. copy (x-1) y ^ r = 1 + y) => copy x r;
+
+goal
+E n,x,y:int. copy n x ^ copy x y ^ (y<n \/ y>n)

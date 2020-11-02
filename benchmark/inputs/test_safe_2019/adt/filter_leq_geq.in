@@ -1,0 +1,63 @@
+%HES
+MAIN  =v
+  MAKE_INTLIST true
+   (\arg10.
+     \arg11.
+      FILTER (\x_13.\k_leq_zero.k_leq_zero (x_13 <= 0) (x_13 > 0)) arg10 arg11
+       (\ys0.
+         \ys1.
+          FILTER (\x_12.\k_geq_zero.k_geq_zero (x_12 >= 0) (x_12 < 0)) ys0 ys1
+           (\zs0.\zs1.FOR_ALL (\x_11.\k_eq_zero.k_eq_zero (x_11 = 0) (x_11 != 0)) zs0 zs1 (\x_pos_1.\x_neg_1.x_pos_1)))).
+FILTER f_34 xs0_33 xs1_32 k_filter_31 =v
+  (xs0_33 > 0 \/ k_filter_31 0 (\x_30.\k_filter_29.true))
+  /\ (xs0_33 <= 0
+      \/ (xs0_33 <= 0
+          \/ xs1_32 0
+              (\x_28.
+                f_34 x_28
+                 (\x_pos_27.
+                   \x_neg_27.
+                    (x_neg_27
+                     \/ FILTER f_34 (xs0_33 - 1) (\x_19.\k_filter_xs__18.xs1_32 (x_19 + 1) k_filter_xs__18)
+                         (\p0_26.
+                           \p1_25.
+                            k_filter_31 (1 + p0_26)
+                             (\i_24.
+                               \k_filter.
+                                (i_24 != 0 \/ k_filter x_28)
+                                /\ (i_24 = 0
+                                    \/ FILTER f_34 (xs0_33 - 1)
+                                        (\x_21.\k_filter_xs__20.xs1_32 (x_21 + 1) k_filter_xs__20)
+                                        (\p0_23.\p1_22.p1_22 (i_24 - 1) k_filter)))))
+                    /\ (x_pos_27
+                        \/ FILTER f_34 (xs0_33 - 1) (\x_17.\k_filter_xs_.xs1_32 (x_17 + 1) k_filter_xs_) k_filter_31))))).
+FOR_ALL f xs0 xs1 k_for_all =v
+  (xs0 > 0 \/ k_for_all true false)
+  /\ (xs0 <= 0
+      \/ (xs0 <= 0
+          \/ xs1 0
+              (\x_16.
+                f x_16
+                 (\x_pos_15.
+                   \x_neg_15.
+                    (x_neg_15 \/ FOR_ALL f (xs0 - 1) (\x_14.\k_for_all_xs_.xs1 (x_14 + 1) k_for_all_xs_) k_for_all)
+                    /\ (x_pos_15 \/ k_for_all false true))))).
+MAKE_INTLIST x_9 k_main_arg1_make_intlist_8 =v
+  Forall
+   (\x_7.
+     (x_7 != 0 \/ k_main_arg1_make_intlist_8 0 (\x_6.\k_main_arg1_make_intlist_5.true))
+     /\ (x_7 = 0
+         \/ Forall
+             (\n.
+               MAKE_INTLIST true
+                (\p0_3.
+                  \p1_2.
+                   k_main_arg1_make_intlist_8 (1 + p0_3)
+                    (\i.
+                      \k_main_arg1_make_intlist.
+                       (i != 0 \/ k_main_arg1_make_intlist n)
+                       /\ (i = 0 \/ MAKE_INTLIST true (\p0.\p1.p1 (i - 1) k_main_arg1_make_intlist))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

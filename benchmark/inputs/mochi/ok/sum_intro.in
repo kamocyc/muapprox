@@ -1,0 +1,7 @@
+%HES
+Main =v Sum n (\r. n <= r).
+Add x y k =v k (x + y).
+Sum n k =v
+  (n >  0 \/ k 0) /\
+  (n <= 0 \/
+    Sum (n-1) (\s. Add n s k)).

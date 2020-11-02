@@ -1,0 +1,8 @@
+%HES
+MAIN  =v REV arg1 (\x_3.(x_3 != arg1 \/ APPEND arg1 arg2 (\x_2.x_2 = arg1 + arg2)) /\ x_3 = arg1).
+APPEND x_9 y k_append =v (x_9 != 0 \/ k_append y) /\ (x_9 = 0 \/ APPEND (x_9 - 1) y (\x_8.k_append (1 + x_8))).
+REV n k_rev =v (n != 0 \/ k_rev 0) /\ (n = 0 \/ REV (n - 1) (\x_7.APPEND x_7 1 k_rev)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

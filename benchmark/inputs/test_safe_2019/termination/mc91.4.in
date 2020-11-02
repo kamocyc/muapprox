@@ -1,0 +1,13 @@
+%HES
+MAIN  =v MC91_WITHOUT_CHECKING_46 true 0 x (\u_1847.true).
+MC91_WITHOUT_CHECKING_46 x_7 x_6 n_5 k_mc91_without_checking_46 =v
+  (n_5 <= 100 \/ k_mc91_without_checking_46 (n_5 - 10))
+  /\ (n_5 > 100
+      \/ ((111 + (0 - n_5) <= 111 + (0 - (n_5 + 11)) \/ 111 + (0 - (n_5 + 11)) < 0)
+          \/ MC91_WITHOUT_CHECKING_46 true 0 (n_5 + 11)
+              (\x_4.MC91_WITHOUT_CHECKING_46 true 0 x_4 k_mc91_without_checking_46))
+         /\ (111 + (0 - n_5) > 111 + (0 - (n_5 + 11)) /\ 111 + (0 - (n_5 + 11)) >= 0)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

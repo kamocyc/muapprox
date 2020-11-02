@@ -1,0 +1,5 @@
+%HES
+S =u true.
+
+%LTS
+s1 a -> s1.

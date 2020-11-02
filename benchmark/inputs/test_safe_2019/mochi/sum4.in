@@ -1,0 +1,7 @@
+%HES
+MAIN  =v SUM arg1 (\x_1.4 * arg1 - 6 <= x_1).
+SUM n k_sum =v (n > 0 \/ k_sum 0) /\ (n <= 0 \/ SUM (n - 1) (\x_4.k_sum (n + x_4))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

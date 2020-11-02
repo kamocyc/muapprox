@@ -1,0 +1,32 @@
+%HES
+MAIN  =v
+  MAKE_LIST arg1
+   (\x0.
+     \x1.
+      FOR_ALL (\x__y0.\x__y1.\k_eq_pair.k_eq_pair (x__y0 = x__y1) (x__y0 != x__y1)) x0 x1 (\x_pos_1.\x_neg_1.x_pos_1)).
+FOR_ALL f xs0 xs1 k_for_all =v
+  (xs0 > 0 \/ k_for_all true false)
+  /\ (xs0 <= 0
+      \/ (xs0 <= 0
+          \/ xs1 0
+              (\x0_12.
+                \x1_11.
+                 f x0_12 x1_11
+                  (\x_pos_10.
+                    \x_neg_10.
+                     (x_neg_10 \/ FOR_ALL f (xs0 - 1) (\x_9.\k_for_all_xs_.xs1 (x_9 + 1) k_for_all_xs_) k_for_all)
+                     /\ (x_pos_10 \/ k_for_all false true))))).
+MAKE_LIST n k_make_list_8 =v
+  (n >= 0 \/ k_make_list_8 0 (\x_7.\k_make_list_6.true))
+  /\ (n < 0
+      \/ MAKE_LIST (n - 1)
+          (\p0_5.
+            \p1_4.
+             k_make_list_8 (1 + p0_5)
+              (\i.
+                \k_make_list.
+                 (i != 0 \/ k_make_list n n) /\ (i = 0 \/ MAKE_LIST (n - 1) (\p0.\p1.p1 (i - 1) k_make_list))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

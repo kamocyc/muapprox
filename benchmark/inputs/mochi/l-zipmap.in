@@ -1,0 +1,13 @@
+%HES
+Main =v Zip n n (\v. Map n (\r. r = n)).
+Zip x y k =v
+  (x != 0 \/
+    ((y != 0 \/ k x) /\
+     (y = 0 \/ false))) /\
+  (x = 0 \/
+    ((y != 0 \/ false) /\
+     (y = 0 \/
+       Zip (x-1) (y-1) (\r. k (1 + r))))).
+Map x k =v
+  (x != 0 \/ k x) /\
+  (x =  0 \/ Map (x - 1) (\r. k (1 + r))).

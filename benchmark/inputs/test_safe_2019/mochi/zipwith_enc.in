@@ -1,0 +1,43 @@
+%HES
+MAIN  =v
+  MAKE_LIST arg1
+   (\xs0.\xs1.MAKE_LIST arg1 (\ys0.\ys1.ZIPWITH (\x.\y.\k_main.k_main 0) xs0 xs1 ys0 ys1 (\main0.\main1.true))).
+ZIPWITH f xs0_21 xs1_20 ys0_19 ys1_18 k_zipwith_17 =v
+  (xs0_21 > 0
+   \/ (ys0_19 > 0 \/ k_zipwith_17 0 (\x_15.\k_nil_14.false))
+      /\ (ys0_19 <= 0
+          \/ xs1_20 0
+              (\x_22.
+                ys1_18 0
+                 (\x_22.
+                   ZIPWITH f (xs0_21 - 1) (\i.\k_un_cons_f_.xs1_20 (i - 1) k_un_cons_f_) (ys0_19 - 1)
+                    (\i.\k_un_cons_f_.ys1_18 (i - 1) k_un_cons_f_)
+                    (\x0_9.
+                      \x1_8.
+                       k_zipwith_17 (x0_9 + 1)
+                        (\i_25.\k_cons_f_.(i_25 != 0 \/ k_cons_f_ 0) /\ (i_25 = 0 \/ x1_8 (i_25 + 1) k_cons_f_)))))))
+  /\ (xs0_21 <= 0
+      \/ xs1_20 0
+          (\x_22.
+            ys1_18 0
+             (\x_22.
+               ZIPWITH f (xs0_21 - 1) (\i.\k_un_cons_f_.xs1_20 (i - 1) k_un_cons_f_) (ys0_19 - 1)
+                (\i.\k_un_cons_f_.ys1_18 (i - 1) k_un_cons_f_)
+                (\x0_9.
+                  \x1_8.
+                   k_zipwith_17 (x0_9 + 1)
+                    (\i_25.\k_cons_f_.(i_25 != 0 \/ k_cons_f_ 0) /\ (i_25 = 0 \/ x1_8 (i_25 + 1) k_cons_f_)))))).
+MAKE_LIST n_6 k_make_list =v
+  (n_6 <= 0
+   \/ MAKE_LIST (n_6 - 1)
+       (\x0.
+         \x1.
+          Forall
+           (\n.
+             k_make_list (x0 + 1)
+              (\i_25.\k_cons_f_.(i_25 != 0 \/ k_cons_f_ 0) /\ (i_25 = 0 \/ x1 (i_25 + 1) k_cons_f_)))))
+  /\ (n_6 > 0 \/ k_make_list 0 (\x_4.\k_nil.false)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

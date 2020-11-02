@@ -1,0 +1,20 @@
+%HES
+MAIN  =v
+  x < 0
+  \/ TOCHURCH_WITHOUT_CHECKING_368 true 0 0 x true 0 0 0 true 0 0 (\x_21.\x_20.\x_19.\x_18.\k_succ.k_succ 0)
+      (\tos.true).
+TOCHURCH_WITHOUT_CHECKING_368 x_17 x_16 x_15 n_14 x_13 x_12 x_11 f_EXPARAM_114_10 x_9 x_8 x_7 f_6 k_toChurch_without_checking_368
+  =v
+  (n_14 != 0 \/ k_toChurch_without_checking_368 (\x_25.\x_24.\x_23.\x_22.\k_id.k_id 0))
+  /\ (n_14 = 0
+      \/ ((n_14 <= n_14 - 1 \/ n_14 - 1 < 0)
+          \/ TOCHURCH_WITHOUT_CHECKING_368 true 0 0 (n_14 - 1) true 0 0 0 true 0 0 f_6
+              (\x_5.
+                k_toChurch_without_checking_368
+                 (\set_flag_toChurch_354_29.
+                   \s_toChurch_n_347_28.\s_toChurch_f_EXPARAM_348_27.\x_26.\k_compose.k_compose 0)))
+         /\ (n_14 > n_14 - 1 /\ n_14 - 1 >= 0)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

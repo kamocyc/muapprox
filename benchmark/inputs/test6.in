@@ -1,0 +1,4 @@
+%HES
+  S  =ν S_sub44 n2.
+  X rec_X8 x3 =ν rec_X8 >= 0 && (x3 = 0 || X (rec_X8 - 1) (x3 - 1)).
+  S_sub44 x10 =ν forall_y9 < 10 || X forall_y9 x10.

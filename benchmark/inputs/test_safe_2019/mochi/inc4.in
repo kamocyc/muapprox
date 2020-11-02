@@ -1,0 +1,16 @@
+%HES
+MAIN  =v
+  (arg2 != 0 \/ arg1 <= 0)
+  \/ INC3 arg1 (\i_10.\k_make_array.((0 > i_10 \/ i_10 >= arg1) \/ k_make_array 0) /\ (0 <= i_10 /\ i_10 < arg1)) arg2
+      (\main.true).
+INC3 m a i_6 k_inc3 =v
+  (i_6 < m \/ k_inc3 true)
+  /\ (i_6 >= m
+      \/ a i_6
+          (\x.
+            a i_6
+             (\u.INC3 m (\j.\k_update.(i_6 != j \/ k_update (x + 1)) /\ (i_6 = j \/ a i_6 k_update)) (i_6 + 1) k_inc3))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

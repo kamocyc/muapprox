@@ -1,0 +1,18 @@
+%HES
+MAIN  =v F true false x_1 (\x.x false true true (\u_42240.true)).
+APP x_pos_15 x_neg_15 i x_pos_14 x_neg_14 h_EXPARAM_112 x_pos_13 x_neg_13 h x_pos_12 x_neg_12 v set_flag_g_199_pos_11 set_flag_g_199_neg_11 u_10 k_app
+  =v
+  (i < 0
+   \/ APP true false (i - 1) true false 0 true false h true false v set_flag_g_199_pos_11 set_flag_g_199_neg_11 true
+       k_app)
+  /\ (i >= 0 \/ h true false v (\x_9.x_9 set_flag_g_199_pos_11 set_flag_g_199_neg_11 true k_app)).
+F set_flag_g_199_pos_5 set_flag_g_199_neg_5 x_4 k_f =v
+  (x_4 <= 0 \/ Forall (\x_3.k_f (APP true false x_3 true false 0 true false F true false (x_4 - 1))))
+  /\ (x_4 > 0
+      \/ k_f
+          (\prev_set_flag_g_198_pos.
+            \prev_set_flag_g_198_neg.\u_8.\k_g.prev_set_flag_g_198_neg /\ (prev_set_flag_g_198_pos \/ k_g true))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

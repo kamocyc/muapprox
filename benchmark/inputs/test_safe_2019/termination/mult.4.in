@@ -1,0 +1,12 @@
+%HES
+MAIN  =v m <= 0 \/ MULT_WITHOUT_CHECKING_63 true 0 0 m true 0 0 n (\u_3229.true).
+MULT_WITHOUT_CHECKING_63 x_15 x_14 x_13 m_12 x_11 x_10 x_9 n_8 k_mult_without_checking_63 =v
+  (m_12 <= 0
+   \/ ((m_12 <= m_12 - 1 \/ m_12 - 1 < 0)
+       \/ MULT_WITHOUT_CHECKING_63 true 0 0 (m_12 - 1) true 0 0 n_8 (\x_7.k_mult_without_checking_63 (n_8 + x_7)))
+      /\ (m_12 > m_12 - 1 /\ m_12 - 1 >= 0))
+  /\ (m_12 > 0 \/ k_mult_without_checking_63 0).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

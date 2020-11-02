@@ -1,0 +1,2 @@
+%HES
+MAIN =v ((ext_1 <= 0) \/ ((((2 * (2 * ext_1)) <= ext_1) \/ true) /\ (((2 * (2 * ext_1)) > ext_1) \/ false))) /\ ((ext_1 > 0) \/ true).

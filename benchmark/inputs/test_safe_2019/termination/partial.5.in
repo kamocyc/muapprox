@@ -1,0 +1,20 @@
+%HES
+MAIN  =v
+  F_WITHOUT_CHECKING_126 true false 0 0 x true false 0 0 0 true false 0 0
+   (\x_pos_20.\x_neg_20.\x_19.\x_18.\n.\k_gt.k_gt (n > 0) (n <= 0)) (
+   \u_9381.true).
+F_WITHOUT_CHECKING_126 x_pos_17 x_neg_17 x_16 x_15 x_14 x_pos_13 x_neg_13 x_12 x_11 p_EXPARAM_61_10 x_pos_9 x_neg_9 x_8 x_7 p_6 k_f_without_checking_126
+  =v
+  p_6 true false 0 0 x_14
+   (\x_pos_5.
+     \x_neg_5.
+      (x_neg_5
+       \/ ((x_14 <= x_14 - 1 \/ x_14 - 1 < 0)
+           \/ F_WITHOUT_CHECKING_126 true false 0 0 (x_14 - 1) true false 0 0 0 true false 0 0 p_6
+               k_f_without_checking_126)
+          /\ (x_14 > x_14 - 1 /\ x_14 - 1 >= 0))
+      /\ (x_pos_5 \/ k_f_without_checking_126 true)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

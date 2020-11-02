@@ -1,0 +1,8 @@
+%HES
+S =v Sum x y \/
+     x + 1 <= y.
+Sum n r =v
+  (n > 0 \/ r != 0) /\
+  (n <= 0 \/ (∀x.
+    Sum (n-1) x \/
+    r != n + x)).

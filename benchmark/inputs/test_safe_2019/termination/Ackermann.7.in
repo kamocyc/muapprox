@@ -1,0 +1,15 @@
+%HES
+MAIN  =v (n <= 0 \/ m <= 0) \/ ACK_WITHOUT_CHECKING_93 true 0 0 m true 0 0 n (\u_12614.true).
+ACK_WITHOUT_CHECKING_93 x_15 x_14 x_13 m_12 x_11 x_10 x_9 n_8 k_ack_without_checking_93 =v
+  (m_12 != 0 \/ k_ack_without_checking_93 (n_8 + 1))
+  /\ (m_12 = 0
+      \/ (n_8 != 0 \/ ACK_WITHOUT_CHECKING_93 true 0 0 (m_12 - 1) true 0 0 1 k_ack_without_checking_93)
+         /\ (n_8 = 0
+             \/ ((m_12 <= m_12 \/ m_12 < 0) /\ (m_12 < m_12 \/ (n_8 <= n_8 - 1 \/ n_8 - 1 < 0))
+                 \/ ACK_WITHOUT_CHECKING_93 true 0 0 m_12 true 0 0 (n_8 - 1)
+                     (\x_7.ACK_WITHOUT_CHECKING_93 true 0 0 (m_12 - 1) true 0 0 x_7 k_ack_without_checking_93))
+                /\ (m_12 > m_12 /\ m_12 >= 0 \/ m_12 >= m_12 /\ (n_8 > n_8 - 1 /\ n_8 - 1 >= 0)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,15 @@
+environment
+zip : int->int->int->bool
+map : int->int->bool
+
+program
+x = 0 ^ y = 0 ^ r = x => zip x y r
+x = 0 ^ y /= 0 => zip x y r
+x /= 0 ^ y = 0 => zip x y r
+x /= 0 ^ y /= 0 ^ (E r2:int. (zip (x-1) (y-1) r2) ^ r = 1 + r2) => zip x y r
+x = 0 ^ r = x => map x r
+x /= 0 ^ (E r2:int. map (x-1) r2 ^ r = 1 + r2) => map x r;
+
+goal
+E n,r,r2:int. zip n n r ^ map r r2 ^ r2 /= n
+

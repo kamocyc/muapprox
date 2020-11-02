@@ -1,0 +1,7 @@
+%HES
+S =v G (F 0) 5.
+F x y =v x <= y.
+G f z =v f z.
+
+%LTS
+s0 a -> s0.

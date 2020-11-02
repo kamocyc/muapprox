@@ -1,0 +1,26 @@
+%HES
+MAIN  =v REPLICATE arg1 arg2 (\x0.\x1.ASSERT_BOUNDED arg1 x0 x1 (\main.true)).
+ASSERT_BOUNDED x_14 x0_13 x1_12 k_assert_bounded =v
+  (x0_13 > 0 \/ k_assert_bounded true)
+  /\ (x0_13 <= 0
+      \/ (x0_13 <= 0
+          \/ x1_12 0
+              (\y.
+                (x_14 < y
+                 \/ ASSERT_BOUNDED x_14 (x0_13 - 1) (\x_9.\k_assert_bounded_l.x1_12 (x_9 + 1) k_assert_bounded_l)
+                     k_assert_bounded)
+                /\ x_14 >= y))).
+REPLICATE x_8 n k_replicate_7 =v
+  (n > 0 \/ k_replicate_7 0 (\x.\k_replicate_6.true))
+  /\ (n <= 0
+      \/ REPLICATE x_8 (n - 1)
+          (\p0_5.
+            \p1_4.
+             k_replicate_7 (1 + p0_5)
+              (\i.
+                \k_replicate.
+                 (i != 0 \/ k_replicate x_8) /\ (i = 0 \/ REPLICATE x_8 (n - 1) (\p0.\p1.p1 (i - 1) k_replicate))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

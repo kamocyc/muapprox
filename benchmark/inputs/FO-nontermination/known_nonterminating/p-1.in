@@ -1,0 +1,13 @@
+%HES
+MAIN_22  =v Exists (\cnt_64.Exists (\cnt_61.STATE_1 cnt_64 cnt_61 (\main_57.false))).
+STATE_1 cnt_15_6 cnt_20_5 k_state_1 =v
+  Exists
+   (\br_72.
+     (br_72 <= 0
+      \/ (0 <= ((-1) - cnt_15_6) + cnt_20_5 \/ k_state_1 true)
+         /\ (0 > ((-1) - cnt_15_6) + cnt_20_5 \/ STATE_1 cnt_15_6 cnt_20_5 k_state_1))
+     /\ (br_72 > 0 \/ k_state_1 true)).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

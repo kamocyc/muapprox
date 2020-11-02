@@ -1,0 +1,12 @@
+environment
+app: (int -> bool) -> int -> bool
+is91: int -> bool
+;
+program
+(x /= 100) ^ f x => app f x
+x /= 91 => is91 x
+;
+
+goal
+E n:int. n = 91 ^ app is91 n
+

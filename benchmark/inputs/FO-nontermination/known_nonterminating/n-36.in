@@ -1,0 +1,99 @@
+%HES
+MAIN_302  =v
+  Exists
+   (\cnt_1089.
+     Exists (\cnt_1072.Exists (\ct_1052.Exists (\ct_1029.STATE_1 cnt_1089 cnt_1072 ct_1052 ct_1029 (\main_981.false))))).
+STATE_1 cnt_29_15 cnt_34_14 ct_115_13 ct_64_12 k_state_1 =v
+  Exists
+   (\br_1101.
+     (br_1101 <= 0
+      \/ (((-1) - cnt_29_15) + cnt_34_14 < 0 \/ k_state_1 true)
+         /\ (((-1) - cnt_29_15) + cnt_34_14 >= 0 \/ k_state_1 true))
+     /\ (br_1101 > 0
+         \/ Exists
+             (\br_1086.
+               (br_1086 <= 0
+                \/ (0 <= ((-1) - cnt_29_15) + cnt_34_14 \/ k_state_1 true)
+                   /\ (0 > ((-1) - cnt_29_15) + cnt_34_14
+                       \/ (0 <= (1 + cnt_29_15) - cnt_34_14 \/ k_state_1 true)
+                          /\ (0 > (1 + cnt_29_15) - cnt_34_14
+                              \/ (0 <= (-1) + ct_64_12 \/ k_state_1 true)
+                                 /\ (0 > (-1) + ct_64_12
+                                     \/ (ct_64_12 != 256 \/ k_state_1 true) /\ (ct_64_12 = 256 \/ k_state_1 true)))))
+               /\ (br_1086 > 0
+                   \/ Exists
+                       (\br_1060.
+                         (br_1060 <= 0
+                          \/ (0 <= ((-1) - cnt_29_15) + cnt_34_14 \/ k_state_1 true)
+                             /\ (0 > ((-1) - cnt_29_15) + cnt_34_14
+                                 \/ ((1 + cnt_29_15) - cnt_34_14 < 0 \/ k_state_1 true)
+                                    /\ ((1 + cnt_29_15) - cnt_34_14 >= 0
+                                        \/ (0 <= (-1) + ct_115_13 \/ k_state_1 true)
+                                           /\ (0 > (-1) + ct_115_13
+                                               \/ (ct_115_13 != 256 \/ k_state_1 true)
+                                                  /\ (ct_115_13 = 256 \/ k_state_1 true)))))
+                         /\ (br_1060 > 0
+                             \/ Exists
+                                 (\br_1047.
+                                   (br_1047 <= 0
+                                    \/ (0 <= ((-1) - cnt_29_15) + cnt_34_14 \/ k_state_1 true)
+                                       /\ (0 > ((-1) - cnt_29_15) + cnt_34_14
+                                           \/ (0 <= (1 + cnt_29_15) - cnt_34_14 \/ k_state_1 true)
+                                              /\ (0 > (1 + cnt_29_15) - cnt_34_14
+                                                  \/ (0 <= (-1) + ct_64_12 \/ k_state_1 true)
+                                                     /\ (0 > (-1) + ct_64_12
+                                                         \/ (ct_64_12 = 256 \/ k_state_1 true)
+                                                            /\ (ct_64_12 != 256
+                                                                \/ STATE_1 cnt_29_15 cnt_34_14 ct_115_13 ct_64_12
+                                                                    k_state_1)))))
+                                   /\ (br_1047 > 0
+                                       \/ Exists
+                                           (\br_1013.
+                                             (br_1013 <= 0
+                                              \/ (0 <= ((-1) - cnt_29_15) + cnt_34_14 \/ k_state_1 true)
+                                                 /\ (0 > ((-1) - cnt_29_15) + cnt_34_14
+                                                     \/ (0 <= (1 + cnt_29_15) - cnt_34_14 \/ k_state_1 true)
+                                                        /\ (0 > (1 + cnt_29_15) - cnt_34_14
+                                                            \/ ((-1) + ct_64_12 < 0 \/ k_state_1 true)
+                                                               /\ ((-1) + ct_64_12 >= 0
+                                                                   \/ 
+                                                                   STATE_1 cnt_29_15 cnt_34_14 ct_115_13 ct_64_12
+                                                                    k_state_1))))
+                                             /\ (br_1013 > 0
+                                                 \/ Exists
+                                                     (\br_1003.
+                                                       (br_1003 <= 0
+                                                        \/ (0 <= ((-1) - cnt_29_15) + cnt_34_14 \/ k_state_1 true)
+                                                           /\ (0 > ((-1) - cnt_29_15) + cnt_34_14
+                                                               \/ ((1 + cnt_29_15) - cnt_34_14 < 0 \/ k_state_1 true)
+                                                                  /\ (
+                                                                  (1 + cnt_29_15) - cnt_34_14 >= 0
+                                                                  \/ 
+                                                                  (0 <= (-1) + ct_115_13 \/ k_state_1 true)
+                                                                  /\ (
+                                                                  0 > (-1) + ct_115_13
+                                                                  \/ 
+                                                                  (ct_115_13 = 256 \/ k_state_1 true)
+                                                                  /\ (
+                                                                  ct_115_13 != 256
+                                                                  \/ 
+                                                                  STATE_1 cnt_29_15 cnt_34_14 ct_115_13 ct_64_12
+                                                                   k_state_1)))))
+                                                       /\ (br_1003 > 0
+                                                           \/ (0 <= ((-1) - cnt_29_15) + cnt_34_14 \/ k_state_1 true)
+                                                              /\ (0 > ((-1) - cnt_29_15) + cnt_34_14
+                                                                  \/ 
+                                                                  ((1 + cnt_29_15) - cnt_34_14 < 0 \/ k_state_1 true)
+                                                                  /\ (
+                                                                  (1 + cnt_29_15) - cnt_34_14 >= 0
+                                                                  \/ 
+                                                                  ((-1) + ct_115_13 < 0 \/ k_state_1 true)
+                                                                  /\ (
+                                                                  (-1) + ct_115_13 >= 0
+                                                                  \/ 
+                                                                  STATE_1 cnt_29_15 cnt_34_14 ct_115_13 ct_64_12
+                                                                   k_state_1))))))))))))))).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

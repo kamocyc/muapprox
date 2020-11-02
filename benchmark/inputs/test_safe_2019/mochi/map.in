@@ -1,0 +1,7 @@
+%HES
+MAIN  =v MAP arg1 (\x_1.x_1 = arg1).
+MAP x_5 k_map =v (x_5 != 0 \/ k_map 0) /\ (x_5 = 0 \/ MAP (x_5 - 1) (\x_4.k_map (1 + x_4))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

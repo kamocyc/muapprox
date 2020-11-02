@@ -1,0 +1,6 @@
+%HES
+S =v Fact n (\r. true) (\exn. n < 0).
+Fact n k err =v
+  (n > 0 \/ err 1) /\
+  (n <= 0 \/
+    Fact (n - 1) (\v. k (n * v)) (\exn. k 1)).

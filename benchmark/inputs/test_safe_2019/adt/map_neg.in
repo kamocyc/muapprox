@@ -1,0 +1,57 @@
+%HES
+MAIN  =v
+  MAKE_POS_LIST arg1
+   (\xs0.
+     \xs1.
+      MAP (\x_5.\k_neg.k_neg (0 - x_5)) xs0 xs1
+       (\ys0.
+         \ys1.
+          MAP (\x_5.\k_neg.k_neg (0 - x_5)) ys0 ys1
+           (\zs0.\zs1.FOR_ALL (\z.\k_main.k_main (z > 0) (z <= 0)) zs0 zs1 (\x_pos_1.\x_neg_1.x_pos_1)))).
+MAP f_33 xs0_32 xs1_31 k_map_30 =v
+  (xs0_32 > 0 \/ k_map_30 0 (\x_29.\k_map_28.true))
+  /\ (xs0_32 <= 0
+      \/ (xs0_32 <= 0
+          \/ xs1_31 0
+              (\x_27.
+                f_33 x_27
+                 (\r_f.
+                   MAP f_33 (xs0_32 - 1) (\x_19.\k_map_xs_.xs1_31 (x_19 + 1) k_map_xs_)
+                    (\p0_26.
+                      \p1_25.
+                       k_map_30 (1 + p0_26)
+                        (\i_24.
+                          \k_map.
+                           (i_24 != 0 \/ k_map r_f)
+                           /\ (i_24 = 0
+                               \/ MAP f_33 (xs0_32 - 1) (\x_21.\k_map_xs__20.xs1_31 (x_21 + 1) k_map_xs__20)
+                                   (\p0_23.\p1_22.p1_22 (i_24 - 1) k_map)))))))).
+RAND_POS x_18 k_rand_pos =v Forall (\n_16.(n_16 <= 0 \/ k_rand_pos n_16) /\ (n_16 > 0 \/ RAND_POS true k_rand_pos)).
+MAKE_POS_LIST n k_make_pos_list_15 =v
+  (n > 0 \/ k_make_pos_list_15 0 (\x_14.\k_make_pos_list_13.true))
+  /\ (n <= 0
+      \/ RAND_POS true
+          (\r_rand_pos.
+            MAKE_POS_LIST (n - 1)
+             (\p0_12.
+               \p1_11.
+                k_make_pos_list_15 (1 + p0_12)
+                 (\i.
+                   \k_make_pos_list.
+                    (i != 0 \/ k_make_pos_list r_rand_pos)
+                    /\ (i = 0 \/ MAKE_POS_LIST (n - 1) (\p0.\p1.p1 (i - 1) k_make_pos_list)))))).
+FOR_ALL f xs0_10 xs1_9 k_for_all =v
+  (xs0_10 > 0 \/ k_for_all true false)
+  /\ (xs0_10 <= 0
+      \/ (xs0_10 <= 0
+          \/ xs1_9 0
+              (\x_8.
+                f x_8
+                 (\x_pos_7.
+                   \x_neg_7.
+                    (x_neg_7 \/ FOR_ALL f (xs0_10 - 1) (\x_6.\k_for_all_xs_.xs1_9 (x_6 + 1) k_for_all_xs_) k_for_all)
+                    /\ (x_pos_7 \/ k_for_all false true))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

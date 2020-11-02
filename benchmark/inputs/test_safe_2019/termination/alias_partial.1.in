@@ -1,0 +1,14 @@
+%HES
+MAIN  =v F true false 0 1 (\g.g false true 0 0 (\u_218.true)).
+F set_flag_lambda_54_pos set_flag_lambda_54_neg s_lambda_x_51 x k_f =v
+  (x <= 0 \/ F true false 0 (x - 1) k_f)
+  /\ (x > 0
+      \/ k_f
+          (\prev_set_flag_lambda_53_pos.
+            \prev_set_flag_lambda_53_neg.
+             \s_prev_lambda_x_52.
+              \x_3.\k_lambda.prev_set_flag_lambda_53_neg /\ (prev_set_flag_lambda_53_pos \/ k_lambda 0))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,7 @@
+%HES
+MAIN  =v COPY arg1 (\x_2.COPY x_2 (\x_1.x_1 = arg1)).
+COPY x_6 k_copy =v (x_6 != 0 \/ k_copy 0) /\ (x_6 = 0 \/ COPY (x_6 - 1) (\x_5.k_copy (1 + x_5))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

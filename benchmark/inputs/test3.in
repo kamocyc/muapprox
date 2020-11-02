@@ -1,0 +1,10 @@
+;Model Checking the First-Order Fragment of Higher-Order Fixpoint Logic
+;w = uo s.t. |u|in = |u|o and for all prefixes v of w we have: |v|i ≥ |v|o.
+
+%HES
+S =_u X ([i] false /\ [o] false).
+X z =_u (<o> z) \/ (<i> (X (X z))).
+
+%LTS
+s0 i -> s0.
+s0 o -> s1.

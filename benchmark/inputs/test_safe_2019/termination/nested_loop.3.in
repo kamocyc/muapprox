@@ -1,0 +1,21 @@
+%HES
+MAIN  =v LOOP2 false true 0 x (\u_1773.true).
+LOOP1_WITHOUT_CHECKING_64 x_pos_8 x_neg_8 x_7 n1_6 k_loop1_without_checking_64 =v
+  (n1_6 <= 0 \/ LOOP1_WITHOUT_CHECKING_64 true false 0 (n1_6 - 1) k_loop1_without_checking_64)
+  /\ (n1_6 > 0 \/ k_loop1_without_checking_64 0).
+LOOP2 set_flag_loop1_51_pos set_flag_loop1_51_neg s_loop1_n1_48 n2 k_loop2 =v
+  (n2 <= 0
+   \/ (set_flag_loop1_51_neg
+       \/ ((s_loop1_n1_48 <= n2 \/ n2 < 0)
+           \/ LOOP1_WITHOUT_CHECKING_64 true false 0 n2
+               (\x_3.
+                 LOOP2 set_flag_loop1_51_pos set_flag_loop1_51_neg s_loop1_n1_48 (n2 - 1) (\x_2.k_loop2 (x_3 + x_2))))
+          /\ (s_loop1_n1_48 > n2 /\ n2 >= 0))
+      /\ (set_flag_loop1_51_pos
+          \/ LOOP1_WITHOUT_CHECKING_64 true false 0 n2
+              (\x_3.LOOP2 set_flag_loop1_51_pos set_flag_loop1_51_neg s_loop1_n1_48 (n2 - 1) (\x_2.k_loop2 (x_3 + x_2)))))
+  /\ (n2 > 0 \/ k_loop2 0).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

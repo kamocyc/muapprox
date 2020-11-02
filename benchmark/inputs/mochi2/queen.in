@@ -1,0 +1,111 @@
+%HES
+MAIN =v
+  ((ext_1 <= 0) \/ Loop 0 (\_. \k_make_array. k_make_array 0) (\_unit9. true)) /\
+  ((ext_1 >  0) \/ true).
+
+DotsPrint n_18 k_queen_dotsPrint =v
+  ((n_18 != 0) \/ (k_queen_dotsPrint true)) /\ ((n_18 = 0) \/ (DotsPrint (n_18 - 1) k_queen_dotsPrint)).
+
+Loop row  queenArray_9 k_queen_loop =v
+  queenArray_9
+    row
+    (\x_8.
+      (((x_8 + 1) <= ext_1) \/
+        (queenArray_9
+          row
+          (\_. (row != 0 \/ k_queen_loop true) /\
+               (row =  0 \/ Loop
+                              (row - 1)
+                              (\j. \k_update.
+                                (row != j \/ k_update j) /\
+                                (row =  j \/ queenArray_9 j k_update))
+                              k_queen_loop)))) /\
+      (((x_8 + 1) > ext_1) \/
+        (queenArray_9
+          row
+          (\_. (row != row \/
+                  ((Aux2 queenArray_9 row 0 (\x.
+                      (x =  0 \/
+                        ((row + 1 != ext_1 \/
+                          ((Aux1 queenArray_9 row 0 (\_unit3. Loop row (\j. \k_update. (row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update)) k_queen_loop)))) /\
+                         (row + 1 = ext_1 \/
+                          (Loop (row + 1) (\j. \k_update. (row != j \/ k_update j) /\ ((row = j) \/ queenArray_9 j k_update)) k_queen_loop)))) /\
+                      (x != 0 \/
+                        (Loop row (\j. \k_update. (row != j \/ k_update j) /\ (row = j \/ queenArray_9 j k_update)) k_queen_loop)))) )) /\
+               (row = row \/
+                (queenArray_9 row (\qj.
+                    Aux3 queenArray_9 row qj 0 (\x.
+                      ((x = 0) \/
+                        ((row + 1 != ext_1 \/
+                          ((Aux4 queenArray_9 row 0 (\_unit3. Loop row (\j. \k_update. ((row != j) \/ (k_update j)) /\ ((row = j) \/ (queenArray_9 j k_update))) k_queen_loop)))) /\
+                         (row + 1 = ext_1 \/
+                          (Loop (row + 1) (\j. \k_update. ((row != j) \/ (k_update j)) /\ ((row = j) \/ (queenArray_9 j k_update))) k_queen_loop)))) /\
+                      ((x != 0) \/
+                        (Loop row (\j. \k_update. ((row != j) \/ (k_update j)) /\ ((row = j) \/ (queenArray_9 j k_update))) k_queen_loop)))
+                    ))))))
+
+      ).
+
+Aux1 queenArray_9 row row_16 k_queen_queenPrint_aux1 =v
+  (row_16 != ext_1 \/ k_queen_queenPrint_aux1 true) /\
+  (row_16 =  ext_1 \/
+    ((row != row_16 \/
+          (((0 >  row_16 \/ row_16 >  ext_1) \/ DotsPrint (row_16 - 1) (\_unit6. DotsPrint (ext_1 - row_16) (\_unit5. Aux1 queenArray_9 row (row_16 + 1) k_queen_queenPrint_aux1))) /\
+           ((0 <= row_16 /\ row_16 <= ext_1) \/ false))) /\
+     ((row = row_16) \/
+        (queenArray_9 row_16 (\n_15.
+          ((0 > row_16 \/ (row_16 > ext_1)) \/ (DotsPrint (n_15 - 1) (\_unit6. DotsPrint (ext_1 - n_15) (\_unit5. Aux1 queenArray_9 row (row_16 + 1) k_queen_queenPrint_aux1)))) /\ (((0 <= row_16) /\ (row_16 <= ext_1)) \/ false)))))).
+
+Aux2 queenArray_9 row i k_queen_test_aux2 =v
+  (i >= row \/
+    ((row != i \/
+      ((i != row \/ k_queen_test_aux2 0) /\
+       (i =  row \/
+        ((row - i >= 0 \/
+          (((0 - row - i != row - i) \/ k_queen_test_aux2 0) /\
+           ((0 - row - i  = row - i) \/ Aux2 queenArray_9 row (i + 1) k_queen_test_aux2))) /\
+         (row - i <  0 \/
+          ((row - i != row - i \/ k_queen_test_aux2 0) /\
+           (row - i  = row - i \/ Aux2 queenArray_9 row (i + 1) k_queen_test_aux2))))))) /\
+     (row =  i \/ queenArray_9 i (\qi.
+        (qi != row \/ k_queen_test_aux2 0) /\
+        (qi =  row \/
+          ((row - qi >= 0 \/
+              ((0 - row - qi != row - i \/ k_queen_test_aux2 0) /\
+               (0 - row - qi =  row - i \/ Aux2 queenArray_9 row (i + 1) k_queen_test_aux2))) /\
+           (row - qi <  0 \/
+              ((row - qi != row - i \/ k_queen_test_aux2 0) /\
+               (row - qi =  row - i \/ Aux2 queenArray_9 row (i + 1) k_queen_test_aux2))))))))) /\
+  (i < row \/ k_queen_test_aux2 1).
+
+Aux3 queenArray_9 row qj i k_queen_test_aux3 =v
+  ((i >= row) \/
+    (((row != i) \/
+        (((i != qj) \/ (k_queen_test_aux3 0)) /\
+         ((i =  qj) \/
+          ((((qj - i) >= 0) \/ ((((0 - (qj - i)) != (row - i)) \/ (k_queen_test_aux3 0)) /\ (((0 - (qj - i)) = (row - i)) \/ (Aux3 queenArray_9 row qj (i + 1) k_queen_test_aux3)))) /\
+           (((qj - i) <  0) \/
+            ((((qj - i) != (row - i)) \/ (k_queen_test_aux3 0)) /\
+             (((qj - i) =  (row - i)) \/ (Aux3 queenArray_9 row qj (i + 1) k_queen_test_aux3)))))))) /\
+     ((row = i) \/ (queenArray_9 i (\qi.
+        ((qi != qj) \/ (k_queen_test_aux3 0)) /\
+        ((qi =  qj) \/
+          ((((qj - qi) >= 0) \/
+            ((((0 - (qj - qi)) != (row - i)) \/ (k_queen_test_aux3 0)) /\
+             (((0 - (qj - qi)) =  (row - i)) \/ (Aux3 queenArray_9 row qj (i + 1) k_queen_test_aux3)))) /\
+           (((qj - qi) <  0) \/
+            ((((qj - qi) != (row - i)) \/ (k_queen_test_aux3 0)) /\
+             (((qj - qi) =  (row - i)) \/ (Aux3 queenArray_9 row qj (i + 1) k_queen_test_aux3))))))))))) /\
+  ((i < row) \/ (k_queen_test_aux3 1)).
+
+Aux4 queenArray_9 row row_16 k_queen_queenPrint_aux4 =v
+  ((row_16 != ext_1) \/ (k_queen_queenPrint_aux4 true)) /\
+  ((row_16 =  ext_1) \/
+    (((row != row_16) \/
+      ((((0 >  row_16) \/ (row_16 > ext_1)) \/ (DotsPrint (row_16 - 1) (\_unit6. DotsPrint (ext_1 - row_16) (\_unit5. Aux4 queenArray_9 row (row_16 + 1) k_queen_queenPrint_aux4)))) /\
+       (((0 <= row_16) /\ (row_16 <= ext_1)) \/ false))) /\
+     ((row = row_16) \/
+      (queenArray_9 row_16 (\n_15.
+        (((0 >  row_16) \/ (row_16 >  ext_1)) \/ (DotsPrint (n_15 - 1) (\_unit6. DotsPrint (ext_1 - n_15) (\_unit5. Aux4 queenArray_9 row (row_16 + 1) k_queen_queenPrint_aux4)))) /\
+        (((0 <= row_16) /\ (row_16 <= ext_1)) \/ false)))))).
+

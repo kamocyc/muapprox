@@ -1,0 +1,16 @@
+// a^n b^n
+%HES
+S =_u AB DL.
+AB x =_u x \/ (<a> (AB (<b> x))).
+
+A x =u x \/ (<a> (A x)).
+B x =u x \/ (<b> (B x)).
+
+DL =u ([a] false) /\ ([b] false).
+
+%LTS
+s1 a -> s1.
+s1 b -> s2.
+(s2, a, s1) .
+(s2,b,s2).
+

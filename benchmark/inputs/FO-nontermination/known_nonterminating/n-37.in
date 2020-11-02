@@ -1,0 +1,15 @@
+%HES
+MAIN_405  =v Exists (\x_466.STATE_400 0 0 x_466 (\main_463.false)).
+STATE_400 retrycount_10_14 selected_11_13 x_5_12 k_state_400 =v
+  Exists
+   (\rho_471.
+     Exists
+      (\br_483.
+        (br_483 <= 0
+         \/ (rho_471 > 0 \/ k_state_400 true)
+            /\ (rho_471 <= 0 \/ STATE_400 (1 + retrycount_10_14) x_5_12 x_5_12 k_state_400))
+        /\ (br_483 > 0 \/ (rho_471 <= 0 \/ k_state_400 true) /\ (rho_471 > 0 \/ k_state_400 true)))).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

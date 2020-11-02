@@ -1,0 +1,8 @@
+%HES
+S =v Repeat Succ n 0 (\v. v > n).
+Repeat f n s k =v (n != 0 \/ k s) /\
+                  (n = 0 \/
+                    Repeat f (n-1) s (\v. f v k)).
+Succ x k =v k (x+1).
+%LTS
+s0 a -> s0.

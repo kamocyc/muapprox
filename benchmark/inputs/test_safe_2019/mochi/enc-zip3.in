@@ -1,0 +1,8 @@
+%HES
+MAIN  =v ZIP arg1 arg1 (\x_1.x_1 = arg1).
+ZIP x_5 y k_zip =v
+  (x_5 != 0 \/ (y != 0 \/ k_zip 0)) /\ (x_5 = 0 \/ (y = 0 \/ ZIP (x_5 - 1) (y - 1) (\x_4.k_zip (1 + x_4)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

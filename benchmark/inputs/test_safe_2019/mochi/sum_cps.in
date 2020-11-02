@@ -1,0 +1,8 @@
+%HES
+MAIN  =v CPS_SUM arg1 (\x_3.\k_main_f.(x_3 < arg1 \/ k_main_f true) /\ x_3 >= arg1) (\main.true).
+CPS_SUM n_8 k k_cps_sum =v
+  (n_8 > 0 \/ k 0 k_cps_sum) /\ (n_8 <= 0 \/ CPS_SUM (n_8 - 1) (\x_6.\k_cps_sum_f.k (x_6 + n_8) k_cps_sum_f) k_cps_sum).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

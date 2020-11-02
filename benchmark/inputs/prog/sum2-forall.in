@@ -1,0 +1,10 @@
+%HES
+S =v F 0.
+F n =v F (n - 1) /\ CHK n /\ F (n + 1).
+CHK n =v SUM n (\x. n <= x).
+SUM x k =v (x > 0 \/ k 0) /\ (x <= 0 \/ SUM (x-1) (\y. k (x + y))).
+
+%LTS
+s0 a -> s0.
+
+

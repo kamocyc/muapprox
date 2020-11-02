@@ -1,0 +1,5 @@
+%HES
+S =v Copy n (\r1. Copy r1 (\r2. r2 = n)).
+Copy x k =v
+  (x != 0 \/ k 0) /\
+  (x = 0 \/ Copy (x-1) (\v. k (1 + v))).

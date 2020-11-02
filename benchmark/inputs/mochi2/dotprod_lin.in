@@ -1,0 +1,3 @@
+%HES
+MAIN =v ((ext_5 != 0) \/ (Dotprod ext_1 (\i_14. \k_make_array. (((0 > i_14) \/ (i_14 >= ext_1)) \/ (k_make_array 0)) /\ (((0 <= i_14) /\ (i_14 < ext_1)) \/ false)) (\i_14. \k_make_array. (((0 > i_14) \/ (i_14 >= ext_1)) \/ (k_make_array 0)) /\ (((0 <= i_14) /\ (i_14 < ext_1)) \/ false)) ext_5 ext_5 (\_. true))) /\ ((ext_5 = 0) \/ true).
+Dotprod n_11 v1 v2 i sum k_dotprod =v ((i < n_11) \/ (k_dotprod sum)) /\ ((i >= n_11) \/ (v1 i (\x_10. v2 i (\x_9. Dotprod n_11 v1 v2 (i + 1) ((sum + x_10) + x_9) (\_. v1 i (\x_7. v2 i (\x. Dotprod n_11 v1 v2 (i + 1) ((sum + x_7) + x) k_dotprod))))))).

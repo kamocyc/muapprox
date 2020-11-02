@@ -1,0 +1,14 @@
+%HES
+Main =v r2 = n \/
+        Zip n n r \/
+        Map r r2.
+Zip x y r =v
+  (x != 0 \/ y != 0 \/ r != x) /\
+  (x != 0 \/ y = 0) /\
+  (x = 0 \/ y != 0) /\
+  (x = 0 \/ y = 0 \/
+    (Forall 0 (\r2.  Zip (x-1) (y-1) r2 \/ r != 1 + r2))).
+Map x r =v
+  (x != 0 \/ r != x) /\
+  (x = 0 \/ Forall 0 (\r2. Map (x-1) r2 \/ r != 1 + r2)).
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.

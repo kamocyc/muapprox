@@ -1,0 +1,14 @@
+environment
+F1 : bool -> (int -> bool) -> bool
+F2 : int -> int -> (int -> bool) -> bool
+F3 : int -> int -> bool
+F4 : (int -> bool) -> int -> int -> int -> bool
+;
+program
+F1 false v5 => F1 v4 v5
+((v6 = 0) ∧ (((v7 = 0) ∧ (v8 0)) ∨ ((v7 != 0) ∧ (F1 false v8)))) ∨ ((v6 != 0) ∧ (((v7 = 0) ∧ (F1 false v8)) ∨ ((v7 != 0) ∧ (F2 (v6 - 1) (v7 - 1) (F4 v8 v7 v6))))) => F2 v6 v7 v8
+((v2 = v3) ∧ false) ∨ ((v2 != v3) ∧ true) => F3 v3 v2
+v10 (1 + v9) => F4 v10 v11 v12 v9
+;
+goal
+∃v1:int. F2 v1 v1 (F3 v1)

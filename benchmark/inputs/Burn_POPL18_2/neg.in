@@ -1,0 +1,10 @@
+%HES
+S =v n < 0 \/
+     Twice Neg (G n) z \/
+     z >= 0.
+G x r =v x != r.
+Twice f x r =v
+  ∀i.
+    ∀j.
+      x i \/ f i j \/ f j r.
+Neg x r =v x + r != 0.

@@ -1,0 +1,28 @@
+%HES
+MAIN  =v F_WITHOUT_CHECKING_252 true false 0 x_1 (\x.x false true 0 true (\u_48334.true)).
+APP x_pos_24 x_neg_24 x_23 i x_pos_22 x_neg_22 x_21 h_EXPARAM_112 x_pos_20 x_neg_20 x_19 h x_pos_18 x_neg_18 x_17 v set_flag_f_244_pos_16 set_flag_f_244_neg_16 s_f_x_241_15 u_14 k_app
+  =v
+  (i < 0
+   \/ APP true false 0 (i - 1) true false 0 0 true false 0 h true false 0 v set_flag_f_244_pos_16 set_flag_f_244_neg_16
+       0 true k_app)
+  /\ (i >= 0
+      \/ h set_flag_f_244_pos_16 set_flag_f_244_neg_16 0 v
+          (\x_13.x_13 set_flag_f_244_pos_16 set_flag_f_244_neg_16 0 true k_app)).
+F_WITHOUT_CHECKING_252 x_pos_9 x_neg_9 x_8 x_7 k_f_without_checking_252 =v
+  (x_7 <= 0
+   \/ Forall
+       (\x_6.
+         k_f_without_checking_252
+          (APP true false 0 x_6 true false 0 0 true false 0
+            (\prev_set_flag_f_243_pos.
+              \prev_set_flag_f_243_neg.
+               \s_prev_f_x_242.
+                \x_5.
+                 \k_f.
+                  prev_set_flag_f_243_neg /\ (prev_set_flag_f_243_pos \/ F_WITHOUT_CHECKING_252 true false 0 x_5 k_f))
+            true false 0 (x_7 - 1))))
+  /\ (x_7 > 0 \/ k_f_without_checking_252 (\x_pos_12.\x_neg_12.\x_11.\x_10.\k_g.k_g true)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

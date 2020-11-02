@@ -1,0 +1,17 @@
+%HES
+Main =v F n 0 r1 \/ G n r1 r2 \/ r2 = 0.
+Lock st r =v
+  (st != 0 \/ r != 1) /\
+  (st = 0).
+Unlock st r =v
+  (st != 1 \/ r != 0) /\
+  (st = 1).
+F n st r2 =v
+  (n <= 0 \/ Forall 0 (\r. Lock st r \/ r != r2)) /\
+  (n > 0 \/ r2 != st).
+G n st r2 =v
+  (n <= 0 \/ Forall 0 (\r. Unlock st r \/ r != r2)) /\
+  (n > 0 \/ r2 != st).
+
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.
+

@@ -1,0 +1,36 @@
+%HES
+Main =v
+  (b2 <= 0 \/ G b3 1 1 (\r. true)) /\
+  (b2 >  0 \/ G b3 0 0 (\r. true)).
+Loop x =v Loop x.
+Readit st k =v
+  (st != 1 \/ k 1) /\
+  (st = 1 \/
+    ((st != 3 \/ k st) /\
+     (st =  3 \/ false))).
+Read_ x st k =v
+  (x =  0 \/ Readit st k) /\
+  (x != 0 \/ k st).
+Closeit st k =v
+  (st != 1 \/ k 2) /\
+  (st =  1 \/
+    ((st != 3 \/ k st) /\
+     (st =  3 \/ Loop 0))).
+Close_ x st k =v
+  (x =  0 \/ Closeit st k) /\
+  (x != 0 \/ k st).
+F x y st k =v
+  Close_ x st (\st1.
+  Close_ y st1 (\st2.
+  Read_ x st (\st3.
+  Read_ y st3 (\st4.
+  F x y st4 k)))).
+Next st k =v
+  (st != 0 \/ k 1) /\
+  (st =  0 \/ k 3).
+G b3 x st k =v
+  (b3 <= 0 \/
+    Next st (\st2. F x 1 st2 k)) /\
+  (b3 >  0 \/
+    F x 0 st k).
+ 

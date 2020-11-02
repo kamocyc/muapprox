@@ -1,0 +1,8 @@
+%HES
+S =v Max3 x y z (\m. Max2 x m (\m2. m = m2)).
+Max2 x y k =v ((x >= y) /\ k x) \/ (x < y /\ k y).
+Max3 x y z k =v Max2 x y (\r. Max2 r z k).
+
+%LTS
+s0 a -> s0.
+

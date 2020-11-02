@@ -1,0 +1,11 @@
+%HES
+MAIN  =v LOOP 3 arg1 (\x_3.(x_3 < 3 \/ LOOP 1 arg1 (\x_2.x_2 >= 0)) /\ x_3 >= 3).
+LOOP x_6 i k_loop =v
+  (i >= 0 \/ k_loop x_6)
+  /\ (i < 0
+      \/ (x_6 >= 1 \/ LOOP (x_6 - 1) (i - 1) k_loop)
+         /\ (x_6 < 1 \/ (x_6 <= 2 \/ LOOP x_6 (i - 1) k_loop) /\ (x_6 > 2 \/ LOOP (3 - x_6) (i - 1) k_loop))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

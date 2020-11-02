@@ -1,0 +1,3 @@
+%HES
+MAIN =v F ext_1 (\_. \k_c. k_c true) 0 (\_unit3. true).
+F n x q k_f =v ((n > 0) \/ (x q k_f)) /\ ((n <= 0) \/ (((q != 0) \/ (x 0 (\_unit4. F (n - 1) (\_. \k_b. x 1 k_b) 0 k_f))) /\ ((q = 0) \/ false))).

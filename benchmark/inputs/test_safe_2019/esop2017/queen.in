@@ -1,0 +1,106 @@
+%HES
+MAIN  =v arg1 <= 0 \/ LOOP 0 arg1 0 (\i.\k_main_make_vect.k_main_make_vect 0) (\main.true).
+AUX_41 n_43 size_44 row_40 k_queenPrint_aux =v
+  (row_40 != size_44 \/ k_queenPrint_aux true)
+  /\ (row_40 = size_44 \/ (0 > row_40 \/ AUX_41 n_43 size_44 (row_40 + 1) k_queenPrint_aux) /\ 0 <= row_40).
+LOOP row size_33 n_32 queenArray_31 k_loop =v
+  (0 > row
+   \/ queenArray_31 row
+       (\x_6.
+         (x_6 + 1 <= size_33
+          \/ (row != 0 \/ k_loop true)
+             /\ (row = 0
+                 \/ LOOP (row - 1) size_33 0
+                     (\j_13.
+                       \k_loop_update.
+                        (row != j_13 \/ k_loop_update 0) /\ (row = j_13 \/ queenArray_31 j_13 k_loop_update))
+                     k_loop))
+         /\ (x_6 + 1 > size_33
+             \/ (0 > row
+                 \/ (row != row
+                     \/ AUX row 0 n_32 (x_6 + 1) row size_33 true
+                         (\j_13.
+                           \k_loop_update.
+                            (row != j_13 \/ k_loop_update (x_6 + 1))
+                            /\ (row = j_13 \/ queenArray_31 j_13 k_loop_update))
+                         0
+                         (\x_pos.
+                           \x_neg.
+                            (x_neg
+                             \/ (row + 1 != size_33
+                                 \/ AUX_41 0 size_33 0
+                                     (\u_34.
+                                       LOOP row size_33 0
+                                        (\j_13.
+                                          \k_loop_update.
+                                           (row != j_13 \/ k_loop_update (x_6 + 1))
+                                           /\ (row = j_13 \/ queenArray_31 j_13 k_loop_update))
+                                        k_loop))
+                                /\ (row + 1 = size_33
+                                    \/ LOOP (row + 1) size_33 0
+                                        (\j_13.
+                                          \k_loop_update.
+                                           (row != j_13 \/ k_loop_update (x_6 + 1))
+                                           /\ (row = j_13 \/ queenArray_31 j_13 k_loop_update))
+                                        k_loop))
+                            /\ (x_pos
+                                \/ LOOP row size_33 0
+                                    (\j_13.
+                                      \k_loop_update.
+                                       (row != j_13 \/ k_loop_update (x_6 + 1))
+                                       /\ (row = j_13 \/ queenArray_31 j_13 k_loop_update))
+                                    k_loop)))
+                    /\ (row = row
+                        \/ queenArray_31 row
+                            (\qj.
+                              AUX row 0 n_32 qj row size_33 true
+                               (\j_13.
+                                 \k_loop_update.
+                                  (row != j_13 \/ k_loop_update (x_6 + 1))
+                                  /\ (row = j_13 \/ queenArray_31 j_13 k_loop_update))
+                               0
+                               (\x_pos.
+                                 \x_neg.
+                                  (x_neg
+                                   \/ (row + 1 != size_33
+                                       \/ AUX_41 0 size_33 0
+                                           (\u_34.
+                                             LOOP row size_33 0
+                                              (\j_13.
+                                                \k_loop_update.
+                                                 (row != j_13 \/ k_loop_update (x_6 + 1))
+                                                 /\ (row = j_13 \/ queenArray_31 j_13 k_loop_update))
+                                              k_loop))
+                                      /\ (row + 1 = size_33
+                                          \/ LOOP (row + 1) size_33 0
+                                              (\j_13.
+                                                \k_loop_update.
+                                                 (row != j_13 \/ k_loop_update (x_6 + 1))
+                                                 /\ (row = j_13 \/ queenArray_31 j_13 k_loop_update))
+                                              k_loop))
+                                  /\ (x_pos
+                                      \/ LOOP row size_33 0
+                                          (\j_13.
+                                            \k_loop_update.
+                                             (row != j_13 \/ k_loop_update (x_6 + 1))
+                                             /\ (row = j_13 \/ queenArray_31 j_13 k_loop_update))
+                                          k_loop)))))
+                /\ 0 <= row)))
+  /\ 0 <= row.
+AUX j_30 n_29 n_32 qj row size_33 u_22 queenArray_28 i_21 k_loop_test_aux =v
+  (i_21 >= j_30
+   \/ (0 > i_21
+       \/ queenArray_28 i_21
+           (\qi.
+             (qi != qj \/ k_loop_test_aux false true)
+             /\ (qi = qj
+                 \/ Forall
+                     (\x_17.
+                       (x_17 != 0 \/ k_loop_test_aux false true)
+                       /\ (x_17 = 0 \/ AUX j_30 n_29 n_32 qj row size_33 u_22 queenArray_28 (i_21 + 1) k_loop_test_aux)))))
+      /\ 0 <= i_21)
+  /\ (i_21 < j_30 \/ k_loop_test_aux true false).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

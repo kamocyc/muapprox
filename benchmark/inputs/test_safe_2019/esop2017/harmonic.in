@@ -1,0 +1,22 @@
+%HES
+MAIN  =v
+  RANGE 1 arg1 (\ds0.\ds1.FOLD_LEFT (\s.\k.\k_harmonic.DIV 10000 k (\x.k_harmonic (s + x))) 0 ds0 ds1 (\main.true)).
+DIV x_13 y k_div =v
+  (y = 0 \/ (x_13 >= y \/ k_div 0) /\ (x_13 < y \/ DIV (x_13 - y) y (\x_10.k_div (1 + x_10)))) /\ y != 0.
+FOLD_LEFT f acc xs0 xs1 k_fold_left =v
+  (xs0 > 0 \/ k_fold_left 0)
+  /\ (xs0 <= 0
+      \/ (xs0 <= 0
+          \/ xs1 0
+              (\x_9.
+                f acc x_9
+                 (\x_8.FOLD_LEFT f x_8 (xs0 - 1) (\x_7.\k_fold_left_xs_.xs1 (x_7 + 1) k_fold_left_xs_) k_fold_left)))).
+RANGE i_6 j k_range_5 =v
+  (i_6 <= j \/ k_range_5 0 (\x_4.\k_range_3.true))
+  /\ (i_6 > j
+      \/ RANGE (i_6 + 1) j
+          (\is0.\is1.k_range_5 (1 + is0) (\i.\k_range.(i != 0 \/ k_range i_6) /\ (i = 0 \/ is1 (i - 1) k_range)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,6 @@
+(library
+ (public_name hflmc2_muapprox)
+ (libraries
+   hflmc2_syntax)
+ (preprocess (pps ppx_deriving.std ppx_compare ppx_sexp_conv)))
+(env (dev (flags (:standard -warn-error -A -w -3-26-27-33))))

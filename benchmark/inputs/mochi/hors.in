@@ -1,0 +1,10 @@
+%HES
+Main =v S n 0 (\r. true).
+C q k =v k true.
+B x q k =v x 1 k.
+A x y q k =v q != 0 \/ x 0 (\r. y 0 k).
+F n x q k =v
+  (n > 0  \/ x q k) /\
+  (n <= 0 \/ A x (F (n-1) (B x)) q k).
+S n q k =v F n C q k.
+

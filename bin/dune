@@ -1,0 +1,10 @@
+(executables
+ (names main)
+ (modules main)
+ (libraries muapprox))
+(install
+ (package muapprox)
+ (section bin)
+ (files (main.exe as hflmc3)))
+
+(env (dev (flags (:standard -warn-error -A))))

@@ -1,0 +1,11 @@
+%HES
+MAIN  =v UNZIP arg1 ZIP (\x.true).
+UNZIP x_7 k k_unzip =v
+  (x_7 != 0 \/ k 0 0 k_unzip) /\ (x_7 = 0 \/ UNZIP (x_7 - 1) (\x_9.\y_8.\k_f.k (x_9 + 1) (y_8 + 1) k_f) k_unzip).
+ZIP x_6 y k_zip =v
+  (x_6 != 0 \/ (y != 0 \/ k_zip 0) /\ y = 0)
+  /\ (x_6 = 0 \/ y != 0 /\ (y = 0 \/ ZIP (x_6 - 1) (y - 1) (\x_3.k_zip (1 + x_3)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

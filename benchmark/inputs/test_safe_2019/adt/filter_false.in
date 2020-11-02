@@ -1,0 +1,51 @@
+%HES
+MAIN  =v
+  MAKE_INTLIST true
+   (\arg10.
+     \arg11.
+      LENGTH arg10 arg11
+       (\n.FILTER (\x_2.\k_main_p.k_main_p false true) arg10 arg11 (\x0.\x1.LENGTH x0 x1 (\x_1.x_1 = 0)))).
+FILTER f xs0 xs1 k_filter_31 =v
+  (xs0 > 0 \/ k_filter_31 0 (\x_30.\k_filter_29.true))
+  /\ (xs0 <= 0
+      \/ (xs0 <= 0
+          \/ xs1 0
+              (\x_28.
+                f 0
+                 (\x_pos_27.
+                   \x_neg_27.
+                    (x_neg_27
+                     \/ FILTER f (xs0 - 1) (\x_19.\k_filter_xs__18.xs1 (x_19 + 1) k_filter_xs__18)
+                         (\p0_26.
+                           \p1_25.
+                            k_filter_31 (1 + p0_26)
+                             (\i_24.
+                               \k_filter.
+                                (i_24 != 0 \/ k_filter 0)
+                                /\ (i_24 = 0
+                                    \/ FILTER f (xs0 - 1) (\x_21.\k_filter_xs__20.xs1 (x_21 + 1) k_filter_xs__20)
+                                        (\p0_23.\p1_22.p1_22 (i_24 - 1) k_filter)))))
+                    /\ (x_pos_27 \/ FILTER f (xs0 - 1) (\x_17.\k_filter_xs_.xs1 (x_17 + 1) k_filter_xs_) k_filter_31))))).
+LENGTH x0_16 x1_15 k_length =v
+  (x0_16 > 0 \/ k_length 0)
+  /\ (x0_16 <= 0
+      \/ (x0_16 <= 0 \/ LENGTH (x0_16 - 1) (\x_13.\k_length_l.x1_15 (x_13 + 1) k_length_l) (\x_14.k_length (1 + x_14)))).
+MAKE_INTLIST x_11 k_main_arg1_make_intlist_10 =v
+  Forall
+   (\x_9.
+     (x_9 != 0 \/ k_main_arg1_make_intlist_10 0 (\x_8.\k_main_arg1_make_intlist_7.true))
+     /\ (x_9 = 0
+         \/ Forall
+             (\n_5.
+               MAKE_INTLIST true
+                (\p0_4.
+                  \p1_3.
+                   k_main_arg1_make_intlist_10 (1 + p0_4)
+                    (\i.
+                      \k_main_arg1_make_intlist.
+                       (i != 0 \/ k_main_arg1_make_intlist 0)
+                       /\ (i = 0 \/ MAKE_INTLIST true (\p0.\p1.p1 (i - 1) k_main_arg1_make_intlist))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

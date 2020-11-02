@@ -1,0 +1,10 @@
+environment
+fact : int->int->int->bool;
+
+program
+n <= 0 ^ exn = 1 => fact n r exn
+n > 0 ^ (fact (n-1) r 0) ^ exn = 0 => fact n r exn
+n > 0 ^ (E r2:int. (fact (n-1) r2 1)) ^ r = 1 ^ exn = 0 => fact n r exn;
+
+goal
+E n,r,exn:int. (fact n r exn) ^ exn = 1 ^ n > 0

@@ -1,0 +1,3 @@
+%HES
+MAIN =v Repeat (\x_4. \k_succ. k_succ (x_4 + 1)) ext_1 (\x. ((x != ext_1) \/ true) /\ ((x = ext_1) \/ false)).
+Repeat f n k_repeat =v ((n != 0) \/ (k_repeat 0)) /\ ((n = 0) \/ (Repeat f (n - 1) (\x_3. f x_3 k_repeat))).

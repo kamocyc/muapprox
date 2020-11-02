@@ -1,0 +1,10 @@
+(library
+ (public_name muapprox)
+ (libraries
+    hflmc2_util
+    hflmc2_options
+    hflmc2_syntax
+    hflmc2_muapprox
+    ))
+
+(env (dev (flags (:standard -warn-error -A))))

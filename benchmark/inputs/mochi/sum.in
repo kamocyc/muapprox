@@ -1,0 +1,3 @@
+%HES
+S =v SUM n (\x. n <= x).
+SUM x k =v (x > 0 \/ k 0) /\ (x <= 0 \/ SUM (x-1) (\y. k (x + y))).

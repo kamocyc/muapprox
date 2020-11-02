@@ -1,0 +1,53 @@
+%HES
+MAIN  =v MAKE_LIST arg1 (\xs0.\xs1.INSERTSORT xs0 xs1 (\x0.\x1.LENGTH x0 x1 (\x_2.LENGTH xs0 xs1 (\x_1.x_2 >= x_1)))).
+INSERT x_37 ys0 ys1 k_insert_36 =v
+  (ys0 > 0 \/ k_insert_36 1 (\i_35.\k_insert_34.i_35 != 0 \/ k_insert_34 x_37))
+  /\ (ys0 <= 0
+      \/ (ys0 <= 0
+          \/ ys1 0
+              (\y.
+                (x_37 >= y
+                 \/ k_insert_36 (2 + (ys0 - 1))
+                     (\i_33.
+                       \k_insert_32.
+                        (i_33 != 0 \/ k_insert_32 x_37)
+                        /\ (i_33 = 0 \/ (i_33 != 1 \/ k_insert_32 y) /\ (i_33 = 1 \/ ys1 ((i_33 - 2) + 1) k_insert_32))))
+                /\ (x_37 < y
+                    \/ INSERT x_37 (ys0 - 1) (\x_24.\k_insert_ys_.ys1 (x_24 + 1) k_insert_ys_)
+                        (\p0_31.
+                          \p1_30.
+                           k_insert_36 (1 + p0_31)
+                            (\i_29.
+                              \k_insert.
+                               (i_29 != 0 \/ k_insert y)
+                               /\ (i_29 = 0
+                                   \/ INSERT x_37 (ys0 - 1) (\x_26.\k_insert_ys__25.ys1 (x_26 + 1) k_insert_ys__25)
+                                       (\p0_28.\p1_27.p1_27 (i_29 - 1) k_insert)))))))).
+INSERTSORT xs0_23 xs1_22 k_insertsort_21 =v
+  (xs0_23 > 0 \/ k_insertsort_21 0 (\x_20.\k_insertsort.true))
+  /\ (xs0_23 <= 0
+      \/ (xs0_23 <= 0
+          \/ xs1_22 0
+              (\x_19.
+                INSERTSORT (xs0_23 - 1) (\x_16.\k_insertsort_xs_.xs1_22 (x_16 + 1) k_insertsort_xs_)
+                 (\x0_18.\x1_17.INSERT x_19 x0_18 x1_17 k_insertsort_21)))).
+MAKE_LIST n_15 k_make_list_14 =v
+  (n_15 != 0 \/ k_make_list_14 0 (\x_13.\k_make_list_12.true))
+  /\ (n_15 = 0
+      \/ Forall
+          (\n.
+            MAKE_LIST (n_15 - 1)
+             (\p0_10.
+               \p1_9.
+                k_make_list_14 (1 + p0_10)
+                 (\i.
+                   \k_make_list.
+                    (i != 0 \/ k_make_list n) /\ (i = 0 \/ MAKE_LIST (n_15 - 1) (\p0.\p1.p1 (i - 1) k_make_list)))))).
+LENGTH xs0_8 xs1_7 k_length =v
+  (xs0_8 > 0 \/ k_length 0)
+  /\ (xs0_8 <= 0
+      \/ (xs0_8 <= 0 \/ LENGTH (xs0_8 - 1) (\x_5.\k_length_xs_.xs1_7 (x_5 + 1) k_length_xs_) (\x_6.k_length (1 + x_6)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

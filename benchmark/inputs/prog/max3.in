@@ -1,0 +1,11 @@
+%HES
+S =v Max3 n (\m. m >= n).
+Max2 x k =v k x.
+Max3 y k =v Max2 y (\r. Max4 r k).
+Max4 z k =v k z.
+
+%LTS
+s0 a -> s0.
+
+
+

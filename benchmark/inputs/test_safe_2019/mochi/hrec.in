@@ -1,0 +1,7 @@
+%HES
+MAIN  =v F (\x_4.\k_succ.k_succ (x_4 + 1)) arg1 (\x_1.x_1 >= 0).
+F g x_6 k_f =v (x_6 < 0 \/ g x_6 k_f) /\ (x_6 >= 0 \/ g x_6 (\x_5.F (F g) x_5 k_f)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

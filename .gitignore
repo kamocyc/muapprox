@@ -1,0 +1,8 @@
+_build
+**/.merlin
+**/*.json
+**/*.horsat_out
+**/*.hors
+**/*.annot
+**/*.status
+**/*.install

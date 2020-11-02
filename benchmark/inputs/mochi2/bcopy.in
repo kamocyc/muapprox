@@ -1,0 +1,9 @@
+%HES
+MAIN =v ((ext_1 > ext_3) \/ (Bcopy_aux ext_1 ext_3 0 ext_1 (\_unit5. true))) /\ ((ext_1 <= ext_3) \/ true).
+Bcopy_aux src des i m k_bcopy_aux =v ((i < m) \/ (k_bcopy_aux true)) /\ ((i >= m) \/ ((((0 > i) \/ (i >= src)) \/ ((((0 > i) \/ (i >= des)) \/ (Bcopy_aux src des (i + 1) m k_bcopy_aux)) /\ (((0 <= i) /\ (i < des)) \/ false))) /\ (((0 <= i) /\ (i < src)) \/ false))).
+
+
+/*
+first-order formula pを b_{C=>p}にすると解けなくなる [e65047dd]
+843d28f2でNoProgressに
+*/

@@ -1,0 +1,27 @@
+%HES
+MAIN  =v
+  l < 0
+  \/ Forall
+      (\x.
+        FOLDR true false 0 0 0 true false 0 0
+         (\x_DO_NOT_CARE_180_pos.
+           \x_DO_NOT_CARE_180_neg.
+            \x_DO_NOT_CARE_181.
+             \x_DO_NOT_CARE_182.
+              \m.
+               \prev_set_flag_sum_166_pos.
+                \prev_set_flag_sum_166_neg.
+                 \s_prev_sum_m_164.
+                  \s_prev_sum_n_165.\n.\k_sum.prev_set_flag_sum_166_neg /\ (prev_set_flag_sum_166_pos \/ k_sum 0))
+         true false 0 0 x false true 0 0 l (\u_15503.true)).
+FOLDR x_pos_19 x_neg_19 x_18 x_17 h_EXPARAM_92 x_pos_16 x_neg_16 x_15 x_14 h x_pos_13 x_neg_13 x_12 x_11 e set_flag_sum_167_pos_10 set_flag_sum_167_neg_10 s_sum_m_162_9 s_sum_n_163_8 l_7 k_foldr
+  =v
+  (l_7 != 0 \/ k_foldr 0)
+  /\ (l_7 = 0
+      \/ FOLDR true false 0 0 0 true false 0 0 h true false 0 0 0 set_flag_sum_167_pos_10 set_flag_sum_167_neg_10 0 0
+          (l_7 - 1)
+          (\x_6.Forall (\x_5.h true false 0 0 x_5 set_flag_sum_167_pos_10 set_flag_sum_167_neg_10 0 0 x_6 k_foldr))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

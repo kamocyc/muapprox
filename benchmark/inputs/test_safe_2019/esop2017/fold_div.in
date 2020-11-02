@@ -1,0 +1,36 @@
+%HES
+MAIN  =v
+  MAKE_LIST arg1
+   (\xs0.
+     \xs1.
+      FOLD_LEFT (\x_8.\y.\k_main_div.\h_7.(y != 0 \/ h_7 0) /\ (y = 0 \/ Forall k_main_div)) 0 xs0 xs1 (\main.true)
+       (\e_2.false)).
+FOLD_LEFT f acc xs0_26 xs1_25 k_fold_left h_24 =v
+  (xs0_26 > 0 \/ k_fold_left 0)
+  /\ (xs0_26 <= 0
+      \/ (xs0_26 <= 0
+          \/ xs1_25 0
+              (\x_23.
+                f 0 x_23
+                 (\x_22.
+                   FOLD_LEFT f x_22 (xs0_26 - 1) (\x_21.\k_fold_left_xs_.xs1_25 (x_21 + 1) k_fold_left_xs_) k_fold_left
+                    h_24)
+                 h_24))).
+RANDPOS x_20 k_randpos =v Forall (\n_18.(n_18 <= 0 \/ k_randpos n_18) /\ (n_18 > 0 \/ RANDPOS true k_randpos)).
+MAKE_LIST n_17 k_make_list_16 =v
+  (n_17 > 0 \/ k_make_list_16 0 (\x_15.\k_make_list_14.true))
+  /\ (n_17 <= 0
+      \/ RANDPOS true
+          (\r_randpos.
+            MAKE_LIST (n_17 - 1)
+             (\p0_13.
+               \p1_12.
+                k_make_list_16 (1 + p0_13)
+                 (\i.
+                   \k_make_list.
+                    (i != 0 \/ k_make_list r_randpos)
+                    /\ (i = 0 \/ MAKE_LIST (n_17 - 1) (\p0.\p1.p1 (i - 1) k_make_list)))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

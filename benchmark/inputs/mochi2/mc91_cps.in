@@ -1,0 +1,3 @@
+%HES
+MAIN =v M ext_1 (\r. \k_main_k. ((ext_1 > 101) \/ (((r != 91) \/ (k_main_k true)) /\ ((r = 91) \/ false))) /\ ((ext_1 <= 101) \/ (k_main_k true))) (\_unit4. true).
+M x k_6 k_m =v ((x <= 100) \/ (k_6 (x - 10) k_m)) /\ ((x > 100) \/ (M (x + 11) (\r_5. \k_m_f. M r_5 k_6 k_m_f) k_m)).

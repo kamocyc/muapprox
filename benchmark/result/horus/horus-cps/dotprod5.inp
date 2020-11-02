@@ -1,0 +1,20 @@
+environment
+F1 : int -> (int -> (int -> bool) -> bool) -> (int -> (int -> bool) -> bool) -> int -> (bool -> bool) -> bool
+F2 : int -> int -> int -> int -> (int -> bool) -> bool
+F3 : int -> int -> int -> int -> (int -> bool) -> bool
+F4 : int -> int -> int -> bool -> bool
+F5 : int -> int -> (int -> (int -> bool) -> bool) -> (bool -> bool) -> (int -> (int -> bool) -> bool) -> int -> bool
+F6 : int -> (int -> (int -> bool) -> bool) -> (int -> (int -> bool) -> bool) -> (bool -> bool) -> int -> int -> int -> bool
+F7 : (int -> (int -> bool) -> bool) -> int -> int -> int -> (int -> (int -> bool) -> bool) -> (bool -> bool) -> int -> int -> (int -> bool) -> bool
+;
+program
+((v19 >= v16) ∧ (v20 false)) ∨ ((v19 < v16) ∧ (v17 v19 (F5 v19 v16 v18 v20 v17))) => F1 v16 v17 v18 v19 v20
+(((v4 >= 0) ∧ (v4 < v5)) ∧ (v27 0)) ∨ (((v4 < 0) ∨ (v4 >= v5)) ∧ true) => F2 v5 v6 v7 v4 v27
+(((v8 >= 0) ∧ (v8 < v11)) ∧ (v28 0)) ∨ (((v8 < 0) ∨ (v8 >= v11)) ∧ true) => F3 v9 v10 v11 v8 v28
+false => F4 v13 v14 v15 v12
+v24 v22 (F6 v23 v26 v24 v25 v22 v21) => F5 v22 v23 v24 v25 v26 v21
+F1 v30 v31 (F7 v32 v34 v30 v35 v31 v33 v29) (v34 + 1) v33 => F6 v30 v31 v32 v33 v34 v35 v29
+((v38 = v36) ∧ (v44 v40)) ∨ ((v38 != v36) ∧ (v37 v36 v44)) => F7 v37 v38 v39 v40 v41 v42 v43 v36 v44
+;
+goal
+∃v1,v2,v3:int. (((v2 = 0) ∧ (v1 <= v3)) ∧ (F1 v1 (F2 v1 v2 v3) (F3 v1 v2 v3) v2 (F4 v1 v2 v3))) ∨ (((v2 != 0) ∨ (v1 > v3)) ∧ false)

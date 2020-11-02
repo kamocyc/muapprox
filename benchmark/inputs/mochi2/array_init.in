@@ -1,0 +1,3 @@
+%HES
+MAIN =v Init 0 ext_1 (\i_8. \k_mk_array. (((0 > i_8) \/ (i_8 >= ext_1)) \/ (k_mk_array 0)) /\ (((0 <= i_8) /\ (i_8 < ext_1)) \/ (k_mk_array (-1)))) (\x_1. (((0 > ext_3) \/ (ext_3 >= ext_1)) \/ (x_1 ext_3 (\x. ((x < 1) \/ true) /\ ((x >= 1) \/ false)))) /\ (((0 <= ext_3) /\ (ext_3 < ext_1)) \/ true)).
+Init i n a k_init =v ((i < n) \/ (k_init a)) /\ ((i >= n) \/ (Init (i + 1) n (\j. \k_update. ((j != i) \/ (k_update 1)) /\ ((j = i) \/ (a j k_update))) k_init)).

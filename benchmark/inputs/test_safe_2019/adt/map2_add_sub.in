@@ -1,0 +1,71 @@
+%HES
+MAIN  =v
+  MAKE_LIST (\x_20.\k_const0.k_const0 0) arg1
+   (\zero0.
+     \zero1.
+      MAKE_LIST RAND_POS arg1
+       (\pos0.
+         \pos1.
+          MAKE_LIST RAND_NEG arg1
+           (\neg0.
+             \neg1.
+              MAP2 (\x_13.\y_12.\k_add.k_add (x_13 + y_12)) zero0 zero1 pos0 pos1
+               (\xs0.
+                 \xs1.
+                  MAP2 (\x_11.\y_10.\k_sub.k_sub (x_11 - y_10)) xs0 xs1 neg0 neg1
+                   (\ys0.\ys1.FOR_ALL (\y.\k_main.k_main (y > 0) (y <= 0)) ys0 ys1 (\x_pos_1.\x_neg_1.x_pos_1)))))).
+MAP2 f_49 xs0_48 xs1_47 ys0_46 ys1_45 k_map2_44 =v
+  ((xs0_48 > 0 \/ ys0_46 > 0) \/ (xs0_48 > 0 \/ (ys0_46 > 0 \/ k_map2_44 0 (\x_43.\k_map2_42.true))))
+  /\ (xs0_48 <= 0 /\ ys0_46 <= 0
+      \/ ((xs0_48 <= 0 \/ ys0_46 <= 0)
+          \/ (xs0_48 <= 0
+              \/ xs1_47 0
+                  (\x_41.
+                    ys0_46 <= 0
+                    \/ ys1_45 0
+                        (\y_40.
+                          f_49 x_41 y_40
+                           (\r_f_39.
+                             MAP2 f_49 (xs0_48 - 1) (\x_28.\k_map2_xs_.xs1_47 (x_28 + 1) k_map2_xs_) (ys0_46 - 1)
+                              (\x_29.\k_map2_ys_.ys1_45 (x_29 + 1) k_map2_ys_)
+                              (\p0_38.
+                                \p1_37.
+                                 k_map2_44 (1 + p0_38)
+                                  (\i_36.
+                                    \k_map2.
+                                     (i_36 != 0 \/ k_map2 r_f_39)
+                                     /\ (i_36 = 0
+                                         \/ MAP2 f_49 (xs0_48 - 1)
+                                             (\x_31.\k_map2_xs__30.xs1_47 (x_31 + 1) k_map2_xs__30) (
+                                             ys0_46 - 1) (\x_33.\k_map2_ys__32.ys1_45 (x_33 + 1) k_map2_ys__32)
+                                             (\p0_35.\p1_34.p1_34 (i_36 - 1) k_map2)))))))))
+         /\ (xs0_48 > 0 /\ ys0_46 > 0)).
+RAND_POS x_26 k_rand_pos =v Forall (\n_24.(n_24 <= 0 \/ k_rand_pos n_24) /\ (n_24 > 0 \/ RAND_POS true k_rand_pos)).
+RAND_NEG x_23 k_rand_neg =v Forall (\n_21.(n_21 >= 0 \/ k_rand_neg n_21) /\ (n_21 < 0 \/ RAND_NEG true k_rand_neg)).
+MAKE_LIST f_19 n k_make_list_18 =v
+  (n != 0 \/ k_make_list_18 0 (\x_17.\k_make_list_16.true))
+  /\ (n = 0
+      \/ f_19 true
+          (\r_f.
+            MAKE_LIST f_19 (n - 1)
+             (\p0_15.
+               \p1_14.
+                k_make_list_18 (1 + p0_15)
+                 (\i.
+                   \k_make_list.
+                    (i != 0 \/ k_make_list r_f) /\ (i = 0 \/ MAKE_LIST f_19 (n - 1) (\p0.\p1.p1 (i - 1) k_make_list)))))).
+FOR_ALL f xs0_9 xs1_8 k_for_all =v
+  (xs0_9 > 0 \/ k_for_all true false)
+  /\ (xs0_9 <= 0
+      \/ (xs0_9 <= 0
+          \/ xs1_8 0
+              (\x_7.
+                f x_7
+                 (\x_pos_6.
+                   \x_neg_6.
+                    (x_neg_6 \/ FOR_ALL f (xs0_9 - 1) (\x_5.\k_for_all_xs_.xs1_8 (x_5 + 1) k_for_all_xs_) k_for_all)
+                    /\ (x_pos_6 \/ k_for_all false true))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

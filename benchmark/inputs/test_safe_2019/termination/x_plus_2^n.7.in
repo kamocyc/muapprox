@@ -1,0 +1,13 @@
+%HES
+MAIN  =v (x < 0 \/ x_1 < 0) \/ F_WITHOUT_CHECKING_186 true 0 x (\x_3.x_3 true 0 0 (\u_13922.true)).
+F_WITHOUT_CHECKING_186 x_13 x_12 n_11 k_f_without_checking_186 =v
+  (n_11 != 0 \/ k_f_without_checking_186 (\x_23.\x_22.\n_21.\k_succ.k_succ 0))
+  /\ (n_11 = 0
+      \/ ((n_11 <= n_11 - 1 \/ n_11 - 1 < 0)
+          \/ F_WITHOUT_CHECKING_186 true 0 (n_11 - 1)
+              (\x_10.k_f_without_checking_186 (\set_flag_f_178_15.\s_f_n_175_14.\a.\k_g.k_g 0)))
+         /\ (n_11 > n_11 - 1 /\ n_11 - 1 >= 0)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

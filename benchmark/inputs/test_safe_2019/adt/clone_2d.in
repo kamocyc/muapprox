@@ -1,0 +1,55 @@
+%HES
+MAIN  =v
+  CLONE_40 arg2 0 0 arg2
+   (\x0_18.
+     \x1_17.
+      CLONE arg2 0 x0_18 x1_17 arg2
+       (\x0.
+         \x1.
+          MAP (\x0_16.\x1_15.\k_head.x0_16 > 0 /\ (x0_16 <= 0 \/ (x0_16 <= 0 \/ x1_15 0 k_head))) x0 x1
+           (\main0.\main1.true))).
+CLONE_40 n x_41 x_39 m_38 k_clone_2d_clone_37 =v
+  (m_38 <= 0
+   \/ CLONE_40 n x_41 0 (m_38 - 1)
+       (\p0_36.
+         \p1_35.
+          k_clone_2d_clone_37 (1 + p0_36)
+           (\i_34.
+             \k_clone_2d_clone_33.
+              (i_34 != 0 \/ k_clone_2d_clone_33 0)
+              /\ (i_34 = 0 \/ CLONE_40 n x_41 0 (m_38 - 1) (\p0_32.\p1_31.p1_31 (i_34 - 1) k_clone_2d_clone_33)))))
+  /\ (m_38 > 0 \/ k_clone_2d_clone_37 0 (\x_30.\k_clone_2d_clone_29.true)).
+CLONE n x_41 x0_28 x1_27 m k_clone_2d_clone_26 =v
+  (m <= 0
+   \/ CLONE n x_41 x0_28 x1_27 (m - 1)
+       (\p0_25.
+         \p1_24.
+          k_clone_2d_clone_26 (1 + p0_25)
+           (\i_23.
+             \k_clone_2d_clone_22.
+              (i_23 != 0 \/ k_clone_2d_clone_22 x0_28 x1_27)
+              /\ (i_23 = 0 \/ CLONE n x_41 x0_28 x1_27 (m - 1) (\p0_21.\p1_20.p1_20 (i_23 - 1) k_clone_2d_clone_22)))))
+  /\ (m > 0 \/ k_clone_2d_clone_26 0 (\x_19.\k_clone_2d_clone.true)).
+MAP f x0_13 x1_12 k_map_11 =v
+  (x0_13 > 0 \/ k_map_11 0 (\x_10.\k_map_9.true))
+  /\ (x0_13 <= 0
+      \/ (x0_13 <= 0
+          \/ x1_12 0
+              (\x0_8.
+                \x1_7.
+                 f x0_8 x1_7
+                  (\r_f.
+                    MAP f (x0_13 - 1) (\x.\k_map_l.x1_12 (x + 1) k_map_l)
+                     (\p0_6.
+                       \p1_5.
+                        k_map_11 (1 + p0_6)
+                         (\i.
+                           \k_map.
+                            (i != 0 \/ k_map 0)
+                            /\ (i = 0
+                                \/ MAP f (x0_13 - 1) (\x_4.\k_map_l_3.x1_12 (x_4 + 1) k_map_l_3)
+                                    (\p0.\p1.p1 (i - 1) k_map)))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

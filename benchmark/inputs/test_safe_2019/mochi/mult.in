@@ -1,0 +1,7 @@
+%HES
+MAIN  =v MULT arg1 arg1 (\x_1.arg1 <= x_1).
+MULT n m k_mult =v (n > 0 /\ m > 0 \/ k_mult 0) /\ ((n <= 0 \/ m <= 0) \/ MULT n (m - 1) (\x_4.k_mult (n + x_4))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

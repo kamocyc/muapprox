@@ -1,0 +1,20 @@
+%HES
+MAIN  =v
+  l < 0
+  \/ Forall
+      (\x.
+        FOLDR_WITHOUT_CHECKING_131 true 0 0 0 0 true 0 0 0
+         (\x_10.\x_9.\x_8.\x_7.\m.\x_6.\x_5.\x_4.\x_3.\n.\k_sum.k_sum 0) true 0 0 0 x true 0 0 0 l (
+         \u_11638.true)).
+FOLDR_WITHOUT_CHECKING_131 x_35 x_34 x_33 x_32 h_EXPARAM_92_31 x_30 x_29 x_28 x_27 h_26 x_25 x_24 x_23 x_22 e_21 x_20 x_19 x_18 x_17 l_16 k_foldr_without_checking_131
+  =v
+  (l_16 != 0 \/ k_foldr_without_checking_131 0)
+  /\ (l_16 = 0
+      \/ ((l_16 <= l_16 - 1 \/ l_16 - 1 < 0)
+          \/ FOLDR_WITHOUT_CHECKING_131 true 0 0 0 0 true 0 0 0 h_26 true 0 0 0 0 true 0 0 0 (l_16 - 1)
+              (\x_15.Forall (\x_14.h_26 true 0 0 0 x_14 true 0 0 0 x_15 k_foldr_without_checking_131)))
+         /\ (l_16 > l_16 - 1 /\ l_16 - 1 >= 0)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

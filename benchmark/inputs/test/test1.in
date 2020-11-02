@@ -1,0 +1,10 @@
+%HES
+S =v S2 n.
+S2 z =v F (z+1) z.
+F x y =v G y x.
+G y x =v y < x.
+
+%LTS
+s0 a -> s0.
+
+

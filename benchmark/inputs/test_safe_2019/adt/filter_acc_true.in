@@ -1,0 +1,47 @@
+%HES
+MAIN  =v
+  MAKE_INTLIST true
+   (\arg10.
+     \arg11.
+      LENGTH arg10 arg11
+       (\n.
+         FILTER_ACC (\x_3.\k_main_p.k_main_p true false) 0 (\x.\k_main.true) arg10 arg11
+          (\x0.\x1.LENGTH x0 x1 (\x_2.x_2 <= n)))).
+FILTER_ACC p_26 acc0 acc1 xs0 xs1 k_filter_acc_25 =v
+  (xs0 > 0 \/ k_filter_acc_25 acc0 acc1)
+  /\ (xs0 <= 0
+      \/ (xs0 <= 0
+          \/ xs1 0
+              (\x_24.
+                p_26 0
+                 (\x_pos_23.
+                   \x_neg_23.
+                    (x_neg_23
+                     \/ FILTER_ACC p_26 (1 + acc0) (\i_20.\k_filter_acc.k_filter_acc 0) (xs0 - 1)
+                         (\x_22.\k_filter_acc_xs__21.xs1 (x_22 + 1) k_filter_acc_xs__21) k_filter_acc_25)
+                    /\ (x_pos_23
+                        \/ FILTER_ACC p_26 acc0 acc1 (xs0 - 1)
+                            (\x_19.\k_filter_acc_xs_.xs1 (x_19 + 1) k_filter_acc_xs_) k_filter_acc_25))))).
+LENGTH x0_18 x1_17 k_length =v
+  (x0_18 > 0 \/ k_length 0)
+  /\ (x0_18 <= 0
+      \/ (x0_18 <= 0 \/ LENGTH (x0_18 - 1) (\x_15.\k_length_l.x1_17 (x_15 + 1) k_length_l) (\x_16.k_length (1 + x_16)))).
+MAKE_INTLIST x_12 k_main_arg1_make_intlist_11 =v
+  Forall
+   (\x_10.
+     (x_10 != 0 \/ k_main_arg1_make_intlist_11 0 (\x_9.\k_main_arg1_make_intlist_8.true))
+     /\ (x_10 = 0
+         \/ Forall
+             (\n_6.
+               MAKE_INTLIST true
+                (\p0_5.
+                  \p1_4.
+                   k_main_arg1_make_intlist_11 (1 + p0_5)
+                    (\i.
+                      \k_main_arg1_make_intlist.
+                       (i != 0 \/ k_main_arg1_make_intlist 0)
+                       /\ (i = 0 \/ MAKE_INTLIST true (\p0.\p1.p1 (i - 1) k_main_arg1_make_intlist))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,6 @@
+%HES
+S =v X 3.
+X z =v <a>(X (z-1)) /\ z >= 0.
+
+%LTS
+s1 a -> s1.

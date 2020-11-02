@@ -1,0 +1,5 @@
+%HES
+S =v F n G.
+F n k =v
+  n >= 0 \/ k 0.
+G n =v n = 0.

@@ -1,0 +1,11 @@
+%HES
+Main =v F n 0 (\r. G n r (\r2. r2 = 0)).
+Lock st k =v st = 0 /\ k 1.
+Unlock st k =v st = 1 /\ k 0.
+F n st k =v
+  (n <= 0 \/ Lock st k) /\
+  (n >  0 \/ k st).
+G n st k =v
+  (n <  0 \/ Unlock st k) /\
+  (n >= 0 \/ k st).
+

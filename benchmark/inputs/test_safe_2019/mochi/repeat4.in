@@ -1,0 +1,7 @@
+%HES
+MAIN  =v REPEAT (\x_5.\k_succ.k_succ (x_5 + 1)) arg1 (\x_1.x_1 = arg1).
+REPEAT f n k_repeat =v (n != 0 \/ k_repeat 0) /\ (n = 0 \/ REPEAT f (n - 1) (\x_4.f x_4 k_repeat)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

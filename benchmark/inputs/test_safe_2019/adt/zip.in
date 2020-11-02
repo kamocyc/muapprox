@@ -1,0 +1,38 @@
+%HES
+MAIN  =v MAKE_LIST arg1 (\xs0.\xs1.ZIP xs0 xs1 xs0 xs1 (\main0.\main1.true)).
+ZIP xs0_24 xs1_23 ys0 ys1 k_zip_22 =v
+  (xs0_24 > 0 \/ (ys0 > 0 \/ k_zip_22 0 (\x_21.\k_zip_20.true)) /\ ys0 <= 0)
+  /\ (xs0_24 <= 0
+      \/ (xs0_24 <= 0
+          \/ xs1_23 0
+              (\x_18.
+                ys0 > 0
+                /\ (ys0 <= 0
+                    \/ (ys0 <= 0
+                        \/ ys1 0
+                            (\y.
+                              ZIP (xs0_24 - 1) (\x_6.\k_zip_xs_.xs1_23 (x_6 + 1) k_zip_xs_) (ys0 - 1)
+                               (\x_7.\k_zip_ys_.ys1 (x_7 + 1) k_zip_ys_)
+                               (\p0_16.
+                                 \p1_15.
+                                  k_zip_22 (1 + p0_16)
+                                   (\i_14.
+                                     \k_zip.
+                                      (i_14 != 0 \/ k_zip 0 0)
+                                      /\ (i_14 = 0
+                                          \/ ZIP (xs0_24 - 1) (\x_9.\k_zip_xs__8.xs1_23 (x_9 + 1) k_zip_xs__8)
+                                              (ys0 - 1) (\x_11.\k_zip_ys__10.ys1 (x_11 + 1) k_zip_ys__10)
+                                              (\p0_13.\p1_12.p1_12 (i_14 - 1) k_zip)))))))))).
+MAKE_LIST n k_make_list_5 =v
+  (n >= 0 \/ k_make_list_5 0 (\x.\k_make_list_4.true))
+  /\ (n < 0
+      \/ MAKE_LIST (n - 1)
+          (\p0_3.
+            \p1_2.
+             k_make_list_5 (1 + p0_3)
+              (\i.
+                \k_make_list.(i != 0 \/ k_make_list 0) /\ (i = 0 \/ MAKE_LIST (n - 1) (\p0.\p1.p1 (i - 1) k_make_list))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,12 @@
+%HES
+MAIN  =v t1 > 0 \/ (t2 >= 0 \/ UP_WITHOUT_CHECKING_112 true 0 t2 (\u_4598.true)).
+UP_WITHOUT_CHECKING_112 x_19 x_18 x_17 k_up_without_checking_112 =v
+  (x_17 != 0 \/ k_up_without_checking_112 true)
+  /\ (x_17 = 0
+      \/ ((0 - x_17 <= 0 - (x_17 + 1) \/ 0 - (x_17 + 1) < 0)
+          \/ UP_WITHOUT_CHECKING_112 true 0 (x_17 + 1) k_up_without_checking_112)
+         /\ (0 - x_17 > 0 - (x_17 + 1) /\ 0 - (x_17 + 1) >= 0)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

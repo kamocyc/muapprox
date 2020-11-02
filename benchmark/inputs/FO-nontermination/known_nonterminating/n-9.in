@@ -1,0 +1,32 @@
+%HES
+MAIN_25  =v
+  Exists (\lt_232.Exists (\st_217.Exists (\x_199.Exists (\y_162.STATE_0 lt_232 st_217 y_162 (\main_156.false))))).
+STATE_0 lt_15_19 st_17_18 y_16_17 k_state_0 =v
+  Exists
+   (\br_242.
+     (br_242 <= 0 \/ k_state_0 true)
+     /\ (br_242 > 0
+         \/ Exists
+             (\br_229.
+               (br_229 <= 0
+                \/ (lt_15_19 < y_16_17 \/ k_state_0 true)
+                   /\ (lt_15_19 >= y_16_17
+                       \/ Exists
+                           (\lt_15_206.
+                             Exists
+                              (\nd_12_178.
+                                (0 = nd_12_178 \/ k_state_0 true)
+                                /\ (0 != nd_12_178 \/ STATE_0 lt_15_206 st_17_18 y_16_17 k_state_0)))))
+               /\ (br_229 > 0
+                   \/ (lt_15_19 < y_16_17 \/ k_state_0 true)
+                      /\ (lt_15_19 >= y_16_17
+                          \/ Exists
+                              (\lt_15_213.
+                                Exists
+                                 (\nd_194.
+                                   (0 != nd_194 \/ k_state_0 true)
+                                   /\ (0 = nd_194 \/ STATE_0 lt_15_213 st_17_18 y_16_17 k_state_0)))))))).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

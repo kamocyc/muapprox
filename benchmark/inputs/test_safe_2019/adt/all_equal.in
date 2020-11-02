@@ -1,0 +1,24 @@
+%HES
+MAIN  =v REPLICATE arg1 arg2 (\x0.\x1.ALL_EQUAL arg1 x0 x1 (\main.true)).
+REPLICATE x_12 n k_replicate_11 =v
+  (n > 0 \/ k_replicate_11 0 (\x_10.\k_replicate_9.true))
+  /\ (n <= 0
+      \/ REPLICATE x_12 (n - 1)
+          (\p0_8.
+            \p1_7.
+             k_replicate_11 (1 + p0_8)
+              (\i.
+                \k_replicate.
+                 (i != 0 \/ k_replicate x_12) /\ (i = 0 \/ REPLICATE x_12 (n - 1) (\p0.\p1.p1 (i - 1) k_replicate))))).
+ALL_EQUAL x_6 l0 l1 k_all_equal =v
+  (l0 > 0 \/ k_all_equal true)
+  /\ (l0 <= 0
+      \/ (l0 <= 0
+          \/ l1 0
+              (\y.
+                (x_6 != y \/ ALL_EQUAL y (l0 - 1) (\x.\k_all_equal_ys.l1 (x + 1) k_all_equal_ys) k_all_equal)
+                /\ x_6 = y))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,23 @@
+%HES
+MAIN_15  =v
+  Exists
+   (\x_147.
+     Exists
+      (\y_132.
+        Exists
+         (\z_121.
+           Exists
+            (\br_157.
+              (br_157 <= 0
+               \/ (0 <= (0 - x_147) + y_132 \/ false)
+                  /\ (0 > (0 - x_147) + y_132
+                      \/ (0 <= (0 - y_132) + z_121 \/ false)
+                         /\ (0 > (0 - y_132) + z_121
+                             \/ (((-1) - x_147) + z_121 < 0 \/ false)
+                                /\ (((-1) - x_147) + z_121 >= 0 \/ STATE_2 x_147 y_132 z_121 (\main_116.false)))))
+              /\ (br_157 > 0 \/ Exists (\br_144.(br_144 <= 0 \/ false) /\ (br_144 > 0 \/ Exists (\br_128.false)))))))).
+STATE_2 x_5_13 y_6_12 z_7_11 k_state_2 =v STATE_2 (1 + x_5_13) (1 + y_6_12) ((-1) + z_7_11) k_state_2.
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

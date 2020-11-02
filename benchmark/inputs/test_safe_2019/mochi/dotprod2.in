@@ -1,0 +1,12 @@
+%HES
+MAIN  =v DOTPROD (\i_4.\k_main_v1.k_main_v1 0) (\i.\k_main_v2.k_main_v2 0) arg2 0 0 (\u.true).
+DOTPROD v1_15 v2_14 n_13 i_12 sum k_dotprod =v
+  (i_12 <= n_13 \/ k_dotprod 0)
+  /\ (i_12 > n_13
+      \/ ((0 > i_12 \/ i_12 > n_13)
+          \/ v1_15 0 (\x_8.v2_14 0 (\x.DOTPROD v1_15 v2_14 n_13 (i_12 + 1) (sum + x_8 * x) k_dotprod)))
+         /\ (0 <= i_12 /\ i_12 <= n_13)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

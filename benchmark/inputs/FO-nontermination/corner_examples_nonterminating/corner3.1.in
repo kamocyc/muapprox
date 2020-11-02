@@ -1,0 +1,14 @@
+%HES
+MAIN_12  =v
+  Exists
+   (\x_37.
+     Exists
+      (\y_34.
+        Exists
+         (\br_45.(br_45 <= 0 \/ STATE_1 x_37 (\main_30.false)) /\ (br_45 > 0 \/ STATE_2 x_37 y_34 (\main_30.false))))).
+STATE_1 x_8 k_state_1 =v (x_8 > 0 \/ k_state_1 true) /\ (x_8 <= 0 \/ STATE_1 (x_8 - 1) k_state_1).
+STATE_2 x_10 y_9 k_state_2 =v (x_10 > 0 \/ k_state_2 true) /\ (x_10 <= 0 \/ STATE_2 x_10 (y_9 - 1) k_state_2).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

@@ -1,0 +1,22 @@
+%HES
+MAIN  =v
+  l < 0
+  \/ MAP_WITHOUT_CHECKING_169 true 0 0 0 true 0 0
+      (\set_flag_map_134_13.\s_map_f_EXPARAM_127_12.\s_map_xs_129_11.\x_10.\k_compose.k_compose (1 + (2 + x_10))) true
+      0 0 l (\u_10608.true).
+MAP_WITHOUT_CHECKING_169 x_45 x_44 x_43 f_EXPARAM_121_42 x_41 x_40 x_39 f_38 x_37 x_36 x_35 xs_34 k_map_without_checking_169
+  =v
+  (xs_34 != 0 \/ k_map_without_checking_169 0)
+  /\ (xs_34 = 0
+      \/ Forall
+          (\x_33.
+            f_38 true 0 0 x_33
+             (\x_32.
+               ((xs_34 <= xs_34 - 1 \/ xs_34 - 1 < 0)
+                \/ MAP_WITHOUT_CHECKING_169 true 0 0 0 true 0 0 f_38 true 0 0 (xs_34 - 1)
+                    (\x_31.k_map_without_checking_169 (x_32 + x_31)))
+               /\ (xs_34 > xs_34 - 1 /\ xs_34 - 1 >= 0)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

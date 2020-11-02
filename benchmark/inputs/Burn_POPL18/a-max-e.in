@@ -1,0 +1,15 @@
+%HES
+S =v i != 0 \/
+     x != -1 \/
+     n <= 0 \/
+     Array_max n i (Make_array n) n m \/
+     m >= n+1.
+Make_array n i r =v n != i + r.
+Array_max n i a m r =v
+  ((i < n) \/ (r != m)) /\
+  ((i >= n) \/
+    (Forall 0 (\x.
+      a i x \/ (Forall 0 (\z.
+        ((x <= m \/ z != x) /\ (x > m \/ z != m)) \/
+        (Forall 0 (\w. w != i + 1 \/ Array_max n w a z r))))))).
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.

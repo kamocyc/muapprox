@@ -1,0 +1,112 @@
+%HES
+MAIN_302  =v
+  Exists
+   (\a_519.
+     Exists
+      (\w_516.
+        Exists
+         (\y_512.
+           (0 <= 2 \/ false)
+           /\ (0 > 2
+               \/ (0 <= 2 \/ false)
+                  /\ (0 > 2
+                      \/ (0 <= 2 \/ false)
+                         /\ (0 > 2
+                             \/ (0 <= 2 \/ false)
+                                /\ (0 > 2
+                                    \/ (0 <= 1 + 2 \/ false)
+                                       /\ (0 > 1 + 2
+                                           \/ (0 <= 1 + 2 \/ false)
+                                              /\ (0 > 1 + 2
+                                                  \/ (0 <= 1 + 2 \/ false)
+                                                     /\ (0 > 1 + 2
+                                                         \/ (0 <= 1 + 2 \/ false)
+                                                            /\ (0 > 1 + 2
+                                                                \/ (0 <= 1 + (1 + 2) \/ false)
+                                                                   /\ (
+                                                                   0 > 1 + (1 + 2)
+                                                                   \/ 
+                                                                   (0 <= 1 + (1 + 2) \/ false)
+                                                                   /\ (
+                                                                   0 > 1 + (1 + 2)
+                                                                   \/ 
+                                                                   (0 <= 1 + (1 + 2) \/ false)
+                                                                   /\ (
+                                                                   0 > 1 + (1 + 2)
+                                                                   \/ 
+                                                                   (y_512 != a_519 \/ false)
+                                                                   /\ (
+                                                                   y_512 = a_519
+                                                                   \/ 
+                                                                   (0 <= 1 + (1 + 2) \/ false)
+                                                                   /\ (
+                                                                   0 > 1 + (1 + 2)
+                                                                   \/ 
+                                                                   Exists
+                                                                    (
+                                                                    \lt_530.
+                                                                    STATE_6 (1 + (1 + 2)) 1 w_516 lt_530 y_512
+                                                                    (\main_507.false)))))))))))))))))).
+STATE_11 w_17_36 x_19_35 k_state_11 =v
+  (w_17_36 != x_19_35 \/ k_state_11 true) /\ (w_17_36 = x_19_35 \/ STATE_11 w_17_36 x_19_35 k_state_11).
+STATE_6 k_243 len_263_21 w_17_20 x_13 y_12_19 k_state_6 =v
+  Exists
+   (\br_548.
+     (br_548 <= 0
+      \/ (0 <= (-1) + k_243 \/ k_state_6 true)
+         /\ (0 > (-1) + k_243
+             \/ (0 <= len_263_21 \/ k_state_6 true)
+                /\ (0 > len_263_21
+                    \/ (y_12_19 != x_13 \/ k_state_6 true)
+                       /\ (y_12_19 = x_13
+                           \/ (0 <= (-1) + k_243 \/ k_state_6 true)
+                              /\ (0 > (-1) + k_243
+                                  \/ (0 <= len_263_21 \/ k_state_6 true)
+                                     /\ (0 > len_263_21
+                                         \/ Exists
+                                             (\lt_525.
+                                               STATE_6 ((-1) + k_243) (1 + len_263_21) w_17_20 lt_525 y_12_19 k_state_6)))))))
+     /\ (br_548 > 0
+         \/ (0 <= (-1) + k_243 \/ k_state_6 true)
+            /\ (0 > (-1) + k_243
+                \/ (0 <= len_263_21 \/ k_state_6 true)
+                   /\ (0 > len_263_21
+                       \/ (y_12_19 = x_13 \/ k_state_6 true)
+                          /\ (y_12_19 != x_13
+                              \/ (0 <= len_263_21 \/ k_state_6 true)
+                                 /\ (0 > len_263_21
+                                     \/ (0 <= len_263_21 \/ k_state_6 true)
+                                        /\ (0 > len_263_21
+                                            \/ (0 <= len_263_21 \/ k_state_6 true)
+                                               /\ (0 > len_263_21
+                                                   \/ (0 <= len_263_21 \/ k_state_6 true)
+                                                      /\ (0 > len_263_21
+                                                          \/ (0 <= len_263_21 \/ k_state_6 true)
+                                                             /\ (0 > len_263_21
+                                                                 \/ (
+                                                                    0 <= len_263_21 \/ k_state_6 true)
+                                                                    /\ (
+                                                                    0 > len_263_21
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\lt_534.
+                                                                    (
+                                                                    0 <= len_263_21 \/ k_state_6 true)
+                                                                    /\ (
+                                                                    0 > len_263_21
+                                                                    \/ 
+                                                                    (
+                                                                    w_17_20 != lt_534 \/ k_state_6 true)
+                                                                    /\ (
+                                                                    w_17_20 = lt_534
+                                                                    \/ 
+                                                                    (
+                                                                    w_17_20 != lt_534 \/ k_state_6 true)
+                                                                    /\ (
+                                                                    w_17_20 = lt_534
+                                                                    \/ 
+                                                                    STATE_11 w_17_20 lt_534 k_state_6))))))))))))))).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

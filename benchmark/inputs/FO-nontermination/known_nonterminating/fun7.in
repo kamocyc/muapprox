@@ -1,0 +1,92 @@
+%HES
+MAIN_1096  =v
+  Exists
+   (\i_1602.
+     Exists
+      (\l_1562.
+        Exists
+         (\len_1538.
+           Exists
+            (\sz_1527.
+              Exists (\x_1514.Exists (\y_1507.STATE_3 i_1602 l_1562 len_1538 sz_1527 x_1514 y_1507 (\main_1499.false))))))).
+STATE_16 i_22_54 len_98_53 sz_23_52 y_1094_51 k_state_16 =v
+  Exists
+   (\br_0_1624.
+     (br_0_1624 <= 0
+      \/ (0 <= len_98_53 \/ k_state_16 true)
+         /\ (0 > len_98_53
+             \/ (0 <= ((-1) - i_22_54) + sz_23_52 \/ k_state_16 true)
+                /\ (0 > ((-1) - i_22_54) + sz_23_52
+                    \/ Exists
+                        (\i_22_1645.
+                          Exists
+                           (\sz_23_1574.
+                             Exists (\len_98_1548.STATE_31 i_22_1645 len_98_1548 sz_23_1574 y_1094_51 k_state_16))))))
+     /\ (br_0_1624 > 0
+         \/ (0 <= len_98_53 \/ k_state_16 true)
+            /\ (0 > len_98_53
+                \/ (((-1) - i_22_54) + sz_23_52 < 0 \/ k_state_16 true)
+                   /\ (((-1) - i_22_54) + sz_23_52 >= 0
+                       \/ Exists
+                           (\x_1627.
+                             Exists
+                              (\len_98_1566.
+                                (0 <= len_98_1566 \/ k_state_16 true)
+                                /\ (0 > len_98_1566
+                                    \/ Exists
+                                        (\len_98_1677.
+                                          Exists
+                                           (\br_0_1612.
+                                             (br_0_1612 <= 0
+                                              \/ (0 <= len_98_1677 \/ k_state_16 true)
+                                                 /\ (0 > len_98_1677
+                                                     \/ (x_1627 != 0 \/ k_state_16 true)
+                                                        /\ (x_1627 = 0
+                                                            \/ Exists
+                                                                (\l_11_1630.
+                                                                  Exists
+                                                                   (\x_12_1570.
+                                                                    Exists
+                                                                    (\i_22_1543.
+                                                                    Exists
+                                                                    (\sz_23_1533.
+                                                                    Exists
+                                                                    (\len_98_1521.
+                                                                    STATE_3 i_22_1543 l_11_1630 len_98_1521 sz_23_1533
+                                                                    x_12_1570 y_1094_51 k_state_16))))))))
+                                             /\ (br_0_1612 > 0 \/ k_state_16 true)))))))))).
+STATE_3 i_22_21 l_11_20 len_98_19 sz_23_18 x_12_17 y_1094_16 k_state_3 =v
+  Exists
+   (\br_1672.
+     (br_1672 <= 0 \/ STATE_31 i_22_21 len_98_19 sz_23_18 y_1094_16 k_state_3)
+     /\ (br_1672 > 0
+         \/ Exists
+             (\br_1599.
+               (br_1599 <= 0 \/ Exists (\tmp_1650.STATE_16 (1 + i_22_21) i_22_21 sz_23_18 y_1094_16 k_state_3))
+               /\ (br_1599 > 0
+                   \/ (0 <= (-1) + len_98_19 \/ k_state_3 true)
+                      /\ (0 > (-1) + len_98_19
+                          \/ Exists
+                              (\len_98_1558.
+                                Exists
+                                 (\br_0_1642.
+                                   (br_0_1642 <= 0
+                                    \/ (0 <= (-1) + len_98_1558 \/ k_state_3 true)
+                                       /\ (0 > (-1) + len_98_1558
+                                           \/ (l_11_20 = 0 \/ k_state_3 true)
+                                              /\ (l_11_20 != 0
+                                                  \/ (0 = 0 \/ k_state_3 true) /\ (0 != 0 \/ k_state_3 true))))
+                                   /\ (br_0_1642 > 0 \/ k_state_3 true)))))))).
+STATE_31 i_22_89 len_98_88 sz_23_87 y_1094_86 k_state_31 =v
+  (0 <= len_98_88 \/ k_state_31 true)
+  /\ (0 > len_98_88
+      \/ Exists
+          (\len_98_1656.
+            Exists
+             (\tmp_9_1581.
+               (0 <= len_98_1656 \/ k_state_31 true)
+               /\ (0 > len_98_1656 \/ STATE_16 (1 + i_22_89) (1 + len_98_1656) sz_23_87 y_1094_86 k_state_31)))).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

@@ -1,0 +1,48 @@
+%HES
+MAIN  =v
+  QS true false 0 0 0 0 0 0 true false 0 0 0 0 0
+   (\x_pos_14.
+     \x_neg_14.
+      \x_13.\x_12.\x_11.\x_10.\x_9.\x_8.\x_pos_7.\x_neg_7.\x_6.\x_5.\x_4.\x_3.\x_2.\y.\k_cmp.k_cmp (x_8 >= y) (x_8 < y))
+   false true 0 0 0 0 0 n (\u_44547.true).
+QS x_pos_35 x_neg_35 x_34 x_33 x_32 x_31 x_30 cmp_EXPARAM_196 x_pos_29 x_neg_29 x_28 x_27 x_26 x_25 x_24 cmp_23 set_flag_par_245_pos_22 set_flag_par_245_neg_22 s_par_cmp_EXPARAM_232_21 s_par_x_234_20 s_par_l_235_19 s_par_r_236_18 s_par_xs_237_17 n_16 k_qs
+  =v
+  (n_16 > 0 \/ k_qs 0)
+  /\ (n_16 <= 0
+      \/ Forall
+          (\x_15.
+            (set_flag_par_245_neg_22
+             \/ ((s_par_r_236_18 <= 0 \/ 0 < 0) /\ (s_par_r_236_18 < 0 \/ (s_par_l_235_19 <= 0 \/ 0 < 0))
+                 \/ PAR_WITHOUT_CHECKING_285 true false 0 0 0 0 0 0 true false 0 0 0 0 0 cmp_23 true false 0 0 0 0 0
+                     x_15 true false 0 0 0 0 0 0 true false 0 0 0 0 0 0 true false 0 0 0 0 0 (
+                     n_16 - 1) k_qs)
+                /\ (s_par_r_236_18 > 0 /\ 0 >= 0 \/ s_par_r_236_18 >= 0 /\ (s_par_l_235_19 > 0 /\ 0 >= 0)))
+            /\ (set_flag_par_245_pos_22
+                \/ PAR_WITHOUT_CHECKING_285 true false 0 0 0 0 0 0 true false 0 0 0 0 0 cmp_23 true false 0 0 0 0 0
+                    x_15 true false 0 0 0 0 0 0 true false 0 0 0 0 0 0 true false 0 0 0 0 0 (
+                    n_16 - 1) k_qs))).
+PAR_WITHOUT_CHECKING_285 x_pos_85 x_neg_85 x_84 x_83 x_82 x_81 x_80 cmp_EXPARAM_202_79 x_pos_78 x_neg_78 x_77 x_76 x_75 x_74 x_73 cmp_72 x_pos_71 x_neg_71 x_70 x_69 x_68 x_67 x_66 x_65 x_pos_64 x_neg_64 x_63 x_62 x_61 x_60 x_59 l_58 x_pos_57 x_neg_57 x_56 x_55 x_54 x_53 x_52 r_51 x_pos_50 x_neg_50 x_49 x_48 x_47 x_46 x_45 xs_44 k_par_without_checking_285
+  =v
+  (xs_44 > 0
+   \/ QS true false 0 0 0 0 0 0 true false 0 0 0 0 0 cmp_72 true false 0 0 l_58 r_51 0 l_58
+       (\x_43.
+         QS true false 0 0 0 0 0 0 true false 0 0 0 0 0 cmp_72 true false 0 0 l_58 r_51 0 r_51
+          (\x_42.k_par_without_checking_285 (x_43 + (1 + x_42)))))
+  /\ (xs_44 <= 0
+      \/ Forall
+          (\x_prime_.
+            cmp_72 true false 0 0 0 0 0 x_prime_ true false 0 0 0 0 0 x_65
+             (\x_pos_40.
+               \x_neg_40.
+                (x_neg_40
+                 \/ PAR_WITHOUT_CHECKING_285 true false 0 0 0 0 0 0 true false 0 0 0 0 0 cmp_72 true false 0 0 0 0 0
+                     x_65 true false 0 0 0 0 0 (1 + l_58) true false 0 0 0 0 0 r_51 true false 0 0 0 0 0 (
+                     xs_44 - 1) k_par_without_checking_285)
+                /\ (x_pos_40
+                    \/ PAR_WITHOUT_CHECKING_285 true false 0 0 0 0 0 0 true false 0 0 0 0 0 cmp_72 true false 0 0 0 0 0
+                        x_65 true false 0 0 0 0 0 l_58 true false 0 0 0 0 0 (
+                        1 + r_51) true false 0 0 0 0 0 (xs_44 - 1) k_par_without_checking_285)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

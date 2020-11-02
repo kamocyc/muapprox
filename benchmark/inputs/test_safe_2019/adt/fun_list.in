@@ -1,0 +1,44 @@
+%HES
+MAIN  =v
+  MAP (\f.\k_main_xs_.f 0 k_main_xs_) 3
+   (\i.
+     \k_main_fs.
+      (i != 0 \/ k_main_fs (\x_7.\k_id.k_id x_7))
+      /\ (i = 0
+          \/ (i != 1 \/ k_main_fs (\x_6.\k_succ.k_succ (x_6 + 1)))
+             /\ (i = 1 \/ (i != 2 \/ k_main_fs (\x_5.\k_double.k_double (x_5 + x_5))))))
+   (\xs_0.\xs_1.FOR_ALL (\x_2.\k_main_check.k_main_check (x_2 >= 0) (x_2 < 0)) xs_0 xs_1 (\x_pos_1.\x_neg_1.x_pos_1)).
+FOR_ALL f_24 xs0_23 xs1_22 k_for_all =v
+  (xs0_23 > 0 \/ k_for_all true false)
+  /\ (xs0_23 <= 0
+      \/ (xs0_23 <= 0
+          \/ xs1_22 0
+              (\x_21.
+                f_24 x_21
+                 (\x_pos_20.
+                   \x_neg_20.
+                    (x_neg_20
+                     \/ FOR_ALL f_24 (xs0_23 - 1) (\x_19.\k_for_all_xs_.xs1_22 (x_19 + 1) k_for_all_xs_) k_for_all)
+                    /\ (x_pos_20 \/ k_for_all false true))))).
+MAP f_18 xs0 xs1 k_map_17 =v
+  (xs0 > 0 \/ k_map_17 0 (\x_16.\k_map_15.true))
+  /\ (xs0 <= 0
+      \/ (xs0 <= 0
+          \/ xs1 0
+              (\x_14.
+                f_18 x_14
+                 (\r_f.
+                   MAP f_18 (xs0 - 1) (\x_8.\k_map_xs_.xs1 (x_8 + 1) k_map_xs_)
+                    (\p0_13.
+                      \p1_12.
+                       k_map_17 (1 + p0_13)
+                        (\i_11.
+                          \k_map.
+                           (i_11 != 0 \/ k_map r_f)
+                           /\ (i_11 = 0
+                               \/ MAP f_18 (xs0 - 1) (\x_10.\k_map_xs__9.xs1 (x_10 + 1) k_map_xs__9)
+                                   (\p0.\p1.p1 (i_11 - 1) k_map)))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

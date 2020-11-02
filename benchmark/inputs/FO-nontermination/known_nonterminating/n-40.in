@@ -1,0 +1,88 @@
+%HES
+MAIN_15  =v Exists (\w_575.Exists (\x_562.STATE_2 w_575 x_562 (\main_498.false))).
+STATE_2 w_5_13 x_6_12 k_state_2 =v
+  Exists
+   (\br_583.
+     (br_583 <= 0 \/ k_state_2 true)
+     /\ (br_583 > 0
+         \/ Exists
+             (\br_572.
+               (br_572 <= 0
+                \/ (0 <= 1 - x_6_12 \/ k_state_2 true)
+                   /\ (0 > 1 - x_6_12
+                       \/ (1 + x_6_12 = 2 \/ k_state_2 true)
+                          /\ (1 + x_6_12 != 2
+                              \/ (1 + w_5_13 = 2 \/ k_state_2 true)
+                                 /\ (1 + w_5_13 != 2 \/ STATE_2 1 (1 + x_6_12) k_state_2))))
+               /\ (br_572 > 0
+                   \/ Exists
+                       (\br_552.
+                         (br_552 <= 0
+                          \/ (0 <= 1 - x_6_12 \/ k_state_2 true)
+                             /\ (0 > 1 - x_6_12
+                                 \/ (1 + x_6_12 = 2 \/ k_state_2 true)
+                                    /\ (1 + x_6_12 != 2
+                                        \/ (1 + w_5_13 != 2 \/ k_state_2 true)
+                                           /\ (1 + w_5_13 = 2 \/ STATE_2 (1 + w_5_13) (1 + x_6_12) k_state_2))))
+                         /\ (br_552 > 0
+                             \/ Exists
+                                 (\br_546.
+                                   (br_546 <= 0
+                                    \/ (0 <= 1 - x_6_12 \/ k_state_2 true)
+                                       /\ (0 > 1 - x_6_12
+                                           \/ (1 + x_6_12 != 2 \/ k_state_2 true)
+                                              /\ (1 + x_6_12 = 2
+                                                  \/ (1 + w_5_13 = 2 \/ k_state_2 true)
+                                                     /\ (1 + w_5_13 != 2 \/ STATE_2 1 (1 + x_6_12) k_state_2))))
+                                   /\ (br_546 > 0
+                                       \/ Exists
+                                           (\br_524.
+                                             (br_524 <= 0
+                                              \/ (0 <= 1 - x_6_12 \/ k_state_2 true)
+                                                 /\ (0 > 1 - x_6_12
+                                                     \/ (1 + x_6_12 != 2 \/ k_state_2 true)
+                                                        /\ (1 + x_6_12 = 2
+                                                            \/ (1 + w_5_13 != 2 \/ k_state_2 true)
+                                                               /\ (1 + w_5_13 = 2
+                                                                   \/ 
+                                                                   STATE_2 (1 + w_5_13) (1 + x_6_12) k_state_2))))
+                                             /\ (br_524 > 0
+                                                 \/ Exists
+                                                     (\br_516.
+                                                       (br_516 <= 0
+                                                        \/ (1 - x_6_12 < 0 \/ k_state_2 true)
+                                                           /\ (1 - x_6_12 >= 0
+                                                               \/ (0 <= 2 - w_5_13 \/ k_state_2 true)
+                                                                  /\ (
+                                                                  0 > 2 - w_5_13
+                                                                  \/ 
+                                                                  (1 + x_6_12 != 2 \/ k_state_2 true)
+                                                                  /\ (
+                                                                  1 + x_6_12 = 2
+                                                                  \/ 
+                                                                  (1 + w_5_13 = 2 \/ k_state_2 true)
+                                                                  /\ (
+                                                                  1 + w_5_13 != 2
+                                                                  \/ 
+                                                                  STATE_2 1 (1 + x_6_12) k_state_2)))))
+                                                       /\ (br_516 > 0
+                                                           \/ (1 - x_6_12 < 0 \/ k_state_2 true)
+                                                              /\ (1 - x_6_12 >= 0
+                                                                  \/ 
+                                                                  (0 <= 2 - w_5_13 \/ k_state_2 true)
+                                                                  /\ (
+                                                                  0 > 2 - w_5_13
+                                                                  \/ 
+                                                                  (1 + x_6_12 != 2 \/ k_state_2 true)
+                                                                  /\ (
+                                                                  1 + x_6_12 = 2
+                                                                  \/ 
+                                                                  (1 + w_5_13 != 2 \/ k_state_2 true)
+                                                                  /\ (
+                                                                  1 + w_5_13 = 2
+                                                                  \/ 
+                                                                  STATE_2 (1 + w_5_13) (1 + x_6_12) k_state_2)))))))))))))))).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

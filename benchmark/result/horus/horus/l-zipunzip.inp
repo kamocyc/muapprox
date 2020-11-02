@@ -1,0 +1,19 @@
+environment
+f : (int->int->int->bool)->int->int->int->bool
+unzip : int->(int->int->int->bool)->int->bool
+zip : int->int->int->bool
+
+program
+g (x+1) (y+1) r => f g x y r
+x = 0 ^ k 0 0 r => unzip x k r
+x /= 0 ^ unzip (x-1) (f k) r => unzip x k r
+
+x = 0 ^ y = 0 ^ r = x => zip x y r
+x = 0 ^ y /= 0 => zip x y r
+x /= 0 ^ y = 0 => zip x y r
+x /= 0 ^ y /= 0 ^ (E r2:int. (zip (x-1) (y-1) r2) ^ r = 1 + r2) => zip x y r
+
+goal
+E n,r:int. unzip n zip r
+
+

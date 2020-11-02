@@ -1,0 +1,8 @@
+environment
+dummy : bool
+;
+program
+true => dummy
+;
+goal
+∃v1:int. ((v1 > 0) ∧ ((((v1 + 1) > 0) ∧ false) ∨ (((v1 + 1) <= 0) ∧ true))) ∨ ((v1 <= 0) ∧ false)

@@ -1,0 +1,36 @@
+%HES
+MAIN_302  =v Exists (\cnt_560.Exists (\cnt_545.Exists (\ct_527.STATE_1 cnt_560 cnt_545 ct_527 (\main_522.false)))).
+STATE_1 cnt_27_10 cnt_32_9 ct_49_8 k_state_1 =v
+  Exists
+   (\br_570.
+     (br_570 <= 0
+      \/ (((-1) - cnt_27_10) + cnt_32_9 < 0 \/ k_state_1 true)
+         /\ (((-1) - cnt_27_10) + cnt_32_9 >= 0 \/ k_state_1 true))
+     /\ (br_570 > 0
+         \/ Exists
+             (\br_557.
+               (br_557 <= 0
+                \/ (0 <= ((-1) - cnt_27_10) + cnt_32_9 \/ k_state_1 true)
+                   /\ (0 > ((-1) - cnt_27_10) + cnt_32_9
+                       \/ (0 <= (-1) + ct_49_8 \/ k_state_1 true)
+                          /\ (0 > (-1) + ct_49_8
+                              \/ (ct_49_8 = 256 \/ k_state_1 true)
+                                 /\ (ct_49_8 != 256 \/ STATE_1 cnt_27_10 cnt_32_9 ct_49_8 k_state_1))))
+               /\ (br_557 > 0
+                   \/ Exists
+                       (\br_534.
+                         (br_534 <= 0
+                          \/ (0 <= ((-1) - cnt_27_10) + cnt_32_9 \/ k_state_1 true)
+                             /\ (0 > ((-1) - cnt_27_10) + cnt_32_9
+                                 \/ ((-1) + ct_49_8 < 0 \/ k_state_1 true)
+                                    /\ ((-1) + ct_49_8 >= 0 \/ STATE_1 cnt_27_10 cnt_32_9 ct_49_8 k_state_1)))
+                         /\ (br_534 > 0
+                             \/ (0 <= ((-1) - cnt_27_10) + cnt_32_9 \/ k_state_1 true)
+                                /\ (0 > ((-1) - cnt_27_10) + cnt_32_9
+                                    \/ (0 <= (-1) + ct_49_8 \/ k_state_1 true)
+                                       /\ (0 > (-1) + ct_49_8
+                                           \/ (ct_49_8 != 256 \/ k_state_1 true) /\ (ct_49_8 = 256 \/ k_state_1 true))))))))).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

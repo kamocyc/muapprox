@@ -1,0 +1,19 @@
+environment
+lock : int->int->bool
+unlock : int->int->bool
+f : int->int->int->bool
+g : int->int->int->bool
+
+program
+st = 0 ^ r = 1 => lock st r
+st /= 0 => lock st r
+st = 1 ^ r = 0 => unlock st r
+st /= 1 => unlock st r
+n > 0 ^ (E r:int. (lock st r) ^ r = r2) => f n st r2
+n <= 0 ^ r = st => f n st r
+n >= 0 ^ (E r:int. (unlock st r) ^ r = r2) => g n st r2
+n < 0 ^ r = st => g n st r
+
+goal
+E n,r1,r2:int. f n 0 r1 ^ g n r1 r2 ^ r2 /= 0
+

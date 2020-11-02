@@ -1,0 +1,3 @@
+%HES
+MAIN =v F (\x_3. \k_succ. k_succ (x_3 + 1)) ext_1 (\x. ((x < 0) \/ true) /\ ((x >= 0) \/ false)).
+F g x_5 k_f =v ((x_5 < 0) \/ (g x_5 k_f)) /\ ((x_5 >= 0) \/ (g x_5 (\x_4. F (F g) x_4 k_f))).

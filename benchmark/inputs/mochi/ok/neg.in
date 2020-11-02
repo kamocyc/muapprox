@@ -1,0 +1,4 @@
+%HES
+S =v n < 0 \/ TWICE NEG n (\z. z >= 0).
+TWICE f x k =v f x (\x1. f x1 k).
+NEG x k =v k (-1 * x).

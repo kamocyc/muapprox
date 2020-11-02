@@ -1,0 +1,2 @@
+%HES
+MAIN =v (((ext_1 > 0) /\ (ext_1 <= 0)) \/ true) /\ (((ext_1 <= 0) \/ (ext_1 > 0)) \/ false).

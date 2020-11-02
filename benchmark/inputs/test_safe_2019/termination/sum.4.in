@@ -1,0 +1,12 @@
+%HES
+MAIN  =v SUM_WITHOUT_CHECKING_44 true 0 x (\u_1603.true).
+SUM_WITHOUT_CHECKING_44 x_7 x_6 n_5 k_sum_without_checking_44 =v
+  (n_5 > 0 \/ k_sum_without_checking_44 0)
+  /\ (n_5 <= 0
+      \/ ((n_5 <= n_5 - 1 \/ n_5 - 1 < 0)
+          \/ SUM_WITHOUT_CHECKING_44 true 0 (n_5 - 1) (\x_4.k_sum_without_checking_44 (n_5 + x_4)))
+         /\ (n_5 > n_5 - 1 /\ n_5 - 1 >= 0)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,4 @@
+%HES
+MAIN =v Sigma Sum ext_1 (\x. ((x < ext_1) \/ true) /\ ((x >= ext_1) \/ false)).
+Sum n_6 k_sum =v ((n_6 > 0) \/ (k_sum 0)) /\ ((n_6 <= 0) \/ (Sum (n_6 - 1) (\x_5. k_sum (n_6 + x_5)))).
+Sigma f n k_sigma =v ((n > 0) \/ (k_sigma 0)) /\ ((n <= 0) \/ (f n (\x_4. Sigma f (n - 1) (\x_3. k_sigma (x_4 + x_3))))).

@@ -1,0 +1,29 @@
+environment
+readit : int->int->bool
+read_ : int->int->int->bool
+closeit : int->int->bool
+close_ : int->int->int->bool
+f : int->int->int->bool
+next : int->int->bool
+g : int->int->int->bool;
+
+program
+st = 1 ^ r = 1 => readit st r
+st = 3 ^ r = 3 => readit st r
+(x /= 0) ^ (E r:int. readit st r) => read_ x st r
+(x = 0) ^ r = st => read_ x st r
+st = 1 ^ r = 2 => closeit st r
+st = 3 ^ r = 3 => closeit st r
+(x /= 0) ^ (E r:int. closeit st r) => close_ x st r
+(x = 0) ^ r = st => close_ x st r
+(E r,r2:int. (close_ x st r) ^ (close_ y r r2)) ^
+   (E r3,r4:int. (read_ x st r3) ^ (read_ y r3 r4) ^ (f x y r4)) => f x y st
+st = 0 ^ r = 1 => next st r
+(st < 0 \/ st > 0) ^ r = 3 => next st r
+b3 > 0 ^ (E r:int. (next st r) ^ (f x 1 r)) => g b3 x st
+b3 <= 0 ^ f x 0 st => g b3 x st;
+
+
+goal
+E b2,b3:int. (b2 > 0 ^ g b3 1 1) \/ (b2 <= 0 ^ g b3 0 0)
+

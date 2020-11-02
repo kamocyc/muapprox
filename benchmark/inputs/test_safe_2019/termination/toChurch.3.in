@@ -1,0 +1,26 @@
+%HES
+MAIN  =v
+  x < 0
+  \/ TOCHURCH true false 0 x true false 0 0 true false 0
+      (\prev_set_flag_succ_288_pos.
+        \prev_set_flag_succ_288_neg.
+         \s_prev_succ_x_287.\x_12.\k_succ.prev_set_flag_succ_288_neg /\ (prev_set_flag_succ_288_pos \/ k_succ 0))
+      (\tos.true).
+TOCHURCH x_pos_9 x_neg_9 x_8 n x_pos_7 x_neg_7 x_6 f_EXPARAM_114 set_flag_succ_289_pos_5 set_flag_succ_289_neg_5 s_succ_x_286_4 f k_toChurch
+  =v
+  (n != 0 \/ k_toChurch (\x_pos_15.\x_neg_15.\x_14.\x_13.\k_id.k_id 0))
+  /\ (n = 0
+      \/ TOCHURCH true false 0 (n - 1) true false 0 0 true false 0 f
+          (\x_3.
+            k_toChurch
+             (\set_flag_succ_289_pos_19.
+               \set_flag_succ_289_neg_19.
+                \s_succ_x_286_18.
+                 \x_17.
+                  \k_compose.
+                   x_3 set_flag_succ_289_pos_19 set_flag_succ_289_neg_19 0 0
+                    (\x_16.f set_flag_succ_289_pos_19 set_flag_succ_289_neg_19 0 x_16 k_compose)))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

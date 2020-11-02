@@ -1,0 +1,10 @@
+%HES
+S =v Mult n n r \/
+     n+1 <= r.
+Mult n m r =v
+  ((n > 0 /\ m > 0) \/ r != 0) /\
+  (n <= 0 \/ m <= 0 \/ ∀x. ∀y.
+    (r != x + n) \/
+    (y != m - 1) \/
+    Mult n y x).
+

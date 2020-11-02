@@ -1,0 +1,10 @@
+%HES
+S =v Sum x y \/
+     x <= y.
+Sum n r =v
+  (n > 0 \/ r != 0) /\
+  (n <= 0 \/ Forall 0 (\x.
+    Sum (n-1) x \/
+    r != n + x)).
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.
+

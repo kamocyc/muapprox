@@ -1,0 +1,14 @@
+environment
+sum : int -> (int -> bool) -> bool
+lte : int -> int -> bool
+cont : (int -> bool) -> int -> int -> bool
+;
+program
+(n <= 0) ∧ (k_sum 0) => sum n k_sum
+(n > 0) ∧ (sum (n - 1) (cont k_sum n)) => sum n k_sum
+x > y => lte x y
+k (n + x) => cont k n x
+;
+goal
+∃ ext_1:int. sum ext_1 (lte ext_1)
+

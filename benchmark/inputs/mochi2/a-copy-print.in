@@ -1,0 +1,22 @@
+%HES
+MAIN =v
+  (ext_1 <= 0 \/
+      (Bcopy ext_1
+        (\i_15. \k_make_array. (((0 > i_15) \/ (i_15 >= ext_1)) \/ (k_make_array 0)) /\ (((0 <= i_15) /\ (i_15 < ext_1)) \/ false))
+        (\i_15. \k_make_array. (((0 > i_15) \/ (i_15 >= ext_1)) \/ (k_make_array 0)) /\ (((0 <= i_15) /\ (i_15 < ext_1)) \/ false))
+        0
+        (\array. Print_array ext_1 array 0 (\x. true))))
+  /\ (ext_1 > 0 \/ true).
+
+Print_array m array_5 i k_f_print_array =v
+  ((i < m) \/ (k_f_print_array true)) /\ ((i >= m) \/ (array_5 i (\_. Print_array m array_5 (i + 1) k_f_print_array))).
+
+Bcopy m_9 src des_8 i_7 k_f_bcopy =v
+  (i_7 < m_9 \/
+      k_f_bcopy des_8) /\
+  (i_7 >= m_9 \/
+      src
+        i_7
+        (\x. des_8 i_7 (\_. Bcopy m_9 src (\j. \k_update. ((i_7 != j) \/ (k_update x)) /\ ((i_7 = j) \/ (des_8 j k_update))) (i_7 + 1) k_f_bcopy))).
+
+

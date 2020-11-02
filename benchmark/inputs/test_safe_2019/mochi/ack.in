@@ -1,0 +1,9 @@
+%HES
+MAIN  =v (arg1 < 0 \/ arg2 < 0) \/ ACK arg1 arg2 (\x_4.x_4 >= arg2).
+ACK m_9 n_8 k_ack =v
+  (m_9 != 0 \/ k_ack (n_8 + 1))
+  /\ (m_9 = 0 \/ (n_8 != 0 \/ ACK (m_9 - 1) 1 k_ack) /\ (n_8 = 0 \/ ACK m_9 (n_8 - 1) (\x_7.ACK (m_9 - 1) x_7 k_ack))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

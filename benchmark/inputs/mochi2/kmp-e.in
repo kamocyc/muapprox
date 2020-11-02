@@ -1,0 +1,29 @@
+%HES
+MAIN =v
+    (((ext_1 <= 0) \/ (ext_5 <= 0)) \/
+      (LoopShift ext_5 ext_7
+        (-1)
+        1
+        (\i_19. \k_make_array. (((0 > i_19) \/ (i_19 >= ext_5)) \/ (k_make_array (-1))) /\ (((0 <= i_19) /\ (i_19 < ext_5)) \/ false))
+        (\shiftArray3. Loop shiftArray3 ext_1 ext_3 ext_5 ext_7 0 0 (\_. true) )
+       ))
+   /\ (((ext_1 > 0) /\ (ext_5 > 0)) \/ true).
+
+
+LoopShift ext_5 ext_7 i j_16 shiftArray1 k_kmpMatch_loopShift =v
+  ((j_16 != ext_5) \/
+    (k_kmpMatch_loopShift shiftArray1)) /\
+  ((j_16  = ext_5) \/
+    (((0 > j_16 \/ j_16 >= ext_5) \/
+      (((0 > i + 1 \/ i + 1 >= ext_5) \/
+        ((ext_7  = ext_7 \/
+            ((i <  0 \/ (shiftArray1 i (\x_13. LoopShift ext_5 ext_7 x_13 j_16 shiftArray1 k_kmpMatch_loopShift))) /\
+             (i >= 0 \/ (LoopShift ext_5 ext_7 (-1) (j_16 + 1) shiftArray1 k_kmpMatch_loopShift)))) /\
+         (ext_7 != ext_7 \/
+            ((i + 1 >= j_16 \/ (shiftArray1 j_16 (\_. shiftArray1 j_16 (\x_10. LoopShift ext_5 ext_7 x_10 (j_16 + 1) (\j. \k_update. k_update (j + 1)) k_kmpMatch_loopShift)))) /\
+             (i + 1 <  j_16 \/ (shiftArray1 j_16 (\x_10. LoopShift ext_5 ext_7 x_10 (j_16 + 1) shiftArray1 k_kmpMatch_loopShift))))))) /\
+       (((0 <= (i + 1)) /\ ((i + 1) < ext_5)) \/ false))) /\
+     (((0 <= j_16) /\ (j_16 < ext_5)) \/ false))).
+
+Loop shiftArray3 ext_1 ext_3 ext_5 ext_7 s p k_kmpMatch_loop =v
+  ((p >= ext_5) \/ (((s >= ext_1) \/ ((((0 > s) \/ (s >= ext_1)) \/ ((((0 > p) \/ (p >= ext_5)) \/ (((ext_3 != ext_7) \/ (Loop shiftArray3 ext_1 ext_3 ext_5 ext_7 (s + 1) (p + 1) k_kmpMatch_loop)) /\ ((ext_3 = ext_7) \/ (((p != 0) \/ (Loop shiftArray3 ext_1 ext_3 ext_5 ext_7 (s + 1) p k_kmpMatch_loop)) /\ ((p = 0) \/ (shiftArray3 (p - 1) (\x. Loop shiftArray3 ext_1 ext_3 ext_5 ext_7 s (x + 1) k_kmpMatch_loop))))))) /\ (((0 <= p) /\ (p < ext_5)) \/ false))) /\ (((0 <= s) /\ (s < ext_1)) \/ false))) /\ ((s < ext_1) \/ (k_kmpMatch_loop (-1))))) /\ ((p < ext_5) \/ (k_kmpMatch_loop (s - ext_5))).

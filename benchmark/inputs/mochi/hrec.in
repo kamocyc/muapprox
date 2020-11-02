@@ -1,0 +1,4 @@
+%HES
+S =v F Succ n (\v. v >= 0).
+F g x k =v ((x < 0) \/ g x k) /\ ((x >= 0) \/ g x (\v. F (F g) v k)).
+Succ x k =v k (x+1).

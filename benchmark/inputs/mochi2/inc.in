@@ -1,0 +1,3 @@
+%HES
+MAIN =v G ext_1 (\_. \k_ar. k_ar 0) 0 (\_unit3. true).
+G e a j k_g =v ((j >= e) \/ ((((0 > j) \/ (j >= e)) \/ (a j (\x. G e (\j_4. \k_update. ((j_4 != j) \/ (k_update (x + 1))) /\ ((j_4 = j) \/ (a j_4 k_update))) (j + 1) k_g))) /\ (((0 <= j) /\ (j < e)) \/ false))) /\ ((j < e) \/ (k_g true)).

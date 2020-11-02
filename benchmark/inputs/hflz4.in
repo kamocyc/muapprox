@@ -1,0 +1,15 @@
+# ababbabbb ...
+%HES
+S =v X 0 0.
+X n z =v (z = 0 /\ <a> X (n+1) (n+1)) \/ (z > 0 /\ <b> X n (z-1)).
+
+%PREDS
+n >= 0.
+z >= 0.
+
+%LTS
+s0 a -> s1.
+s1 b -> s0.
+s1 b -> s1.
+
+

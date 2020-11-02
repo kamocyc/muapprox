@@ -1,0 +1,81 @@
+%HES
+MAIN =v
+  Make_list ext_3 ext_1 (\xs0. \xs1.
+    Make_list ext_3 ext_1 (\ys0. \ys1.
+      Zipwith (\x_1. \y. \k_main. k_main (x_1 + y)) xs0 xs1 ys0 ys1 (\_. \_. true))).
+
+Bot unit5 =v Bot true.
+
+Make_list ext_3 n_5 k_make_list =v
+  (n_5 <= 0 \/
+    (Make_list ext_3 (n_5 - 1) (\x0. \x1.
+      (((0 >  ext_3) \/ (ext_3 >= 100)) \/ (k_make_list (x0 + 1) (\i_21. \k_cons_f_prime_. ((i_21 != 0) \/ (k_cons_f_prime_ ext_3)) /\ ((i_21 = 0) \/ (x1 (i_21 + 1) k_cons_f_prime_))))) /\
+      (((0 <= ext_3) /\ (ext_3 <  100)) \/ Bot true)))) /\
+  (n_5 > 0 \/ k_make_list 0 (\_. \_. false)).
+
+Zipwith f xs0_17 xs1_16 ys0_15 ys1_14 k_zipwith =v
+  ((xs0_17 > 0) \/
+    ((ys0_15 > 0 \/
+        (((1 =  0 \/ 1 =  0) \/ (k_zipwith 0 (\_. \_. false))) /\
+         ((1 != 0 /\ 1 != 0) \/
+            (xs1_16 0 (\x_18. ys1_14 0 (\x_18.
+              Zipwith f
+                (xs0_17 - 1)
+                (\i. \k_un_cons_f_prime_. xs1_16 (i - 1) k_un_cons_f_prime_)
+                (ys0_15 - 1)
+                (\i. \k_un_cons_f_prime_. ys1_14 (i - 1) k_un_cons_f_prime_)
+                (\x0_8. \x1_7. f x_18 x_18 (\x_6.
+                    k_zipwith
+                      (x0_8 + 1)
+                      (\i_21. \k_cons_f_prime_.
+                        ((i_21 != 0) \/ (k_cons_f_prime_ x_6)) /\
+                        ((i_21 =  0) \/ (x1_7 (i_21 + 1) k_cons_f_prime_))))))))))) /\
+     (ys0_15 <= 0 \/
+        (((1 =  0 \/ 0 =  0) \/ (k_zipwith 0 (\_. \_. false))) /\
+         ((1 != 0 /\ 0 != 0) \/
+            (xs1_16 0 (\x_18. ys1_14 0 (\x_18.
+              Zipwith f
+                (xs0_17 - 1)
+                (\i. \k_un_cons_f_prime_. xs1_16 (i - 1) k_un_cons_f_prime_)
+                (ys0_15 - 1)
+                (\i. \k_un_cons_f_prime_. ys1_14 (i - 1) k_un_cons_f_prime_)
+                (\x0_8. \x1_7. f x_18 x_18 (\x_6.
+                    k_zipwith
+                      (x0_8 + 1)
+                      (\i_21. \k_cons_f_prime_.
+                        (i_21 != 0 \/ k_cons_f_prime_ x_6) /\
+                        (i_21 =  0 \/ x1_7 (i_21 + 1) k_cons_f_prime_)))))))))))) /\
+  (xs0_17 <= 0 \/
+    ((ys0_15 > 0 \/
+      (((0 =  0 \/ 1 =  0) \/ (k_zipwith 0 (\_. \_. false))) /\
+       ((0 != 0 /\ 1 != 0) \/
+          (xs1_16 0 (\x_18. ys1_14 0 (\x_18.
+            Zipwith
+              f
+              (xs0_17 - 1)
+              (\i. \k_un_cons_f_prime_. xs1_16 (i - 1) k_un_cons_f_prime_)
+              (ys0_15 - 1)
+              (\i. \k_un_cons_f_prime_. ys1_14 (i - 1) k_un_cons_f_prime_)
+              (\x0_8. \x1_7. f x_18 x_18 (\x_6.
+                k_zipwith
+                  (x0_8 + 1)
+                  (\i_21. \k_cons_f_prime_.
+                    (i_21 != 0 \/ k_cons_f_prime_ x_6) /\
+                    (i_21 =  0 \/ x1_7 (i_21 + 1) k_cons_f_prime_)))))))))) /\
+    ((ys0_15 <= 0) \/
+      (((0 =  0 \/ 0 =  0) \/ (k_zipwith 0 (\_. \_. false))) /\
+       ((0 != 0 /\ 0 != 0) \/
+          (xs1_16 0 (\x_18. ys1_14 0 (\x_18.
+            Zipwith
+              f
+              (xs0_17 - 1)
+              (\i. \k_un_cons_f_prime_. xs1_16 (i - 1) k_un_cons_f_prime_)
+              (ys0_15 - 1)
+              (\i. \k_un_cons_f_prime_. ys1_14 (i - 1) k_un_cons_f_prime_)
+              (\x0_8. \x1_7. f x_18 x_18 (\x_6.
+                k_zipwith
+                  (x0_8 + 1)
+                  (\i_21. \k_cons_f_prime_.
+                    (i_21 != 0 \/ k_cons_f_prime_ x_6) /\
+                    (i_21 =  0 \/ x1_7 (i_21 + 1) k_cons_f_prime_)))))))))))).
+

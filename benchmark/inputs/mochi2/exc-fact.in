@@ -1,0 +1,3 @@
+%HES
+MAIN =v ((ext_1 <= 0) \/ (Fact ext_1 (\_. \_. false) (\_. true))) /\ ((ext_1 > 0) \/ true).
+Fact n_10 exn_9 k_fact =v ((n_10 > 0) \/ (exn_9 0 k_fact)) /\ ((n_10 <= 0) \/ (Fact (n_10 - 1) (\n_7. \k_fact_exn. ((n_7 != 0) \/ (k_fact_exn 1)) /\ ((n_7 = 0) \/ (exn_9 n_7 k_fact_exn))) (\x. k_fact (n_10 * x)))).

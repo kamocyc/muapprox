@@ -1,0 +1,19 @@
+%HES
+MAIN  =v
+  arg3 != 0
+  \/ DOTPROD arg1 (\i_15.\k_make_array.((0 > i_15 \/ i_15 >= arg1) \/ k_make_array 0) /\ (0 <= i_15 /\ i_15 < arg1))
+      (\i_15.\k_make_array.((0 > i_15 \/ i_15 >= arg1) \/ k_make_array 0) /\ (0 <= i_15 /\ i_15 < arg1)) arg3 arg3
+      (\u.true).
+DOTPROD n_11 v1 v2 i sum k_dotprod =v
+  (i < n_11 \/ k_dotprod 0)
+  /\ (i >= n_11
+      \/ v1 i
+          (\x_10.
+            v2 i
+             (\x_9.
+               DOTPROD n_11 v1 v2 (i + 1) ((sum + x_10) + x_9)
+                (\u_8.v1 i (\x_7.v2 i (\x.DOTPROD n_11 v1 v2 (i + 1) ((sum + x_7) + x) k_dotprod)))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

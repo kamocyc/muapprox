@@ -1,0 +1,5 @@
+%HES
+MAIN =v Sum ext_1 (\x. 4 * ext_1 - 6 <= x).
+Sum n k_sum =v
+  (n >  0 \/ k_sum 0) /\
+  (n <= 0 \/ Sum (n - 1) (\x_3. k_sum (n + x_3))).

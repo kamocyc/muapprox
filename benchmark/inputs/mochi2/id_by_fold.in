@@ -1,0 +1,4 @@
+%HES
+MAIN =v ((ext_1 < 0) \/ Go ext_1 0 0 (\x_3. ((x_3 != ext_1) \/ true) /\ ((x_3 = ext_1) \/ false))) /\ ((ext_1 >= 0) \/ true).
+
+Go ext_1 i x_7 k_fold_nat_go =v ((i >= ext_1) \/ (Go ext_1 (i + 1) (x_7 + 1) k_fold_nat_go)) /\ ((i < ext_1) \/ (k_fold_nat_go x_7)).

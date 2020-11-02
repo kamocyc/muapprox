@@ -1,0 +1,4 @@
+%HES
+MAIN =v Unzip ext_1 Zip (\_. true).
+Unzip x_6 k k_unzip =v ((x_6 != 0) \/ (k 0 0 k_unzip)) /\ ((x_6 = 0) \/ (Unzip (x_6 - 1) (\x_8. \y_7. \k_f. k (x_8 + 1) (y_7 + 1) k_f) k_unzip)).
+Zip x_5 y k_zip =v ((x_5 != 0) \/ (((y != 0) \/ (k_zip 0)) /\ ((y = 0) \/ false))) /\ ((x_5 = 0) \/ (((y != 0) \/ false) /\ ((y = 0) \/ (Zip (x_5 - 1) (y - 1) (\x_3. k_zip (1 + x_3)))))).

@@ -1,0 +1,3 @@
+%HES
+MAIN =v K 0 (\_. true).
+K n k_k =v ((n != n) \/ (K (n + 1) k_k)) /\ ((n = n) \/ false).

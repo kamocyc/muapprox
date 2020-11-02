@@ -1,0 +1,9 @@
+%HES
+S =v n <= 0 \/ Fact n Exn.
+Exn n =v false.
+Fact n exn =v
+  (n > 0 \/ exn 0) /\
+  (n <= 0 \/
+    Fact (n-1) (\n.
+     (n != 0 \/ true) /\ (n = 0 \/ exn n))).
+

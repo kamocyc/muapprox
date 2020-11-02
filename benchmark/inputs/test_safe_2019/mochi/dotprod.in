@@ -1,0 +1,13 @@
+%HES
+MAIN  =v (0 > arg1 \/ arg1 != arg2) \/ DOTPROD_AUX arg1 arg1 arg2 0 0 (\u.true).
+DOTPROD_AUX n v1_6 v2_5 i sum k_dotprod_aux =v
+  (i != n \/ k_dotprod_aux 0)
+  /\ (i = n
+      \/ ((0 > i \/ i >= v1_6)
+          \/ ((0 > i \/ i >= v2_5) \/ DOTPROD_AUX n v1_6 v2_5 (i + 1) (sum + 0 * 0) k_dotprod_aux)
+             /\ (0 <= i /\ i < v2_5))
+         /\ (0 <= i /\ i < v1_6)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

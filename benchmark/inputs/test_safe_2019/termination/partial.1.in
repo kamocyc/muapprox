@@ -1,0 +1,19 @@
+%HES
+MAIN  =v
+  F true false 0 0 x true false 0 0 0 false true 0 0
+   (\prev_set_flag_gt_71_pos.
+     \prev_set_flag_gt_71_neg.
+      \s_prev_gt_lb_69.
+       \s_prev_gt_n_70.\n.\k_gt.prev_set_flag_gt_71_neg /\ (prev_set_flag_gt_71_pos \/ k_gt (n > 0) (n <= 0)))
+   (\u_536.true).
+F x_pos_9 x_neg_9 x_8 x_7 x_6 x_pos_5 x_neg_5 x_4 x_3 p_EXPARAM_61 set_flag_gt_72_pos set_flag_gt_72_neg s_gt_lb_67 s_gt_n_68 p k_f
+  =v
+  p set_flag_gt_72_pos set_flag_gt_72_neg 0 0 x_6
+   (\x_pos_2.
+     \x_neg_2.
+      (x_neg_2 \/ F true false 0 0 (x_6 - 1) true false 0 0 0 set_flag_gt_72_pos set_flag_gt_72_neg 0 0 p k_f)
+      /\ (x_pos_2 \/ k_f true)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

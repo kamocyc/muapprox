@@ -1,0 +1,6 @@
+%HES
+MAIN =v ((ext_5 > ext_3) \/ F ext_1 ext_3 ext_5 (\x. ((x != ext_1) \/ true) /\ ((x = ext_1) \/ false))) /\ ((ext_5 <= ext_3) \/ true).
+
+F ext_1 ext_3 n_8 k_mc_k_f =v
+  ((n_8 <= ext_3) \/ (k_mc_k_f (n_8 - ((ext_3 - ext_1) + 1)))) /\
+  ((n_8 > ext_3) \/ (F ext_1 ext_3 ((n_8 + ((ext_3 - ext_1) + 1)) + 1) (\x_7. F ext_1 ext_3 x_7 k_mc_k_f))).

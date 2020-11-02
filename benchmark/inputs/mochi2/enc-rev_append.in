@@ -1,0 +1,4 @@
+%HES
+MAIN =v Rev ext_1 (\x_2. ((x_2 != ext_1) \/ (Append ext_1 ext_3 (\x_1. ((x_1 != (ext_1 + ext_3)) \/ true) /\ ((x_1 = (ext_1 + ext_3)) \/ false)))) /\ ((x_2 = ext_1) \/ false)).
+Append x_8 y k_append =v ((x_8 != 0) \/ (k_append y)) /\ ((x_8 = 0) \/ (Append (x_8 - 1) y (\x_7. k_append (1 + x_7)))).
+Rev n k_rev =v ((n != 0) \/ (k_rev 0)) /\ ((n = 0) \/ (Rev (n - 1) (\x_6. Append x_6 1 k_rev))).

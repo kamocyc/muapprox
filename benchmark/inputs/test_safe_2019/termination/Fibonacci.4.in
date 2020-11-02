@@ -1,0 +1,14 @@
+%HES
+MAIN  =v FIB_WITHOUT_CHECKING_52 true 0 x (\u_2182.true).
+FIB_WITHOUT_CHECKING_52 x_8 x_7 n_6 k_fib_without_checking_52 =v
+  (n_6 >= 2 \/ k_fib_without_checking_52 1)
+  /\ (n_6 < 2
+      \/ FIB_WITHOUT_CHECKING_52 true 0 (n_6 - 1)
+          (\x_5.
+            ((n_6 <= n_6 - 2 \/ n_6 - 2 < 0)
+             \/ FIB_WITHOUT_CHECKING_52 true 0 (n_6 - 2) (\x_4.k_fib_without_checking_52 (x_5 + x_4)))
+            /\ (n_6 > n_6 - 2 /\ n_6 - 2 >= 0))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

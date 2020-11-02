@@ -1,0 +1,8 @@
+%HES
+MAIN  =v arg1 < 0 \/ GO (arg1 + 1) 0 (\i.\x.\k_sum.k_sum (i + x)) 0 0 (\x_4.x_4 >= 0).
+GO n_10 x0 f i_9 x_8 k_fold_nat_go =v
+  (i_9 >= n_10 \/ f i_9 x_8 (\x_7.GO n_10 x0 f (i_9 + 1) x_7 k_fold_nat_go)) /\ (i_9 < n_10 \/ k_fold_nat_go x_8).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

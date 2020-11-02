@@ -1,0 +1,3 @@
+%HES
+MAIN =v Cps_sum ext_1 (\x. \k_main_f. ((x < ext_1) \/ (k_main_f true)) /\ ((x >= ext_1) \/ false)) (\_unit4. true).
+Cps_sum n_7 k k_cps_sum =v ((n_7 > 0) \/ (k 0 k_cps_sum)) /\ ((n_7 <= 0) \/ (Cps_sum (n_7 - 1) (\x_5. \k_cps_sum_f. k (x_5 + n_7) k_cps_sum_f) k_cps_sum)).

@@ -1,0 +1,9 @@
+%HES
+MAIN  =v arg3 > arg2 \/ F arg1 arg3 arg2 arg3 (\x_5.x_5 = arg1).
+F k_12 n_10 r_11 n_9 k_mc_k_f =v
+  (n_9 <= r_11 \/ k_mc_k_f (n_9 - ((r_11 - k_12) + 1)))
+  /\ (n_9 > r_11 \/ F k_12 n_10 r_11 ((n_9 + ((r_11 - k_12) + 1)) + 1) (\x_8.F k_12 n_10 r_11 x_8 k_mc_k_f)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

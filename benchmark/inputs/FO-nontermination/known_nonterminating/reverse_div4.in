@@ -1,0 +1,869 @@
+%HES
+MAIN_229  =v
+  Exists
+   (\c_4944.
+     Exists
+      (\head_4751.
+        Exists
+         (\i_4502.
+           Exists
+            (\lt_4259.
+              Exists
+               (\r_4045.
+                 Exists
+                  (\rcd_3894.
+                    Exists
+                     (\rcd_3772.
+                       Exists
+                        (\temp0_3679.
+                          Exists
+                           (\temp_3617.
+                             Exists
+                              (\nondet_4966.
+                                (nondet_4966 = nondet_4966 \/ false)
+                                /\ (nondet_4966 != nondet_4966
+                                    \/ Exists
+                                        (\x_4775.
+                                          (x_4775 = 0 \/ false)
+                                          /\ (x_4775 != 0
+                                              \/ Exists
+                                                  (\br_4994.
+                                                    (br_4994 <= 0
+                                                     \/ Exists
+                                                         (\result_dot_nondet_sdv_special_return_value_14_4790.
+                                                           Exists
+                                                            (\c_28_4534.
+                                                              (0 >= nondet_4966 \/ false)
+                                                              /\ (0 < nondet_4966
+                                                                  \/ 
+                                                                  (0 = c_28_4534 \/ false)
+                                                                  /\ (
+                                                                  0 != c_28_4534
+                                                                  \/ 
+                                                                  (head_4751 = head_4751 \/ false)
+                                                                  /\ (
+                                                                  head_4751 != head_4751
+                                                                  \/ 
+                                                                  Exists
+                                                                   (\x_4276.
+                                                                    (
+                                                                    x_4276 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_4276 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4790
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    0
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4790
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\result_dot_nondet_sdv_special_return_value_14_5060.
+                                                                    (
+                                                                    0 = c_28_4534 \/ false)
+                                                                    /\ (
+                                                                    0 != c_28_4534
+                                                                    \/ 
+                                                                    (
+                                                                    0 = lt_4259 \/ false)
+                                                                    /\ (
+                                                                    0 != lt_4259
+                                                                    \/ 
+                                                                    (
+                                                                    0 = lt_4259 \/ false)
+                                                                    /\ (
+                                                                    0 != lt_4259
+                                                                    \/ 
+                                                                    (
+                                                                    0 = lt_4259 \/ false)
+                                                                    /\ (
+                                                                    0 != lt_4259
+                                                                    \/ 
+                                                                    (
+                                                                    0 = lt_4259 \/ false)
+                                                                    /\ (
+                                                                    0 != lt_4259
+                                                                    \/ 
+                                                                    (
+                                                                    lt_4259 = lt_4259 \/ false)
+                                                                    /\ (
+                                                                    lt_4259 != lt_4259
+                                                                    \/ 
+                                                                    (
+                                                                    lt_4259 = lt_4259 \/ false)
+                                                                    /\ (
+                                                                    lt_4259 != lt_4259
+                                                                    \/ 
+                                                                    (
+                                                                    lt_4259 = lt_4259 \/ false)
+                                                                    /\ (
+                                                                    lt_4259 != lt_4259
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4916.
+                                                                    (
+                                                                    x_4916 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_4916 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_5060
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    0
+                                                                    < result_dot_nondet_sdv_special_return_value_14_5060
+                                                                    \/ false)))))))))))))))))))))
+                                                    /\ (br_4994 > 0
+                                                        \/ Exists
+                                                            (\result_dot_nondet_sdv_special_return_value_14_4805.
+                                                              Exists
+                                                               (\result_dot_slayer_malloc_sdv_special_return_value_4566.
+                                                                 (0 < nondet_4966 \/ false)
+                                                                 /\ (
+                                                                 0 >= nondet_4966
+                                                                 \/ Exists
+                                                                    (\temp_38_4310.
+                                                                    (
+                                                                    1 = 1 + 0 \/ false)
+                                                                    /\ (
+                                                                    1 != 1 + 0
+                                                                    \/ 
+                                                                    (
+                                                                    result_dot_nondet_sdv_special_return_value_14_4805
+                                                                    = nondet_4966
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    result_dot_nondet_sdv_special_return_value_14_4805
+                                                                    != nondet_4966
+                                                                    \/ 
+                                                                    (
+                                                                    temp_3617
+                                                                    = result_dot_slayer_malloc_sdv_special_return_value_4566
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    temp_3617
+                                                                    != result_dot_slayer_malloc_sdv_special_return_value_4566
+                                                                    \/ 
+                                                                    (
+                                                                    temp_3617 = temp_3617 \/ false)
+                                                                    /\ (
+                                                                    temp_3617 != temp_3617
+                                                                    \/ 
+                                                                    (
+                                                                    result_dot_slayer_malloc_sdv_special_return_value_4566
+                                                                    = temp_3617
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    result_dot_slayer_malloc_sdv_special_return_value_4566
+                                                                    != temp_3617
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4081.
+                                                                    (
+                                                                    x_4081 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_4081 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_3932.
+                                                                    (
+                                                                    x_3932 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_3932 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0 < nondet_4966 \/ false)
+                                                                    /\ (
+                                                                    0 >= nondet_4966
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\br_0_5040.
+                                                                    (
+                                                                    br_0_5040 <= 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\result_dot_nondet_sdv_special_return_value_14_4866.
+                                                                    (
+                                                                    1 + 0 >= nondet_4966 \/ false)
+                                                                    /\ (
+                                                                    1 + 0 < nondet_4966
+                                                                    \/ 
+                                                                    (
+                                                                    1
+                                                                    = result_dot_nondet_sdv_special_return_value_14_4866
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    1
+                                                                    != result_dot_nondet_sdv_special_return_value_14_4866
+                                                                    \/ 
+                                                                    (
+                                                                    head_4751 = head_4751 \/ false)
+                                                                    /\ (
+                                                                    head_4751 != head_4751
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4633.
+                                                                    (
+                                                                    x_4633 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_4633 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4385.
+                                                                    (
+                                                                    x_4385 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_4385 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4866
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    0
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4866
+                                                                    \/ 
+                                                                    (
+                                                                    1
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4866
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    1
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4866
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\head_13_5070.
+                                                                    Exists
+                                                                    (\result_dot_nondet_sdv_special_return_value_14_4928.
+                                                                    Exists
+                                                                    (\l_27_4717.
+                                                                    (
+                                                                    0 != c_4944 \/ false)
+                                                                    /\ (
+                                                                    0 = c_4944
+                                                                    \/ 
+                                                                    (
+                                                                    1
+                                                                    = result_dot_nondet_sdv_special_return_value_14_4928
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    1
+                                                                    != result_dot_nondet_sdv_special_return_value_14_4928
+                                                                    \/ 
+                                                                    (
+                                                                    head_13_5070 = l_27_4717 \/ false)
+                                                                    /\ (
+                                                                    head_13_5070 != l_27_4717
+                                                                    \/ 
+                                                                    (
+                                                                    c_4944 = c_4944 \/ false)
+                                                                    /\ (
+                                                                    c_4944 != c_4944
+                                                                    \/ 
+                                                                    (
+                                                                    c_4944 = c_4944 \/ false)
+                                                                    /\ (
+                                                                    c_4944 != c_4944
+                                                                    \/ 
+                                                                    (
+                                                                    c_4944 = c_4944 \/ false)
+                                                                    /\ (
+                                                                    c_4944 != c_4944
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4463.
+                                                                    (
+                                                                    x_4463 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_4463 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4215.
+                                                                    (
+                                                                    x_4215 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_4215 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0 != c_4944 \/ false)
+                                                                    /\ (
+                                                                    0 = c_4944
+                                                                    \/ 
+                                                                    (
+                                                                    0
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4928
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    0
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4928
+                                                                    \/ 
+                                                                    (
+                                                                    1
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4928
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    1
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4928
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\head_13_5075.
+                                                                    Exists
+                                                                    (\result_dot_nondet_sdv_special_return_value_14_4934.
+                                                                    Exists
+                                                                    (\l_27_4731.
+                                                                    (
+                                                                    0 != c_4944 \/ false)
+                                                                    /\ (
+                                                                    0 = c_4944
+                                                                    \/ 
+                                                                    (
+                                                                    1
+                                                                    = result_dot_nondet_sdv_special_return_value_14_4934
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    1
+                                                                    != result_dot_nondet_sdv_special_return_value_14_4934
+                                                                    \/ 
+                                                                    (
+                                                                    head_13_5075 = l_27_4731 \/ false)
+                                                                    /\ (
+                                                                    head_13_5075 != l_27_4731
+                                                                    \/ 
+                                                                    (
+                                                                    c_4944 = c_4944 \/ false)
+                                                                    /\ (
+                                                                    c_4944 != c_4944
+                                                                    \/ 
+                                                                    (
+                                                                    c_4944 = c_4944 \/ false)
+                                                                    /\ (
+                                                                    c_4944 != c_4944
+                                                                    \/ 
+                                                                    (
+                                                                    c_4944 = c_4944 \/ false)
+                                                                    /\ (
+                                                                    c_4944 != c_4944
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4479.
+                                                                    (
+                                                                    x_4479 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_4479 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4233.
+                                                                    (
+                                                                    x_4233 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_4233 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0 != c_4944 \/ false)
+                                                                    /\ (
+                                                                    0 = c_4944
+                                                                    \/ 
+                                                                    (
+                                                                    0
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4934
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    0
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4934
+                                                                    \/ 
+                                                                    (
+                                                                    1
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4934
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    1
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4934
+                                                                    \/ 
+                                                                    STATE_5 c_4944 rcd_3894 rcd_3772 (
+                                                                    \main_3548.false))))))))))))))))))))))))))))))))))))))))))))
+                                                                    /\ (
+                                                                    br_0_5040 > 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\result_dot_nondet_sdv_special_return_value_14_4892.
+                                                                    Exists
+                                                                    (\result_dot_slayer_malloc_sdv_special_return_value_36_4661.
+                                                                    (
+                                                                    1 + 0 < nondet_4966 \/ false)
+                                                                    /\ (
+                                                                    1 + 0 >= nondet_4966
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\temp_38_4415.
+                                                                    (
+                                                                    2 = 1 + (1 + 0) \/ false)
+                                                                    /\ (
+                                                                    2 != 1 + (1 + 0)
+                                                                    \/ 
+                                                                    (
+                                                                    result_dot_nondet_sdv_special_return_value_14_4892
+                                                                    = nondet_4966
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    result_dot_nondet_sdv_special_return_value_14_4892
+                                                                    != nondet_4966
+                                                                    \/ 
+                                                                    (
+                                                                    temp_38_4310
+                                                                    = result_dot_slayer_malloc_sdv_special_return_value_36_4661
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    temp_38_4310
+                                                                    != result_dot_slayer_malloc_sdv_special_return_value_36_4661
+                                                                    \/ 
+                                                                    (
+                                                                    temp_38_4310 = temp_38_4310 \/ false)
+                                                                    /\ (
+                                                                    temp_38_4310 != temp_38_4310
+                                                                    \/ 
+                                                                    (
+                                                                    result_dot_slayer_malloc_sdv_special_return_value_36_4661
+                                                                    = temp_38_4310
+                                                                    \/ false)
+                                                                    /\ (
+                                                                    result_dot_slayer_malloc_sdv_special_return_value_36_4661
+                                                                    != temp_38_4310
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4143.
+                                                                    (
+                                                                    x_4143 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_4143 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_3998.
+                                                                    (
+                                                                    x_3998 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_3998 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_3824.
+                                                                    (
+                                                                    x_3824 = 0 \/ false)
+                                                                    /\ (
+                                                                    x_3824 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0 < nondet_4966 \/ false)
+                                                                    /\ (
+                                                                    0 >= nondet_4966
+                                                                    \/ 
+                                                                    (
+                                                                    1 < nondet_4966 \/ false)
+                                                                    /\ (
+                                                                    1 >= nondet_4966
+                                                                    \/ 
+                                                                    STATE_11 c_4944 head_4751 temp_38_4310 i_4502
+                                                                    (1 + (1 + 0)) nondet_4966 r_4045 rcd_3894
+                                                                    temp_38_4415 (
+                                                                    \main_3548.false))))))))))))))))))))))))))))))))))))))))))))))))).
+STATE_11 c_28_153 head_13_152 head_35_151 i_120_150 i_33_149 length_32_148 r_42_147 rcd_46_146 temp_38_145 k_state_11
+  =v
+  Exists
+   (\br_0_5005.
+     (br_0_5005 <= 0
+      \/ (i_33_149 >= 0 \/ k_state_11 true)
+         /\ (i_33_149 < 0
+             \/ Exists
+                 (\result_dot_nondet_sdv_special_return_value_14_4817.
+                   (i_33_149 >= length_32_148 \/ k_state_11 true)
+                   /\ (i_33_149 < length_32_148
+                       \/ (head_13_152 = head_13_152 \/ k_state_11 true)
+                          /\ (head_13_152 != head_13_152
+                              \/ Exists
+                                  (\x_4592.
+                                    (x_4592 = 0 \/ k_state_11 true)
+                                    /\ (x_4592 != 0
+                                        \/ (0 < result_dot_nondet_sdv_special_return_value_14_4817 \/ k_state_11 true)
+                                           /\ (0 >= result_dot_nondet_sdv_special_return_value_14_4817
+                                               \/ (1 < result_dot_nondet_sdv_special_return_value_14_4817
+                                                   \/ k_state_11 true)
+                                                  /\ (1 >= result_dot_nondet_sdv_special_return_value_14_4817
+                                                      \/ (i_120_150
+                                                          >= result_dot_nondet_sdv_special_return_value_14_4817
+                                                          \/ k_state_11 true)
+                                                         /\ (i_120_150
+                                                             < result_dot_nondet_sdv_special_return_value_14_4817
+                                                             \/ (i_120_150 >= 0 \/ k_state_11 true)
+                                                                /\ (i_120_150 < 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\head_13_5081.
+                                                                    Exists
+                                                                    (\result_dot_nondet_sdv_special_return_value_14_4941.
+                                                                    Exists
+                                                                    (\l_27_4747.
+                                                                    (
+                                                                    0 != c_28_153 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    0 = c_28_153
+                                                                    \/ 
+                                                                    (
+                                                                    head_13_5081 = l_27_4747 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    head_13_5081 != l_27_4747
+                                                                    \/ 
+                                                                    (
+                                                                    c_28_153 = c_28_153 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    c_28_153 != c_28_153
+                                                                    \/ 
+                                                                    (
+                                                                    c_28_153 = c_28_153 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    c_28_153 != c_28_153
+                                                                    \/ 
+                                                                    (
+                                                                    c_28_153 = c_28_153 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    c_28_153 != c_28_153
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4488.
+                                                                    (
+                                                                    x_4488 = 0 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    x_4488 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4253.
+                                                                    (
+                                                                    x_4253 = 0 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    x_4253 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0 != c_28_153 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    0 = c_28_153
+                                                                    \/ 
+                                                                    (
+                                                                    0
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4941
+                                                                    \/ 
+                                                                    k_state_11 true)
+                                                                    /\ (
+                                                                    0
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4941
+                                                                    \/ 
+                                                                    (
+                                                                    1
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4941
+                                                                    \/ 
+                                                                    k_state_11 true)
+                                                                    /\ (
+                                                                    1
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4941
+                                                                    \/ 
+                                                                    (
+                                                                    i_120_150
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4941
+                                                                    \/ 
+                                                                    k_state_11 true)
+                                                                    /\ (
+                                                                    i_120_150
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4941
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\head_13_5050.
+                                                                    Exists
+                                                                    (\result_dot_nondet_sdv_special_return_value_14_4904.
+                                                                    Exists
+                                                                    (\l_27_4689.
+                                                                    (
+                                                                    0 != c_28_153 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    0 = c_28_153
+                                                                    \/ 
+                                                                    (
+                                                                    head_13_5050 = l_27_4689 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    head_13_5050 != l_27_4689
+                                                                    \/ 
+                                                                    (
+                                                                    c_28_153 = c_28_153 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    c_28_153 != c_28_153
+                                                                    \/ 
+                                                                    (
+                                                                    c_28_153 = c_28_153 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    c_28_153 != c_28_153
+                                                                    \/ 
+                                                                    (
+                                                                    c_28_153 = c_28_153 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    c_28_153 != c_28_153
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4431.
+                                                                    (
+                                                                    x_4431 = 0 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    x_4431 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_4179.
+                                                                    (
+                                                                    x_4179 = 0 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    x_4179 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0 != c_28_153 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    0 = c_28_153
+                                                                    \/ 
+                                                                    (
+                                                                    0
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4904
+                                                                    \/ 
+                                                                    k_state_11 true)
+                                                                    /\ (
+                                                                    0
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4904
+                                                                    \/ 
+                                                                    (
+                                                                    1
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4904
+                                                                    \/ 
+                                                                    k_state_11 true)
+                                                                    /\ (
+                                                                    1
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4904
+                                                                    \/ 
+                                                                    STATE_2 c_28_153 r_42_147 rcd_46_146 k_state_11))))))))))))))))))))))))))))))))))))))))))
+     /\ (br_0_5005 > 0
+         \/ (i_33_149 >= 0 \/ k_state_11 true)
+            /\ (i_33_149 < 0
+                \/ Exists
+                    (\i_4841.
+                      (i_33_149 < length_32_148 \/ k_state_11 true)
+                      /\ (i_33_149 >= length_32_148
+                          \/ Exists
+                              (\temp_38_4579.
+                                Exists
+                                 (\rcd_4341.
+                                   (1 + i_33_149 = 1 + i_4841 \/ k_state_11 true)
+                                   /\ (1 + i_33_149 != 1 + i_4841
+                                       \/ (i_4841 = (-1) + (1 + i_33_149) \/ k_state_11 true)
+                                          /\ (i_4841 != (-1) + (1 + i_33_149)
+                                              \/ (rcd_46_146 = rcd_4341 \/ k_state_11 true)
+                                                 /\ (rcd_46_146 != rcd_4341
+                                                     \/ Exists
+                                                         (\x_4111.
+                                                           (x_4111 = 0 \/ k_state_11 true)
+                                                           /\ (x_4111 != 0
+                                                               \/ Exists
+                                                                   (\x_3964.
+                                                                    (
+                                                                    x_3964 = 0 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    x_3964 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_3789.
+                                                                    (
+                                                                    x_3789 = 0 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    x_3789 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    i_4841 < length_32_148 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    i_4841 >= length_32_148
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\rcd_46_3715.
+                                                                    (
+                                                                    rcd_46_3715 = rcd_4341 \/ k_state_11 true)
+                                                                    /\ (
+                                                                    rcd_46_3715 != rcd_4341
+                                                                    \/ 
+                                                                    STATE_11 c_28_153 head_13_152 temp_38_145 i_120_150
+                                                                    (1 + i_33_149) length_32_148 r_42_147 rcd_46_3715
+                                                                    temp_38_4579 k_state_11))))))))))))))))))).
+STATE_2 c_28_36 r_42_35 rcd_46_34 k_state_2 =v
+  Exists
+   (\head_13_5045.
+     Exists
+      (\result_dot_nondet_sdv_special_return_value_4898.
+        Exists
+         (\l_4668.
+           (0 != c_28_36 \/ k_state_2 true)
+           /\ (0 = c_28_36
+               \/ Exists
+                   (\r_4423.
+                     Exists
+                      (\rcd_4152.
+                        (head_13_5045 = l_4668 \/ k_state_2 true)
+                        /\ (head_13_5045 != l_4668
+                            \/ (c_28_36 = c_28_36 \/ k_state_2 true)
+                               /\ (c_28_36 != c_28_36
+                                   \/ (c_28_36 = c_28_36 \/ k_state_2 true)
+                                      /\ (c_28_36 != c_28_36
+                                          \/ (c_28_36 = c_28_36 \/ k_state_2 true)
+                                             /\ (c_28_36 != c_28_36
+                                                 \/ (r_42_35 = r_4423 \/ k_state_2 true)
+                                                    /\ (r_42_35 != r_4423
+                                                        \/ (rcd_46_34 = rcd_4152 \/ k_state_2 true)
+                                                           /\ (rcd_46_34 != rcd_4152
+                                                               \/ Exists
+                                                                   (\x_4008.
+                                                                    (
+                                                                    x_4008 = 0 \/ k_state_2 true)
+                                                                    /\ (
+                                                                    x_4008 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_3864.
+                                                                    (
+                                                                    x_3864 = 0 \/ k_state_2 true)
+                                                                    /\ (
+                                                                    x_3864 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0 != c_28_36 \/ k_state_2 true)
+                                                                    /\ (
+                                                                    0 = c_28_36
+                                                                    \/ 
+                                                                    (
+                                                                    0 < result_dot_nondet_sdv_special_return_value_4898
+                                                                    \/ 
+                                                                    k_state_2 true)
+                                                                    /\ (
+                                                                    0
+                                                                    >= result_dot_nondet_sdv_special_return_value_4898
+                                                                    \/ 
+                                                                    (
+                                                                    1 < result_dot_nondet_sdv_special_return_value_4898
+                                                                    \/ 
+                                                                    k_state_2 true)
+                                                                    /\ (
+                                                                    1
+                                                                    >= result_dot_nondet_sdv_special_return_value_4898
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\rcd_46_3739.
+                                                                    (
+                                                                    rcd_46_3739 = rcd_4152 \/ k_state_2 true)
+                                                                    /\ (
+                                                                    rcd_46_3739 != rcd_4152
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\r_42_3643.
+                                                                    (
+                                                                    r_42_3643 = r_4423 \/ k_state_2 true)
+                                                                    /\ (
+                                                                    r_42_3643 != r_4423
+                                                                    \/ 
+                                                                    STATE_2 c_28_36 r_42_3643 rcd_46_3739 k_state_2))))))))))))))))))))))).
+STATE_5 c_28_72 rcd_46_71 rcd_56_70 k_state_5 =v
+  Exists
+   (\head_13_5065.
+     Exists
+      (\result_dot_nondet_sdv_special_return_value_14_4922.
+        Exists
+         (\l_27_4696.
+           (0 != c_28_72 \/ k_state_5 true)
+           /\ (0 = c_28_72
+               \/ Exists
+                   (\rcd_4447.
+                     Exists
+                      (\rcd_4188.
+                        (1 = result_dot_nondet_sdv_special_return_value_14_4922 \/ k_state_5 true)
+                        /\ (1 != result_dot_nondet_sdv_special_return_value_14_4922
+                            \/ (head_13_5065 = l_27_4696 \/ k_state_5 true)
+                               /\ (head_13_5065 != l_27_4696
+                                   \/ (c_28_72 = c_28_72 \/ k_state_5 true)
+                                      /\ (c_28_72 != c_28_72
+                                          \/ (c_28_72 = c_28_72 \/ k_state_5 true)
+                                             /\ (c_28_72 != c_28_72
+                                                 \/ (c_28_72 = c_28_72 \/ k_state_5 true)
+                                                    /\ (c_28_72 != c_28_72
+                                                        \/ (rcd_46_71 = rcd_4447 \/ k_state_5 true)
+                                                           /\ (rcd_46_71 != rcd_4447
+                                                               \/ (rcd_56_70 = rcd_4188 \/ k_state_5 true)
+                                                                  /\ (
+                                                                  rcd_56_70 != rcd_4188
+                                                                  \/ 
+                                                                  Exists
+                                                                   (\x_4038.
+                                                                    (
+                                                                    x_4038 = 0 \/ k_state_5 true)
+                                                                    /\ (
+                                                                    x_4038 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_3886.
+                                                                    (
+                                                                    x_3886 = 0 \/ k_state_5 true)
+                                                                    /\ (
+                                                                    x_3886 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_3751.
+                                                                    (
+                                                                    x_3751 = 0 \/ k_state_5 true)
+                                                                    /\ (
+                                                                    x_3751 != 0
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\x_3669.
+                                                                    (
+                                                                    x_3669 = 0 \/ k_state_5 true)
+                                                                    /\ (
+                                                                    x_3669 != 0
+                                                                    \/ 
+                                                                    (
+                                                                    0 != c_28_72 \/ k_state_5 true)
+                                                                    /\ (
+                                                                    0 = c_28_72
+                                                                    \/ 
+                                                                    (
+                                                                    0
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4922
+                                                                    \/ 
+                                                                    k_state_5 true)
+                                                                    /\ (
+                                                                    0
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4922
+                                                                    \/ 
+                                                                    (
+                                                                    1
+                                                                    >= result_dot_nondet_sdv_special_return_value_14_4922
+                                                                    \/ 
+                                                                    k_state_5 true)
+                                                                    /\ (
+                                                                    1
+                                                                    < result_dot_nondet_sdv_special_return_value_14_4922
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\rcd_56_3606.
+                                                                    (
+                                                                    rcd_56_3606 = rcd_4188 \/ k_state_5 true)
+                                                                    /\ (
+                                                                    rcd_56_3606 != rcd_4188
+                                                                    \/ 
+                                                                    Exists
+                                                                    (\rcd_46_3578.
+                                                                    (
+                                                                    rcd_46_3578 = rcd_4447 \/ k_state_5 true)
+                                                                    /\ (
+                                                                    rcd_46_3578 != rcd_4447
+                                                                    \/ 
+                                                                    STATE_5 c_28_72 rcd_46_3578 rcd_56_3606 k_state_5)))))))))))))))))))))))))))).
+Forall p        =v ForallAux p 0.
+ForallAux p x   =v p x /\ ForallAux p (x-1) /\ ForallAux p (x+1).
+Exists p        =v ExistsAux 1000 0 p.
+ExistsAux y x p =v y > 0 /\ (p x \/ ExistsAux (y-1) (x-1) p \/ ExistsAux (y-1) (x+1) p).

@@ -1,0 +1,13 @@
+%HES
+S =v n <= 0 \/
+     Repeat Succ n 0 r \/
+     r > n.
+Succ n r =v r != n + 1.
+Repeat f n s r =v
+  (n > 0 \/ r != s) /\
+  (n <= 0 \/ Forall 0 (\i.
+    Forall 0 (\j.
+      i != n - 1 \/
+      Repeat f i s j \/
+      f j r))).
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.

@@ -1,0 +1,29 @@
+%HES
+Main =v
+  (b2 <= 0 \/ G b3 1 1) /\
+  (b2 > 0 \/ G b3 0 0).
+Readit st r =v
+  (st != 1 \/ r != 1) /\
+  (st != 3 \/ r != 3).
+Read_ x st r =v
+  (x = 0 \/ (Forall 0 (\r. Readit st r))) /\
+  (x != 0 \/ r != st).
+Closeit st r =v
+  (st != 1 \/ r != 2) /\
+  (st != 3 \/ r != 3).
+Close_ x st r =v
+  (x = 0 \/ (Forall 0 (\r. Closeit st r))) /\
+  (x != 0 \/ r != st).
+F x y st =v
+  (Forall 0 (\r. Forall 0 (\r2.
+    Close_ x st r \/ Close_ y r r2 \/
+    (Forall 0 (\r3. Forall 0 (\r4.
+      Read_ x st r3 \/ Read_ y r3 r4 \/ F x y r4)))))).
+Next st r =v
+  (st != 0 \/ r != 1) /\
+  (st = 0 \/ r != 3).
+G b3 x st =v
+  (b3 <= 0 \/ (Forall 0 (\r. Next st r \/ F x 1 r))) /\
+  (b3 > 0 \/ F x 0 st).
+
+Forall x f =v f x /\ Forall (x-1) f /\ Forall (x+1) f.

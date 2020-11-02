@@ -1,0 +1,12 @@
+%HES
+MAIN  =v arg1 > arg2 \/ BCOPY_AUX arg1 arg2 0 arg1 (\main.true).
+BCOPY_AUX src des i m k_bcopy_aux =v
+  (i < m \/ k_bcopy_aux true)
+  /\ (i >= m
+      \/ ((0 > i \/ i >= src)
+          \/ ((0 > i \/ i >= des) \/ BCOPY_AUX src des (i + 1) m k_bcopy_aux) /\ (0 <= i /\ i < des))
+         /\ (0 <= i /\ i < src)).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

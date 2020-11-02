@@ -1,0 +1,62 @@
+%HES
+MAIN  =v
+  MAKE_INTLIST true
+   (\arg10.
+     \arg11.
+      DIVIDE arg10 arg11
+       (\r_divide00.
+         \r_divide01.
+          \r_divide10.
+           \r_divide11.
+            LENGTH arg10 arg11
+             (\x_5.
+               LENGTH r_divide00 r_divide01
+                (\x_4.
+                  (x_5 < x_4 \/ LENGTH arg10 arg11 (\x_3.LENGTH r_divide10 r_divide11 (\x_2.x_3 >= x_2))) /\ x_5 >= x_4)))).
+LENGTH l0_37 l1_36 k_length_35 =v
+  (l0_37 > 0 \/ k_length_35 0)
+  /\ (l0_37 <= 0
+      \/ (l0_37 <= 0
+          \/ l1_36 0
+              (\u.
+                LENGTH (1 + (l0_37 - 1))
+                 (\i_33.\k_length.(i_33 != 0 \/ k_length 0) /\ (i_33 = 0 \/ l1_36 ((i_33 - 1) + 1) k_length))
+                 (\x_34.k_length_35 (1 + x_34))))).
+DIVIDE l0 l1 k_divide_32 =v
+  (l0 > 0 \/ k_divide_32 0 (\x_29.\k_divide_28.true) 0 (\x_31.\k_divide_30.true))
+  /\ (l0 <= 0
+      \/ l1 0
+          (\n_27.
+            ((l0 <= 0 \/ l0 - 1 > 0)
+             \/ (l0 - 1 > 0 \/ k_divide_32 1 (\i_24.\k_divide_23.k_divide_23 0) 0 (\x_26.\k_divide_25.true)))
+            /\ (l0 > 0 /\ l0 - 1 <= 0
+                \/ ((l0 <= 0 \/ l0 - 1 <= 0)
+                    \/ (l0 - 1 <= 0
+                        \/ l1 (0 + 1)
+                            (\y.
+                              DIVIDE ((l0 - 1) - 1) (\x_15.\k_divide_l.l1 ((x_15 + 1) + 1) k_divide_l)
+                               (\r_divide00_22.
+                                 \r_divide01_21.
+                                  \r_divide10_20.
+                                   \r_divide11_19.
+                                    k_divide_32 (1 + r_divide00_22) (\i_16.\k_divide.k_divide 0) (1 + r_divide10_20)
+                                     (\i_18.\k_divide_17.k_divide_17 0)))))))).
+MAKE_INTLIST x_13 k_main_arg1_make_intlist_12 =v
+  Forall
+   (\x_11.
+     (x_11 != 0 \/ k_main_arg1_make_intlist_12 0 (\x_10.\k_main_arg1_make_intlist_9.true))
+     /\ (x_11 = 0
+         \/ Forall
+             (\n.
+               MAKE_INTLIST true
+                (\p0_7.
+                  \p1_6.
+                   k_main_arg1_make_intlist_12 (1 + p0_7)
+                    (\i.
+                      \k_main_arg1_make_intlist.
+                       (i != 0 \/ k_main_arg1_make_intlist 0)
+                       /\ (i = 0 \/ MAKE_INTLIST true (\p0.\p1.p1 (i - 1) k_main_arg1_make_intlist))))))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -1,0 +1,19 @@
+%HES
+MAIN  =v
+  (arg1 != 0 \/ arg2 > arg3)
+  \/ BCOPY_AUX arg2 (\i_12.\k_make_array.((0 > i_12 \/ i_12 >= arg2) \/ k_make_array 0) /\ (0 <= i_12 /\ i_12 < arg2))
+      (\i_12.\k_make_array.((0 > i_12 \/ i_12 >= arg3) \/ k_make_array 0) /\ (0 <= i_12 /\ i_12 < arg3)) arg1
+      (\main.true).
+BCOPY_AUX m_8 src des i_7 k_bcopy_aux =v
+  (i_7 < m_8 \/ k_bcopy_aux true)
+  /\ (i_7 >= m_8
+      \/ src i_7
+          (\x.
+            des i_7
+             (\u.
+               BCOPY_AUX m_8 src (\j.\k_update.(i_7 != j \/ k_update 0) /\ (i_7 = j \/ des j k_update)) (i_7 + 1)
+                k_bcopy_aux))).
+Forall p      =v ForallAux p 0.
+ForallAux p x =v p x /\ p (0-x) /\ ForallAux p (x+1).
+Exists p      =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

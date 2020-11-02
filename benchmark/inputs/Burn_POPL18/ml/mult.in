@@ -1,0 +1,5 @@
+%HES
+S =v Mult n n (\v. n <= v).
+Mult n m k =v ((n > 0 /\ m > 0) \/ k 0) /\
+              ((n <= 0 \/ m <= 0) \/
+                Mult n (m-1) (\v. k (n + v))).
