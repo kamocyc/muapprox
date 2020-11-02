@@ -391,38 +391,7 @@ let decompose_lambdas_hes hes =
 let move_first f ls =
   let l1, l2 = List.partition f ls in
   l1 @ l2
-(* 
-(* TOOD: 元からexistsを含める *)
-let rec to_muapprox_hflz = function
-  | Hflmc2_syntax.Hflz.Bool (b)      -> Bool b
-  | Hflmc2_syntax.Hflz.Var (x)       -> Var x
-  | Hflmc2_syntax.Hflz.And (f1, f2)  -> And (to_muapprox_hflz f1, to_muapprox_hflz f2)
-  | Hflmc2_syntax.Hflz.Or (f1, f2)   -> Or  (to_muapprox_hflz f1, to_muapprox_hflz f2)
-  | Hflmc2_syntax.Hflz.Abs (x, f1) -> Abs (x, to_muapprox_hflz f1)
-  | Hflmc2_syntax.Hflz.Forall (x, f1) -> Forall (x, to_muapprox_hflz f1)
-  | Hflmc2_syntax.Hflz.App (f1, f2) -> App (to_muapprox_hflz f1, to_muapprox_hflz f2)
-  | Hflmc2_syntax.Hflz.Arith t -> Arith t
-  | Hflmc2_syntax.Hflz.Pred (p, args) -> Pred (p, args)
 
-let to_muapprox_hes : Type.simple_ty Hflmc2_syntax.Hflz.hes -> Type.simple_ty Hflz.hes =
-  List.map (fun {Hflmc2_syntax.Hflz.var; body; fix} -> {var; body=to_muapprox_hflz body; fix})
-  
-let rec to_hflz = function
-  | Bool (b)      -> Hflmc2_syntax.Hflz.Bool b
-  | Var (x)       -> Hflmc2_syntax.Hflz.Var x
-  | And (f1, f2)  -> Hflmc2_syntax.Hflz.And (to_hflz f1, to_hflz f2)
-  | Or (f1, f2)   -> Hflmc2_syntax.Hflz.Or  (to_hflz f1, to_hflz f2)
-  | Abs (x, f1) -> Hflmc2_syntax.Hflz.Abs (x, to_hflz f1)
-  | Forall (x, f1) -> Hflmc2_syntax.Hflz.Forall (x, to_hflz f1)
-  | App (f1, f2) -> Hflmc2_syntax.Hflz.App (to_hflz f1, to_hflz f2)
-  | Arith t -> Hflmc2_syntax.Hflz.Arith t
-  | Pred (p, args) -> Hflmc2_syntax.Hflz.Pred (p, args)
-  | Exists _ -> failwith "to_hflz"
-
-let to_hes : Type.simple_ty Hflz.hes -> Type.simple_ty Hflmc2_syntax.Hflz.hes =
-  List.map (fun {var; body; fix} -> {Hflmc2_syntax.Hflz.var; body=to_hflz body; fix})
-   *)
-(* Type.simple_ty Hflz.hes = unit ty hes_rule list *)
 let elim_mu_with_rec (coe1 : int) (coe2 : int) (hes : Type.simple_ty Hflz.hes) : Type.simple_ty Hflz.hes =
   Log.app begin fun m -> m ~header:"AA11" "%a"
     Print.(hflz_hes simple_ty_) hes
@@ -711,34 +680,3 @@ let encode_body_exists coe1 coe2 (hes : Type.simple_ty Hflz.hes) =
     )
   |> List.flatten
   |> decompose_lambdas_hes
-(* 
-  (* TOOD: 元からexistsを含める *)
-  let rec to_muapprox_hflz = function
-    | Hflmc2_syntax.Hflz.Bool (b)      -> Bool b
-    | Hflmc2_syntax.Hflz.Var (x)       -> Var x
-    | Hflmc2_syntax.Hflz.And (f1, f2)  -> And (to_muapprox_hflz f1, to_muapprox_hflz f2)
-    | Hflmc2_syntax.Hflz.Or (f1, f2)   -> Or  (to_muapprox_hflz f1, to_muapprox_hflz f2)
-    | Hflmc2_syntax.Hflz.Abs (x, f1) -> Abs (x, to_muapprox_hflz f1)
-    | Hflmc2_syntax.Hflz.Forall (x, f1) -> Forall (x, to_muapprox_hflz f1)
-    | Hflmc2_syntax.Hflz.App (f1, f2) -> App (to_muapprox_hflz f1, to_muapprox_hflz f2)
-    | Hflmc2_syntax.Hflz.Arith t -> Arith t
-    | Hflmc2_syntax.Hflz.Pred (p, args) -> Pred (p, args)
-
-  let to_muapprox_hes : Type.simple_ty Hflmc2_syntax.Hflz.hes -> Type.simple_ty Hflz.hes =
-    List.map (fun {Hflmc2_syntax.Hflz.var; body; fix} -> {var; body=to_muapprox_hflz body; fix})
-    
-  let rec to_hflz = function
-    | Bool (b)      -> Hflmc2_syntax.Hflz.Bool b
-    | Var (x)       -> Hflmc2_syntax.Hflz.Var x
-    | And (f1, f2)  -> Hflmc2_syntax.Hflz.And (to_hflz f1, to_hflz f2)
-    | Or (f1, f2)   -> Hflmc2_syntax.Hflz.Or  (to_hflz f1, to_hflz f2)
-    | Abs (x, f1) -> Hflmc2_syntax.Hflz.Abs (x, to_hflz f1)
-    | Forall (x, f1) -> Hflmc2_syntax.Hflz.Forall (x, to_hflz f1)
-    | App (f1, f2) -> Hflmc2_syntax.Hflz.App (to_hflz f1, to_hflz f2)
-    | Arith t -> Hflmc2_syntax.Hflz.Arith t
-    | Pred (p, args) -> Hflmc2_syntax.Hflz.Pred (p, args)
-    | Exists _ -> failwith "to_hflz"
-
-  let to_hes : Type.simple_ty Hflz.hes -> Type.simple_ty Hflmc2_syntax.Hflz.hes =
-    List.map (fun {var; body; fix} -> {Hflmc2_syntax.Hflz.var; body=to_hflz body; fix})
- *)

@@ -40,10 +40,26 @@ let type_check_arith : ty_env -> Arith.t -> bool = fun env arith ->
     List.for_all go args in
   go arith
 
+let remove_id_from_type typ =
+  let rec go typ = match typ with
+    | Type.TyArrow (arg, exp) -> Type.TyArrow ({ arg with name = "x"; id = 1 }, go exp)
+    | Type.TyBool _ -> typ in
+  go typ
+  
 let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env hfl ->
   let show_arg_ty = fun fmt ty -> Format.pp_print_string fmt @@ Type.show_ty Fmt.nop ty in
   let show_arg = Type.show_arg show_arg_ty in
   let show_id = Id.show Fmt.nop in
+  let show_formula f = 
+    let buf = Buffer.create 100 in
+    let fmt = Format.formatter_of_buffer buf in
+    Print_syntax.hflz Print_syntax.simple_ty_ fmt f;
+    Format.pp_print_flush fmt ();
+    Buffer.contents buf 
+  in
+  let show_fm f =
+    " (formula: " ^ (show_formula f) ^ ")"
+  in
   let rec go : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env hfl -> match hfl with
   | Bool _ -> Type.TyBool ()
   | Var ({ty;_} as v) -> begin
@@ -81,13 +97,13 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
           if type_check_arith env arith
           then tybody
           else assert false
-        | _ -> failwith @@ "App: f2 should be arithmetic expression"
+        | _ -> failwith @@ "App: f2 should be arithmetic expression" ^ (show_fm hfl)
     end
-    | TyArrow ({ty=TySigma ty; _}, tybody) -> begin
+    | TyArrow ({ty=TySigma ty; _} as arg, tybody) -> begin
       let ty2 = go env f2 in
-      if ty2 = ty
+      if remove_id_from_type ty2 = remove_id_from_type ty
       then tybody
-      else assert false
+      else failwith @@ "App_TyArrow type mismatch" ^ (show_fm  hfl) ^ "ty1=" ^ (show_arg arg.ty) ^ "/ty2=" ^ (show_arg (TySigma ty2))
     end
     | TyBool _ -> failwith @@ "App: f1 should not be boolean."
   end
