@@ -1,4 +1,3 @@
-open Mu_approx_solver
 module Hflz = Hflmc2_syntax.Hflz
 module Fixpoint = Hflmc2_syntax.Fixpoint
 module Status = Status
@@ -7,7 +6,7 @@ let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
 
 let solver_path = "/opt/home2/git/hflmc2_mora/_build/default/bin/main.exe"
-let solver_command hes_path = solver_path ^ " " ^ hes_path ^ " --no-inlining" 
+let solver_command hes_path = [|solver_path; hes_path; "--no-inlining"|]
 
 let save_hes_to_file hes =
   Random.self_init ();
@@ -18,21 +17,30 @@ let save_hes_to_file hes =
   Printf.fprintf oc "%%HES\n" ;
   Print_syntax.MachineReadable.hflz_hes' Hflmc2_syntax.Print.simple_ty_ fmt hes;
   Format.pp_print_flush fmt ();
+  close_out oc;
   file
 
-let parse_results msg =
-  (* TODO: *)
-  Status.Invalid
+(* TODO: timetoutのとき？ *)
+let parse_results (exit_status, stdout, stderr) =
+  match exit_status with 
+  | Unix.WEXITED c when c = 0 -> begin
+    (* Verification Result: の行を探す。 *)
+    let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nProfiling:$" in
+    try
+      ignore @@ Str.search_forward reg stdout 0;
+      let status = Status.of_string @@ Str.matched_group 2 stdout in
+      print_endline @@ "PARSED STATUS: " ^ Status.string_of status;
+      status
+    with
+      | Not_found -> failwith @@ "not matched"
+      | Invalid_argument s -> failwith @@ "Invalid_argument: " ^ s
+    end
+  | _ -> Status.Unknown
   
 let run_solver timeout hes =
   let path = save_hes_to_file hes in
   let command = solver_command path in
-  let status, std, err = Hflmc2_util.Fn.run_command ~timeout:timeout [|command|] in
-  (* TODO: 結果を取得 *)
-  print_string "RESULTS:";
-  print_string std;
-  print_string err;
-  let status = parse_results std in
+  let status = parse_results @@ Hflmc2_util.Fn.run_command ~timeout:timeout command in
   status, status
   
 let solve_onlynu_onlyforall _ timeout is_print_for_debug hes =
@@ -88,7 +96,7 @@ let elim_mu_exists coe1 coe2 hes =
   hes
   
 (* これ以降、本プログラム側での近似が入る *)
-let check_validity_full coe1 coe2 _ timeout (is_print_for_debug : bool) hes = 
+let check_validity_full coe1 coe2 _ timeout (is_print_for_debug : bool) (oneshot : bool) hes = 
   let dual_hes = Hflz_manipulate.get_dual_hes hes in
   Log.app begin fun m -> m ~header:"dual_hes" "%a"
     Print_syntax.(hflz_hes simple_ty_) dual_hes
@@ -105,9 +113,12 @@ let check_validity_full coe1 coe2 _ timeout (is_print_for_debug : bool) hes =
       match dual_result with
       | Status.Valid -> (Status.Invalid, dual_result')
       | _ -> begin
-        (* TODO: 係数の増やし方 *)
-        (* TODO: 再帰回数の制限？timeout？ *)
-        go (coe1 * 2) (coe2 * 2)
+        if oneshot then
+          (dual_result, dual_result')
+        else
+          (* TODO: 係数の増やし方 *)
+          (* TODO: 再帰回数の制限？timeout？ *)
+          go (coe1 * 2) (coe2 * 2)
       end
     end
   in
@@ -115,12 +126,12 @@ let check_validity_full coe1 coe2 _ timeout (is_print_for_debug : bool) hes =
     
 (* 「shadowingが無い」とする。 *)
 (* timeoutは個別のsolverのtimeout *)  
-let check_validity coe1 coe2 _ timeout (is_print_for_debug : bool) hes =
+let check_validity coe1 coe2 _ timeout (is_print_for_debug : bool) (oneshot : bool) hes =
   if is_onlynu_onlyforall hes then
     solve_onlynu_onlyforall () timeout is_print_for_debug hes
   else if is_onlymu_onlyexists hes then
     flip_status_pair @@ solve_onlynu_onlyforall () timeout is_print_for_debug @@ Hflz_manipulate.get_dual_hes hes
-  else check_validity_full coe1 coe2 () timeout is_print_for_debug hes
+  else check_validity_full coe1 coe2 () timeout is_print_for_debug oneshot hes
 
 (* 
 CheckValidity(Φ, main) { /* Φ: HES, main: Entry formula */

@@ -69,18 +69,18 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
     | Some {ty=ty';_} -> 
       if Type.TySigma ty = ty'
       then ty
-      else failwith @@ "Var: `" ^ (show_id v) ^ "` type mismatch (expected: " ^ (show_arg @@ Type.TySigma ty) ^ " / actual: " ^ (show_arg ty')  ^ ")"
+      else failwith @@ "Var: `" ^ (show_id v) ^ "` type mismatch (type of variable in formula: " ^ (show_arg @@ Type.TySigma ty) ^ " / type in environment: " ^ (show_arg ty')  ^ ")"
     | None -> failwith @@ "Var: unbound variable (" ^ (show_id v) ^ ")"
   end
   | Or (f1, f2) -> begin
     if go env f1 = Type.TyBool () && go env f2 = Type.TyBool ()
     then Type.TyBool ()
-    else assert false
+    else failwith @@ "Or: both formulae should be bool type (left: " ^ (show_fm f1) ^ ", right: " ^ (show_fm f2) ^ ")"
   end
   | And (f1, f2) -> begin
     if go env f1 = Type.TyBool () && go env f2 = Type.TyBool ()
     then Type.TyBool ()
-    else assert false
+    else failwith @@ "And: both formulae should be bool type (left: " ^ (show_fm f1) ^ ", right: " ^ (show_fm f2) ^ ")"
   end
   | Abs (arg, body) -> begin
     Type.TyArrow (arg, go (arg::env) body)
@@ -105,7 +105,7 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
       then tybody
       else failwith @@ "App_TyArrow type mismatch" ^ (show_fm  hfl) ^ "ty1=" ^ (show_arg arg.ty) ^ "/ty2=" ^ (show_arg (TySigma ty2))
     end
-    | TyBool _ -> failwith @@ "App: f1 should not be boolean."
+    | TyBool _ -> failwith @@ "App: left-hand term should not be boolean. (left-hand term=" ^ (show_fm f1) ^ ", right-hand term=" ^ (show_fm f2) ^ ")"
   end
   | Pred (_, args) -> begin
     List.iter (fun arg -> if type_check_arith env arg then () else assert false) args;

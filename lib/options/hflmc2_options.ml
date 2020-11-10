@@ -6,6 +6,7 @@ open Hflmc2_util
 (******************************************************************************)
 
 let no_inlining = ref true
+let oneshot = ref false
 let no_approx_mu = ref false
 (* let verbose = ref true *)
 
@@ -22,6 +23,8 @@ type params =
   ; no_inlining : bool [@default false]
     (** Disable inlining *)
 
+  ; oneshot : bool [@default false]
+  
   ; no_approx_mu : bool [@default false]
   
   (* ; verbose : bool [@default false] *)
@@ -31,6 +34,7 @@ type params =
 let set_up_params params =
   set_ref no_inlining              params.no_inlining;
   set_ref no_approx_mu             params.no_approx_mu;
+  set_ref oneshot                  params.oneshot;
   (* set_ref verbose                  params.verbose; *)
   params.input
 

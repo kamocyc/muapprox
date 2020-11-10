@@ -4,6 +4,8 @@ module Formula = Hflmc2_syntax.Formula
 open Hflz
 open Hflmc2_syntax.Print
 
+let id : 'ty Id.t t =
+  fun ppf x -> Fmt.pf ppf "%s" (Id.to_string x)
 let simple_ty_ = simple_ty_
 let simple_ty = simple_ty
 (* Hflz *)
@@ -12,7 +14,7 @@ let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
   fun format_ty_ prec ppf (phi : 'ty Hflz.t) -> match phi with
     | Bool true -> Fmt.string ppf "true"
     | Bool false -> Fmt.string ppf "false"
-    | Var x -> id ppf x
+    | Var x -> Fmt.pf ppf "(%a :%a)" id x (format_ty_ Prec.zero) x.ty
     | Or(phi1,phi2)  ->
         show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ || %a@]"
           (hflz_ format_ty_ Prec.or_) phi1
@@ -60,11 +62,28 @@ let hflz_hes : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes Fmt.t =
       (Fmt.list (hflz_hes_rule format_ty_)) hes
 
 module MachineReadable = struct  
+    
+  let replace_apos =
+    Str.global_replace (Str.regexp "'") "_ap"
+    
+  let id' : 'ty Id.t t =
+    fun ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string x)
+  
+  let id_' = fun prec ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string x)
+  
+  let arith_  =
+    fun prec ppf a -> gen_arith_ id_' prec ppf a
+  
+  let formula_ : Formula.t t_with_prec =
+    gen_formula_ void_ id_'
+  let formula : Formula.t Fmt.t =
+    formula_ Prec.zero
+    
   let rec hflz_' : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
     fun format_ty_ prec ppf (phi : 'ty Hflz.t) -> match phi with
       | Bool true -> Fmt.string ppf "true1"
       | Bool false -> Fmt.string ppf "false"
-      | Var x -> id ppf x
+      | Var x -> id' ppf x
       | Or(phi1,phi2)  ->
           show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ || %a@]"
             (hflz_' format_ty_ Prec.or_) phi1
@@ -79,7 +98,7 @@ module MachineReadable = struct
           hflz_' format_ty_ prec ppf psi
       | Exists (x, psi) -> 
         show_paren (prec > Prec.abs) ppf "@[<1>∃%a.@,%a@]"
-            id x
+            id' x
             (* (argty (format_ty_ Prec.(succ arrow))) x.ty *)
             (hflz_' format_ty_ Prec.abs) psi
       | App (psi1, psi2) ->
@@ -96,14 +115,14 @@ module MachineReadable = struct
 
   let hflz' : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.t Fmt.t =
     fun format_ty_ -> hflz_' format_ty_ Prec.zero
-    
+  
   let hflz_hes_rule' : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes_rule Fmt.t =
     fun format_ty_ ppf rule ->
       let args, phi = Hflz.decompose_abs rule.body in
       (* 'ty Type.arg Id.t を表示したい *)
       Fmt.pf ppf "@[<2>%s %a =%a@ %a.@]"
         (Id.to_string rule.var)
-        (pp_print_list ~pp_sep:fprint_space id) args
+        (pp_print_list ~pp_sep:fprint_space id') args
         (* (format_ty_ Prec.zero) rule.var.ty *)
         fixpoint rule.fix
         (hflz' format_ty_) phi

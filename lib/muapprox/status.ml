@@ -21,3 +21,13 @@ let string_of = function
   | Unknown -> "unknown"
   | Sat -> "sat"
   | UnSat -> "unsat"
+
+let of_string str = 
+  let str = String.lowercase_ascii str in
+  match str with
+  | "valid" -> Valid
+  | "invalid" -> Invalid
+  | "unknown" -> Unknown
+  | "sat" -> Sat
+  | "unsat" -> UnSat
+  | _ -> failwith @@ "Illegal status string (" ^ str ^ ")"

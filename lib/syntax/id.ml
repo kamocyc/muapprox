@@ -17,7 +17,7 @@ let to_string id =
   let c = String.get id.name 0 in
   if c = Char.uppercase c
   then id.name
-  else id.name ^ string_of_int id.id
+  else id.name ^ string_of_int id.id (* also show id if the id is for a variable *)
 
 let gen : ?name:string -> 'annot -> 'anno t =
   fun ?(name="x") ann ->

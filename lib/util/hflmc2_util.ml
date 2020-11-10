@@ -205,9 +205,9 @@ module Fn = struct
 
   let pp_process_result fmt stat out err =
     let show_process_status : process_status -> string = function
-      | WEXITED code -> "WEXITED" ^ (string_of_int code)
-      | WSIGNALED code -> "WSIGNALED" ^ (string_of_int code)
-      | WSTOPPED code -> "WSTOPPED" ^ (string_of_int code) in
+      | WEXITED code -> "WEXITED(" ^ (string_of_int code) ^ ")"
+      | WSIGNALED code -> "WSIGNALED(" ^ (string_of_int code) ^ ")"
+      | WSTOPPED code -> "WSTOPPED(" ^ (string_of_int code) ^ ")" in
     Format.pp_print_string fmt @@ "Process result:\n";
     Format.pp_print_string fmt @@ "out: " ^ out ^ "\n";
     Format.pp_print_string fmt @@ "status: " ^ (show_process_status stat) ^ "\n";

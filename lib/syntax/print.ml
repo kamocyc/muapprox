@@ -123,7 +123,7 @@ let arith : Arith.t Fmt.t = arith_ Prec.zero
 let pred : Formula.pred t =
   fun ppf pred -> match pred with
     | Eq  -> Fmt.string ppf "="
-    | Neq -> Fmt.string ppf "/="
+    | Neq -> Fmt.string ppf "!="
     | Le  -> Fmt.string ppf "<="
     | Ge  -> Fmt.string ppf ">="
     | Lt  -> Fmt.string ppf "<"

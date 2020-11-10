@@ -32,7 +32,7 @@ rule token = parse
 | "false"                  { FALSE     }
 | ("\\"|"λ")               { LAMBDA    }
 | ("=v"|"=ν")              { DEF_G     }
-| ("=m"|"=μ")              { DEF_L     }
+| ("=m"|"=μ"|"=u")         { DEF_L     }
 | "."                      { DOT       }
 | ":"                      { COLON     }
 | ";"                      { SEMICOLON }
@@ -52,6 +52,7 @@ rule token = parse
                            | "%"           -> PERCENT
                            | "="           -> EQ
                            | "!="          -> NEQ
+                           | "/="          -> NEQ
                            | "<>"          -> NEQ
                            | "<="          -> LE
                            | ">="          -> GE

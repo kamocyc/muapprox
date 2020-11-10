@@ -47,6 +47,7 @@ let main file =
   (* TODO *)
   let coe1, coe2 = 1, 10 in
   let inlining = not @@ !Options.no_inlining in
+  let oneshot = !Options.oneshot in
   let timeout = 1000.0 in
   (* let is_print_for_debug = !Options.verbose in *)
   let is_print_for_debug = true in
@@ -55,7 +56,7 @@ let main file =
     Print.(hflz_hes simple_ty_) psi
   end;
   (* TODO: *)
-  let s1, _ = Hflmc2_muapprox.check_validity coe1 coe2 () timeout is_print_for_debug psi in
+  let s1, _ = Hflmc2_muapprox.check_validity coe1 coe2 () timeout is_print_for_debug oneshot psi in
   s1
   (* TODO: topのpredicate variableの扱い？ *)
   (* let psi, top = Syntax.Trans.Preprocess.main psi in
