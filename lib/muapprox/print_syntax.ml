@@ -40,11 +40,11 @@ let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
         show_paren (prec > Prec.app) ppf "@[<1>%a@ %a@]"
           (hflz_ format_ty_ Prec.app) psi1
           (hflz_ format_ty_ Prec.(succ app)) psi2
-    | Arith a ->
-        arith_ prec ppf a
+    | Arith a -> arith_ prec ppf a
     | Pred (pred, as') ->
         show_paren (prec > Prec.eq) ppf "%a"
           formula (Formula.Pred(pred, as'))
+
 let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.t Fmt.t =
   fun format_ty_ -> hflz_ format_ty_ Prec.zero
 
@@ -63,8 +63,10 @@ let hflz_hes : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes Fmt.t =
 
 module MachineReadable = struct  
     
-  let replace_apos =
-    Str.global_replace (Str.regexp "'") "_ap"
+  let replace_apos s =
+    s
+    |> Str.global_replace (Str.regexp "'") "_ap_"
+    |> Str.global_replace (Str.regexp "!") "_exc_"
     
   let id' : 'ty Id.t t =
     fun ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string x)
@@ -81,7 +83,7 @@ module MachineReadable = struct
     
   let rec hflz_' : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
     fun format_ty_ prec ppf (phi : 'ty Hflz.t) -> match phi with
-      | Bool true -> Fmt.string ppf "true1"
+      | Bool true -> Fmt.string ppf "true"
       | Bool false -> Fmt.string ppf "false"
       | Var x -> id' ppf x
       | Or(phi1,phi2)  ->
@@ -94,8 +96,11 @@ module MachineReadable = struct
             (hflz_' format_ty_ Prec.and_) phi2
       | Abs (x, psi) -> failwith @@ "(Print.Hflz) Abstractions should be converted to HES equations."
       | Forall (x, psi) ->
-          (* TODO: ∀は出力したほうがいい？ *)
-          hflz_' format_ty_ prec ppf psi
+          (* TODO: ∀は出力したほうがいい？ => 付けるべき。付けないとなぜか\がつくことがある *)
+          show_paren (prec > Prec.abs) ppf "@[<1>∀%a.@,%a@]"
+            id' x
+            (* (argty (format_ty_ Prec.(succ arrow))) x.ty *)
+            (hflz_' format_ty_ Prec.abs) psi
       | Exists (x, psi) -> 
         show_paren (prec > Prec.abs) ppf "@[<1>∃%a.@,%a@]"
             id' x

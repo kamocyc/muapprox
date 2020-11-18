@@ -22,7 +22,7 @@ let add_mesure_time tag f =
   Hashtbl.find_and_call times tag ~if_found ~if_not_found;
   r
 let all_start = Unix.gettimeofday ()
-  let report_times () =
+let report_times () =
   let total = Unix.gettimeofday() -. all_start in
   let kvs = Hashtbl.to_alist times @ [("total", total)] in
   match List.max_elt ~compare (List.map kvs ~f:(String.length<<<fst)) with
@@ -36,7 +36,6 @@ let all_start = Unix.gettimeofday ()
         in Print.pr "%s %f sec@." s v
       end
 
-(* TODO: 実装 *)
 let show_result = Hflmc2_muapprox.Status.string_of
 
 let main file =

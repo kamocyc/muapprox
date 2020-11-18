@@ -55,7 +55,7 @@ let mk_abss xs t = List.fold_right xs ~init:t ~f:mk_abs
 (* Decomposition *)
 let decompose_abs =
   let rec go acc phi = match phi with
-    | Abs(x,phi) -> go (x::acc) phi
+    | Abs(x, phi) -> go (x::acc) phi
     | _ -> (List.rev acc, phi)
   in fun phi -> go [] phi
 

@@ -123,10 +123,13 @@ module Typing = struct
 
   let rec unify : tyvar -> tyvar -> unit =
     fun tv1 tv2 ->
-      Log.debug begin fun _ -> Print.pr "UNIFY %a -- %a@."
+      (* Log.debug begin fun _ -> Print.pr "UNIFY %a -- %a@."
         pp_hum_tyvar tv1
         pp_hum_tyvar tv2
-      end;
+      end; *)
+      Print.pr "UNIFY %a -- %a@."
+        pp_hum_tyvar tv1
+        pp_hum_tyvar tv2;
       match tv1, tv2 with
       | TvInt, TvInt -> ()
       | TvBool, TvBool -> ()
@@ -168,7 +171,7 @@ module Typing = struct
             pp_hum_tyvar x
             pp_hum_tyvar y
           );
-          Fn.fatal @@ Fmt.strf "ill-typed"
+          failwith "a"
 
   type id_env = int StrMap.t   (* name to id *)
   (* なんでid_envとty_envの持ち方が違う実装になってるんだろう．これ書いた人バカなのかな？ *)

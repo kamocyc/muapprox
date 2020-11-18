@@ -1,0 +1,13 @@
+%HES
+
+/*
+(* valid file access *)
+(* 自明すぎる？ *)
+
+let rec f x =
+  let n = read_int () in
+  if n = 1 then close x else (read x; read x; f x)
+
+let () =
+  f ()
+*/

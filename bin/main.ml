@@ -13,7 +13,7 @@ let () =
   in
     begin match Muapprox.main file with
     | r ->
-        Fmt.pr "@[<v 2>Verification Result:@,%s@]@." @@ Muapprox.show_result r;
+        Fmt.pr "@[<v 2>[[MAIN]] Verification Result:@,%s@]@." @@ Muapprox.show_result r;
         if Logs.Src.level Muapprox.log_src <> None
           then Muapprox.report_times()
     | exception

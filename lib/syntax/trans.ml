@@ -132,7 +132,7 @@ module Subst = struct
         | Var x ->
             begin match IdMap.lookup env x with
             | t -> t
-            | exception Not_found -> Var x
+            | exception Core.Not_found_s _ -> Var x
             end
         | Or(phi1,phi2)  -> Or(hflz env phi1, hflz env phi2)
         | And(phi1,phi2) -> And(hflz env phi1, hflz env phi2)
@@ -175,7 +175,7 @@ module Subst = struct
         | Var x ->
             begin match IdMap.lookup env x with
             | t -> t
-            | exception Not_found -> Var x
+            | exception Core.Not_found_s _ -> Var x
             end
         | Bool _         -> phi
         | Or(phis,k)     -> Or(List.map ~f:(hfl env) phis, k)

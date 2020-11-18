@@ -34,6 +34,7 @@ let to_abs : 'ty Type.arg Id.t list -> ('ty2 Hflz.t -> 'ty2 Hflz.t) = fun args -
     go args
 
 (* Absの引数のIDを新規に生成しない版 *)
+(* [x1; x2] body  ->  \x1. \x2. body *)
 let to_abs' : 'ty Type.arg Id.t list -> ('ty2 Hflz.t -> 'ty2 Hflz.t) =
   fun args body ->
     let rec go = function
@@ -110,30 +111,12 @@ let replace_caller_sub coe1 coe2 env id id' =
   (* TODO: predicateが部分適用されているときにうまくいく？ *)
   let abs = to_abs @@ to_args id'.Id.ty in
   let vars = to_vars (abs @@ (* Dummy *) Bool true) in
-  (* TODO: Int 10じゃなくてうまく決める *)
   (* negativeにしているので注意 *)
   let bound_int_vars = filter_int_variable env in
   let bounds = make_bounds coe1 coe2 bound_int_vars in
   print_int @@ List.length bounds;
   let approx_formula = make_approx_formula new_rec_var_f bounds in
   Forall (new_rec_var, abs @@ Or (approx_formula, vars @@ App (Var id, Arith (Var new_rec_var_f))))
-(*        let ref_rule = get_rule id hes in
-  (* TODO: forallを別途処理する *)
-  let new_rec_var = Id.gen ~name:"forall_y" Type.TyInt in
-  let new_rec_var_f = {new_rec_var with ty = `Int} in
-  let new_rule_id = Id.gen ~name:("forall_" ^ id.name) (Type.TyArrow (new_rec_var, id.ty)) in
-  let new_rule = {
-    var = new_rule_id;
-    (* TODO: ヒューリスティックで決める *)
-    body = (
-      let args = to_args id.ty in
-      let abs = to_abs args in
-      let vars = to_vars args in
-      abs @@ And (Or (Pred (Formula.Lt, [Var new_rec_var_f; Int 10]), vars @@ App (Var id, Arith (Var new_rec_var_f))), vars @@ App (Var new_rule_id, Arith (Op (Add, [Var new_rec_var_f; Int 1]))))
-    );
-    fix = Fixpoint.Greatest } in
-  new_rules := new_rule :: !new_rules;
-  App (Var new_rule_id, Arith (Int 0)) *)
 
 (* 変換した述語の呼び出し元を置換 *)
 let replace_caller (hfl : Type.simple_ty Hflz.t) (preds : Type.simple_ty Id.t list) (coe1 : int) (coe2 : int) : Type.simple_ty Hflz.t =
@@ -168,6 +151,7 @@ let extract_head_abstracts : Type.simple_ty Hflz.t -> ((Type.simple_ty Hflz.t ->
     | _ -> hfl in
     rep1 hfl)
 
+(* base [x1; x2]  ->  (x1 -> x2 -> base) *)
 let to_arrow_type ?base:(base=Type.TyBool ()) args  =
   let rec go acc args = match args with
     | arg::xs -> begin
@@ -299,6 +283,8 @@ let remove_vars not_apply_vars = List.filter (fun v -> not @@ List.exists (fun v
 
 let extract_abstraction phi not_apply_vars new_rule_name_base =
   let xs, phi' = decompose_abs phi in
+  print_endline "extract_abstraction";
+  List.iter (fun x -> print_endline @@ Id.to_string x) xs;
   (* 型情報も入っている。 *)
   (* arithの中のfvも見ている *)
   let free_vars =
@@ -311,15 +297,17 @@ let extract_abstraction phi not_apply_vars new_rule_name_base =
   List.iter (fun v -> print_string v.Id.name; print_int v.Id.id; print_string ";") free_vars;
   (* TODO: 順番正しい？ *)
   let arr_type = to_arrow_type (free_vars @ xs) in
-  (* 一般にはAbsが連続するので、連続したAbsをまとめて切り出したい *)
   let new_rule_id = Id.gen ~name:(new_rule_name_base ^ "_sub" ^ string_of_int (Random.int 100)) arr_type in
   let new_rule = {
     var = new_rule_id;
     body = (to_abs' (free_vars @ xs) phi');
     fix = Fixpoint.Greatest } in
+  print_endline "NEW_RULE";  
+  print_endline @@ fmt_string (Print_syntax.hflz_hes_rule Print_syntax.simple_ty_ ) new_rule;
   let new_sub_formula = args_ids_to_apps free_vars @@ Var new_rule_id in
   (new_sub_formula, new_rule)
 
+(* (∀x1. ∀x2. \y1. \y2. \phi)  ->  (\y1. \y2. ∀x1. ∀x2. \phi) *)
 let in_forall v =
   let rec forall_vars phi acc = match phi with
     | Forall (x, phi') -> forall_vars phi' (x::acc)
@@ -329,51 +317,64 @@ let in_forall v =
     | _ -> acc, phi in
   let fvars, v = forall_vars v [] in
   let avars, v = abs_vars v [] in
-  to_abs' avars (to_forall fvars v)  
-  
+  to_abs' (List.rev avars) (to_forall (List.rev fvars) v)  
+
+type forall_or_exists =
+  | FE_Forall of Type.simple_ty Type.arg Id.t
+  | FE_Exists of Type.simple_ty Type.arg Id.t
+
 (* phiの中のlambdaをdecomposeする *)
 let decompose_lambda_ (phi : Type.simple_ty Hflz.t) (rule_id : Type.simple_ty Id.t) (hes : Type.simple_ty hes) =
   let hes_var_names = List.map (fun {var; _} -> Id.remove_ty var) hes in
   let new_rules = ref [] in
-  let rec go phi = match phi with
-    | Var _ | Bool _ | Arith _ |  Pred _ -> phi
-    | Or (phi1,phi2) -> Or(go phi1, go phi2)
-    | And(phi1,phi2) -> And(go phi1, go phi2)
-    | App(phi1,phi2) -> App(go phi1, go phi2)
+  let mk_quant quants body =
+    let rec go quants =
+      match quants with
+      | q::qs -> begin
+        match q with
+        | FE_Forall x -> Forall (x, go qs)
+        | FE_Exists x -> Exists (x, go qs)
+      end
+      | [] -> body in
+    go @@ List.rev quants in
+  let rec go quant_acc phi = match phi with
+    | Var _ | Bool _ | Arith _ |  Pred _ -> mk_quant quant_acc phi
+    | Or (phi1,phi2) -> mk_quant quant_acc @@ Or(go [] phi1, go [] phi2)
+    | And(phi1,phi2) -> mk_quant quant_acc @@ And(go [] phi1, go [] phi2)
+    | App(phi1,phi2) -> mk_quant quant_acc @@ App(go [] phi1, go [] phi2)
     | Abs(_, _)    -> begin
-      let v, new_rule = extract_abstraction phi ((Id.remove_ty rule_id)::hes_var_names) rule_id.name in
+      (* let v, new_rule = extract_abstraction phi ((Id.remove_ty rule_id)::hes_var_names) rule_id.name in
       new_rules := new_rule :: !new_rules;
       (* Log.app begin fun m -> m ~header:("Abs") "%a"
         Print.(hflz simple_ty_) v
       end; *)
-      v
-    end
-    | Forall (x, phi) -> begin
-      (* TODO: 直下にlambdaがあるとき以外にも対応させる。 *)
-      match phi with
-      | Abs _ -> begin
-        let v, new_rule = extract_abstraction phi (Id.remove_ty x :: (Id.remove_ty rule_id :: hes_var_names)) rule_id.name in
+      v *)
+      let not_apply_vars =
+        (List.map
+          (fun q -> (match q with FE_Exists e -> e | FE_Forall e -> e) |> Id.remove_ty)
+          quant_acc
+        ) @
+        (Id.remove_ty rule_id :: hes_var_names) in
+      let v, new_rule = extract_abstraction phi not_apply_vars rule_id.name in
         (* Log.app begin fun m -> m ~header:("Forall 前" ^ x.name) "%a"
           Print.(hflz simple_ty_) new_rule.body
         end; *)
-        let new_rule = { new_rule with body = in_forall @@ Forall (x, new_rule.body) } in
+        let new_rule = { new_rule with body = in_forall @@ mk_quant quant_acc new_rule.body } in
         (* Log.app begin fun m -> m ~header:("Forall 後" ^ x.name) "%a"
           Print.(hflz simple_ty_) new_rule.body
         end; *)
         new_rules := new_rule :: !new_rules;
         v
-      end
-      | _ -> Forall(x, go phi)
     end
-    (* TODO: *)
-    | Exists _ -> failwith "not implemeneted"
+    | Forall (x, phi) -> go ((FE_Forall x)::quant_acc) phi
+    | Exists (x, phi) -> go ((FE_Exists x)::quant_acc) phi
   in
-  (* 先頭のAbstractionとforallは読み飛ばす *)
+  (* 先頭のAbstractionは読み飛ばす *)
   let rec go' phi = match phi with
     | Abs(x, phi) -> begin
       Abs(x, go' phi)
     end
-    | _ -> go phi
+    | _ -> go [] phi
   in
   (* Log.app begin fun m -> m ~header:"original formula" "%a"
     Print.(hflz simple_ty_) phi
@@ -691,19 +692,26 @@ let encode_body_exists_formula coe1 coe2 hes_preds hfl =
     | Abs (v, f1)  -> Abs (v, go hes_preds f1)
     | Forall (v, f1) -> Forall (v, go hes_preds f1)
     | Exists (v, f1) -> begin
-      if v.ty <> Type.TyInt then failwith "not implemented";
-      print_endline "encode_body_exists_formula";
-      print_endline @@ "var=" ^ v.name;
-      print_arg_type v.ty;
-      (* let f1 = go ((v)::env) f1 in *)
-      let hfl, rule = encode_body_exists_formula_sub coe1 coe2 hes_preds hfl in
-      let new_rule_var = { rule.var with ty = Type.TySigma rule.var.ty } in
-      let rule = { rule with body = go (new_rule_var::hes_preds) rule.body } in
-      print_endline "HFLLL";
-      print_endline @@ fmt_string (Print.hflz Print.simple_ty_) hfl;
-      print_arg_type v.ty;
-      new_rules := rule::!new_rules;
-      hfl
+      if v.ty <> Type.TyInt then (
+        match Hflmc2_syntax.IdSet.find (fvs f1) ~f:(fun i -> Id.eq i v) with
+        | None ->
+          (* vは中に現れないので無視 *)
+          go hes_preds f1
+        | Some x -> failwith "quantifiers for higher-order variables are not implemented"
+      ) else (
+        print_endline "encode_body_exists_formula";
+        print_endline @@ "var=" ^ v.name;
+        print_arg_type v.ty;
+        (* let f1 = go ((v)::env) f1 in *)
+        let hfl, rule = encode_body_exists_formula_sub coe1 coe2 hes_preds hfl in
+        let new_rule_var = { rule.var with ty = Type.TySigma rule.var.ty } in
+        let rule = { rule with body = go (new_rule_var::hes_preds) rule.body } in
+        print_endline "HFLLL";
+        print_endline @@ fmt_string (Print.hflz Print.simple_ty_) hfl;
+        print_arg_type v.ty;
+        new_rules := rule::!new_rules;
+        hfl
+      )
     end
     | App (f1, f2) -> App (go hes_preds f1, go hes_preds f2)
     | Arith t -> Arith t

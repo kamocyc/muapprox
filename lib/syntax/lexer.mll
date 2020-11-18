@@ -30,6 +30,7 @@ rule token = parse
 | "]"                      { RSQUARE   }
 | "true"                   { TRUE      }
 | "false"                  { FALSE     }
+| "not"                    { failwith "Negation is not allowed" }
 | ("\\"|"λ")               { LAMBDA    }
 | ("=v"|"=ν")              { DEF_G     }
 | ("=m"|"=μ"|"=u")         { DEF_L     }
