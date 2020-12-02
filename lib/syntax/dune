@@ -7,6 +7,8 @@
 (library
  (public_name hflmc2_syntax)
  (libraries
+   muapprox.ast
+   muapprox.hes
    hflmc2_util
    menhirLib)
  (preprocess (pps ppx_deriving.std ppx_compare ppx_sexp_conv)))

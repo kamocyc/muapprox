@@ -1,4 +1,5 @@
 type process_status = Unix.process_status
+let partition = List.partition
 
 module Core = Core
 open Core
@@ -361,3 +362,48 @@ module Logs_cli = Logs_cli
 module Logs_fmt = Logs_fmt
 
 type ('a, 'b) result = Ok of 'a | Error of 'b
+
+let show_list f ls = "[ " ^ (List.map ~f:f ls |> String.concat ~sep:"; \n") ^ " ]"
+let print_list f ls = print_endline @@ show_list f ls
+let fmt_string (outputter : Format.formatter -> 'a -> unit) (data : 'a): string =
+  let buf = Buffer.create 100 in
+  let fmt = Format.formatter_of_buffer buf in
+  outputter fmt data;
+  Format.pp_print_flush fmt ();
+  Buffer.contents buf
+
+let remove_elt f l =
+  let rec go l acc = match l with
+    | [] -> List.rev acc
+    | x::xs when f x -> go xs acc
+    | x::xs -> go xs (x::acc)
+  in go l []
+  
+let%expect_test "remove_elt" =
+  let res = remove_elt ((<=)3) [5; 2; 3; 1; 6] in
+  ignore [%expect.output];
+  print_list string_of_int res;
+  [%expect {|
+    [ 2;
+    1 ] |}]
+
+let remove_duplicates f l =
+  let rec go l acc = match l with
+    | [] -> List.rev acc
+    | x :: xs -> go (remove_elt (f x) xs) (x::acc)
+  in go l []
+  
+let%expect_test "remove_duplicates" =
+  let res = remove_duplicates (=) [5; 2; 3; 2; 2; 5; 1; 9] in
+  ignore [%expect.output];
+  print_list string_of_int res;
+  [%expect {|
+    [ 5;
+    2;
+    3;
+    1;
+    9 ] |}]
+
+let move_first f ls =
+  let l1, l2 = partition f ls in
+  l1 @ l2

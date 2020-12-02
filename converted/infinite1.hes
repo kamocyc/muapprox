@@ -1,0 +1,5 @@
+%HES
+Sentry =ν Pvar_exc_2.
+F n m =ν (n >= m \/ F (n + 1) m) /\ (n < m \/ G n (m + 1)).
+Pvar_exc_2 =ν (∀n. ∀m. n >= m \/ F (n + 1) m) /\ (∀n. ∀m. n < m \/ G n (m + 1)).
+G n m =μ (n >= m \/ F (n + 1) m) /\ (n < m \/ G n (m + 1)).

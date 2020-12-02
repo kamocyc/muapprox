@@ -1,0 +1,5 @@
+%HES
+Sentry =ν Pvar_exc_2.
+Explore_0_tt x =ν ∃y. Reduce_0_ff_0 x y /\ y > 0 /\ Explore_0_tt y.
+Pvar_exc_2 =μ ∃y. ∃x. Reduce_0_ff_0 x y /\ y > 0 /\ Explore_0_tt y.
+Reduce_0_ff_0 x r =μ x <= 0 /\ r = x \/ x > 0 /\ r = x - 2.

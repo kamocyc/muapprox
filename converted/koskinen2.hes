@@ -1,0 +1,5 @@
+%HES
+Sentry =ν Pvar_exc_2 \/ (∃b. ∃a. ∃r. Rumble_0_tt_0 b a r /\ Rumble_0_tt a r).
+Rumble_0_tt x y =ν x < y /\ (Rumble_0_tt (x + 1) y \/ Rumble_0_tt x (y - 1)).
+Pvar_exc_2 =μ ∃x. ∃y. x < y /\ (Rumble_0_tt (x + 1) y \/ Rumble_0_tt x (y - 1)).
+Rumble_0_tt_0 x y r =μ x < y /\ (Rumble_0_tt_0 (x + 1) y r \/ Rumble_0_tt_0 x (y - 1) r) \/ x >= y /\ r = x.

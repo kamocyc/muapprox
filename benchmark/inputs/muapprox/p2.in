@@ -1,0 +1,6 @@
+/* invalid: may-reachability */
+%HES
+S =v ∀i. App i (Check i).
+App x f =u App (x + 1) f \/ f x.
+/* equivalent to `Check x y =u (x > y \/ false) /\ (x <= y \/ true).` */
+Check x y =v x > y.

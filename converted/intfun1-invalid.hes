@@ -1,0 +1,6 @@
+%HES
+Sentry =ν Pvar_exc_2.
+G =ν F 3.
+Pvar_exc_2 =ν false.
+F x =μ x = 0 /\ G \/ x _exc_= 0 /\ F (x - 3).
+Pvar_exc_3 =μ G /\ (∀x. x = 0 \/ F (x - 3)).

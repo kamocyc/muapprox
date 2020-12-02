@@ -5,10 +5,12 @@ open Hflmc2_util
 (* Options                                                                    *)
 (******************************************************************************)
 
+let hes = ref false
 let no_inlining = ref true
 let oneshot = ref false
 let no_approx_mu = ref false
-(* let verbose = ref true *)
+let timeout = ref 240.0
+let print_for_debug = ref true
 
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -18,6 +20,8 @@ let set_ref ref x = ref := x
 
 type params =
   { input : string list [@pos 0] [@docv "FILE"]
+  
+  ; hes : bool [@default false]
 
   (* Preprocess *)
   ; no_inlining : bool [@default false]
@@ -27,6 +31,10 @@ type params =
   
   ; no_approx_mu : bool [@default false]
   
+  ; timeout : float [@default 240.0]
+  
+  ; print_for_debug : bool [@default true]
+  
   (* ; verbose : bool [@default false] *)
   }
   [@@deriving cmdliner,show]
@@ -35,6 +43,9 @@ let set_up_params params =
   set_ref no_inlining              params.no_inlining;
   set_ref no_approx_mu             params.no_approx_mu;
   set_ref oneshot                  params.oneshot;
+  set_ref hes                      params.hes;
+  set_ref timeout                  params.timeout;
+  set_ref print_for_debug          params.print_for_debug;
   (* set_ref verbose                  params.verbose; *)
   params.input
 

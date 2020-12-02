@@ -1,0 +1,474 @@
+File "lib/ast/dune", line 21, characters 14-28:
+21 |   (preprocess (pps ppx_jane))
+                   ^^^^^^^^^^^^^^
+Warning: .merlin generated is inaccurate. Cannot mix preprocessed and non
+preprocessed specificiations.
+Split the stanzas into different directories or silence this warning by
+adding (allow_approximate_merlin) to your dune-project.
+pvar key
+F_0_tt
+show_typ
+SInt
+gen name: x, id: 0
+gen name: F_0_tt, id: 1
+pvar key
+F_0_ff
+show_typ
+SInt
+gen name: x, id: 2
+gen name: F_0_ff, id: 3
+key
+x
+gen name: x, id: 4
+gen name: Sentry, id: 5
+key
+x
+gen name: x, id: 6
+key
+x
+gen name: x, id: 7
+[Main:App:Input]
+  Sentry : bool =ν ∃x4.F_0_ff x4
+  F_0_tt : int -> bool =ν λx6:int.F_0_ff x6
+  F_0_ff : int -> bool =μ λx7:int.F_0_tt x7
+OK
+[Main:App:Simplified]
+  Sentry : bool =ν ∃x4.F_0_ff x4
+  F_0_tt : int -> bool =ν λx6:int.F_0_ff x6
+  F_0_ff : int -> bool =μ λx7:int.F_0_tt x7
+[Solver:App:Decompose lambdas]
+  Sentry : bool =ν ∃x4.(F_0_ff :int -> bool) x4
+  F_0_tt : int -> bool =ν λx6:int.(F_0_ff :int -> bool) x6
+  F_0_ff : int -> bool =μ λx7:int.(F_0_tt :int -> bool) x7
+get_recurring_predicates
+F_0_tt, F_0_ff, 
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  ∃x4.(F_0_ff :int -> bool) x4
+encode_body_exists_formula
+var=x
+int
+bool
+freevars: 
+gen name: P1, id: 8
+[Solver:App:encode_body_exists_formula_sub replaced_formula]
+  ∀x4.x4 < 10 || (P1 :int -> bool) x4
+[Solver:App:encode_body_exists_formula_sub new_rule]
+  P1 : int -> bool =ν
+    λx4:int.
+     x4 >= 0
+     && ((F_0_ff :int -> bool) x4 || (F_0_ff :int -> bool) (-x4) || (P1 :int -> bool) (x4 - 1))
+HFLLL
+∀x4.x4 < 10 || (P1 :int -> bool) x4
+int
+[Solver:App:encode_body_exists_formula]
+  ∀x4.x4 < 10 || (P1 :int -> bool) x4
+[Solver:App:!new_rules]
+  P1 : int -> bool =ν
+    λx4:int.
+     x4 >= 0
+     && ((F_0_ff :int -> bool) x4 || (F_0_ff :int -> bool) (-x4) || (P1 :int -> bool) (x4 - 1))
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx6:int.(F_0_ff :int -> bool) x6
+[Solver:App:encode_body_exists_formula]
+  λx6:int.(F_0_ff :int -> bool) x6
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx7:int.(F_0_tt :int -> bool) x7
+[Solver:App:encode_body_exists_formula]
+  λx7:int.(F_0_tt :int -> bool) x7
+[Solver:App:!new_rules]
+  
+Not decomposed HES path (Exists): /tmp/nuonly-267948839.smt2
+[Solver:App:FIRST]
+  Sentry : bool =ν ∀x4.x4 < 10 || (P1 :int -> bool) x4
+  P1 : int -> bool =ν
+    λx4:int.
+     x4 >= 0
+     && ((F_0_ff :int -> bool) x4 || (F_0_ff :int -> bool) (-x4) || (P1 :int -> bool) (x4 - 1))
+  F_0_tt : int -> bool =ν λx6:int.(F_0_ff :int -> bool) x6
+  F_0_ff : int -> bool =μ λx7:int.(F_0_tt :int -> bool) x7
+Not checked HES path: /tmp/nuonly-66992342.smt2
+[Solver:App:nu_level]
+  
+[Solver:App:mu_level]
+  F_0_ff : int -> bool =μ λx7:int.(F_0_tt :int -> bool) x7
+[Solver:App:rem_level]
+  Sentry : bool =ν ∀x4.x4 < 10 || (P1 :int -> bool) x4
+  P1 : int -> bool =ν
+    λx4:int.
+     x4 >= 0
+     && ((F_0_ff :int -> bool) x4 || (F_0_ff :int -> bool) (-x4) || (P1 :int -> bool) (x4 - 1))
+  F_0_tt : int -> bool =ν λx6:int.(F_0_ff :int -> bool) x6
+gen name: rec_F_0_ff, id: 9
+gen name: forall_y, id: 10
+gen name: x, id: 11
+gen name: forall_y, id: 12
+gen name: x, id: 13
+gen name: forall_y, id: 14
+gen name: x, id: 15
+[Solver:App:nu_level]
+  F_0_ff : int -> int -> bool =ν
+    λrec_F_0_ff9:int.λx7:int.rec_F_0_ff9 >= 0 && (F_0_tt :int -> bool) x7
+  F_0_tt : int -> bool =ν
+    λx6:int.
+     (∀forall_y14.
+       λx15:int.
+        forall_y14 < 1 * x6 + 10 || forall_y14 < -1 * x6 + 10
+        || (F_0_ff :int -> int -> bool) forall_y14 x15)
+      x6
+  P1 : int -> bool =ν
+    λx4:int.
+     x4 >= 0
+     && ((∀forall_y12.
+           λx13:int.
+            forall_y12 < 1 * x4 + 10 || forall_y12 < -1 * x4 + 10
+            || (F_0_ff :int -> int -> bool) forall_y12 x13)
+          x4
+         || (∀forall_y10.
+              λx11:int.
+               forall_y10 < 1 * x4 + 10 || forall_y10 < -1 * x4 + 10
+               || (F_0_ff :int -> int -> bool) forall_y10 x11)
+             (-x4)
+            || (P1 :int -> bool) (x4 - 1))
+  Sentry : bool =ν ∀x4.x4 < 10 || (P1 :int -> bool) x4
+[Solver:App:mu_level]
+  
+[Solver:App:rem_level]
+  
+Not decomposed HES path: /tmp/nuonly-237071131.smt2
+extract_abstraction
+x11
+not_apply
+forall_y10;P18;Sentry5;P18;F_0_tt1;F_0_ff3;freevars
+x4;gen name: P1_sub16, id: 17
+NEW_RULE
+P1_sub16 : int -> int -> bool =ν
+  λx4:int.
+   λx11:int.
+    forall_y10 < 1 * x4 + 10 || forall_y10 < -1 * x4 + 10
+    || (F_0_ff :int -> int -> bool) forall_y10 x11
+extract_abstraction
+x13
+not_apply
+forall_y12;P18;Sentry5;P18;F_0_tt1;F_0_ff3;freevars
+x4;gen name: P1_sub18, id: 19
+NEW_RULE
+P1_sub18 : int -> int -> bool =ν
+  λx4:int.
+   λx13:int.
+    forall_y12 < 1 * x4 + 10 || forall_y12 < -1 * x4 + 10
+    || (F_0_ff :int -> int -> bool) forall_y12 x13
+extract_abstraction
+x15
+not_apply
+forall_y14;F_0_tt1;Sentry5;P18;F_0_tt1;F_0_ff3;freevars
+x6;gen name: F_0_tt_sub20, id: 21
+NEW_RULE
+F_0_tt_sub20 : int -> int -> bool =ν
+  λx6:int.
+   λx15:int.
+    forall_y14 < 1 * x6 + 10 || forall_y14 < -1 * x6 + 10
+    || (F_0_ff :int -> int -> bool) forall_y14 x15
+[Solver:App:FINAL]
+  Sentry : bool =ν ∀x4.x4 < 10 || (P1 :int -> bool) x4
+  P1 : int -> bool =ν
+    λx4:int.
+     x4 >= 0
+     && ((P1_sub18 :int -> int -> bool) x4 x4
+         || (P1_sub16 :int -> int -> bool) x4 (-x4) || (P1 :int -> bool) (x4 - 1))
+  P1_sub18 : int -> int -> bool =ν
+    λx4:int.
+     λx13:int.
+      ∀forall_y12.
+       forall_y12 < 1 * x4 + 10 || forall_y12 < -1 * x4 + 10
+       || (F_0_ff :int -> int -> bool) forall_y12 x13
+  P1_sub16 : int -> int -> bool =ν
+    λx4:int.
+     λx11:int.
+      ∀forall_y10.
+       forall_y10 < 1 * x4 + 10 || forall_y10 < -1 * x4 + 10
+       || (F_0_ff :int -> int -> bool) forall_y10 x11
+  F_0_tt : int -> bool =ν λx6:int.(F_0_tt_sub20 :int -> int -> bool) x6 x6
+  F_0_tt_sub20 : int -> int -> bool =ν
+    λx6:int.
+     λx15:int.
+      ∀forall_y14.
+       forall_y14 < 1 * x6 + 10 || forall_y14 < -1 * x6 + 10
+       || (F_0_ff :int -> int -> bool) forall_y14 x15
+  F_0_ff : int -> int -> bool =ν
+    λrec_F_0_ff9:int.λx7:int.rec_F_0_ff9 >= 0 && (F_0_tt :int -> bool) x7
+Not checked HES path: /tmp/nuonly-168982658.smt2
+[Main:App:Input]
+  Sentry : bool =ν ∀x47:int.x47 < 10 || P1 x47
+  P1 : int -> bool =ν
+    λx48:int.x48 >= 0 && (P1_sub18 x48 x48 || P1_sub16 x48 (-x48) || P1 (x48 - 1))
+  P1_sub18 : int -> int -> bool =ν
+    λx49:int.
+     λx1310:int.
+      ∀forall_y1211:int.
+       forall_y1211 < 1 * x49 + 10 || forall_y1211 < -1 * x49 + 10 || F_0_ff forall_y1211 x1310
+  P1_sub16 : int -> int -> bool =ν
+    λx412:int.
+     λx1113:int.
+      ∀forall_y1014:int.
+       forall_y1014 < 1 * x412 + 10 || forall_y1014 < -1 * x412 + 10 || F_0_ff forall_y1014 x1113
+  F_0_tt : int -> bool =ν λx615:int.F_0_tt_sub20 x615 x615
+  F_0_tt_sub20 : int -> int -> bool =ν
+    λx616:int.
+     λx1517:int.
+      ∀forall_y1418:int.
+       forall_y1418 < 1 * x616 + 10 || forall_y1418 < -1 * x616 + 10 || F_0_ff forall_y1418 x1517
+  F_0_ff : int -> int -> bool =ν λrec_F_0_ff919:int.λx720:int.rec_F_0_ff919 >= 0 && F_0_tt x720
+[Main:App:Simplified]
+  Sentry : bool =ν ∀x47:int.x47 < 10 || P1 x47
+  P1 : int -> bool =ν
+    λx48:int.
+     x48 >= 0
+     && ((∀forall_y1211:int.
+           forall_y1211 < 1 * x48 + 10 || forall_y1211 < -1 * x48 + 10 || F_0_ff forall_y1211 x48)
+         || (∀forall_y1014:int.
+              forall_y1014 < 1 * x48 + 10
+              || forall_y1014 < -1 * x48 + 10 || F_0_ff forall_y1014 (-x48))
+            || P1 (x48 - 1))
+  F_0_tt : int -> bool =ν λx615:int.F_0_tt_sub20 x615 x615
+  F_0_tt_sub20 : int -> int -> bool =ν
+    λx616:int.
+     λx1517:int.
+      ∀forall_y1418:int.
+       forall_y1418 < 1 * x616 + 10 || forall_y1418 < -1 * x616 + 10 || F_0_ff forall_y1418 x1517
+  F_0_ff : int -> int -> bool =ν λrec_F_0_ff919:int.λx720:int.rec_F_0_ff919 >= 0 && F_0_tt x720
+Sentry *[X44()]
+P1 (int(x422) -> *[X19(x422)])
+F_0_tt (int(x636) -> *[X15(x636)])
+F_0_tt_sub20 (int(x639) -> (int(x1540) -> *[X6(x1540,x639)]))
+F_0_ff (int(rec_F_0_ff943) -> (int(x744) -> *[X1(x744,rec_F_0_ff943)]))
+
+
+infering new formula: Sentry = (∀int(x47).(x47<10 || (P1 x47)))
+[Result]
+X44() => X45(x47)
+X45(x47) => (x47<10 \/ X19(x47))
+tt => X44()
+
+
+infering new formula: P1 = (\int(x48).(x48>=0:X20(x48) && ((∀int(forall_y1211).(forall_y1211<1 * x48 + 10 || (forall_y1211<-1 * x48 + 10 || ((F_0_ff forall_y1211) x48)))) || ((∀int(forall_y1014).(forall_y1014<1 * x48 + 10 || (forall_y1014<-1 * x48 + 10 || ((F_0_ff forall_y1014) -x48)))) || (P1 x48 - 1))):X21(x48)))
+[Result]
+X19(x46) => (x46>=0 /\ (X36(forall_y1211,x46) \/ (X28(forall_y1014,x46) \/ X19(x46 - 1))))
+X28(forall_y1014,x48) => (forall_y1014<1 * x48 + 10 \/ (forall_y1014<-1 * x48 + 10 \/ X1(-x48,forall_y1014)))
+X36(forall_y1211,x48) => (forall_y1211<1 * x48 + 10 \/ (forall_y1211<-1 * x48 + 10 \/ X1(x48,forall_y1211)))
+X44() => X45(x47)
+X45(x47) => (x47<10 \/ X19(x47))
+tt => X44()
+
+
+infering new formula: F_0_tt = (\int(x615).((F_0_tt_sub20 x615) x615))
+[Result]
+X15(x47) => X6(x47,x47)
+X19(x46) => (x46>=0 /\ (X36(forall_y1211,x46) \/ (X28(forall_y1014,x46) \/ X19(x46 - 1))))
+X28(forall_y1014,x48) => (forall_y1014<1 * x48 + 10 \/ (forall_y1014<-1 * x48 + 10 \/ X1(-x48,forall_y1014)))
+X36(forall_y1211,x48) => (forall_y1211<1 * x48 + 10 \/ (forall_y1211<-1 * x48 + 10 \/ X1(x48,forall_y1211)))
+X44() => X45(x47)
+X45(x47) => (x47<10 \/ X19(x47))
+tt => X44()
+
+
+infering new formula: F_0_tt_sub20 = (\int(x616).(\int(x1517).(∀int(forall_y1418).(forall_y1418<1 * x616 + 10 || (forall_y1418<-1 * x616 + 10 || ((F_0_ff forall_y1418) x1517))))))
+[Result]
+X6(x49,x48) => X7(forall_y1418,x49,x48)
+X7(forall_y1418,x1517,x616) => (forall_y1418<1 * x616 + 10 \/ (forall_y1418<-1 * x616 + 10 \/ X1(x1517,forall_y1418)))
+X15(x47) => X6(x47,x47)
+X19(x46) => (x46>=0 /\ (X36(forall_y1211,x46) \/ (X28(forall_y1014,x46) \/ X19(x46 - 1))))
+X28(forall_y1014,x48) => (forall_y1014<1 * x48 + 10 \/ (forall_y1014<-1 * x48 + 10 \/ X1(-x48,forall_y1014)))
+X36(forall_y1211,x48) => (forall_y1211<1 * x48 + 10 \/ (forall_y1211<-1 * x48 + 10 \/ X1(x48,forall_y1211)))
+X44() => X45(x47)
+X45(x47) => (x47<10 \/ X19(x47))
+tt => X44()
+
+
+infering new formula: F_0_ff = (\int(rec_F_0_ff919).(\int(x720).(rec_F_0_ff919>=0:X2(x720,rec_F_0_ff919) && (F_0_tt x720):X3(x720,rec_F_0_ff919))))
+[Result]
+X1(x51,x50) => (x50>=0 /\ X15(x51))
+X6(x49,x48) => X7(forall_y1418,x49,x48)
+X7(forall_y1418,x1517,x616) => (forall_y1418<1 * x616 + 10 \/ (forall_y1418<-1 * x616 + 10 \/ X1(x1517,forall_y1418)))
+X15(x47) => X6(x47,x47)
+X19(x46) => (x46>=0 /\ (X36(forall_y1211,x46) \/ (X28(forall_y1014,x46) \/ X19(x46 - 1))))
+X28(forall_y1014,x48) => (forall_y1014<1 * x48 + 10 \/ (forall_y1014<-1 * x48 + 10 \/ X1(-x48,forall_y1014)))
+X36(forall_y1211,x48) => (forall_y1211<1 * x48 + 10 \/ (forall_y1211<-1 * x48 + 10 \/ X1(x48,forall_y1211)))
+X44() => X45(x47)
+X45(x47) => (x47<10 \/ X19(x47))
+tt => X44()
+[Size] 3
+[Dual Size] 1
+remove or or
+x50<0 => X1(x51,x50)
+X15(x51) => X1(x51,x50)
+X7(forall_y1418,x49,x48) => X6(x49,x48)
+(forall_y1418>=1 * x616 + 10 /\ (forall_y1418>=-1 * x616 + 10 /\ X1(x1517,forall_y1418))) => X7(forall_y1418,x1517,x616)
+X6(x47,x47) => X15(x47)
+x46<0 => X19(x46)
+(X36(forall_y1211,x46) /\ (X28(forall_y1014,x46) /\ X19(x46 - 1))) => X19(x46)
+(forall_y1014>=1 * x48 + 10 /\ (forall_y1014>=-1 * x48 + 10 /\ X1(-x48,forall_y1014))) => X28(forall_y1014,x48)
+(forall_y1211>=1 * x48 + 10 /\ (forall_y1211>=-1 * x48 + 10 /\ X1(x48,forall_y1211))) => X36(forall_y1211,x48)
+X45(x47) => X44()
+(x47>=10 /\ X19(x47)) => X45(x47)
+X44() => ff
+Run command: "/opt/home2/git/fptprove/hflmc3.sh /tmp/fptprove-200063992.smt2"
+OK!!!
+/tmp/fptprove-200063992.smt2,sat,0.926492429,4
+Process result:
+out: OK!!!
+/tmp/fptprove-200063992.smt2,sat,0.926492429,4
+status: Ok
+err:
+
+
+Profiling:
+  CHC Solver: 1.065105 sec
+did not calculate refinement. Use --show-refinement
+Verification Result:
+  Valid
+Profiling:
+  total: 1.067082 sec
+Process result:
+out: [Main:App:Input]
+  Sentry : bool =ν ∀x47:int.x47 < 10 || P1 x47
+  P1 : int -> bool =ν
+    λx48:int.x48 >= 0 && (P1_sub18 x48 x48 || P1_sub16 x48 (-x48) || P1 (x48 - 1))
+  P1_sub18 : int -> int -> bool =ν
+    λx49:int.
+     λx1310:int.
+      ∀forall_y1211:int.
+       forall_y1211 < 1 * x49 + 10 || forall_y1211 < -1 * x49 + 10 || F_0_ff forall_y1211 x1310
+  P1_sub16 : int -> int -> bool =ν
+    λx412:int.
+     λx1113:int.
+      ∀forall_y1014:int.
+       forall_y1014 < 1 * x412 + 10 || forall_y1014 < -1 * x412 + 10 || F_0_ff forall_y1014 x1113
+  F_0_tt : int -> bool =ν λx615:int.F_0_tt_sub20 x615 x615
+  F_0_tt_sub20 : int -> int -> bool =ν
+    λx616:int.
+     λx1517:int.
+      ∀forall_y1418:int.
+       forall_y1418 < 1 * x616 + 10 || forall_y1418 < -1 * x616 + 10 || F_0_ff forall_y1418 x1517
+  F_0_ff : int -> int -> bool =ν λrec_F_0_ff919:int.λx720:int.rec_F_0_ff919 >= 0 && F_0_tt x720
+[Main:App:Simplified]
+  Sentry : bool =ν ∀x47:int.x47 < 10 || P1 x47
+  P1 : int -> bool =ν
+    λx48:int.
+     x48 >= 0
+     && ((∀forall_y1211:int.
+           forall_y1211 < 1 * x48 + 10 || forall_y1211 < -1 * x48 + 10 || F_0_ff forall_y1211 x48)
+         || (∀forall_y1014:int.
+              forall_y1014 < 1 * x48 + 10
+              || forall_y1014 < -1 * x48 + 10 || F_0_ff forall_y1014 (-x48))
+            || P1 (x48 - 1))
+  F_0_tt : int -> bool =ν λx615:int.F_0_tt_sub20 x615 x615
+  F_0_tt_sub20 : int -> int -> bool =ν
+    λx616:int.
+     λx1517:int.
+      ∀forall_y1418:int.
+       forall_y1418 < 1 * x616 + 10 || forall_y1418 < -1 * x616 + 10 || F_0_ff forall_y1418 x1517
+  F_0_ff : int -> int -> bool =ν λrec_F_0_ff919:int.λx720:int.rec_F_0_ff919 >= 0 && F_0_tt x720
+Sentry *[X44()]
+P1 (int(x422) -> *[X19(x422)])
+F_0_tt (int(x636) -> *[X15(x636)])
+F_0_tt_sub20 (int(x639) -> (int(x1540) -> *[X6(x1540,x639)]))
+F_0_ff (int(rec_F_0_ff943) -> (int(x744) -> *[X1(x744,rec_F_0_ff943)]))
+
+
+infering new formula: Sentry = (∀int(x47).(x47<10 || (P1 x47)))
+[Result]
+X44() => X45(x47)
+X45(x47) => (x47<10 \/ X19(x47))
+tt => X44()
+
+
+infering new formula: P1 = (\int(x48).(x48>=0:X20(x48) && ((∀int(forall_y1211).(forall_y1211<1 * x48 + 10 || (forall_y1211<-1 * x48 + 10 || ((F_0_ff forall_y1211) x48)))) || ((∀int(forall_y1014).(forall_y1014<1 * x48 + 10 || (forall_y1014<-1 * x48 + 10 || ((F_0_ff forall_y1014) -x48)))) || (P1 x48 - 1))):X21(x48)))
+[Result]
+X19(x46) => (x46>=0 /\ (X36(forall_y1211,x46) \/ (X28(forall_y1014,x46) \/ X19(x46 - 1))))
+X28(forall_y1014,x48) => (forall_y1014<1 * x48 + 10 \/ (forall_y1014<-1 * x48 + 10 \/ X1(-x48,forall_y1014)))
+X36(forall_y1211,x48) => (forall_y1211<1 * x48 + 10 \/ (forall_y1211<-1 * x48 + 10 \/ X1(x48,forall_y1211)))
+X44() => X45(x47)
+X45(x47) => (x47<10 \/ X19(x47))
+tt => X44()
+
+
+infering new formula: F_0_tt = (\int(x615).((F_0_tt_sub20 x615) x615))
+[Result]
+X15(x47) => X6(x47,x47)
+X19(x46) => (x46>=0 /\ (X36(forall_y1211,x46) \/ (X28(forall_y1014,x46) \/ X19(x46 - 1))))
+X28(forall_y1014,x48) => (forall_y1014<1 * x48 + 10 \/ (forall_y1014<-1 * x48 + 10 \/ X1(-x48,forall_y1014)))
+X36(forall_y1211,x48) => (forall_y1211<1 * x48 + 10 \/ (forall_y1211<-1 * x48 + 10 \/ X1(x48,forall_y1211)))
+X44() => X45(x47)
+X45(x47) => (x47<10 \/ X19(x47))
+tt => X44()
+
+
+infering new formula: F_0_tt_sub20 = (\int(x616).(\int(x1517).(∀int(forall_y1418).(forall_y1418<1 * x616 + 10 || (forall_y1418<-1 * x616 + 10 || ((F_0_ff forall_y1418) x1517))))))
+[Result]
+X6(x49,x48) => X7(forall_y1418,x49,x48)
+X7(forall_y1418,x1517,x616) => (forall_y1418<1 * x616 + 10 \/ (forall_y1418<-1 * x616 + 10 \/ X1(x1517,forall_y1418)))
+X15(x47) => X6(x47,x47)
+X19(x46) => (x46>=0 /\ (X36(forall_y1211,x46) \/ (X28(forall_y1014,x46) \/ X19(x46 - 1))))
+X28(forall_y1014,x48) => (forall_y1014<1 * x48 + 10 \/ (forall_y1014<-1 * x48 + 10 \/ X1(-x48,forall_y1014)))
+X36(forall_y1211,x48) => (forall_y1211<1 * x48 + 10 \/ (forall_y1211<-1 * x48 + 10 \/ X1(x48,forall_y1211)))
+X44() => X45(x47)
+X45(x47) => (x47<10 \/ X19(x47))
+tt => X44()
+
+
+infering new formula: F_0_ff = (\int(rec_F_0_ff919).(\int(x720).(rec_F_0_ff919>=0:X2(x720,rec_F_0_ff919) && (F_0_tt x720):X3(x720,rec_F_0_ff919))))
+[Result]
+X1(x51,x50) => (x50>=0 /\ X15(x51))
+X6(x49,x48) => X7(forall_y1418,x49,x48)
+X7(forall_y1418,x1517,x616) => (forall_y1418<1 * x616 + 10 \/ (forall_y1418<-1 * x616 + 10 \/ X1(x1517,forall_y1418)))
+X15(x47) => X6(x47,x47)
+X19(x46) => (x46>=0 /\ (X36(forall_y1211,x46) \/ (X28(forall_y1014,x46) \/ X19(x46 - 1))))
+X28(forall_y1014,x48) => (forall_y1014<1 * x48 + 10 \/ (forall_y1014<-1 * x48 + 10 \/ X1(-x48,forall_y1014)))
+X36(forall_y1211,x48) => (forall_y1211<1 * x48 + 10 \/ (forall_y1211<-1 * x48 + 10 \/ X1(x48,forall_y1211)))
+X44() => X45(x47)
+X45(x47) => (x47<10 \/ X19(x47))
+tt => X44()
+[Size] 3
+[Dual Size] 1
+remove or or
+x50<0 => X1(x51,x50)
+X15(x51) => X1(x51,x50)
+X7(forall_y1418,x49,x48) => X6(x49,x48)
+(forall_y1418>=1 * x616 + 10 /\ (forall_y1418>=-1 * x616 + 10 /\ X1(x1517,forall_y1418))) => X7(forall_y1418,x1517,x616)
+X6(x47,x47) => X15(x47)
+x46<0 => X19(x46)
+(X36(forall_y1211,x46) /\ (X28(forall_y1014,x46) /\ X19(x46 - 1))) => X19(x46)
+(forall_y1014>=1 * x48 + 10 /\ (forall_y1014>=-1 * x48 + 10 /\ X1(-x48,forall_y1014))) => X28(forall_y1014,x48)
+(forall_y1211>=1 * x48 + 10 /\ (forall_y1211>=-1 * x48 + 10 /\ X1(x48,forall_y1211))) => X36(forall_y1211,x48)
+X45(x47) => X44()
+(x47>=10 /\ X19(x47)) => X45(x47)
+X44() => ff
+Run command: "/opt/home2/git/fptprove/hflmc3.sh /tmp/fptprove-200063992.smt2"
+OK!!!
+/tmp/fptprove-200063992.smt2,sat,0.926492429,4
+Process result:
+out: OK!!!
+/tmp/fptprove-200063992.smt2,sat,0.926492429,4
+status: Ok
+err:
+
+
+Profiling:
+  CHC Solver: 1.065105 sec
+did not calculate refinement. Use --show-refinement
+Verification Result:
+  Valid
+Profiling:
+  total: 1.067082 sec
+status: Ok
+err:
+
+
+PARSED STATUS: valid
+
+[[MAIN]] Verification Result:
+  valid
+Profiling:
+  total: 1.079498 sec

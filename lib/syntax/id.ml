@@ -30,6 +30,9 @@ let gen : ?name:string -> 'annot -> 'anno t =
 
 let remove_ty : 'ty t -> unit t = fun x -> { x with ty = () }
 
+let remove_vars not_apply_vars =
+  List.filter ~f:(fun v -> not @@ List.exists ~f:(fun v' -> eq v' (remove_ty v)) @@ not_apply_vars)
+
 module Key = struct
   type nonrec t = unit t
   let sexp_of_t = sexp_of_t sexp_of_unit

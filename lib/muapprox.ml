@@ -38,18 +38,29 @@ let report_times () =
 
 let show_result = Hflmc2_muapprox.Status.string_of
 
+let parse file =
+  if !Options.hes then (
+    let psi =
+    match Hes.HesParser.from_file file with
+    | Ok hes -> Hflmc2_syntax.Hflz_conv.of_hes hes
+    | Error _ -> failwith "hes_parser" in
+    Log.app begin fun m -> m ~header:"hes Input" "%a" Print.(hflz_hes simple_ty_) psi end;
+    psi  
+  ) else (
+    let psi, _ = Syntax.parse_file file in
+    Log.app begin fun m -> m ~header:"Input" "%a" Print.(hflz_hes simple_ty_) psi end;
+    psi
+  )
+  
 let main file =
-  let psi, _ = Syntax.parse_file file in
-  Log.app begin fun m -> m ~header:"Input" "%a"
-    Print.(hflz_hes simple_ty_) psi
-  end;
+  let psi = parse file in
   (* TODO *)
   let coe1, coe2 = 1, 10 in
   let inlining = not @@ !Options.no_inlining in
   let oneshot = !Options.oneshot in
-  let timeout = 1000.0 in
-  (* let is_print_for_debug = !Options.verbose in *)
-  let is_print_for_debug = true in
+  (* for debug *)
+  let timeout = !Options.timeout in
+  let is_print_for_debug = !Options.print_for_debug in
   let psi = Syntax.Trans.Simplify.hflz_hes psi inlining in
   Log.app begin fun m -> m ~header:"Simplified" "%a"
     Print.(hflz_hes simple_ty_) psi

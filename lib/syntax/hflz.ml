@@ -1,3 +1,5 @@
+module List' = List
+
 open Hflmc2_util
 open Id
 open Type
@@ -80,3 +82,72 @@ let rec fvs = function
                         IdSet.of_list @@ List.map ~f:Id.remove_ty @@ Arith.fvs a
                       end
 
+let fvs_with_type : 'ty t -> 'ty Type.arg Id.t list = fun hes ->
+  let rec go = function
+    | Var x          -> [{ x with ty = Type.TySigma x.ty}]
+    | Bool _         -> []
+    | Or (phi1,phi2) -> (go phi1) @ (go phi2)
+    | And(phi1,phi2) -> (go phi1) @ (go phi2)
+    | App(phi1,phi2) -> (go phi1) @ (go phi2)
+    | Abs(x, phi)    -> List'.filter (fun t -> not @@ Id.eq t x) @@ go phi(* listだと、ここが毎回線形時間になる... *)
+    | Forall(x, phi) -> List'.filter (fun t -> not @@ Id.eq t x) @@ go phi
+    | Exists(x, phi) -> List'.filter (fun t -> not @@ Id.eq t x) @@ go phi
+    | Arith a        -> List'.map (fun id -> {id with Id.ty = Type.TyInt}) @@ Arith.fvs a
+    | Pred (_, as')   -> as' |> List'.map (fun a -> Arith.fvs a |> List'.map (fun id -> {id with Id.ty = Type.TyInt})) |> List'.flatten in
+  go hes |> Hflmc2_util.remove_duplicates (fun e x -> Id.eq e x)
+
+(* 全体を一度にnegateすると単純なやり方でよい。 *)
+(* 追加すると非常に面倒。しかし、froallは必ず処理が必要。追加しないということはできない *)
+(* negationをどう扱うか。基本的には、HFLにnegationは存在しないので、適宜なんとかする。 *)
+let negate_formula (formula : Type.simple_ty t) = 
+  let rec go formula = match formula with
+    | Bool b -> Bool (not b)
+    | Var x  -> Var x
+    | Or  (f1, f2) -> And (go f1, go f2)
+    | And (f1, f2) -> Or  (go f1, go f2)
+    | Abs (x, f1)  -> Abs (x, go f1)
+    (* failwith "[negate_formula] Abs" *)
+    | App (f1, f2) -> App (go f1, go f2)
+    | Forall (x, f) -> Exists (x, go f)
+    | Exists (x, f) -> Forall (x, go f)
+    | Arith (arith) -> Arith (arith)
+    | Pred (p, args) -> Pred (Formula.negate_pred p, args) in
+  go formula
+
+let negate_rule ({var; body; fix} : Type.simple_ty hes_rule) = 
+  {var; body=negate_formula body; fix=Fixpoint.flip_fixpoint fix}
+
+let get_hflz_type phi =
+  let rec go phi = match phi with
+    | Bool   _ -> Type.TyBool ()
+    | Var    v -> v.ty
+    | Or (f1, f2)  -> begin
+      assert ((go f1) = Type.TyBool ());
+      assert ((go f2) = Type.TyBool ());
+      Type.TyBool ()
+    end
+    | And (f1, f2) -> begin
+      assert ((go f1) = Type.TyBool ());
+      assert ((go f2) = Type.TyBool ());
+      Type.TyBool ()
+    end
+    | Abs (x, f1)  -> Type.TyArrow (x, go f1)
+    | Forall (x, f1) -> go f1
+    | Exists (x, f1) -> go f1
+    | App (f1, f2)   -> begin
+      let ty1 = go f1 in
+      match ty1 with
+      | TyArrow (x, ty1') -> begin
+        (match x.ty with
+        | Type.TyInt -> (match f2 with Arith _ -> () | _ -> failwith "illegal type (App, Arrow)")
+        | Type.TySigma t -> assert (t = go f2)
+        );
+        ty1'
+      end
+      | _ -> failwith "illegal type (App)"
+      
+    end
+    | Pred (p, args) -> Type.TyBool ()
+    | Arith t -> failwith "illegal type (Arith)"
+  in
+  go phi

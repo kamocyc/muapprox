@@ -1,0 +1,5 @@
+/* valid: must-not-reachability */
+%HES
+S =v ∀i. App i (Check i).
+App x f =v App (x + 1) f /\ f x.
+Check x y =v x <= y.

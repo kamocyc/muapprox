@@ -1,0 +1,8 @@
+%HES
+Sentry =ν (∀m. ∀n. m <= 0 \/ F n m) /\ (∀m. ∀n. F2 n m \/ m > 0).
+F2 x y =μ A2 x y \/ B2 x y \/ x <= 0 /\ F2 (x + y) y \/ x > 0 /\ F2 (x - y) y.
+B2 x y =ν x > 0 /\ B2 (x - y) y.
+A2 x y =ν x <= 0 /\ A2 (x + y) y.
+F x y =ν A x y /\ B x y /\ (x > 0 \/ F (x + y) y) /\ (x <= 0 \/ F (x - y) y).
+B x y =μ x <= 0 \/ B (x - y) y.
+A x y =μ x > 0 \/ A (x + y) y.

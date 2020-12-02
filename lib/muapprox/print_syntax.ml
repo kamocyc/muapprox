@@ -94,7 +94,13 @@ module MachineReadable = struct
           show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ && %a@]"
             (hflz_' format_ty_ Prec.and_) phi1
             (hflz_' format_ty_ Prec.and_) phi2
-      | Abs (x, psi) -> failwith @@ "(Print.Hflz) Abstractions should be converted to HES equations."
+      | Abs (x, psi) -> begin
+        show_paren (prec > Prec.abs) ppf "@[<1>\\%a.@,%a@]"
+            id' x
+            (* (argty (format_ty_ Prec.(succ arrow))) x.ty *)
+            (hflz_' format_ty_ Prec.abs) psi
+      end 
+      (* failwith @@ "(Print.Hflz) Abstractions should be converted to HES equations." *)
       | Forall (x, psi) ->
           (* TODO: ∀は出力したほうがいい？ => 付けるべき。付けないとなぜか\がつくことがある *)
           show_paren (prec > Prec.abs) ppf "@[<1>∀%a.@,%a@]"
@@ -136,4 +142,16 @@ module MachineReadable = struct
     fun format_ty_ ppf hes ->
       Fmt.pf ppf "@[<v>%a@]"
         (Fmt.list (hflz_hes_rule' format_ty_)) hes
+    
+  let save_hes_to_file hes =
+    Random.self_init ();
+    let r = Random.int 0x10000000 in
+    let file = Printf.sprintf "/tmp/%s-%d.smt2" "nuonly" r in
+    let oc = open_out file in
+    let fmt = Format.formatter_of_out_channel oc in
+    Printf.fprintf oc "%%HES\n" ;
+    hflz_hes' Hflmc2_syntax.Print.simple_ty_ fmt hes;
+    Format.pp_print_flush fmt ();
+    close_out oc;
+    file
 end

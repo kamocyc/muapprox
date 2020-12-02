@@ -1,0 +1,4 @@
+%HES
+Sentry =ν ∀m. ∀n. n <= m \/ G n m.
+G a b =ν a > b /\ G (a + 2) (b + 1) /\ F b a.
+F a b =μ G a b \/ F (a + 2) (b + 1).

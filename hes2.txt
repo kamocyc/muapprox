@@ -1,0 +1,11 @@
+File "lib/ast/dune", line 21, characters 14-28:
+21 |   (preprocess (pps ppx_jane))
+                   ^^^^^^^^^^^^^^
+Warning: .merlin generated is inaccurate. Cannot mix preprocessed and non
+preprocessed specificiations.
+Split the stanzas into different directories or silence this warning by
+adding (allow_approximate_merlin) to your dune-project.
+File "lib/util/hflmc2_util.ml", line 381, characters 4-15:
+381 | let%expect_test "remove_elt" =
+          ^^^^^^^^^^^
+Error: Uninterpreted extension 'expect_test'.

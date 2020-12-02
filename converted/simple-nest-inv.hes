@@ -1,0 +1,4 @@
+%HES
+Sentry =ν ∀n. n < 0 \/ X n.
+X x =ν X (x + 1) /\ Y x.
+Y y =μ y = 0 \/ Y (y - 1).

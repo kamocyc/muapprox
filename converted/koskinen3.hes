@@ -1,0 +1,9 @@
+%HES
+Sentry =ν Foo_0_ff 0 \/ Pvar_exc_2 \/ (∃t. ∃r. Bar_0_ff_0 t r /\ Foo_0_ff r).
+Bar_1_tt x =ν x > 0 /\ Bar_1_tt (x - 2).
+Halt_1_tt =μ Halt_1_tt.
+Foo_0_ff x =μ x <= 0 /\ Foo_0_ff x \/ x > 0 /\ Halt_0_ff.
+Bar_0_ff x =μ x > 0 /\ Bar_0_ff (x - 2) \/ x > 0 /\ Bar_1_tt (x - 2).
+Pvar_exc_2 =μ (∃x. x > 0 /\ Bar_0_ff (x - 2)) \/ (∃x. x > 0 /\ Bar_1_tt (x - 2)).
+Halt_0_ff =μ Halt_0_ff \/ Halt_1_tt.
+Bar_0_ff_0 x r =μ x > 0 /\ Bar_0_ff_0 (x - 2) r \/ x <= 0 /\ r = x.
