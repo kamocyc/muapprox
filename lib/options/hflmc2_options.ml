@@ -5,12 +5,15 @@ open Hflmc2_util
 (* Options                                                                    *)
 (******************************************************************************)
 
-let hes = ref false
-let no_inlining = ref true
-let oneshot = ref false
-let no_approx_mu = ref false
-let timeout = ref 240.0
-let print_for_debug = ref true
+let hes = ref (Obj.magic())
+let no_inlining = ref (Obj.magic())
+let oneshot = ref (Obj.magic())
+let no_approx_mu = ref (Obj.magic())
+let timeout = ref (Obj.magic())
+let print_for_debug = ref (Obj.magic())
+let no_backend_inlining = ref (Obj.magic())
+let no_separate_original_formula_in_exists = ref (Obj.magic())
+let solver = ref (Obj.magic())
 
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -27,6 +30,8 @@ type params =
   ; no_inlining : bool [@default false]
     (** Disable inlining *)
 
+  ; no_backend_inlining : bool [@default false]
+  
   ; oneshot : bool [@default false]
   
   ; no_approx_mu : bool [@default false]
@@ -35,7 +40,10 @@ type params =
   
   ; print_for_debug : bool [@default true]
   
-  (* ; verbose : bool [@default false] *)
+  ; no_separate_original_formula_in_exists : bool [@default true]
+  
+  ; solver : string [@default "katsura"]
+  (** Choose background mu-only-CHC solver. Available: iwayama, katsura *)
   }
   [@@deriving cmdliner,show]
 
@@ -46,7 +54,10 @@ let set_up_params params =
   set_ref hes                      params.hes;
   set_ref timeout                  params.timeout;
   set_ref print_for_debug          params.print_for_debug;
-  (* set_ref verbose                  params.verbose; *)
+  print_endline "no_separate_original_formula_in_exists";
+  set_ref no_separate_original_formula_in_exists params.no_separate_original_formula_in_exists;
+  set_ref no_backend_inlining      params.no_backend_inlining;
+  set_ref solver                   params.solver;
   params.input
 
 (******************************************************************************)

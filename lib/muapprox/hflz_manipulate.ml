@@ -597,7 +597,7 @@ let elim_mu_with_rec (coe1 : int) (coe2 : int) (hes : Type.simple_ty Hflz.hes) :
       go (rem_level @ new_level)
     end in
   let hes = go hes in
-  let path = Print_syntax.MachineReadable.save_hes_to_file hes in
+  let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
   print_endline @@ "Not decomposed HES path: " ^ path;
   let hes = decompose_lambdas_hes hes in
   (* TODO: 場合によっては、TOP levelを上に持ってくることが必要になる？ *)
@@ -654,7 +654,7 @@ let var_as_arith v = {v with Id.ty=`Int}
 (* 特に変換の条件について、前提は無いはず *)
 (* NOTE: 中から処理しないと、倍々に式が増幅される？。 *)
 (* 式の内部に含まれているexistentialをforallを使った形に直す。lambdaはそのまま残る *)
-let encode_body_exists_formula_sub coe1 coe2 hes_preds original_formula =
+let encode_body_exists_formula_sub coe1 coe2 separate_original_formula hes_preds original_formula =
   match original_formula with
   | Hflz.Exists (fa_var, original_formula) -> begin
     (* 展開回数のための変数yは、existsされている変数をそのまま利用する。 *)
@@ -690,45 +690,51 @@ let encode_body_exists_formula_sub coe1 coe2 hes_preds original_formula =
           App (Var fa_pred, Arith (Var (var_as_arith fa_var)))
         ))
       ) in
-    let new_rule = {
-      var=fa_pred;
-      fix=Fixpoint.Greatest;
-      body=(
-        (*y(rec-limit)を-yに置換した式  *)
+    (*y(rec-limit)を-yに置換した式  *)
+    let pos_formula, neg_formula, new_sub_rule =
+      if separate_original_formula then (
+        (* さらに述語を分ける *)
+        let new_sub_pred = Id.gen ~name:("Psub" ^ (string_of_int @@ Id.gen_id ())) @@ fa_pred_type in
+        args_ids_to_apps free_vars @@ App (Var new_sub_pred, Arith (Var (var_as_arith fa_var))),
+        args_ids_to_apps free_vars @@
+          App ( Var new_sub_pred, Arith (Op (Sub, [Int 0; Var (var_as_arith fa_var)]))),
+        Some ({
+          var  = new_sub_pred;
+          fix  = Fixpoint.Greatest;
+          body = Abs (fa_var, to_abs' free_vars @@ rev_abs (abs' @@ vars @@ original_formula))
+        })
+      ) else (
         let subst_body =
           subst_arith_var
             (fun vid -> if vid = var_as_arith fa_var then (Arith.Op (Sub, [Int 0; Var (var_as_arith fa_var)])) else Var vid)
             original_formula in
-        let body =
-          (* \y. \w~. \x~. y>=0 /\ (\phi x~ \/ \phi' x~ \/ P (y-1) w~ x~) *)
-          (* ここ。 *)
-          Abs(fa_var, to_abs' free_vars @@ rev_abs (abs' @@ 
-            And (
-              Pred (Ge, [Var (var_as_arith fa_var); Int 0]),
-              Or (
-                vars @@ original_formula,
-                Or(
-                  vars @@ subst_body,
-                  vars @@ 
-                  args_ids_to_apps free_vars @@
-                  App (
-                    Var fa_pred,
-                    Arith (Op (Sub, [Var (var_as_arith fa_var); Int 1]))
-                  )
-                )
+        original_formula, subst_body, None
+      ) in
+    let body =
+      (* \y. \w~. \x~. y>=0 /\ (\phi x~ \/ \phi' x~ \/ P (y-1) w~ x~) *)
+      (* ここ。 *)
+      Abs(fa_var, to_abs' free_vars @@ rev_abs (abs' @@ 
+        And (
+          Pred (Ge, [Var (var_as_arith fa_var); Int 0]),
+          Or (
+            vars @@ pos_formula,
+            Or(
+              vars @@ neg_formula,
+              vars @@ 
+              args_ids_to_apps free_vars @@
+              App (
+                Var fa_pred,
+                Arith (Op (Sub, [Var (var_as_arith fa_var); Int 1]))
               )
-            ))
-          ) in
-        body
-      )
-    } in
-    Log.app begin fun m -> m ~header:"encode_body_exists_formula_sub replaced_formula" "%a"
-      Print.(hflz simple_ty_) replaced_formula
-    end;
-    Log.app begin fun m -> m ~header:"encode_body_exists_formula_sub new_rule" "%a"
-      Print.(hflz_hes_rule simple_ty_) new_rule
-    end;
-    replaced_formula, new_rule
+            )
+          )
+        ))
+      ) in
+    let new_rules = { var=fa_pred; fix=Fixpoint.Greatest; body=body }::(match new_sub_rule with None -> [] | Some r -> [r]) in
+    Log.app begin fun m -> m ~header:"encode_body_exists_formula_sub replaced_formula" "%a" Print.(hflz simple_ty_) replaced_formula end;
+    print_endline "encode_body_exists_formula_sub new_rule";
+    Util.print_list (Util.fmt_string Print.(hflz_hes_rule simple_ty_)) new_rules;
+    replaced_formula, new_rules
   end
   | _ -> failwith "illegal"
 
@@ -736,11 +742,12 @@ let%expect_test "encode_body_exists_formula_sub" =
   let open Type in
   let open Arith in
   let p = id_n 10 (TySigma (TyArrow (id_n 11 TyInt, TyBool ()))) in
-  let (replaced, rule) =
+  let (replaced, rules) =
     (*  *)
     encode_body_exists_formula_sub
       1
       10
+      false
       [p]
       (* 高階変数の扱い *)
       (* その時点で使える自由変数ということは、直前のラムダ抽象も含まれる？ => いや、そこは使わない。あくまで式の中の型を取得するだけなので、別。free var のみを使用 *)
@@ -757,11 +764,14 @@ let%expect_test "encode_body_exists_formula_sub" =
         ))))
        in
   ignore [%expect.output];
+  print_endline @@ string_of_int @@ List.length rules;
+  let rule = List.nth rules 0 in
   print_endline @@ "replaced: " ^ show_hflz replaced;
   print_endline @@ "fix: " ^ Fixpoint.show rule.fix;
   print_endline @@ "var: " ^ Id.show pp_simple_ty rule.var;
   print_endline @@ "rule: " ^ show_hflz rule.body;
   [%expect {|
+    1
     replaced: ∀x_100100.
      λx_18:int.
       λx_27:(int -> bool).
@@ -846,7 +856,7 @@ let print_arg_type (arg_type : Type.simple_ty Type.arg) =
   go arg_type;
   print_endline ""
 
-let encode_body_exists_formula coe1 coe2 hes_preds hfl =
+let encode_body_exists_formula coe1 coe2 separate_original_formula hes_preds hfl =
   Log.app begin fun m -> m ~header:"encode_body_exists_formula (ORIGINAL)" "%a"
     Print.(hflz simple_ty_) hfl
   end;
@@ -870,13 +880,13 @@ let encode_body_exists_formula coe1 coe2 hes_preds hfl =
         print_endline @@ "var=" ^ v.name;
         print_arg_type v.ty;
         (* let f1 = go ((v)::env) f1 in *)
-        let hfl, rule = encode_body_exists_formula_sub coe1 coe2 hes_preds hfl in
-        let new_rule_var = { rule.var with ty = Type.TySigma rule.var.ty } in
-        let rule = { rule with body = go (new_rule_var::hes_preds) rule.body } in
+        let hfl, rules = encode_body_exists_formula_sub coe1 coe2 separate_original_formula hes_preds hfl in
+        let new_rule_vars = List.map (fun rule -> { rule.var with ty = Type.TySigma rule.var.ty }) rules in
+        let rules = List.map (fun rule -> { rule with body = go (new_rule_vars @ hes_preds) rule.body } ) rules in
         print_endline "HFLLL";
         print_endline @@ Util.fmt_string (Print.hflz Print.simple_ty_) hfl;
         print_arg_type v.ty;
-        new_rules := rule::!new_rules;
+        new_rules := rules @ !new_rules;
         hfl
       )
     end
@@ -893,16 +903,16 @@ let encode_body_exists_formula coe1 coe2 hes_preds hfl =
   hfl, !new_rules
 
 (* hesからexistentailを除去 *)
-let encode_body_exists coe1 coe2 (hes : Type.simple_ty Hflz.hes) =
+let encode_body_exists coe1 coe2 separate_original_formula (hes : Type.simple_ty Hflz.hes) =
   let env = List.map (fun {var; _} -> { var with ty=Type.TySigma var.ty }) hes in
   hes |>
   List.map
     (fun {var; fix; body} -> 
-      let body, new_rules = encode_body_exists_formula coe1 coe2 env body in
+      let body, new_rules = encode_body_exists_formula coe1 coe2 separate_original_formula env body in
       {var; fix; body}::new_rules
     )
   |> List.flatten
   |> (fun hes -> 
-  let path = Print_syntax.MachineReadable.save_hes_to_file hes in
+  let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
   print_endline @@ "Not decomposed HES path (Exists): " ^ path; hes)
   |> decompose_lambdas_hes

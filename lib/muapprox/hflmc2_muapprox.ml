@@ -1,53 +1,90 @@
 module Hflz = Hflmc2_syntax.Hflz
 module Fixpoint = Hflmc2_syntax.Fixpoint
 module Status = Status
+module Solve_options = Solve_options
+open Solve_options
 
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
 
-let solver_path = "/opt/home2/git/hflmc2_mora/_build/default/bin/main.exe"
-let solver_command hes_path = [|solver_path; hes_path;|]
+module KatsuraSolver = struct
+  let solver_path = "/opt/home2/git/hflmc2_mora/_build/default/bin/main.exe"
+  let solver_command hes_path no_backend_inlining =
+    if no_backend_inlining
+    then [|solver_path; "--no-inlining"; hes_path;|]
+    else [|solver_path; hes_path;|]
 
-(* TODO: timetoutのとき？ *)
-let parse_results_ (exit_status, stdout, stderr) =
-  match exit_status with 
-  | Unix.WEXITED c when c = 0 -> begin
-    (* Verification Result: の行を探す。 *)
-    let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nProfiling:$" in
-    try
-      ignore @@ Str.search_forward reg stdout 0;
-      let status = Status.of_string @@ Str.matched_group 2 stdout in
-      print_endline @@ "PARSED STATUS: " ^ Status.string_of status;
-      status
-    with
-      | Not_found -> failwith @@ "not matched"
-      | Invalid_argument s -> failwith @@ "Invalid_argument: " ^ s
-    end
-  | _ -> Status.Unknown
+  let parse_results (exit_status, stdout, stderr) =
+    match exit_status with 
+    | Ok () -> begin
+      (* Verification Result: の行を探す。 *)
+      let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nProfiling:$" in
+      try
+        ignore @@ Str.search_forward reg stdout 0;
+        let status = Status.of_string @@ Str.matched_group 2 stdout in
+        print_endline @@ "PARSED STATUS: " ^ Status.string_of status;
+        status
+      with
+        | Not_found -> failwith @@ "not matched"
+        | Invalid_argument s -> failwith @@ "Invalid_argument: " ^ s
+      end
+    | _ -> Status.Unknown
+end
+
+module IwayamaSolver = struct
+  let solver_path = "hflmc2"
+  let solver_command hes_path no_backend_inlining =
+    if no_backend_inlining
+    then [|solver_path; "--no-inlining"; hes_path;|]
+    else [|solver_path; hes_path;|]
+
+  let parse_results (exit_status, stdout, stderr) =
+    match exit_status with 
+    | Ok () -> begin
+      (* Verification Result: の行を探す。 *)
+      let regp = "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nLoop Count:$" in
+      let reg = Str.regexp regp in
+      try
+        ignore @@ Str.search_forward reg stdout 0;
+        let status = Status.of_string @@ Str.matched_group 2 stdout in
+        print_endline @@ "PARSED STATUS: " ^ Status.string_of status;
+        status
+      with
+        | Not_found -> failwith @@ "not matched"
+        | Invalid_argument s -> failwith @@ "Invalid_argument: " ^ s
+      end
+    | _ -> Status.Unknown
+end
+
+let run_solver solve_options hes =
+  match solve_options.solver with
+  | Katsura -> begin
+    let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
+    
+    let psi = Hflmc2_syntax.Trans.Simplify.hflz_hes hes true in
+    let path' = Print_syntax.MachineReadable.save_hes_to_file true psi in
+    print_endline "converted and simplified";
+    print_endline path';
+    
+    let command = KatsuraSolver.solver_command path solve_options.no_backend_inlining in
+    let status = KatsuraSolver.parse_results @@ Hflmc2_util.Fn.Command.run_command ~timeout:solve_options.timeout command in
+    status, status
+  end
+  | Iwayama -> begin
+    let path = Print_syntax.MachineReadable.save_hes_to_file false hes in
+    
+    let psi = Hflmc2_syntax.Trans.Simplify.hflz_hes hes true in
+    let path' = Print_syntax.MachineReadable.save_hes_to_file false psi in
+    print_endline "converted and simplified";
+    print_endline path';
+    
+    let command = IwayamaSolver.solver_command path solve_options.no_backend_inlining in
+    let command = [|"hflmc2"; path|] in
+    let status = IwayamaSolver.parse_results @@ Hflmc2_util.Fn.Command.run_command ~timeout:solve_options.timeout command in
+    status, status
+  end
   
-let parse_results (exit_status, stdout, stderr) =
-  match exit_status with 
-  | Ok () -> begin
-    (* Verification Result: の行を探す。 *)
-    let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nProfiling:$" in
-    try
-      ignore @@ Str.search_forward reg stdout 0;
-      let status = Status.of_string @@ Str.matched_group 2 stdout in
-      print_endline @@ "PARSED STATUS: " ^ Status.string_of status;
-      status
-    with
-      | Not_found -> failwith @@ "not matched"
-      | Invalid_argument s -> failwith @@ "Invalid_argument: " ^ s
-    end
-  | _ -> Status.Unknown
-  
-let run_solver timeout hes =
-  let path = Print_syntax.MachineReadable.save_hes_to_file hes in
-  let command = solver_command path in
-  let status = parse_results @@ Hflmc2_util.Fn.Command.run_command ~timeout:timeout command in
-  status, status
-  
-let solve_onlynu_onlyforall _ timeout is_print_for_debug rec_preds hes =
+let solve_onlynu_onlyforall solve_options rec_preds hes =
   let hes =
     List.map
       (fun ({Hflz.var; _} as rule) ->
@@ -55,12 +92,8 @@ let solve_onlynu_onlyforall _ timeout is_print_for_debug rec_preds hes =
         then { rule with fix = Fixpoint.Greatest}
         else rule)
       hes in
-  run_solver timeout hes
-        
-let get_mu_elimed_solver coe1 coe2 _ hes =
-  let nu_only_hes = Hflz_manipulate.elim_mu_with_rec coe1 coe2 hes in
-  solve_onlynu_onlyforall nu_only_hes
-  
+  run_solver solve_options hes
+
 let flip_solver solver =
   fun timeout is_print_for_debug ->
   let status, original_status = solver timeout is_print_for_debug in
@@ -106,31 +139,31 @@ let flip_status_pair (s1, s2) =
   (Status.flip s1, s2)
 
 (* TODO: forallを最外に移動？ => いらなそうか *)
-let elim_mu_exists coe1 coe2 rec_preds hes =
+let elim_mu_exists coe1 coe2 separate_original_formula_in_exists rec_preds hes =
   let hes = to_greatest_from_not_recursive rec_preds hes in
   (* forall, existential, nu, mu *)
-  let hes = Hflz_manipulate.encode_body_exists coe1 coe2 hes in
+  let hes = Hflz_manipulate.encode_body_exists coe1 coe2 separate_original_formula_in_exists hes in
   (* forall, nu, mu *)
   let hes = Hflz_manipulate.elim_mu_with_rec coe1 coe2 hes in 
   (* forall, nu *)
   hes
   
 (* これ以降、本プログラム側での近似が入る *)
-let check_validity_full coe1 coe2 _ timeout (is_print_for_debug : bool) (oneshot : bool) rec_preds hes = 
+let check_validity_full coe1 coe2 solve_options rec_preds hes = 
   let rec go coe1 coe2 =
     (*  *)
-    let nu_only_hes = elim_mu_exists coe1 coe2 rec_preds hes in
-    let result, result' = solve_onlynu_onlyforall () timeout is_print_for_debug rec_preds nu_only_hes in
+    let nu_only_hes = elim_mu_exists coe1 coe2 solve_options.separate_original_formula_in_exists rec_preds hes in
+    let result, result' = solve_onlynu_onlyforall solve_options rec_preds nu_only_hes in
     match result with
     | Status.Valid -> (Status.Valid, result')
     | _ -> begin
       let dual_hes = Hflz_manipulate.get_dual_hes hes in
-      let nu_only_dual_hes = elim_mu_exists coe1 coe2 rec_preds dual_hes in
-      let dual_result, dual_result' = solve_onlynu_onlyforall () timeout is_print_for_debug rec_preds nu_only_dual_hes in
+      let nu_only_dual_hes = elim_mu_exists coe1 coe2 solve_options.separate_original_formula_in_exists rec_preds dual_hes in
+      let dual_result, dual_result' = solve_onlynu_onlyforall solve_options rec_preds nu_only_dual_hes in
       match dual_result with
       | Status.Valid -> (Status.Invalid, dual_result')
       | _ -> begin
-        if oneshot then
+        if solve_options.oneshot then
           (dual_result, dual_result')
         else
           (* TODO: 係数の増やし方 *)
@@ -143,7 +176,7 @@ let check_validity_full coe1 coe2 _ timeout (is_print_for_debug : bool) (oneshot
 
 (* 「shadowingが無い」とする。 *)
 (* timeoutは個別のsolverのtimeout *)  
-let check_validity coe1 coe2 _ timeout (is_print_for_debug : bool) (oneshot : bool) hes =
+let check_validity coe1 coe2 solve_options hes =
   let hes = Hflz_manipulate.decompose_lambdas_hes hes in
   Log.app begin fun m -> m ~header:"Decompose lambdas" "%a"
     Print_syntax.(hflz_hes simple_ty_) hes
@@ -152,10 +185,10 @@ let check_validity coe1 coe2 _ timeout (is_print_for_debug : bool) (oneshot : bo
   print_endline "get_recurring_predicates";
     List.iter (fun p -> print_string @@ Hflmc2_syntax.Id.to_string p ^ ", ") rec_preds; print_endline "";
   if is_onlynu_onlyforall rec_preds hes then
-    solve_onlynu_onlyforall () timeout is_print_for_debug rec_preds hes
+    solve_onlynu_onlyforall solve_options rec_preds hes
   else if is_onlymu_onlyexists rec_preds hes then
-    flip_status_pair @@ solve_onlynu_onlyforall () timeout is_print_for_debug rec_preds @@ Hflz_manipulate.get_dual_hes hes
-  else check_validity_full coe1 coe2 () timeout is_print_for_debug oneshot rec_preds hes
+    flip_status_pair @@ solve_onlynu_onlyforall solve_options rec_preds @@ Hflz_manipulate.get_dual_hes hes
+  else check_validity_full coe1 coe2 solve_options rec_preds hes
 
 (* 
 CheckValidity(Φ, main) { /* Φ: HES, main: Entry formula */

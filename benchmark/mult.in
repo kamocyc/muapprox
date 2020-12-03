@@ -1,0 +1,4 @@
+%HES
+Main =v Mult_in (\r. true).
+Mult_in k =v ∀m. ∀n. (m > 0 => Mult m n k) /\ (m <= 0 => k 0).
+Mult m n k =u (m > 0 => Mult (m - 1) n (\r. k (r + n))) /\ (m <= 0 => k 0).

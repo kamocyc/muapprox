@@ -48,7 +48,7 @@ let add_env_pvar env (k, tys) arg_names =
   
 let add_env_tvar env (k, ty) =
   match direct_find env (`Tvar k) with
-  | Some _ -> failwith "add_env"
+  | Some _ -> failwith "add_env (possible variable shadowing)"
   | None -> begin
     let (Ast.Ident.Tvar name) = k in
     print_endline "key";

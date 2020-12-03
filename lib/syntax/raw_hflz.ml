@@ -171,7 +171,7 @@ module Typing = struct
             pp_hum_tyvar x
             pp_hum_tyvar y
           );
-          failwith "a"
+          failwith "FAIL unify"
 
   type id_env = int StrMap.t   (* name to id *)
   (* なんでid_envとty_envの持ち方が違う実装になってるんだろう．これ書いた人バカなのかな？ *)

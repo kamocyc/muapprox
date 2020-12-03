@@ -5,21 +5,6 @@ module Arith = Hflmc2_syntax.Arith
 open Hflz
 
 type ty_env = (Type.simple_ty Type.arg Id.t) list
-
-let eq_modulo_arg_ids : Type.simple_ty -> Type.simple_ty -> bool =
-  let rec go = fun ty1 ty2 -> match ty1, ty2 with
-  | Type.TyBool _, Type.TyBool _ -> true
-  | Type.TyArrow ({ty=ty1;_}, body1), Type.TyArrow({ty=ty2;_}, body2) -> begin
-    let tyf =
-      match ty1, ty2 with
-      | Type.TySigma ty1', Type.TySigma ty2' ->
-        go ty1' ty2'
-      | Type.TyInt, Type.TyInt -> true
-      | _ -> false in
-    tyf && go body1 body2
-  end
-  | _ -> false in
-  go
   
 let type_check_arith : ty_env -> Arith.t -> bool = fun env arith ->
   let show_arg_ty = fun fmt ty -> Format.pp_print_string fmt @@ Type.show_ty Fmt.nop ty in
@@ -117,11 +102,11 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
   go env hfl
   
 let type_check (hes : Type.simple_ty hes) : unit =
-  let path = Print_syntax.MachineReadable.save_hes_to_file hes in
+  let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
   print_endline @@ "Not checked HES path: " ^ path;
   let show_ty = Type.show_ty Fmt.nop in
   let env = List.map (fun {var={ty;_} as var;_} -> {var with ty=Type.TySigma ty}) hes in
   List.iter (fun ({var={ty;_}; body; _}) -> 
     let ty' = get_hflz_type env body in
-    if not @@ eq_modulo_arg_ids ty' ty then failwith @@ "rule type mismatch (Checked type: " ^ show_ty ty' ^ " / Env type: " ^ show_ty ty ^ ")"
+    if not @@ Type.eq_modulo_arg_ids ty' ty then failwith @@ "rule type mismatch (Checked type: " ^ show_ty ty' ^ " / Env type: " ^ show_ty ty ^ ")"
   ) hes

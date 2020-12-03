@@ -92,3 +92,17 @@ let rec arity_of_abstracted_ty : abstracted_ty -> int = function
   | ATyBool -> 0
   | ATyArrow(_, aty) -> 1 + arity_of_abstracted_ty aty
 
+let eq_modulo_arg_ids : simple_ty -> simple_ty -> bool =
+  let rec go = fun ty1 ty2 -> match ty1, ty2 with
+  | TyBool _, TyBool _ -> true
+  | TyArrow ({ty=ty1;_}, body1), TyArrow({ty=ty2;_}, body2) -> begin
+    let tyf =
+      match ty1, ty2 with
+      | TySigma ty1', TySigma ty2' ->
+        go ty1' ty2'
+      | TyInt, TyInt -> true
+      | _ -> false in
+    tyf && go body1 body2
+  end
+  | _ -> false in
+  go

@@ -81,54 +81,59 @@ module MachineReadable = struct
   let formula : Formula.t Fmt.t =
     formula_ Prec.zero
     
-  let rec hflz_' : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
-    fun format_ty_ prec ppf (phi : 'ty Hflz.t) -> match phi with
+  let hflz_' (format_ty_ : Prec.t -> 'ty Fmt.t) (show_forall : bool)  =
+    let rec go_ (prec : Prec.t) (ppf : formatter) (phi : 'ty Hflz.t) = match phi with
       | Bool true -> Fmt.string ppf "true"
       | Bool false -> Fmt.string ppf "false"
       | Var x -> id' ppf x
       | Or(phi1,phi2)  ->
           show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ || %a@]"
-            (hflz_' format_ty_ Prec.or_) phi1
-            (hflz_' format_ty_ Prec.or_) phi2
+            (go_ Prec.or_) phi1
+            (go_ Prec.or_) phi2
       | And (phi1,phi2)  ->
           show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ && %a@]"
-            (hflz_' format_ty_ Prec.and_) phi1
-            (hflz_' format_ty_ Prec.and_) phi2
+            (go_ Prec.and_) phi1
+            (go_ Prec.and_) phi2
       | Abs (x, psi) -> begin
         show_paren (prec > Prec.abs) ppf "@[<1>\\%a.@,%a@]"
             id' x
-            (* (argty (format_ty_ Prec.(succ arrow))) x.ty *)
-            (hflz_' format_ty_ Prec.abs) psi
+            (* (argty (Prec.(succ arrow))) x.ty *)
+            (go_ Prec.abs) psi
       end 
       (* failwith @@ "(Print.Hflz) Abstractions should be converted to HES equations." *)
       | Forall (x, psi) ->
           (* TODO: ∀は出力したほうがいい？ => 付けるべき。付けないとなぜか\がつくことがある *)
-          show_paren (prec > Prec.abs) ppf "@[<1>∀%a.@,%a@]"
-            id' x
-            (* (argty (format_ty_ Prec.(succ arrow))) x.ty *)
-            (hflz_' format_ty_ Prec.abs) psi
+          if show_forall then (
+            show_paren (prec > Prec.abs) ppf "@[<1>∀%a.@,%a@]"
+              id' x
+              (* (argty (Prec.(succ arrow))) x.ty *)
+              (go_ Prec.abs) psi
+          ) else (
+            go_ Prec.abs ppf psi
+          )
       | Exists (x, psi) -> 
         show_paren (prec > Prec.abs) ppf "@[<1>∃%a.@,%a@]"
             id' x
-            (* (argty (format_ty_ Prec.(succ arrow))) x.ty *)
-            (hflz_' format_ty_ Prec.abs) psi
+            (* (argty (Prec.(succ arrow))) x.ty *)
+            (go_ Prec.abs) psi
       | App (psi1, psi2) ->
           show_paren (prec > Prec.app) ppf "@[<1>%a@ %a@]"
-            (hflz_' format_ty_ Prec.app) psi1
-            (hflz_' format_ty_ Prec.(succ app)) psi2
+            (go_ Prec.app) psi1
+            (go_ Prec.(succ app)) psi2
       | Arith a ->
           arith_ prec ppf a
       | Pred (pred, as') ->
           show_paren (prec > Prec.eq) ppf "%a"
             formula (Formula.Pred(pred, as'))
+    in go_
 
   let fprint_space f () = fprintf f " "
 
-  let hflz' : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.t Fmt.t =
-    fun format_ty_ -> hflz_' format_ty_ Prec.zero
+  let hflz' : (Prec.t -> 'ty Fmt.t) -> bool -> 'ty Hflz.t Fmt.t =
+    fun format_ty_ show_forall -> hflz_' format_ty_ show_forall Prec.zero
   
-  let hflz_hes_rule' : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes_rule Fmt.t =
-    fun format_ty_ ppf rule ->
+  let hflz_hes_rule' : (Prec.t -> 'ty Fmt.t) -> bool -> 'ty Hflz.hes_rule Fmt.t =
+    fun format_ty_ show_forall ppf rule ->
       let args, phi = Hflz.decompose_abs rule.body in
       (* 'ty Type.arg Id.t を表示したい *)
       Fmt.pf ppf "@[<2>%s %a =%a@ %a.@]"
@@ -136,21 +141,21 @@ module MachineReadable = struct
         (pp_print_list ~pp_sep:fprint_space id') args
         (* (format_ty_ Prec.zero) rule.var.ty *)
         fixpoint rule.fix
-        (hflz' format_ty_) phi
+        (hflz' format_ty_ show_forall) phi
   
-  let hflz_hes' : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes Fmt.t =
-    fun format_ty_ ppf hes ->
+  let hflz_hes' : (Prec.t -> 'ty Fmt.t) -> bool -> 'ty Hflz.hes Fmt.t =
+    fun format_ty_ show_forall ppf hes ->
       Fmt.pf ppf "@[<v>%a@]"
-        (Fmt.list (hflz_hes_rule' format_ty_)) hes
+        (Fmt.list (hflz_hes_rule' format_ty_ show_forall)) hes
     
-  let save_hes_to_file hes =
+  let save_hes_to_file show_forall hes =
     Random.self_init ();
     let r = Random.int 0x10000000 in
     let file = Printf.sprintf "/tmp/%s-%d.smt2" "nuonly" r in
     let oc = open_out file in
     let fmt = Format.formatter_of_out_channel oc in
     Printf.fprintf oc "%%HES\n" ;
-    hflz_hes' Hflmc2_syntax.Print.simple_ty_ fmt hes;
+    hflz_hes' Hflmc2_syntax.Print.simple_ty_ show_forall fmt hes;
     Format.pp_print_flush fmt ();
     close_out oc;
     file

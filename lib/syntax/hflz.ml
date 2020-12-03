@@ -140,7 +140,12 @@ let get_hflz_type phi =
       | TyArrow (x, ty1') -> begin
         (match x.ty with
         | Type.TyInt -> (match f2 with Arith _ -> () | _ -> failwith "illegal type (App, Arrow)")
-        | Type.TySigma t -> assert (t = go f2)
+        | Type.TySigma t -> (
+          let sty2 = go f2 in
+          if not @@ Type.eq_modulo_arg_ids t sty2 then (
+            failwith @@ "type assertion failed (ty1=" ^ show_simple_ty t ^ ", ty2=" ^ show_simple_ty sty2 ^ ")"
+          )
+        )
         );
         ty1'
       end

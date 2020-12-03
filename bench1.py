@@ -21,25 +21,27 @@ def append(text):
 RETRY_COOLDOWN = 10
 
 timeout = 120
-[]
+
 nth_last_line = -1
-BENCH_SET = 2
+BENCH_SET = 6
+
+kill_process_names = []
 
 if BENCH_SET == 1:
     # rec-limit
     lists_path = './list.txt'
     base_dir = '/opt/home2/git/fptprove_muarith/benchmarks/hes/'
     exe_path = '/opt/home2/git/fptprove_muarith/_build/default/bin/main.exe'
-    add_args = ['--algorithm', 'rec-limit', '-f', 'hes', '-e', 'nu']
+    add_args = ['--algorithm', 'rec-limit', '--format', 'hes', '-e', 'nu']
     nth_last_line = -1    # 出力の最後から1行目を結果と解釈
 
-if BENCH_SET == 2:
-    # under development
-    lists_path = './list.txt'
-    base_dir = '/opt/home2/git/muapprox/converted/'
-    exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
-    add_args = []
-    nth_last_line = -3
+# if BENCH_SET == 2:
+#     # under development
+#     lists_path = './list.txt'
+#     base_dir = '/opt/home2/git/muapprox/converted/'
+#     exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
+#     add_args = []
+#     nth_last_line = -3
 
 # higher
 if BENCH_SET == 4:
@@ -57,7 +59,15 @@ if BENCH_SET == 5:
     add_args = []
     nth_last_line = -3
 
-
+if BENCH_SET == 6:
+    lists_path = './list.txt'
+    base_dir = '/opt/home2/git/fptprove_muarith/benchmarks/hes/'
+    exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
+    # add_args = ['--hes', '--solver', 'katsura']
+    add_args = ['--hes', '--solver', 'iwayama']
+    kill_process_names = ["hflmc2"]
+    nth_last_line = -3
+    
 def get_last_line(text, nth = nth_last_line):
     try:
         return text.strip(' \n\r').split("\n")[nth]
@@ -86,6 +96,9 @@ def run(cmd):
         
         # これが無いと、プロセスが残る
         os.system('pkill ' + os.path.basename(exe_path))
+        for name in kill_process_names:
+            os.system('pkill ' + name)
+        
         raise MyTimeout({'stdout': stdout, 'timeout': timeout, 'stderr': stderr})
         
 # def run_(cmd):
@@ -191,7 +204,9 @@ def main():
     for file in files:
         handle(exe_path, os.path.join(base_dir, file), parse_stdout, callback=callback)
 
-    with open('bench_out.txt', 'w') as f:    
-        f.write(str(results))
+    with open('bench_out_summary.txt', 'w') as f:    
+        f.write(str([{'file': r['file'], 'result': r['result'], 'time': r['time']} for r in results]))
     
+    with open('bench_out_full.txt', 'w') as f:    
+        f.write(str(results))
 main()

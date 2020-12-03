@@ -51,22 +51,29 @@ let parse file =
     Log.app begin fun m -> m ~header:"Input" "%a" Print.(hflz_hes simple_ty_) psi end;
     psi
   )
+
+let get_solve_options () =
+  let open Hflmc2_muapprox.Solve_options in
+  {
+    no_backend_inlining = !Options.no_backend_inlining;
+    timeout = !Options.timeout;
+    print_for_debug = !Options.print_for_debug;
+    oneshot = !Options.oneshot;
+    separate_original_formula_in_exists = not !Options.no_separate_original_formula_in_exists;
+    solver = get_solver !Options.solver
+  }
   
 let main file =
+  let solve_options = get_solve_options () in
   let psi = parse file in
   (* TODO *)
   let coe1, coe2 = 1, 10 in
   let inlining = not @@ !Options.no_inlining in
-  let oneshot = !Options.oneshot in
   (* for debug *)
-  let timeout = !Options.timeout in
-  let is_print_for_debug = !Options.print_for_debug in
   let psi = Syntax.Trans.Simplify.hflz_hes psi inlining in
-  Log.app begin fun m -> m ~header:"Simplified" "%a"
-    Print.(hflz_hes simple_ty_) psi
-  end;
+  Log.app begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
   (* TODO: *)
-  let s1, _ = Hflmc2_muapprox.check_validity coe1 coe2 () timeout is_print_for_debug oneshot psi in
+  let s1, _ = Hflmc2_muapprox.check_validity coe1 coe2 solve_options psi in
   s1
   (* TODO: topのpredicate variableの扱い？ *)
   (* let psi, top = Syntax.Trans.Preprocess.main psi in

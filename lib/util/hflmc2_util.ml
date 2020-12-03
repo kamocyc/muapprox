@@ -203,7 +203,7 @@ module Fn = struct
 
   let assert_no_exn f =
     try f () with e -> print_endline (Exn.to_string e); assert false
-
+(* 
   let pp_process_result fmt stat _ err =
     let show_process_status : process_status -> string = function
       | WEXITED code -> "WEXITED(" ^ (string_of_int code) ^ ")"
@@ -231,7 +231,7 @@ module Fn = struct
     Unix.remove f_out;
     Unix.remove f_err;
     pp_process_result Format.std_formatter process_status stdout stderr;
-    (process_status, stdout, stderr)
+    (process_status, stdout, stderr) *)
 
   class counter = object
     val mutable cnt = 0
@@ -319,6 +319,7 @@ module Fn = struct
     let sync_command timeout name arguments input = sync_command_full timeout name arguments input print_endline (fun _ -> ())
     
     let run_command ?(timeout=10.0) commands =
+      Format.pp_print_string Format.std_formatter @@ "Run command (muapprox) \"" ^ (String.concat ~sep:" " @@ Array.to_list commands) ^ "\"\n";
       match Array.to_list commands with
       | [] -> failwith "run_command"
       | name::arguments -> sync_command timeout name arguments []
