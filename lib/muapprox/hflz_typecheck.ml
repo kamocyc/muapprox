@@ -24,12 +24,6 @@ let type_check_arith : ty_env -> Arith.t -> bool = fun env arith ->
     List.length args = 2 &&
     List.for_all go args in
   go arith
-
-let remove_id_from_type typ =
-  let rec go typ = match typ with
-    | Type.TyArrow (arg, exp) -> Type.TyArrow ({ arg with name = "x"; id = 1 }, go exp)
-    | Type.TyBool _ -> typ in
-  go typ
   
 let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env hfl ->
   let show_arg_ty = fun fmt ty -> Format.pp_print_string fmt @@ Type.show_ty Fmt.nop ty in
@@ -86,7 +80,7 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
     end
     | TyArrow ({ty=TySigma ty; _} as arg, tybody) -> begin
       let ty2 = go env f2 in
-      if remove_id_from_type ty2 = remove_id_from_type ty
+      if Type.eq_modulo_arg_ids ty2 ty
       then tybody
       else failwith @@ "App_TyArrow type mismatch" ^ (show_fm  hfl) ^ "ty1=" ^ (show_arg arg.ty) ^ "/ty2=" ^ (show_arg (TySigma ty2))
     end

@@ -117,6 +117,22 @@ let negate_formula (formula : Type.simple_ty t) =
 let negate_rule ({var; body; fix} : Type.simple_ty hes_rule) = 
   {var; body=negate_formula body; fix=Fixpoint.flip_fixpoint fix}
 
+let negate_subformula (formula : Type.simple_ty t) = 
+  let rec go formula = match formula with
+    | Bool b -> Bool (not b)
+    | Or  (f1, f2) -> And (go f1, go f2)
+    | And (f1, f2) -> Or  (go f1, go f2)
+    | Forall (x, f) -> Exists (x, go f)
+    | Exists (x, f) -> Forall (x, go f)
+    | Arith (arith) -> Arith (arith)
+    | Pred (p, args) -> Pred (Formula.negate_pred p, args)
+    | Var _  -> failwith "(negate_subformula) cannot negate Var"
+    | Abs _  -> failwith "(negate_subformula) cannot negate Abs"
+    | App _  -> failwith "(negate_subformula) cannot negate App" in
+  go formula
+
+
+    
 let get_hflz_type phi =
   let rec go phi = match phi with
     | Bool   _ -> Type.TyBool ()
