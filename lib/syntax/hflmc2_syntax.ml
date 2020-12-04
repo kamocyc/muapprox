@@ -51,22 +51,20 @@ end = struct
             | I.T_TRUE      -> "TRUE"
             | I.T_START_HES -> "START_HES"
             | I.T_STAR      -> "STAR"
-            | I.T_RSQUARE   -> "RSQUARE"
             | I.T_RPAREN    -> "RPAREN"
-            | I.T_RANGRE    -> "RANGRE"
             | I.T_PLUS      -> "PLUS"
             | I.T_OR        -> "OR"
             | I.T_NEQ       -> "NEQ"
             | I.T_NEG       -> "NEG"
             | I.T_MINUS     -> "MINUS"
-            | I.T_LSQUARE   -> "LSQUARE"
             | I.T_LPAREN    -> "LPAREN"
             | I.T_LIDENT    -> "LIDENT"
             | I.T_LE        -> "LE"
-            | I.T_LANGRE    -> "LANGRE"
             | I.T_LAMBDA    -> "LAMBDA"
             | I.T_INT       -> "INT"
             | I.T_GE        -> "GE"
+            | I.T_LT        -> "LT"
+            | I.T_GT        -> "GT"
             | I.T_FALSE     -> "FALSE"
             | I.T_EQ        -> "EQ"
             | I.T_EOF       -> "EOF"
@@ -75,10 +73,12 @@ end = struct
             | I.T_DEF_L     -> "DEF_L"
             | I.T_DEF_G     -> "DEF_G"
             | I.T_AND       -> "AND"
+            | I.T_NOT       -> "NOT"
+            | I.T_IMPLY     -> "IMPLY"
+            | I.T_IFF       -> "IFF"
             | I.T_TINT      -> "TINT"
             | I.T_TBOOL     -> "TBOOL"
             | I.T_TARROW    -> "TARROW"
-            | I.T_START_ENV -> "START_ENV"
             | I.T_SEMICOLON -> "SEMICOLON"
             | I.T_FORALL    -> "FORALL"
             | I.T_EXISTS    -> "EXISTS"
@@ -107,21 +107,6 @@ end = struct
             | I.N_and_or_expr              -> "and_or_expr"
             | I.N_abs_expr                 -> "abs_expr"
             | I.N_main                     -> "main"
-            | I.N_env                      -> "env"
-            | I.N_assignment               -> "assignment"
-            | I.N_abstraction_ty           -> "abstraction_ty"
-            | I.N_list_assignment_         -> "list_assignment_"
-            | I.N_arith                    -> "arith"
-            | I.N_and_or_predicate         -> "and_or_predicate"
-            | I.N_abstraction_argty        -> "abstraction_argty"
-            | I.N_a_predicate              -> "a_predicate"
-            | I.N_predicate                -> "predicate"
-            | I.N_atom_predicate           -> "atom_predicate"
-            | I.N_atom_arith               -> "atom_arith"
-            | I.N_loption_separated_nonempty_list_SEMICOLON_predicate__
-                                           -> "loption_separated_nonempty_list_SEMICOLON_predicate__"
-            | I.N_separated_nonempty_list_SEMICOLON_predicate_
-                                           -> "separated_nonempty_list_SEMICOLON_predicate_"
             end
       let print_element = None
     end in (module User : PRINTER_DEF)
@@ -189,5 +174,6 @@ let parse_file file =
     lexbuf
     |> Parser.main
     |> Raw_hflz.to_typed
+    |> (fun (phi, a) -> Hflz.desugar phi, a)
   end
 

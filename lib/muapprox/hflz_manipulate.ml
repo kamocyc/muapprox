@@ -14,6 +14,18 @@ let id_n n t = { Id.name = "x_" ^ string_of_int n; id = n; ty = t }
 let show_hflz = Util.fmt_string (Print_syntax.hflz Hflmc2_syntax.Print.simple_ty_)
 let show_hflz_full v = Hflz.show (fun fmt ty_ -> Type.pp_simple_ty fmt ty_) v
 
+let%expect_test "desugar_formula" =
+  let open Type in
+  let sugar : simple_ty Hflz.Sugar.t =
+    (* true && (not (true && ∀x2. 1 >= x2 || ∃x3. not (true && x4 5))) *)
+    (* => *)
+    (* true && (false || ∃x2. 1 < x2 && ∀x3. true && x4 5) *)
+    And (Bool true, Not (And (Bool true, Forall (id_n 2 TyInt, Or (Pred (Ge, [Int 1; Var (id_n 2 `Int)]), Exists (id_n 3 TyInt, Not (And (Bool true, App (Var (id_n 4 (TyBool ())), Arith (Int 5)))))))))) in
+  let desugar = Hflz.desugar_formula sugar in
+  ignore [%expect.output];
+  print_endline @@ show_hflz desugar;
+  [%expect {| true && (false || (∃x_22.1 < x_22 && (∀x_33.true && (x_44 :bool) 5))) |}]
+
 (* Arrow type to list of types of the arguments conversion *)
 (* t1 -> t2 -> t3  ==> [t3; t2; t1]  *)
 let to_args : Type.simple_ty -> Type.simple_ty Type.arg Id.t list =
@@ -434,8 +446,8 @@ let%expect_test "extract_abstraction" =
   print_endline @@ show_hflz f;
   print_endline @@ Util.fmt_string (Print_syntax.hflz_hes_rule Print_syntax.simple_ty_) rule;
   [%expect {|
-    (a_sub206 :int -> int -> bool -> bool) x_33
-    a_sub206 : int -> int -> bool -> bool =ν
+    (a_sub67 :int -> int -> bool -> bool) x_33
+    a_sub67 : int -> int -> bool -> bool =ν
       λx_33:int.λx_11:int.λx_22:bool.(x_44 :int -> bool) (x_11 + x_22 * x_33) |}]
 
 (* (∀x1. ∀x2. \y1. \y2. \phi)  ->  (\y1. \y2. ∀x1. ∀x2. \phi) *)
@@ -773,16 +785,17 @@ let%expect_test "encode_body_exists_formula_sub" =
   [%expect {|
     1
     replaced: ∀x_100100.
-     λx_18:int.
-      λx_27:(int -> bool).
+     λx_19:int.
+      λx_28:(int -> bool).
        x_100100 < 1 * x_33 + 1 * x_55 + 10
        || x_100100 < 1 * x_33 + -1 * x_55 + 10
        || x_100100 < -1 * x_33 + 1 * x_55 + 10
        || x_100100 < -1 * x_33 + -1 * x_55 + 10
-       || (P1 :int -> int -> int -> (int -> bool) -> int -> (int -> bool) -> bool)
-           x_100100 x_33 x_55 (x_44 :int -> bool) x_18 (x_27 :int -> bool)
+       || (P10 :int ->
+                 int -> int -> (int -> bool) -> int -> (int -> bool) -> bool)
+           x_100100 x_33 x_55 (x_44 :int -> bool) x_19 (x_28 :int -> bool)
     fix: Fixpoint.Greatest
-    var: { Id.name = "P1"; id = 9;
+    var: { Id.name = "P10"; id = 11;
       ty =
       (Type.TyArrow ({ Id.name = "x_100"; id = 100; ty = Type.TyInt },
          (Type.TyArrow ({ Id.name = "x_3"; id = 3; ty = Type.TyInt },
@@ -815,25 +828,25 @@ let%expect_test "encode_body_exists_formula_sub" =
      λx_33:int.
       λx_55:int.
        λx_44:(int -> bool).
-        λx_18:int.
-         λx_27:(int -> bool).
+        λx_19:int.
+         λx_28:(int -> bool).
           x_100100 >= 0
           && ((λx_11:int.
                 λx_22:(int -> bool).
                  (x_1010 :int -> bool) (x_11 + x_33)
                  && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100)
-               x_18 (x_27 :int -> bool)
+               x_19 (x_28 :int -> bool)
               || (λx_11:int.
                    λx_22:(int -> bool).
                     (x_1010 :int -> bool) (x_11 + x_33)
                     && (x_22 :int -> bool) x_55
                        && (x_44 :int -> bool) (-x_100100))
-                  x_18 (x_27 :int -> bool)
-                 || (P1 :int ->
-                          int ->
-                           int -> (int -> bool) -> int -> (int -> bool) -> bool)
-                     (x_100100 - 1) x_33 x_55 (x_44 :int -> bool) x_18
-                     (x_27 :int -> bool)) |}];
+                  x_19 (x_28 :int -> bool)
+                 || (P10 :int ->
+                           int ->
+                            int -> (int -> bool) -> int -> (int -> bool) -> bool)
+                     (x_100100 - 1) x_33 x_55 (x_44 :int -> bool) x_19
+                     (x_28 :int -> bool)) |}];
   let hes = [
     { var = id_n 200 (TyArrow (id_n 3 TyInt, TyArrow (id_n 4 @@ TySigma (TyArrow (id_n 32 TyInt, TyBool ())),
     TyArrow (id_n 5 TyInt, TyArrow (id_n 1 TyInt, (TyArrow (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))), TyBool ())))))));

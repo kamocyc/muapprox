@@ -1,4 +1,0 @@
-%HES
-Sentry =ν ∀n. X n \/ n >= 0.
-X x =μ X (x + 1) \/ Y x.
-Y y =ν y _exc_= 0 /\ Y (y - 1).

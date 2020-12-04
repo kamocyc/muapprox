@@ -23,14 +23,11 @@ rule token = parse
 | "%LTS"                   { skip_all lexbuf; token lexbuf }
 | eof                      { EOF       }
 | "%HES"                   { START_HES }
-| "%ENV"                   { START_ENV }
 | "("                      { LPAREN    }
 | ")"                      { RPAREN    }
-| "["                      { LSQUARE   }
-| "]"                      { RSQUARE   }
 | "true"                   { TRUE      }
 | "false"                  { FALSE     }
-| "!" | "not"              { failwith "Negation is not allowed" }
+| "!" | "not"              { NOT       }
 | ("\\"|"λ")               { LAMBDA    }
 | ("=v"|"=ν")              { DEF_G     }
 | ("=m"|"=μ"|"=u")         { DEF_L     }
@@ -57,10 +54,12 @@ rule token = parse
                            | "<>"          -> NEQ
                            | "<="          -> LE
                            | ">="          -> GE
-                           | "<"           -> LANGRE
-                           | ">"           -> RANGRE
+                           | "<"           -> LT
+                           | ">"           -> GT
                            | ("&&"|"/\\")  -> AND
                            | ("||"|"\\/")  -> OR
+                           | "=>"          -> IMPLY
+                           | "<=>"         -> IFF
                            | s -> failwith ("unknown operater " ^ s)
                            }
 

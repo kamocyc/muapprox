@@ -1,4 +1,5 @@
 open Hflmc2_util
+
 type raw_hflz =
   | Bool of bool
   | Var  of string
@@ -11,6 +12,7 @@ type raw_hflz =
   | Pred of Formula.pred * raw_hflz list
   | Forall of string * raw_hflz
   | Exists of string * raw_hflz
+  | Not of raw_hflz
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 type hes_rule =
   { var  : string
@@ -36,6 +38,8 @@ let mk_ands = function
 let mk_ors = function
   | [] -> Bool false
   | x::xs -> List.fold_left xs ~init:x ~f:(fun a b -> Or(a,b))
+
+let mk_not x = Not x
 
 let mk_pred pred a1 a2 = Pred(pred, [a1;a2])
 
@@ -218,7 +222,7 @@ module Typing = struct
         | Op (op, as') -> Op (op, List.map ~f:(self#arith id_env) as')
         | _ -> failwith "annot.arith"
 
-    method term : id_env -> raw_hflz -> tyvar -> unit Hflz.t =
+    method term : id_env -> raw_hflz -> tyvar -> unit Hflz.Sugar.t =
       fun id_env psi tv ->
         Log.debug begin fun _ -> Print.pr "term %a |- %a : %a@."
           pp_id_env id_env
@@ -246,7 +250,7 @@ module Typing = struct
             in
             let x = Id.{ name; id; ty=() } in
             self#add_ty_env x ty;
-            Hflz.mk_var x
+            Hflz.Sugar.mk_var x
         | Or (psi1,psi2) ->
             let psi1 = self#term id_env psi1 TvBool in
             let psi2 = self#term id_env psi2 TvBool in
@@ -257,6 +261,10 @@ module Typing = struct
             let psi2 = self#term id_env psi2 TvBool in
             unify tv TvBool;
             And (psi1,psi2)
+        | Not (psi1) ->
+            let psi1 = self#term id_env psi1 TvBool in
+            unify tv TvBool;
+            Not (psi1)
         | Pred (pred,as') ->
             unify tv TvBool;
             Pred(pred, List.map ~f:(self#arith id_env) as')
@@ -298,7 +306,7 @@ module Typing = struct
             App (psi1, psi2)
             
 
-    method hes_rule : id_env -> hes_rule -> unit Hflz.hes_rule =
+    method hes_rule : id_env -> hes_rule -> unit Hflz.Sugar.hes_rule =
       fun id_env rule ->
         Log.debug begin fun _ -> 
           Print.pr "hes_rule.vars %a@." Print.string rule.var
@@ -334,10 +342,10 @@ module Typing = struct
           List.fold_left (List.rev tv_vars)
             ~init:TvBool ~f:(fun ret arg -> TvArrow (arg, ret));
         { var  = _F
-        ; body = Hflz.mk_abss vars body
+        ; body = Hflz.Sugar.mk_abss vars body
         ; fix  = rule.fix }
 
-    method hes : hes -> unit Hflz.hes =
+    method hes : hes -> unit Hflz.Sugar.hes =
       fun hes ->
         let id_env =
           List.fold_left hes ~init:StrMap.empty ~f:begin fun id_env rule ->
@@ -381,7 +389,7 @@ module Typing = struct
         | None -> failwith @@ Fmt.strf "%s" (Id.to_string x)
         | Some tv -> { x with ty = self#arg_ty (Id.to_string x) tv }
 
-    method term : unit Hflz.t -> simple_ty Hflz.t = function
+    method term : unit Hflz.Sugar.t -> simple_ty Hflz.Sugar.t = function
       | Var x ->
           begin match self#id x with
           | x -> Var x
@@ -391,19 +399,20 @@ module Typing = struct
       | Or  (psi1,psi2)  -> Or  (self#term psi1, self#term psi2)
       | And (psi1,psi2)  -> And (self#term psi1, self#term psi2)
       | App (psi1, psi2) -> App (self#term psi1, self#term psi2)
+      | Not (psi1)       -> Not (self#term psi1)
       | Abs (x, psi)     -> Abs (self#arg_id x, self#term psi)
       | Forall(x, psi)   -> Forall (self#arg_id x, self#term psi)
       | Exists(x, psi)   -> Exists (self#arg_id x, self#term psi)
       | Arith a          -> Arith a
       | Pred (pred,as')  -> Pred(pred, as')
 
-    method hes_rule : unit Hflz.hes_rule -> simple_ty Hflz.hes_rule =
+    method hes_rule : unit Hflz.Sugar.hes_rule -> simple_ty Hflz.Sugar.hes_rule =
       fun rule ->
         let var  = self#id rule.var in
         let body = self#term rule.body in
         { var; body; fix = rule.fix }
 
-    method hes : unit Hflz.hes -> simple_ty Hflz.hes =
+    method hes : unit Hflz.Sugar.hes -> simple_ty Hflz.Sugar.hes =
       fun hes -> List.map hes ~f:self#hes_rule
   end
 
@@ -425,7 +434,7 @@ module Typing = struct
         in
         let main =
           let var  = { main.var with ty = mk_arrows ub_ints main.var.ty } in
-          let body = Hflz.mk_abss ub_ints main.body in
+          let body = Hflz.Sugar.mk_abss ub_ints main.body in
           { main with var; body }
         in
         main :: rest
@@ -435,11 +444,11 @@ end
 open Type
 
 let rename_simple_ty_rule
-      : simple_ty Hflz.hes_rule
-     -> simple_ty Hflz.hes_rule =
+      : simple_ty Hflz.Sugar.hes_rule
+     -> simple_ty Hflz.Sugar.hes_rule =
   fun rule ->
     let sty        = rule.var.ty in
-    let vars, _    = Hflz.decompose_abs rule.body in
+    let vars, _    = Hflz.Sugar.decompose_abs rule.body in
     let ty_vars, _ = decompose_arrow sty in
     let ty_vars' =
       List.map2_exn vars ty_vars ~f:begin fun var ty_var ->
@@ -468,15 +477,16 @@ let rec rename_abstraction_ty
     | _ ->
         invalid_arg "Raw_hflz.rename_abstraction_ty: Simple type mismatch"
 
-let rename_ty_body : simple_ty Hflz.hes -> simple_ty Hflz.hes =
+let rename_ty_body : simple_ty Hflz.Sugar.hes -> simple_ty Hflz.Sugar.hes =
   fun hes ->
-    let rec term : simple_ty IdMap.t -> simple_ty Hflz.t -> simple_ty Hflz.t =
+    let rec term : simple_ty IdMap.t -> simple_ty Hflz.Sugar.t -> simple_ty Hflz.Sugar.t =
       fun env psi -> match psi with
         | Bool b           -> Bool b
         | Var x            -> Var { x with ty = IdMap.lookup env x }
         | Or  (psi1, psi2) -> Or  (term env psi1, term env psi2)
         | And (psi1, psi2) -> And (term env psi1, term env psi2)
         | App (psi1, psi2) -> App (term env psi1, term env psi2)
+        | Not (psi1)       -> Not (term env psi1)
         | Arith a          -> Arith a
         | Pred (pred, as') -> Pred (pred, as')
         | Abs ({ty=TySigma ty;_} as x, psi) ->
@@ -490,8 +500,8 @@ let rename_ty_body : simple_ty Hflz.hes -> simple_ty Hflz.hes =
         | Exists ({ty=TyInt;_} as x, psi) -> Exists (x, term env psi)
     in
     let rule : simple_ty IdMap.t
-            -> simple_ty Hflz.hes_rule
-            -> simple_ty Hflz.hes_rule =
+            -> simple_ty Hflz.Sugar.hes_rule
+            -> simple_ty Hflz.Sugar.hes_rule =
       fun env rule ->
         { rule with body = term env rule.body }
     in

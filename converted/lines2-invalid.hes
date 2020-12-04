@@ -1,5 +1,0 @@
-%HES
-Sentry =ν Pvar_exc_2.
-F a b =μ G a b \/ F (a + 2) (b + 1).
-Pvar_exc_2 =μ ∀a. ∀b. G a b \/ F (a + 2) (b + 1).
-G a b =ν a > b /\ G (a + 2) (b + 1) /\ F a a.

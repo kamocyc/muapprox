@@ -1,4 +1,0 @@
-%HES
-Sentry =ν ∀a. ∀b. ∀c. ∀d. a <= b \/ F a b c d.
-F a b c d =μ G a b c d \/ F a b (c + a) (d + b).
-G a b c d =ν c > d /\ G a b (c + a) (d + b).

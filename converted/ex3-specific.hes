@@ -1,6 +1,0 @@
-%HES
-Sentry =ν F_0_ff.
-F_0_tt x =ν ∃r. G_0_ff_1 x r /\ F_0_tt r.
-F_0_ff =μ ∃r. G_0_ff_1 10 r /\ F_0_tt r.
-G_0_ff_1 x r =μ x >= 0 /\ G_1_ff_1 (x - 1) r \/ x < 0 /\ r = 5.
-G_1_ff_1 x r =μ x >= 0 /\ G_1_ff_1 (x - 1) r \/ x < 0 /\ r = 5.

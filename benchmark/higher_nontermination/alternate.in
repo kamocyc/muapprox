@@ -1,0 +1,7 @@
+%HES
+Main =v F Proceed Halt true.
+F g h z =v
+  g (F h g) \/ h (F h g).
+Proceed u =v u true.
+Halt u =v false.
+

@@ -1,0 +1,3 @@
+%HES
+Main =v ∀n. Mc n (\r. true).
+Mc n k =u (n > 100 => k (n - 10)) /\ (n <= 100 => Mc (n + 11) (\r. Mc r k)).

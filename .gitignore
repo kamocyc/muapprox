@@ -7,3 +7,5 @@ _build
 **/*.status
 **/*.install
 converted/
+output/
+a.out

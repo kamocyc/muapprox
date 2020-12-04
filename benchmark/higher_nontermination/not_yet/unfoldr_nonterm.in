@@ -1,0 +1,28 @@
+%HES
+Main =v Rand_int (\r.
+    Unfoldr_sum Pred1 Pred2 Pred3 r (\_. false)).
+Rand_int k =v
+  k (-3) \/
+  k 0 \/
+  k 1 \/
+  k 3 \/
+  k 10
+  .
+Unfoldr_sum f1 f2 f3 seed k =v
+  f1 seed (\isEnd.
+  f2 seed (\elem.
+  f3 seed (\next_seed.
+    (isEnd != 0 \/ k 0) /\
+    (isEnd =  0 \/
+      Unfoldr_sum f1 f2 f3 next_seed (\res.
+        k (elem + res)))))).
+Pred1 n k =v
+  (n != 0 \/ k 0) /\
+  (n =  0 \/ k 1).
+Pred2 n k =v
+  (n != 0 \/ k 0) /\
+  (n =  0 \/ k 1).
+Pred3 n k =v
+  (n != 0 \/ k 0) /\
+  (n =  0 \/ k (n-1)).
+

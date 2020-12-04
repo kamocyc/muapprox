@@ -1,5 +1,0 @@
-%HES
-Sentry =ν Pvar_exc_2.
-G x =ν x >= 0 /\ F x x.
-Pvar_exc_2 =ν false.
-F x y =μ x = 0 /\ G (y + 3) \/ x _exc_= 0 /\ F (x - 3) y.

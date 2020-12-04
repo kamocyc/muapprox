@@ -1,9 +1,0 @@
-%HES
-Sentry =ν Pvar_exc_2.
-F_0_tt x =ν x >= 0 /\ G_1_ff (x - 1) \/ (∃r. G_0_ff_0 x r /\ F_0_tt r) \/ (∃r. G_0_ff_1 x r /\ F_0_tt r).
-Pvar_exc_2 =μ (∃x. x >= 0 /\ G_1_ff (x - 1)) \/ (∃x. ∃r. G_0_ff_0 x r /\ F_0_tt r) \/ (∃x. ∃r. G_0_ff_1 x r /\ F_0_tt r).
-G_1_ff x =μ x >= 0 /\ G_1_ff (x - 1).
-G_0_ff_0 x r =μ x >= 0 /\ G_1_ff_0 (x - 1) r.
-G_1_ff_0 x r =μ x >= 0 /\ G_1_ff_0 (x - 1) r.
-G_0_ff_1 x r =μ x >= 0 /\ G_1_ff_1 (x - 1) r \/ x < 0 /\ r = 5.
-G_1_ff_1 x r =μ x >= 0 /\ G_1_ff_1 (x - 1) r \/ x < 0 /\ r = 5.

@@ -1,0 +1,9 @@
+%HES
+Main =v ∃r. Fib_CPS_nonterm r Id.
+Fib_CPS_nonterm n k =v
+  (((n = 0) \/ (n = 1)) => k 1) /\
+  (not ((n = 0) \/ (n = 1)) =>
+    Fib_CPS_nonterm (n - 1) (Cont1 (n - 2) k)).
+Cont1 ppn k a =v Fib_CPS_nonterm ppn (Cont2 a k).
+Cont2 a k b =v k (a + b).
+Id n =v false.
