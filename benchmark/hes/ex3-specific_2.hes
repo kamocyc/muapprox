@@ -1,0 +1,5 @@
+%HES
+Sentry       =v F_0_tt_e 0 10.
+F_0_tt x     =v F_0_tt_e 0 x.
+F_0_tt_e r x =u G_1_ff_1 x r /\ F_0_tt r \/ F_0_tt_e (r+1) x \/ F_0_tt_e (r-1) x.
+G_1_ff_1 x r =u (x >= 0 /\ G_1_ff_1 (x - 1) r) \/ (x < 0 /\ r = 5).

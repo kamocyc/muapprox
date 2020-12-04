@@ -31,7 +31,7 @@ type params =
   ; no_inlining : bool [@default false]
   (** Disable inlining *)
 
-  ; no_backend_inlining : bool [@default false]
+  ; no_inlining_backend : bool [@default false]
   (** Disable inlining in a backend solver*)
   
   ; oneshot : bool [@default false]
@@ -61,7 +61,7 @@ let set_up_params params =
   set_ref print_for_debug          params.print_for_debug;
   print_endline "no_separate_original_formula_in_exists";
   set_ref no_separate_original_formula_in_exists params.no_separate_original_formula_in_exists;
-  set_ref no_backend_inlining      params.no_backend_inlining;
+  set_ref no_backend_inlining      params.no_inlining_backend;
   set_ref solver                   params.solver;
   params.input
 

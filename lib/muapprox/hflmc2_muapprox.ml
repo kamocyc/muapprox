@@ -85,13 +85,6 @@ let run_solver solve_options hes =
   end
   
 let solve_onlynu_onlyforall solve_options rec_preds hes =
-  let hes =
-    List.map
-      (fun ({Hflz.var; _} as rule) ->
-        if not @@ List.exists (Hflmc2_syntax.Id.eq var) rec_preds
-        then { rule with fix = Fixpoint.Greatest}
-        else rule)
-      hes in
   run_solver solve_options hes
 
 let flip_solver solver =
@@ -113,25 +106,25 @@ let fold_hflz folder phi init =
     | Hflz.Pred (p, args) -> folder acc phi in
   go phi init
 
-let is_not_recursive rec_preds var = not @@ List.exists (Hflmc2_syntax.Id.eq var) rec_preds
-let to_greatest_from_not_recursive rec_preds =
+(* let is_not_recursive rec_preds var = not @@ List.exists (Hflmc2_syntax.Id.eq var) rec_preds *)
+(* let to_greatest_from_not_recursive rec_preds =
   List.map
     (fun ({Hflz.var; _} as rule) ->
       if is_not_recursive rec_preds var
       then { rule with fix = Fixpoint.Greatest}
-      else rule)
+      else rule) *)
 
 let is_onlyforall_body formula =
   fold_hflz (fun b f -> match f with Hflz.Exists _ -> false | _ -> b) formula true
 let is_onlynu_onlyforall_rule rec_preds {Hflz.var; fix; body} =
-  (fix = Fixpoint.Greatest || is_not_recursive rec_preds var) && is_onlyforall_body body
+  (fix = Fixpoint.Greatest (*|| is_not_recursive rec_preds var*)) && is_onlyforall_body body
 let is_onlynu_onlyforall rec_preds =
   List.for_all (is_onlynu_onlyforall_rule rec_preds)
 
 let is_onlyexists_body formula =
   fold_hflz (fun b f -> match f with Hflz.Forall _ -> false | _ -> b) formula true
 let is_onlymu_onlyexists_rule rec_preds {Hflz.var; fix; body} =
-  (fix = Fixpoint.Least || is_not_recursive rec_preds var) && is_onlyexists_body body
+  (fix = Fixpoint.Least (*|| is_not_recursive rec_preds var*)) && is_onlyexists_body body
 let is_onlymu_onlyexists rec_preds =
   List.for_all (is_onlymu_onlyexists_rule rec_preds)
 
@@ -140,11 +133,14 @@ let flip_status_pair (s1, s2) =
 
 (* TODO: forallを最外に移動？ => いらなそうか *)
 let elim_mu_exists coe1 coe2 separate_original_formula_in_exists rec_preds hes =
-  let hes = to_greatest_from_not_recursive rec_preds hes in
+  (* 再帰参照していない述語はgreatestに置換 *)
+  (* これをすると、fixpoint alternationが新たにできて、式が複雑になることがあるので、やめる *)
+  (* let hes = to_greatest_from_not_recursive rec_preds hes in *)
   (* forall, existential, nu, mu *)
-  let hes = Hflz_manipulate.encode_body_exists coe1 coe2 separate_original_formula_in_exists hes in
   (* forall, nu, mu *)
-  let hes = Hflz_manipulate.elim_mu_with_rec coe1 coe2 hes in 
+  let hes = Hflz_manipulate.elim_mu_with_rec coe1 coe2 hes in
+  let hes = Hflz_manipulate.encode_body_exists coe1 coe2 separate_original_formula_in_exists hes in
+  if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu_exists";
   (* forall, nu *)
   hes
   

@@ -1,0 +1,12 @@
+%HES
+Sentry =ν ∀forall_y298.forall_y298 < 10 || F_0_tt_e forall_y298 0 10.
+G_1_ff_1 rec_G_1_ff_12714 x715 r816 =ν
+      rec_G_1_ff_12714 >= 0
+      && (x715 >= 0 && G_1_ff_1 (rec_G_1_ff_12714 - 1) (x715 - 1) r816 || x715 < 0 && r816 = 5).
+F_0_tt_e rec_F_0_tt_e2817 r518 x619 =ν
+      rec_F_0_tt_e2817 >= 0
+      && (G_1_ff_1 (rec_F_0_tt_e2817 - 1) x619 r518 && (∀forall_y3213.
+              forall_y3213 < 1 * r518 + 10
+              || forall_y3213 < -1 * r518 + 10 || F_0_tt_e forall_y3213 r3311 r518)
+          || F_0_tt_e (rec_F_0_tt_e2817 - 1) (r518 + 1) x619
+            || F_0_tt_e (rec_F_0_tt_e2817 - 1) (r518 - 1) x619).

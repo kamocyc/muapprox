@@ -870,9 +870,7 @@ let print_arg_type (arg_type : Type.simple_ty Type.arg) =
   print_endline ""
 
 let encode_body_exists_formula coe1 coe2 separate_original_formula hes_preds hfl =
-  Log.app begin fun m -> m ~header:"encode_body_exists_formula (ORIGINAL)" "%a"
-    Print.(hflz simple_ty_) hfl
-  end;
+  Log.app begin fun m -> m ~header:"encode_body_exists_formula (ORIGINAL)" "%a" Print.(hflz simple_ty_) hfl end;
   let new_rules = ref [] in
   let rec go hes_preds hfl = match hfl with
     | Var _ -> hfl
@@ -907,12 +905,8 @@ let encode_body_exists_formula coe1 coe2 separate_original_formula hes_preds hfl
     | Arith t -> Arith t
     | Pred (p, t) -> Pred (p, t) in
   let hfl = go hes_preds hfl in
-  Log.app begin fun m -> m ~header:"encode_body_exists_formula" "%a"
-    Print.(hflz simple_ty_) hfl
-  end;
-  Log.app begin fun m -> m ~header:"!new_rules" "%a"
-    Print.(hflz_hes simple_ty_) (!new_rules)
-  end;
+  Log.app begin fun m -> m ~header:"encode_body_exists_formula" "%a" Print.(hflz simple_ty_) hfl end;
+  Log.app begin fun m -> m ~header:"!new_rules" "%a" Print.(hflz_hes simple_ty_) (!new_rules) end;
   hfl, !new_rules
 
 (* hesからexistentailを除去 *)
@@ -926,6 +920,6 @@ let encode_body_exists coe1 coe2 separate_original_formula (hes : Type.simple_ty
     )
   |> List.flatten
   |> (fun hes -> 
-  let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
-  print_endline @@ "Not decomposed HES path (Exists): " ^ path; hes)
+    let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
+    print_endline @@ "Not decomposed HES path (Exists): " ^ path; hes)
   |> decompose_lambdas_hes

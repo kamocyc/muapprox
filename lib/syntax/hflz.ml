@@ -53,13 +53,27 @@ type 'ty t =
   | Arith  of Arith.t
   | Pred   of Formula.pred * Arith.t list
   [@@deriving eq,ord,show,iter,map,fold,sexp]
-
+    
 type 'ty hes_rule =
   { var  : 'ty Id.t
   ; body : 'ty t
   ; fix  : Fixpoint.t
   }
   [@@deriving eq,ord,show,iter,map,fold,sexp]
+
+let ensure_no_mu_exists hes =
+  let rec no_exists = function
+    | Bool _ -> true
+    | Var _  -> true
+    | Or (f1, f2)  -> no_exists f1 && no_exists f2
+    | And (f1, f2) -> no_exists f1 && no_exists f2
+    | Abs (_, f1)  -> no_exists f1
+    | Forall (_, f1) -> no_exists f1
+    | Exists _ -> false
+    | App (f1, f2) -> no_exists f1 && no_exists f2
+    | Arith _ -> true
+    | Pred _ -> true in
+  List.for_all ~f:(fun {body; fix; _} -> fix = Fixpoint.Greatest && no_exists body) hes
 
 let lookup_rule f hes =
   List.find_exn hes ~f:(fun r -> Id.eq r.var f)
