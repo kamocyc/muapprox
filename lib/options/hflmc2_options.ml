@@ -25,25 +25,30 @@ type params =
   { input : string list [@pos 0] [@docv "FILE"]
   
   ; hes : bool [@default false]
+  (** Read hes file format **)
 
   (* Preprocess *)
   ; no_inlining : bool [@default false]
-    (** Disable inlining *)
+  (** Disable inlining *)
 
   ; no_backend_inlining : bool [@default false]
+  (** Disable inlining in a backend solver*)
   
   ; oneshot : bool [@default false]
   
   ; no_approx_mu : bool [@default false]
-  
+  (** Do not perform approximation of mu and exists. This may cause wrong verification result **)
+    
   ; timeout : float [@default 240.0]
+  (** Timeout for a backend solver **)
   
   ; print_for_debug : bool [@default true]
   
   ; no_separate_original_formula_in_exists : bool [@default true]
+  (** If specified, when approximating exists do not create new predicate that reduces the formula size **)
   
   ; solver : string [@default "katsura"]
-  (** Choose background mu-only-CHC solver. Available: iwayama, katsura *)
+  (** Choose background mu-only-CHC solver. Available: katsura, iwayama *)
   }
   [@@deriving cmdliner,show]
 

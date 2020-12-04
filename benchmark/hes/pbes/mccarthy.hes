@@ -1,0 +1,23 @@
+/*
+% This PBES represents the function
+% m(x) = if x > a1 then  x-1  else  m(m(x+2))
+% which has the equivalent definition
+% m(x) = if x > a1 then  x-1  else  a1
+% The PBES variable M(x,y) is true if and only if m(x) = y
+% See Y. Nagae and M. Sakai, “Reduced Dependency Spaces for Existential Parameterised Boolean Equation Systems,” in WPTE 2017, Proceedings (to appear), 2018.
+
+map a1: Real;
+eqn a1 = 10;
+
+pbes
+    mu M(x,y: Real) = 
+        val(x>a1 && y+1 == x) || 
+        (exists e: Real. val(x <= a1) && M(x+2,e) && M(e,y));
+
+init M(0,10);
+*/
+M 0 10
+s.t.
+M (x:int) (y:int):bool =mu
+       (x>10 /\ y+1 = x) \/ 
+        (exists (e: int). (x <= 10 /\ (M (x+2) e) /\ (M e y)));
