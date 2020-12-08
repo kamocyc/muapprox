@@ -1,0 +1,25 @@
+
+(library
+  (name smt)
+  (public_name muapprox.fptprover.smt)
+  (modules Z3interface Extarithmetic Smtlib2)
+  (libraries
+    num
+    util
+    config
+    ast
+    core
+    z3
+    convert
+    fptprover
+  )
+  (synopsis "interface for SMT solvers"))
+
+(test
+  (name test)
+  (modules test)
+  (libraries
+    smt
+    ast
+    oUnit
+  ))

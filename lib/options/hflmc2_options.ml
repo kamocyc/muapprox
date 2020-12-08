@@ -14,6 +14,7 @@ let print_for_debug = ref (Obj.magic())
 let no_backend_inlining = ref (Obj.magic())
 let no_separate_original_formula_in_exists = ref (Obj.magic())
 let solver = ref (Obj.magic())
+let first_order_solver = ref (Obj.magic())
 
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -49,6 +50,9 @@ type params =
   
   ; solver : string [@default "katsura"]
   (** Choose background mu-only-CHC solver. Available: katsura, iwayama *)
+  
+  ; first_order_solver : string [@default ""]
+  (** Solver for solving first-order formulas. If empty (or default), always use solvers for higher-order formulas. Available: fptprover-rec-limit **)
   }
   [@@deriving cmdliner,show]
 
@@ -63,6 +67,7 @@ let set_up_params params =
   set_ref no_separate_original_formula_in_exists params.no_separate_original_formula_in_exists;
   set_ref no_backend_inlining      params.no_inlining_backend;
   set_ref solver                   params.solver;
+  set_ref first_order_solver       params.first_order_solver;
   params.input
 
 (******************************************************************************)

@@ -12,6 +12,7 @@ module IdMap    = IdMap
 module IdSet    = IdSet
 module Trans    = Trans
 module Hflz_conv = Hflz_conv
+module Hflz_convert_rev = Hflz_convert_rev
 
 exception LexingError of string
 exception ParseError of string

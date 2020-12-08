@@ -1,7 +1,9 @@
 (executables
  (names main)
  (modules main)
- (libraries muapprox))
+ (libraries muapprox)
+ (flags (-cclib -lstdc++))
+ (link_flags (-linkall)))
 (install
  (package muapprox)
  (section bin)

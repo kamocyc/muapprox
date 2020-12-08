@@ -1,8 +1,0 @@
-opam-version: "2.0"
-version: "1.0"
-maintainer: "takeshioohashi5@gmail.com"
-authors: ["kamocyc"]
-license: "Apache-2.0"
-build: [
-  ["dune" "build" "-p" name "-j" jobs]
-]

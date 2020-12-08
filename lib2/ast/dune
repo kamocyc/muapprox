@@ -1,0 +1,35 @@
+(library
+  (name ast)
+  (public_name muapprox.fptprover.ast)
+  (modules
+    env
+    hornClause
+    ident
+    logic
+    simpleFormula
+    gather
+    proplogic
+    ehorn
+    LPParser
+    LPLexer
+  )
+  (libraries
+    core
+    bignum
+    util
+  )
+  (preprocess (pps ppx_jane))
+  (synopsis "AST definitions"))
+
+(test
+  (name test)
+  (modules test)
+  (libraries
+    oUnit
+    testutil
+    ast
+  ))
+
+(ocamllex (modules LPLexer))
+(menhir (modules LPParser))
+

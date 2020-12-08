@@ -1,0 +1,23 @@
+(library
+  (name util)
+  (public_name muapprox.fptprover.util)
+  (modules
+    util
+    ordinal
+    graph
+  )
+  (libraries
+    unix
+    core
+  )
+  (synopsis "utility definitions"))
+
+(test
+  (name test)
+  (modules test)
+  (libraries
+    oUnit
+    testutil
+    util
+    graph
+  ))

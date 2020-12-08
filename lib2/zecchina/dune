@@ -1,0 +1,8 @@
+(library
+ (name zecchina)
+ (public_name muapprox.fptprover.zecchina)
+ (modules SAT)
+ (libraries muapprox.fptprover.ast muapprox.fptprover.smt)
+ (c_names sp formula random queue)
+ (c_flags (-Wall -Winline -O3 -DQUEUE))
+ (synopsis "Zecchina's SP implementation"))

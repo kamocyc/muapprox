@@ -1,0 +1,16 @@
+
+(library
+  (name sygus)
+  (public_name muapprox.fptprover.sygus)
+  (modules SygusInvParser)
+  (libraries
+    num
+    util
+    config
+    ast
+    core
+    z3
+    convert
+    fptprover
+  )
+  (synopsis "interface for SyGuS-IF"))

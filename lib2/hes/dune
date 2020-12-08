@@ -1,0 +1,31 @@
+(menhir
+  (modules hesParsing)
+)
+(ocamllex
+  (modules hesLexer)
+)
+(library
+  (name hes)
+  (public_name muapprox.fptprover.hes)
+  (modules
+    hesLogic
+    hesParser
+    hesParsing
+    hesLexer
+  )
+  (libraries
+    core
+    ast
+  )
+  (synopsis "definitions of hes"))
+
+(test
+  (name test)
+  (modules test)
+  (libraries
+    oUnit
+    testutil
+    ast
+    hes
+    core
+  ))

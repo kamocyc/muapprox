@@ -1,0 +1,20 @@
+(library
+  (name optimize)
+  (public_name muapprox.fptprover.optimize)
+  (modules
+     formulaOptimizer
+     hesOptimizer
+   )
+  (libraries
+     core
+     ast
+     util
+     hes
+     fptprover
+     config
+     algorithm
+     z3
+     smt
+     convert
+  )
+  (synopsis "optimization of formulas"))

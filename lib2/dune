@@ -1,0 +1,11 @@
+
+(library
+  (name fptprover)
+  (public_name muapprox.fptprover)
+  (libraries
+    config
+    str
+  )
+  (library_flags (-cclib -lstdc++))
+  (synopsis "core of fptprover"))
+

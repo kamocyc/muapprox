@@ -1,0 +1,12 @@
+(library
+ (name muapprox_prover)
+ (public_name muapprox.muapprox_prover)
+ (libraries
+   hflmc2_syntax
+   muapprox.fptprover.ast
+   muapprox.fptprover.hes
+   muapprox.fptprover.rfunprover
+   muapprox.manipulate
+   str)
+ (preprocess (pps ppx_deriving.std ppx_compare ppx_sexp_conv)))
+(env (dev (flags (:standard -warn-error -A -w -3-26-27-33))))

@@ -1,0 +1,22 @@
+(library
+  (name algorithm)
+  (public_name muapprox.fptprover.algorithm)
+  (modules
+    unionFind
+    maxFlow
+  )
+  (libraries
+    unix
+    util
+  )
+  (synopsis "data structures"))
+
+(test
+  (name test)
+  (modules test)
+  (libraries
+    oUnit
+    testutil
+    util
+    algorithm
+  ))

@@ -8,8 +8,6 @@
  (public_name hflmc2_syntax)
  (inline_tests)
  (libraries
-   muapprox.ast
-   muapprox.hes
    hflmc2_util
    menhirLib)
  (preprocess (pps ppx_deriving.std ppx_compare ppx_sexp_conv ppx_inline_test ppx_expect)))

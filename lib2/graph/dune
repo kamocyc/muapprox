@@ -1,0 +1,7 @@
+(library
+  (name graph)
+  (public_name muapprox.fptprover.graph)
+  (modules
+    graph
+  )
+  (synopsis "graph"))

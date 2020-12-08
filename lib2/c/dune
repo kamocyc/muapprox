@@ -1,0 +1,52 @@
+(menhir
+  (modules
+    cCtlParser
+    cLtlParser
+    baParsing
+  )
+  (flags ("--explain" "--dump"))
+)
+(ocamllex
+  (modules
+    cCtlLexer
+    cLtlLexer
+    baLexer
+  )
+)
+(library
+  (name c)
+  (public_name muapprox.fptprover.c)
+  (modules
+    parser
+    cSyntax
+    cCtlParser
+    cCtlLexer
+    cLtlParser
+    cLtlLexer
+    baParsing
+    baLexer
+    baParser
+    logicConverter
+    hesOf
+    linked
+    variables
+    optimizer
+  )
+  (libraries
+    core
+    ast
+    hes
+    convert
+  )
+  (synopsis "loader for ctl written in C language"))
+
+(test
+  (name test)
+  (modules test)
+  (libraries
+    oUnit
+    testutil
+    ast
+    hes
+    core
+  ))

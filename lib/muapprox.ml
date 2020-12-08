@@ -36,13 +36,13 @@ let report_times () =
         in Print.pr "%s %f sec@." s v
       end
 
-let show_result = Hflmc2_muapprox.Status.string_of
+let show_result = Muapprox_prover.Status.string_of
 
 let parse file =
   if !Options.hes then (
     let psi =
     match Hes.HesParser.from_file file with
-    | Ok hes -> Hflmc2_syntax.Hflz_conv.of_hes hes
+    | Ok hes -> Muapprox_prover.Hflz_convert.of_hes hes
     | Error _ -> failwith "hes_parser" in
     Log.app begin fun m -> m ~header:"hes Input" "%a" Print.(hflz_hes simple_ty_) psi end;
     psi  
@@ -53,14 +53,15 @@ let parse file =
   )
 
 let get_solve_options () =
-  let open Hflmc2_muapprox.Solve_options in
+  let open Muapprox_prover.Solve_options in
   {
     no_backend_inlining = !Options.no_backend_inlining;
     timeout = !Options.timeout;
     print_for_debug = !Options.print_for_debug;
     oneshot = !Options.oneshot;
     separate_original_formula_in_exists = not !Options.no_separate_original_formula_in_exists;
-    solver = get_solver !Options.solver
+    solver = get_solver !Options.solver;
+    first_order_solver = get_first_order_solver !Options.first_order_solver
   }
   
 let main file =
@@ -73,7 +74,7 @@ let main file =
   let psi = Syntax.Trans.Simplify.hflz_hes psi inlining in
   Log.app begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
   (* TODO: *)
-  let s1, _ = Hflmc2_muapprox.check_validity coe1 coe2 solve_options psi in
+  let s1, _ = Muapprox_prover.check_validity coe1 coe2 solve_options psi in
   s1
   (* TODO: topのpredicate variableの扱い？ *)
   (* let psi, top = Syntax.Trans.Preprocess.main psi in
