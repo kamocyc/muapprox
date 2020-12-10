@@ -169,7 +169,7 @@ let fvs_with_type : 'ty t -> 'ty Type.arg Id.t list = fun hes ->
     | Exists(x, phi) -> List'.filter (fun t -> not @@ Id.eq t x) @@ go phi
     | Arith a        -> List'.map (fun id -> {id with Id.ty = Type.TyInt}) @@ Arith.fvs a
     | Pred (_, as')   -> as' |> List'.map (fun a -> Arith.fvs a |> List'.map (fun id -> {id with Id.ty = Type.TyInt})) |> List'.flatten in
-  go hes |> Hflmc2_util.remove_duplicates (fun e x -> Id.eq e x)
+  go hes |> Hflmc2_util.remove_duplicates (fun e x -> Id.eq e x) |> List.sort ~compare:(fun a b -> Int.compare a.id b.id)
 
 (* 全体を一度にnegateすると単純なやり方でよい。 *)
 (* 追加すると非常に面倒。しかし、froallは必ず処理が必要。追加しないということはできない *)

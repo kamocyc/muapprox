@@ -10,6 +10,14 @@ let simple_ty_ = simple_ty_
 let simple_ty = simple_ty
 (* Hflz *)
 
+let print_arg_type (arg_type : Hflmc2_syntax.Type.simple_ty Hflmc2_syntax.Type.arg) = 
+  let go arg_type = match arg_type with
+    | Hflmc2_syntax.Type.TyInt -> print_string "int"
+    | Hflmc2_syntax.Type.TySigma ty -> simple_ty Format.std_formatter (ty);
+  in
+  go arg_type;
+  print_endline ""
+  
 let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
   fun format_ty_ prec ppf (phi : 'ty Hflz.t) -> match phi with
     | Bool true -> Fmt.string ppf "true"

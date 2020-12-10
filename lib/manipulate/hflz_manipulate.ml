@@ -151,36 +151,28 @@ let%expect_test "to_vars" =
           (Hflz.Arith (Arith.Var { Id.name = "x_2"; id = 2; ty = `Int })))),
        (Hflz.Var { Id.name = "x_3"; id = 3; ty = (Type.TyBool ()) }))) |}] 
      
-(* A, B *)
-(* 任意の組 *)
-let make_bounds (coe1 : int) (coe2 : int) vars =
-  let rec go (vars : [`Int] Id.t list) : Arith.t list list  = match vars with 
-    | var::vars -> begin
-      let results = go vars in
-      let r1 = List.map (fun r -> (Arith.Op (Mult, [Int coe1; Var var])::r)) results in
-      let r2 = List.map (fun r -> (Arith.Op (Mult, [Int (-coe1); Var var])::r)) results in
-      r1 @ r2
-    end
-    | [] -> [[Arith.Int coe2]] in
-  let join_with terms op = match terms with
-    | [] -> failwith "join_with"
-    | x::xs -> begin
-      List.fold_left (fun acc f -> Arith.Op (op, [acc; f])) x xs
-    end in
-  let terms = go vars in
-  List.map (fun term -> join_with term Arith.Add) terms
+let make_guessed_terms (coe1 : int) (coe2 : int) vars =
+  let mk_affine term coe1 coe2 = Arith.Op (Arith.Add, [Arith.Op (Mult, [Int coe1; term]); Int coe2]) in
+  match vars |>
+    List.map (fun var -> mk_affine (Var var) coe1 coe2 :: [mk_affine (Var var) (-coe1) coe2]) |>
+    List.flatten with
+  | [] -> [Arith.Int coe2]
+  | vars -> vars
 
-let%expect_test "make_bounds" =
-  let open Type in
-  let res = make_bounds 1 10 [id_n 1 `Int; id_n 2 `Int] in
+let%expect_test "make_guessed_terms" =
+  let res = make_guessed_terms 2 10 [id_n 1 `Int; id_n 2 `Int] in
   ignore [%expect.output];
   Util.print_list (fun r -> show_hflz (Arith r)) res;
   [%expect {|
-    [ 1 * x_11 + 1 * x_22 + 10;
-    1 * x_11 + -1 * x_22 + 10;
-    -1 * x_11 + 1 * x_22 + 10;
-    -1 * x_11 + -1 * x_22 + 10 ] |}] 
-       
+    [ 2 * x_11 + 10;
+    -2 * x_11 + 10;
+    2 * x_22 + 10;
+    -2 * x_22 + 10 ] |}];
+  let res = make_guessed_terms 2 10 [] in
+  ignore [%expect.output];
+  Util.print_list (fun r -> show_hflz (Arith r)) res;
+  [%expect {|[ 10 ]|}]
+     
 let formula_fold func terms = match terms with
     | [] -> failwith "[formula_fold] Number of elements should not be zero."
     | term::terms -> begin
@@ -241,8 +233,8 @@ let replace_caller_sub coe1 coe2 env id id' =
   (* negativeにしているので注意 *)
   let approx_formula =
     let bound_int_vars = filter_int_variable env in
-    let bounds = make_bounds coe1 coe2 bound_int_vars in
-    make_approx_formula new_rec_var_f bounds in
+    let guessed_terms = make_guessed_terms coe1 coe2 bound_int_vars in
+    make_approx_formula new_rec_var_f guessed_terms in
   let abs = to_abs (List.rev @@ to_args id'.Id.ty) in
   let vars = to_vars (rev_abs (abs @@ (* Dummy *) Bool true)) in
   Forall (new_rec_var, abs @@ Or (approx_formula, vars @@ App (Var id, Arith (Var new_rec_var_f))))
@@ -267,10 +259,9 @@ let%expect_test "replace_caller_sub" =
     ∀forall_y3.
      λx_134:bool.
       λx_145:(int -> bool).
-       forall_y3 < 1 * x_11 + 1 * x_55 + 10
-       || forall_y3 < 1 * x_11 + -1 * x_55 + 10
-       || forall_y3 < -1 * x_11 + 1 * x_55 + 10
-       || forall_y3 < -1 * x_11 + -1 * x_55 + 10
+       forall_y3 < 1 * x_11 + 10 || forall_y3 < -1 * x_11 + 10
+       || forall_y3 < 1 * x_55 + 10
+       || forall_y3 < -1 * x_55 + 10
        || (x_1111 :int -> bool -> (int -> bool) -> bool) forall_y3 (x_134 :bool)
            (x_145 :int -> bool) |}]
 
@@ -314,19 +305,16 @@ let to_arrow_type ?base:(base=Type.TyBool ()) args  =
     end
     | [] -> acc in
   go base (List.rev args)
-  
+
+let arg_id_to_var (x : 'ty Type.arg Id.t) = 
+  match x.Id.ty with
+  | Type.TySigma t -> Var {x with ty=t}
+  | Type.TyInt -> Arith (Var {x with ty=`Int})
+
  (* : Type.simple_ty Type.arg Id.t list -> Type.simple_ty *)
 let args_ids_to_apps (ids : 'ty Type.arg Id.t list) : ('ty Hflz.t -> 'ty Hflz.t) = fun body ->
   let rec go ids = match ids with
-    | x::xs -> begin
-      match x.Id.ty with
-      | Type.TySigma t -> begin
-        App (go xs, Var {x with ty=t})
-      end
-      | Type.TyInt -> begin
-        App (go xs, Arith (Var {x with ty=`Int}))
-      end
-    end
+    | x::xs -> App (go xs, arg_id_to_var x)
     | [] -> body in
   go @@ List.rev ids
 
@@ -662,241 +650,288 @@ let subst_arith_var replaced formula =
   
 let var_as_arith v = {v with Id.ty=`Int}
 
-(* Topがexistentialのものを変換する *)
-(* 特に変換の条件について、前提は無いはず *)
-(* NOTE: 中から処理しないと、倍々に式が増幅される？。 *)
-(* 式の内部に含まれているexistentialをforallを使った形に直す。lambdaはそのまま残る *)
-let encode_body_exists_formula_sub coe1 coe2 separate_original_formula hes_preds original_formula =
-  match original_formula with
-  | Hflz.Exists (fa_var, original_formula) -> begin
-    (* 展開回数のための変数yは、existsされている変数をそのまま利用する。 *)
-    (* existsの中の型を取得し、引数を作る *)
-    let formula_type = Hflz.get_hflz_type original_formula in
-    print_endline @@ Util.fmt_string Print.simple_ty formula_type;
-    let abs' = to_abs @@ to_args @@ formula_type  in
-    let vars = to_vars (abs' @@ Bool true) in
-    (* TODO: forallの変数をどうするか確認 *)
-    (* TODO: 高階変数を確認 *)
-    (* 定数項があるので、 filter_int_variable した後の数は1以上であること は保証される *)
-    let free_vars =
-      Hflz.fvs_with_type original_formula 
-      |> Id.remove_vars (fa_var::hes_preds) in
-    print_string "freevars: "; List.iter (fun v -> print_string v.Id.name; print_int v.Id.id; print_string ";") free_vars; print_endline "";
-    let approx_formula =
-      free_vars
-      |> filter_int_variable 
-      |> make_bounds coe1 coe2
-      |> make_approx_formula @@ var_as_arith fa_var in
-    (* y(rec-limit) -> w~(free) -> x~(higher-type) *)
-    let fa_pred_type = Type.TyArrow (fa_var, to_arrow_type ~base:(formula_type) free_vars) in
-    let fa_pred = Id.gen ~name:("P" ^ (string_of_int @@ Id.gen_id ())) @@ fa_pred_type in
-    (* Forall y. \x~. (y < a'\/...) \/ P y w~ x~*)
-    let replaced_formula =
-      Forall (
-        fa_var,
-        (* このabs *)
-        rev_abs (abs' @@ Or (
-          approx_formula,
-          vars @@
-          args_ids_to_apps free_vars @@
-          App (Var fa_pred, Arith (Var (var_as_arith fa_var)))
-        ))
-      ) in
-    (*y(rec-limit)を-yに置換した式  *)
-    let pos_formula, neg_formula, new_sub_rule =
-      if separate_original_formula then (
-        (* さらに述語を分ける *)
-        let new_sub_pred = Id.gen ~name:("Psub" ^ (string_of_int @@ Id.gen_id ())) @@ fa_pred_type in
-        args_ids_to_apps free_vars @@ App (Var new_sub_pred, Arith (Var (var_as_arith fa_var))),
-        args_ids_to_apps free_vars @@
-          App ( Var new_sub_pred, Arith (Op (Sub, [Int 0; Var (var_as_arith fa_var)]))),
-        Some ({
-          var  = new_sub_pred;
-          fix  = Fixpoint.Greatest;
-          body = Abs (fa_var, to_abs' free_vars @@ rev_abs (abs' @@ vars @@ original_formula))
-        })
-      ) else (
-        let subst_body =
-          subst_arith_var
-            (fun vid -> if vid = var_as_arith fa_var then (Arith.Op (Sub, [Int 0; Var (var_as_arith fa_var)])) else Var vid)
-            original_formula in
-        original_formula, subst_body, None
-      ) in
-    let body =
-      (* \y. \w~. \x~. y>=0 /\ (\phi x~ \/ \phi' x~ \/ P (y-1) w~ x~) *)
-      (* ここ。 *)
-      Abs(fa_var, to_abs' free_vars @@ rev_abs (abs' @@ 
+let rec to_tree seq f b = match seq with
+  | [] -> b
+  | x::xs -> f x (to_tree xs f b)
+  
+(* let () =
+  let open Type in
+  let rec go vars = match vars with
+    | [] -> TyBool ()
+    | x::xs -> TyArrow (x, go xs) in
+  rep  *)
+  
+(* 高階だからちょっと変わる *)
+let encode_body_exists_formula_sub coe1 coe2 separate_original_formula hes_preds hfl = 
+  let open Type in
+  if separate_original_formula then failwith "encode_body_exists_formula_sub: not implemented";
+  (* let formula_type_abs = formula_type |> to_args |> to_abs in *)
+  let formula_type_vars = Hflz.get_hflz_type hfl |> to_args |> List.rev in
+  (* print_endline @@ Util.fmt_string Print.simple_ty formula_type; *)
+  (* get free variables *)
+  let free_vars =
+    Hflz.fvs_with_type hfl
+    |> Id.remove_vars hes_preds in
+  let bound_vars, hfl =
+      (* sequence of existentially bound variables *)
+    let rec go acc hfl = match hfl with
+      | Exists (x, hfl) -> go (x::acc) hfl
+      | _ -> (acc, hfl) in
+    let (bound_vars, hfl) = go [] hfl in
+    (* ensure all variables are integer type (or not used) *)
+    bound_vars |>
+    List.sort (fun a b -> Int.compare a.Id.id b.Id.id) |>
+    List.filter_map (fun var -> 
+      match var.Id.ty with
+      | TyInt ->
+        (* Some (Id.gen ~name:("exi_" ^ var.name) TyInt) *)
+        Some var
+      | TySigma _ -> begin
+        if (Hflz.fvs_with_type hfl
+          |> List.exists (fun fv -> Id.eq fv var))
+          then failwith "encode_body_exists_formula_sub: higher-order bound variable is not supported";
+        (* when variable is not used *)
+        None
+      end
+    ), hfl in
+  let arg_vars = free_vars @ formula_type_vars @ bound_vars  in
+  (* let bound_vars_argty = bound_vars |> List.map (fun v -> { v with Id.ty=TyInt}) in *)
+  let new_pvar =
+    let i = Id.gen_id() in
+    let ty =
+      (* TODO: higher-order vars *)
+      to_tree
+        arg_vars
+        (fun x rem -> TyArrow (x, rem))
+        (TyBool ())  in
+    { Id.name = "Exists" ^ string_of_int i; ty = ty; id = i } in
+  let body =
+    let guessed_terms = make_guessed_terms coe1 coe2 (free_vars |> filter_int_variable) in
+    let approx_formulas = bound_vars |> List.map (fun bound_var -> make_approx_formula ({bound_var with ty=`Int}) guessed_terms) in
+    to_tree
+      bound_vars
+      (fun x rem -> Forall (x, rem)) @@
+      rev_abs (
+        (formula_type_vars |> List.rev |> to_abs') @@
+        Or (
+          formula_fold (fun acc f -> Or(acc, f)) approx_formulas,
+          args_ids_to_apps arg_vars @@ (Var new_pvar)
+          )) in
+    body,
+    [{ 
+      Hflz.var = new_pvar;
+      fix = Fixpoint.Greatest;
+      body =
+        (arg_vars |> to_abs') @@
         And (
-          Pred (Ge, [Var (var_as_arith fa_var); Int 0]),
-          Or (
-            vars @@ pos_formula,
-            Or(
-              vars @@ neg_formula,
-              vars @@ 
-              args_ids_to_apps free_vars @@
-              App (
-                Var fa_pred,
-                Arith (Op (Sub, [Var (var_as_arith fa_var); Int 1]))
-              )
-            )
-          )
-        ))
-      ) in
-    let new_rules = { var=fa_pred; fix=Fixpoint.Greatest; body=body }::(match new_sub_rule with None -> [] | Some r -> [r]) in
-    Log.app begin fun m -> m ~header:"encode_body_exists_formula_sub replaced_formula" "%a" Print.(hflz simple_ty_) replaced_formula end;
-    print_endline "encode_body_exists_formula_sub new_rule";
-    Util.print_list (Util.fmt_string Print.(hflz_hes_rule simple_ty_)) new_rules;
-    replaced_formula, new_rules
-  end
-  | _ -> failwith "illegal"
+          bound_vars
+          |> List.map (fun var -> Pred (Ge, [Var {var with ty=`Int}; Int 0]))
+          |> formula_fold (fun acc f -> And (acc, f)),
+          (* substitute rec vars to negative *)
+          (* NOTE: exponential grow-up *)
+          let rec go acc vars = match vars with
+            | [] -> acc
+            | x::xs ->
+              go (acc |>
+                  List.map (fun hfl -> 
+                    hfl::[
+                      subst_arith_var
+                        (fun vid -> if Id.eq vid x then (Arith.Op (Sub, [Int 0; Var {x with ty=`Int}])) else Var vid) hfl]) |>
+                  List.flatten)
+                  xs in
+          let terms1 =
+            (go [hfl] bound_vars)
+            |> List.map (fun f -> args_ids_to_apps formula_type_vars f) in
+          let terms2 = 
+            bound_vars |>
+            List.map (fun var ->
+              arg_vars
+              |> List.map (fun v -> if Id.eq v var then Arith (Op (Sub, [Var {v with ty=`Int}; Int 1])) else arg_id_to_var v)
+              |> List.fold_left
+                (fun acc t -> App (acc, t))
+                (Var new_pvar)
+              ) in
+          (terms1 @ terms2) |> formula_fold (fun acc f -> Or (acc, f))
+        )
+    }]    
 
 let%expect_test "encode_body_exists_formula_sub" =
   let open Type in
-  let open Arith in
-  let p = id_n 10 (TySigma (TyArrow (id_n 11 TyInt, TyBool ()))) in
+  let p = id_n 10 (TySigma (TyArrow (id_n 12 TyInt, (TyArrow (id_n 11 TyInt, TyBool ()))))) in
+  (* 高階変数の扱い *)
+  (* その時点で使える自由変数ということは、直前のラムダ抽象も含まれる？ => いや、そこは使わない。あくまで式の中の型を取得するだけなので、別。free var のみを使用 *)
+  (* ∃x_100.∃x_300.λx_1:int.λx_2:(int -> bool).(x_10 :int -> int -> bool) (x_1 + x_3) x_300 && (x_2:int -> bool) x_5 && (x_4:int -> bool) x_100 *)
+  (* other predicates = x10 : int -> bool *)
+  (* arguments in the term's type = x1 : int, x2 : int -> bool *)
+  (* free variables = x3 : int, x4 : int -> bool, x5 : int *)
+  let org_formula =
+    Exists (id_n 100 TyInt, Exists (id_n 300 TyInt, Abs (id_n 1 TyInt, Abs (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))),
+      And (
+        App (App (Var { p with ty = unsafe_unlift p.ty }, 
+          Arith (Op (Add, [Var (id_n 1 `Int); Var (id_n 3 `Int)]))), Arith (Var (id_n 300 `Int))),
+        And (App (Var (id_n 2 (TyArrow (id_n 31 TyInt, TyBool ()))), Arith (Var (id_n 5 `Int))),
+          App (Var (id_n 4 (TyArrow (id_n 32 TyInt, TyBool ()))), Arith (Var (id_n 100 `Int)))))
+      )))) in
+  print_endline @@ "original: " ^ show_hflz org_formula;
+  [%expect {|
+    original: ∃x_100100.
+     ∃x_300300.
+      λx_11:int.
+       λx_22:(int -> bool).
+        (x_1010 :int -> int -> bool) (x_11 + x_33) x_300300
+        && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100 |}];
   let (replaced, rules) =
-    (*  *)
     encode_body_exists_formula_sub
       1
       10
       false
       [p]
-      (* 高階変数の扱い *)
-      (* その時点で使える自由変数ということは、直前のラムダ抽象も含まれる？ => いや、そこは使わない。あくまで式の中の型を取得するだけなので、別。free var のみを使用 *)
-      (* "∃x100. \x1:int. \x2:(int->bool). x10:(int->bool) (x1 + x3) /\ x2:(int->bool) x5 /\ x4:(int->bool) x100 " *)
-      (* other predicates = x10 : int -> bool *)
-      (* arguments in the term's type = x1 : int, x2 : int -> bool *)
-      (* free variables = x3 : int, x4 : int -> bool, x5 : int *)
-      (Exists (id_n 100 TyInt, Abs (id_n 1 TyInt, Abs (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))),
-        And (
-          App (Var { p with ty = unsafe_unlift p.ty }, 
-            Arith (Op (Add, [Var (id_n 1 `Int); Var (id_n 3 `Int)]))),
-          And (App (Var (id_n 2 (TyArrow (id_n 31 TyInt, TyBool ()))), Arith (Var (id_n 5 `Int))),
-            App (Var (id_n 4 (TyArrow (id_n 32 TyInt, TyBool ()))), Arith (Var (id_n 100 `Int)))))
-        ))))
-       in
+      org_formula
+    in
   ignore [%expect.output];
   print_endline @@ string_of_int @@ List.length rules;
   let rule = List.nth rules 0 in
   print_endline @@ "replaced: " ^ show_hflz replaced;
+  [%expect {|
+    1
+    replaced: ∀x_100100.
+     ∀x_300300.
+      λx_11:int.
+       λx_22:(int -> bool).
+        x_100100 < 1 * x_33 + 10 || x_100100 < -1 * x_33 + 10
+        || x_100100 < 1 * x_55 + 10
+        || x_100100 < -1 * x_55 + 10
+        || x_300300 < 1 * x_33 + 10 || x_300300 < -1 * x_33 + 10
+           || x_300300 < 1 * x_55 + 10
+           || x_300300 < -1 * x_55 + 10
+        || (Exists8 :int ->
+                      (int -> bool) ->
+                       int -> int -> (int -> bool) -> int -> int -> bool)
+            x_33 (x_44 :int -> bool) x_55 x_11 (x_22 :int -> bool) x_100100
+            x_300300 |}];
   print_endline @@ "fix: " ^ Fixpoint.show rule.fix;
   print_endline @@ "var: " ^ Id.show pp_simple_ty rule.var;
   print_endline @@ "rule: " ^ show_hflz rule.body;
   [%expect {|
-    1
-    replaced: ∀x_100100.
-     λx_19:int.
-      λx_28:(int -> bool).
-       x_100100 < 1 * x_33 + 1 * x_55 + 10
-       || x_100100 < 1 * x_33 + -1 * x_55 + 10
-       || x_100100 < -1 * x_33 + 1 * x_55 + 10
-       || x_100100 < -1 * x_33 + -1 * x_55 + 10
-       || (P10 :int ->
-                 int -> int -> (int -> bool) -> int -> (int -> bool) -> bool)
-           x_100100 x_33 x_55 (x_44 :int -> bool) x_19 (x_28 :int -> bool)
     fix: Fixpoint.Greatest
-    var: { Id.name = "P10"; id = 11;
+    var: { Id.name = "Exists8"; id = 8;
       ty =
-      (Type.TyArrow ({ Id.name = "x_100"; id = 100; ty = Type.TyInt },
-         (Type.TyArrow ({ Id.name = "x_3"; id = 3; ty = Type.TyInt },
+      (Type.TyArrow ({ Id.name = "x_3"; id = 3; ty = Type.TyInt },
+         (Type.TyArrow (
+            { Id.name = "x_4"; id = 4;
+              ty =
+              (Type.TySigma
+                 (Type.TyArrow ({ Id.name = "x_32"; id = 32; ty = Type.TyInt },
+                    (Type.TyBool ()))))
+              },
             (Type.TyArrow ({ Id.name = "x_5"; id = 5; ty = Type.TyInt },
-               (Type.TyArrow (
-                  { Id.name = "x_4"; id = 4;
-                    ty =
-                    (Type.TySigma
-                       (Type.TyArrow (
-                          { Id.name = "x_32"; id = 32; ty = Type.TyInt },
-                          (Type.TyBool ()))))
-                    },
-                  (Type.TyArrow ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
+               (Type.TyArrow ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
+                  (Type.TyArrow (
+                     { Id.name = "x_2"; id = 2;
+                       ty =
+                       (Type.TySigma
+                          (Type.TyArrow (
+                             { Id.name = "x_31"; id = 31; ty = Type.TyInt },
+                             (Type.TyBool ()))))
+                       },
                      (Type.TyArrow (
-                        { Id.name = "x_2"; id = 2;
-                          ty =
-                          (Type.TySigma
-                             (Type.TyArrow (
-                                { Id.name = "x_31"; id = 31; ty = Type.TyInt },
-                                (Type.TyBool ()))))
-                          },
-                        (Type.TyBool ())))
+                        { Id.name = "x_100"; id = 100; ty = Type.TyInt },
+                        (Type.TyArrow (
+                           { Id.name = "x_300"; id = 300; ty = Type.TyInt },
+                           (Type.TyBool ())))
+                        ))
                      ))
                   ))
                ))
             ))
          ))
       }
-    rule: λx_100100:int.
-     λx_33:int.
+    rule: λx_33:int.
+     λx_44:(int -> bool).
       λx_55:int.
-       λx_44:(int -> bool).
-        λx_19:int.
-         λx_28:(int -> bool).
-          x_100100 >= 0
-          && ((λx_11:int.
-                λx_22:(int -> bool).
-                 (x_1010 :int -> bool) (x_11 + x_33)
-                 && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100)
-               x_19 (x_28 :int -> bool)
-              || (λx_11:int.
-                   λx_22:(int -> bool).
-                    (x_1010 :int -> bool) (x_11 + x_33)
-                    && (x_22 :int -> bool) x_55
-                       && (x_44 :int -> bool) (-x_100100))
-                  x_19 (x_28 :int -> bool)
-                 || (P10 :int ->
-                           int ->
-                            int -> (int -> bool) -> int -> (int -> bool) -> bool)
-                     (x_100100 - 1) x_33 x_55 (x_44 :int -> bool) x_19
-                     (x_28 :int -> bool)) |}];
+       λx_11:int.
+        λx_22:(int -> bool).
+         λx_100100:int.
+          λx_300300:int.
+           x_100100 >= 0 && x_300300 >= 0
+           && ((λx_11:int.
+                 λx_22:(int -> bool).
+                  (x_1010 :int -> int -> bool) (x_11 + x_33) x_300300
+                  && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100)
+                x_11 (x_22 :int -> bool)
+               || (λx_11:int.
+                    λx_22:(int -> bool).
+                     (x_1010 :int -> int -> bool) (x_11 + x_33) (-x_300300)
+                     && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100)
+                   x_11 (x_22 :int -> bool)
+               || (λx_11:int.
+                    λx_22:(int -> bool).
+                     (x_1010 :int -> int -> bool) (x_11 + x_33) x_300300
+                     && (x_22 :int -> bool) x_55
+                        && (x_44 :int -> bool) (-x_100100))
+                   x_11 (x_22 :int -> bool)
+               || (λx_11:int.
+                    λx_22:(int -> bool).
+                     (x_1010 :int -> int -> bool) (x_11 + x_33) (-x_300300)
+                     && (x_22 :int -> bool) x_55
+                        && (x_44 :int -> bool) (-x_100100))
+                   x_11 (x_22 :int -> bool)
+               || (Exists8 :int ->
+                             (int -> bool) ->
+                              int -> int -> (int -> bool) -> int -> int -> bool)
+                   x_33 (x_44 :int -> bool) x_55 x_11 (x_22 :int -> bool)
+                   (x_100100 - 1) x_300300
+               || (Exists8 :int ->
+                             (int -> bool) ->
+                              int -> int -> (int -> bool) -> int -> int -> bool)
+                   x_33 (x_44 :int -> bool) x_55 x_11 (x_22 :int -> bool)
+                   x_100100 (x_300300 - 1)) |}];
+  (* check well-typedness *)
   let hes = [
-    { var = id_n 200 (TyArrow (id_n 3 TyInt, TyArrow (id_n 4 @@ TySigma (TyArrow (id_n 32 TyInt, TyBool ())),
-    TyArrow (id_n 5 TyInt, TyArrow (id_n 1 TyInt, (TyArrow (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))), TyBool ())))))));
-    fix = Fixpoint.Greatest;
-    body = Abs (id_n 3 TyInt, Abs (id_n 4 (TySigma (TyArrow (id_n 32 TyInt, TyBool ()))), Abs (id_n 5 TyInt, replaced))) };
-    { var = { p with ty = unsafe_unlift p.ty}; body = Abs (id_n 11 TyInt, Bool true); fix = Fixpoint.Greatest };
+    {
+      var = id_n 200 (TyArrow (id_n 3 TyInt, TyArrow (id_n 4 @@ TySigma (TyArrow (id_n 32 TyInt, TyBool ())),
+        TyArrow (id_n 5 TyInt, TyArrow (id_n 1 TyInt, (TyArrow (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))), TyBool ())))))));
+      fix = Fixpoint.Greatest;
+      body = Abs (id_n 3 TyInt, Abs (id_n 4 (TySigma (TyArrow (id_n 32 TyInt, TyBool ()))), Abs (id_n 5 TyInt, replaced))) };
+    {
+      var = { p with ty = unsafe_unlift p.ty};
+      body = Abs (id_n 12 TyInt, Abs (id_n 11 TyInt, Bool true));
+      fix = Fixpoint.Greatest };
     rule ] in
   let hes = decompose_lambdas_hes hes in
   type_check hes;
   ignore [%expect.output];
   print_endline "OK";
   [%expect {|OK|}]
-    
-      
-let print_arg_type (arg_type : Type.simple_ty Type.arg) = 
-  let go arg_type = match arg_type with
-    | Type.TyInt -> print_string "int"
-    | Type.TySigma ty -> Print.simple_ty Format.std_formatter (ty);
-  in
-  go arg_type;
-  print_endline ""
 
-let encode_body_exists_formula coe1 coe2 separate_original_formula hes_preds hfl =
+let encode_body_exists_formula coe1 coe2 (separate_original_formula : bool) hes_preds hfl =
   Log.app begin fun m -> m ~header:"encode_body_exists_formula (ORIGINAL)" "%a" Print.(hflz simple_ty_) hfl end;
   let new_rules = ref [] in
   let rec go hes_preds hfl = match hfl with
-    | Var _ -> hfl
-    | Bool _ -> hfl
+    | Var _ | Bool _ -> hfl
     | Or (f1, f2)  -> Or  (go hes_preds f1, go hes_preds f2)
     | And (f1, f2) -> And (go hes_preds f1, go hes_preds f2)
     | Abs (v, f1)  -> Abs (v, go hes_preds f1)
     | Forall (v, f1) -> Forall (v, go hes_preds f1)
     | Exists (v, f1) -> begin
       if v.ty <> Type.TyInt then (
+        (* boundされている変数の型が整数以外 *)
         match IdSet.find (fvs f1) ~f:(fun i -> Id.eq i v) with
         | None ->
-          (* vは中に現れないので無視 *)
+          (* boundされている変数が使用されない、つまり無駄なboundなので無視 *)
           go hes_preds f1
         | Some x -> failwith "quantifiers for higher-order variables are not implemented"
       ) else (
         print_endline "encode_body_exists_formula";
         print_endline @@ "var=" ^ v.name;
-        print_arg_type v.ty;
+        Print_syntax.print_arg_type v.ty;
         (* let f1 = go ((v)::env) f1 in *)
         let hfl, rules = encode_body_exists_formula_sub coe1 coe2 separate_original_formula hes_preds hfl in
         let new_rule_vars = List.map (fun rule -> { rule.var with ty = Type.TySigma rule.var.ty }) rules in
         let rules = List.map (fun rule -> { rule with body = go (new_rule_vars @ hes_preds) rule.body } ) rules in
         print_endline "HFLLL";
         print_endline @@ Util.fmt_string (Print.hflz Print.simple_ty_) hfl;
-        print_arg_type v.ty;
+        Print_syntax.print_arg_type v.ty;
         new_rules := rules @ !new_rules;
         hfl
       )

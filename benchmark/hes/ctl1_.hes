@@ -1,0 +1,6 @@
+/* なぜかSAS19のoptimizeでエラーが出る */
+
+exists (m: int) (k: int). (m <= 0 \/ (forall (n : int). F n m k))
+s.t.
+F (n : int) (m : int) (k : int) : bool =mu n <= 0 \/ m <= 0 \/ k <= 0 \/ G n;
+G (n : int) : bool =mu n >= 0 \/ F n n n;
