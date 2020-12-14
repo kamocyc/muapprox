@@ -19,5 +19,5 @@ forall n, m.
 
 forall (x : int). F2 x x
 s.t.
-F2 (x: int) (y : int): bool =mu exists (m : int) (n : int). (m <= 0 /\ F (n + m) (x + y));
-F  (n : int) (x : int) : bool =mu n <= 0 /\ F2 (n + x) n;
+F2 (x: int) (y : int): bool =nu exists (m : int) (n : int). (m <= 0 /\ F (n + m) (x + y));
+F  (n : int) (x : int) : bool =nu n <= 0 /\ F2 (n + x) n;

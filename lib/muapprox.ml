@@ -61,14 +61,15 @@ let get_solve_options () =
     oneshot = !Options.oneshot;
     separate_original_formula_in_exists = not !Options.no_separate_original_formula_in_exists;
     solver = get_solver !Options.solver;
-    first_order_solver = get_first_order_solver !Options.first_order_solver
+    first_order_solver = get_first_order_solver !Options.first_order_solver;
+    coe = get_coe !Options.coe;
   }
   
 let main file =
   let solve_options = get_solve_options () in
   let psi = parse file in
-  (* TODO *)
-  let coe1, coe2 = 1, 10 in
+  (* coefficients's default values are 1, 1 (defined in solve_options.ml) *)
+  let coe1, coe2 = solve_options.coe in
   let inlining = not @@ !Options.no_inlining in
   (* for debug *)
   let psi = Syntax.Trans.Simplify.hflz_hes psi inlining in

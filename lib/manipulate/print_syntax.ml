@@ -74,6 +74,7 @@ module PrintUtil = struct
     s
     |> Str.global_replace (Str.regexp "'") "_ap_"
     |> Str.global_replace (Str.regexp "!") "_exc_"
+    |> Str.global_replace (Str.regexp "#") "_sha_"
     
   let id' : 'ty Id.t t =
     fun ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string x)
@@ -205,6 +206,7 @@ module FptProverHes = struct
     let file = Printf.sprintf "/tmp/%s-%d.smt2" "nuonly" r in
     let oc = open_out file in
     let fmt = Format.formatter_of_out_channel oc in
+    Format.pp_set_margin fmt 1000;
     hflz_hes' fmt hes;
     Format.pp_print_flush fmt ();
     close_out oc;
@@ -269,7 +271,7 @@ module MachineReadable = struct
       let args, phi = Hflz.decompose_abs rule.body in
       (* 'ty Type.arg Id.t を表示したい *)
       Fmt.pf ppf "@[<2>%s %a =%a@ %a.@]"
-        (Id.to_string rule.var)
+        (replace_apos @@ Id.to_string rule.var)
         (pp_print_list ~pp_sep:fprint_space id') args
         (* (format_ty_ Prec.zero) rule.var.ty *)
         fixpoint rule.fix
@@ -286,9 +288,23 @@ module MachineReadable = struct
     let file = Printf.sprintf "/tmp/%s-%d.smt2" "nuonly" r in
     let oc = open_out file in
     let fmt = Format.formatter_of_out_channel oc in
+    Format.pp_set_margin fmt 1000;
     Printf.fprintf oc "%%HES\n" ;
     hflz_hes' Hflmc2_syntax.Print.simple_ty_ show_forall fmt hes;
     Format.pp_print_flush fmt ();
     close_out oc;
     file
 end
+
+let show_hflz = Hflmc2_util.fmt_string (hflz Hflmc2_syntax.Print.simple_ty_)
+let show_hflz_full v = Hflz.show (fun fmt ty_ -> Hflmc2_syntax.Type.pp_simple_ty fmt ty_) v
+let show_hes hes : string =
+  List.map
+    (fun rule ->
+      "{" ^
+      "fix: " ^ (Hflmc2_syntax.Fixpoint.show rule.fix) ^ "\n" ^
+      "var: " ^ (Id.show Hflmc2_syntax.Type.pp_simple_ty rule.var) ^ "\n" ^
+      "body: " ^ (show_hflz rule.body) ^ 
+      "}"
+    ) hes
+  |> String.concat "\n"

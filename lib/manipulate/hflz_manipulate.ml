@@ -7,12 +7,12 @@ open Hflz_typecheck
 open Hflz
 module Util = Hflmc2_util
 
+
+let show_hflz = Print.show_hflz
+let show_hflz_full = Print.show_hflz_full
+
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
-
-let id_n n t = { Id.name = "x_" ^ string_of_int n; id = n; ty = t }
-let show_hflz = Util.fmt_string (Print_syntax.hflz Print.simple_ty_)
-let show_hflz_full v = Hflz.show (fun fmt ty_ -> Type.pp_simple_ty fmt ty_) v
 
 let%expect_test "desugar_formula" =
   let open Type in
@@ -172,7 +172,28 @@ let%expect_test "make_guessed_terms" =
   ignore [%expect.output];
   Util.print_list (fun r -> show_hflz (Arith r)) res;
   [%expect {|[ 10 ]|}]
-     
+
+let make_guessed_terms_simple (coe1 : int) (coe2 : int) vars =
+  let open Arith in
+  (Int coe2)::(
+    (List.map (fun v -> Op (Mult, [Int coe1; Var v])) vars)@
+    (List.map (fun v -> Op (Mult, [Int (-coe1); Var v])) vars))
+
+let%expect_test "make_guessed_terms_simple" =
+  let res = make_guessed_terms_simple 2 10 [id_n 1 `Int; id_n 2 `Int] in
+  ignore [%expect.output];
+  Util.print_list (fun r -> show_hflz (Arith r)) res;
+  [%expect {|
+    [ 10;
+    2 * x_11;
+    2 * x_22;
+    -2 * x_11;
+    -2 * x_22 ] |}];
+  let res = make_guessed_terms_simple 2 10 [] in
+  ignore [%expect.output];
+  Util.print_list (fun r -> show_hflz (Arith r)) res;
+  [%expect {|[ 10 ]|}]
+  
 let formula_fold func terms = match terms with
     | [] -> failwith "[formula_fold] Number of elements should not be zero."
     | term::terms -> begin
@@ -662,9 +683,8 @@ let rec to_tree seq f b = match seq with
   rep  *)
   
 (* 高階だからちょっと変わる *)
-let encode_body_exists_formula_sub coe1 coe2 separate_original_formula hes_preds hfl = 
+let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl = 
   let open Type in
-  if separate_original_formula then failwith "encode_body_exists_formula_sub: not implemented";
   (* let formula_type_abs = formula_type |> to_args |> to_abs in *)
   let formula_type_vars = Hflz.get_hflz_type hfl |> to_args |> List.rev in
   (* print_endline @@ Util.fmt_string Print.simple_ty formula_type; *)
@@ -698,15 +718,19 @@ let encode_body_exists_formula_sub coe1 coe2 separate_original_formula hes_preds
   (* let bound_vars_argty = bound_vars |> List.map (fun v -> { v with Id.ty=TyInt}) in *)
   let new_pvar =
     let i = Id.gen_id() in
+    let name =
+      match new_pred_name_cand with
+      | None -> "Exists" ^ string_of_int i
+      | Some p -> p ^ "_e" ^ string_of_int i in
     let ty =
       (* TODO: higher-order vars *)
       to_tree
         arg_vars
         (fun x rem -> TyArrow (x, rem))
         (TyBool ())  in
-    { Id.name = "Exists" ^ string_of_int i; ty = ty; id = i } in
+    { Id.name = name; ty = ty; id = i } in
   let body =
-    let guessed_terms = make_guessed_terms coe1 coe2 (free_vars |> filter_int_variable) in
+    let guessed_terms = make_guessed_terms_simple coe1 coe2 (free_vars |> filter_int_variable) in
     let approx_formulas = bound_vars |> List.map (fun bound_var -> make_approx_formula ({bound_var with ty=`Int}) guessed_terms) in
     to_tree
       bound_vars
@@ -782,9 +806,9 @@ let%expect_test "encode_body_exists_formula_sub" =
         && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100 |}];
   let (replaced, rules) =
     encode_body_exists_formula_sub
+      None
       1
       10
-      false
       [p]
       org_formula
     in
@@ -798,12 +822,12 @@ let%expect_test "encode_body_exists_formula_sub" =
      ∀x_300300.
       λx_11:int.
        λx_22:(int -> bool).
-        x_100100 < 1 * x_33 + 10 || x_100100 < -1 * x_33 + 10
-        || x_100100 < 1 * x_55 + 10
-        || x_100100 < -1 * x_55 + 10
-        || x_300300 < 1 * x_33 + 10 || x_300300 < -1 * x_33 + 10
-           || x_300300 < 1 * x_55 + 10
-           || x_300300 < -1 * x_55 + 10
+        x_100100 < 10 || x_100100 < 1 * x_33 || x_100100 < 1 * x_55
+        || x_100100 < -1 * x_33
+        || x_100100 < -1 * x_55
+        || x_300300 < 10 || x_300300 < 1 * x_33 || x_300300 < 1 * x_55
+           || x_300300 < -1 * x_33
+           || x_300300 < -1 * x_55
         || (Exists8 :int ->
                       (int -> bool) ->
                        int -> int -> (int -> bool) -> int -> int -> bool)
@@ -904,7 +928,7 @@ let%expect_test "encode_body_exists_formula_sub" =
   print_endline "OK";
   [%expect {|OK|}]
 
-let encode_body_exists_formula coe1 coe2 (separate_original_formula : bool) hes_preds hfl =
+let encode_body_exists_formula new_pred_name_cand coe1 coe2 hes_preds hfl =
   Log.app begin fun m -> m ~header:"encode_body_exists_formula (ORIGINAL)" "%a" Print.(hflz simple_ty_) hfl end;
   let new_rules = ref [] in
   let rec go hes_preds hfl = match hfl with
@@ -926,7 +950,7 @@ let encode_body_exists_formula coe1 coe2 (separate_original_formula : bool) hes_
         print_endline @@ "var=" ^ v.name;
         Print_syntax.print_arg_type v.ty;
         (* let f1 = go ((v)::env) f1 in *)
-        let hfl, rules = encode_body_exists_formula_sub coe1 coe2 separate_original_formula hes_preds hfl in
+        let hfl, rules = encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl in
         let new_rule_vars = List.map (fun rule -> { rule.var with ty = Type.TySigma rule.var.ty }) rules in
         let rules = List.map (fun rule -> { rule with body = go (new_rule_vars @ hes_preds) rule.body } ) rules in
         print_endline "HFLLL";
@@ -945,12 +969,13 @@ let encode_body_exists_formula coe1 coe2 (separate_original_formula : bool) hes_
   hfl, !new_rules
 
 (* hesからexistentailを除去 *)
-let encode_body_exists coe1 coe2 separate_original_formula (hes : Type.simple_ty Hflz.hes) =
+let encode_body_exists coe1 coe2 (hes : Type.simple_ty Hflz.hes) =
   let env = List.map (fun {var; _} -> { var with ty=Type.TySigma var.ty }) hes in
   hes |>
-  List.map
-    (fun {var; fix; body} -> 
-      let body, new_rules = encode_body_exists_formula coe1 coe2 separate_original_formula env body in
+  List.mapi
+    (fun i {var; fix; body} -> 
+      let new_pred_name_cand = if i = 0 then None else Some var.name in
+      let body, new_rules = encode_body_exists_formula new_pred_name_cand coe1 coe2 env body in
       {var; fix; body}::new_rules
     )
   |> List.flatten

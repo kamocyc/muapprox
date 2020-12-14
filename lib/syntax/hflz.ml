@@ -231,3 +231,5 @@ let get_hflz_type phi =
     | Arith t -> failwith "illegal type (Arith)"
   in
   go phi
+
+let id_n n t = { Id.name = "x_" ^ string_of_int n; id = n; ty = t }

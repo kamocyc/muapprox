@@ -240,14 +240,14 @@ let flip_status_pair (s1, s2) =
   (Status.flip s1, s2)
 
 (* TODO: forallを最外に移動？ => いらなそうか *)
-let elim_mu_exists coe1 coe2 separate_original_formula_in_exists rec_preds hes =
+let elim_mu_exists coe1 coe2 rec_preds hes =
   (* 再帰参照していない述語はgreatestに置換 *)
   (* これをすると、fixpoint alternationが新たにできて、式が複雑になることがあるので、やめる *)
   (* let hes = to_greatest_from_not_recursive rec_preds hes in *)
   (* forall, existential, nu, mu *)
   (* forall, nu, mu *)
+  let hes = Hflz_mani.encode_body_exists coe1 coe2 hes in
   let hes = Hflz_mani.elim_mu_with_rec coe1 coe2 hes in
-  let hes = Hflz_mani.encode_body_exists coe1 coe2 separate_original_formula_in_exists hes in
   if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu_exists";
   (* forall, nu *)
   hes
@@ -256,13 +256,13 @@ let elim_mu_exists coe1 coe2 separate_original_formula_in_exists rec_preds hes =
 let check_validity_full coe1 coe2 solve_options rec_preds hes = 
   let rec go coe1 coe2 =
     (*  *)
-    let nu_only_hes = elim_mu_exists coe1 coe2 solve_options.separate_original_formula_in_exists rec_preds hes in
+    let nu_only_hes = elim_mu_exists coe1 coe2 rec_preds hes in
     let result, result' = solve_onlynu_onlyforall solve_options rec_preds nu_only_hes in
     match result with
     | Status.Valid -> (Status.Valid, result')
     | _ -> begin
       let dual_hes = Hflz_mani.get_dual_hes hes in
-      let nu_only_dual_hes = elim_mu_exists coe1 coe2 solve_options.separate_original_formula_in_exists rec_preds dual_hes in
+      let nu_only_dual_hes = elim_mu_exists coe1 coe2 rec_preds dual_hes in
       let dual_result, dual_result' = solve_onlynu_onlyforall solve_options rec_preds nu_only_dual_hes in
       match dual_result with
       | Status.Valid -> (Status.Invalid, dual_result')
@@ -270,9 +270,9 @@ let check_validity_full coe1 coe2 solve_options rec_preds hes =
         if solve_options.oneshot then
           (dual_result, dual_result')
         else
-          (* TODO: 係数の増やし方 *)
-          (* TODO: 再帰回数の制限？timeout？ *)
-          go (coe1 * 2) (coe2 * 2)
+          (* koba-testの係数の増やし方を利用 *)
+          let coe1, coe2 = if (coe1, coe2) = (1, 1) then (1, 8) else (2 * coe1, 2 * coe2) in
+          go coe1 coe2
       end
     end
   in
@@ -281,10 +281,9 @@ let check_validity_full coe1 coe2 solve_options rec_preds hes =
 (* 「shadowingが無い」とする。 *)
 (* timeoutは個別のsolverのtimeout *)  
 let check_validity coe1 coe2 solve_options hes =
+  Log.app begin fun m -> m ~header:"check_validity (first)" "%a" Manipulate.Print_syntax.(MachineReadable.hflz_hes' simple_ty_ false) hes end;
   let hes = Hflz_mani.decompose_lambdas_hes hes in
-  Log.app begin fun m -> m ~header:"Decompose lambdas" "%a"
-    Manipulate.Print_syntax.(hflz_hes simple_ty_) hes
-  end;
+  Log.app begin fun m -> m ~header:"Decompose lambdas" "%a" Manipulate.Print_syntax.(hflz_hes simple_ty_) hes end;
   let rec_preds = Manipulate.Hflz_util.get_recurring_predicates hes in
   print_endline "get_recurring_predicates";
     List.iter (fun p -> print_string @@ Hflmc2_syntax.Id.to_string p ^ ", ") rec_preds; print_endline "";

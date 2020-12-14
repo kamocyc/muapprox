@@ -68,46 +68,67 @@ module Typing = struct
   exception Error of string
   let error s = raise (Error s)
 
+  type info =
+    | InfoProg of {expr: raw_hflz}
+    | InfoDummy
+  
+  let pp_info fmt info = match info with
+    | InfoDummy -> Fmt.nop fmt ()
+    | InfoProg {expr} -> pp_raw_hflz fmt expr
+  
+  let show_info info = match info with
+    | InfoDummy -> ""
+    | InfoProg {expr} -> show_raw_hflz expr
+    
   type tyvar = (* simple_ty + simple_argty + type variable *)
-    | TvRef of int * tyvar option ref
-    | TvInt
-    | TvBool
-    | TvArrow of tyvar * tyvar
+    | TvRef of int * tyvar option ref * info
+    | TvInt of info
+    | TvBool of info
+    | TvArrow of tyvar * tyvar * info
     [@@deriving show { with_path = false }]
+  
+  let get_info v = match v with
+    | TvRef (_, _, i) -> i
+    | TvInt i -> i
+    | TvBool i -> i
+    | TvArrow (_, _, i) -> i
+    
   type id = int
   let new_id    : unit -> id    = Id.gen_id
-  let new_tyvar : unit -> tyvar =
+  let new_tyvar : info -> tyvar =
     let counter = new Fn.counter in
-    fun () -> TvRef (counter#tick, ref None)
+    fun info -> TvRef (counter#tick, ref None, info)
 
   let rec pp_hum_tyvar : tyvar Print.t =
     fun ppf tv -> match tv with
-      | TvInt -> Fmt.string ppf "int"
-      | TvBool -> Fmt.string ppf "o"
-      | TvRef(id,{contents=None }) ->
+      | TvInt _ -> Fmt.string ppf "int"
+      | TvBool _ -> Fmt.string ppf "o"
+      | TvRef(id,{contents=None }, _) ->
           Fmt.pf ppf "tv%d" id
-      | TvRef(id,{contents=Some tv}) ->
+      | TvRef(id,{contents=Some tv}, _) ->
           Fmt.pf ppf "tv%d@%a" id pp_hum_tyvar tv
-      | TvArrow(tv1,tv2) ->
+      | TvArrow(tv1,tv2, _) ->
           Fmt.pf ppf "(%a -> %a)"
             pp_hum_tyvar tv1
             pp_hum_tyvar tv2
 
+  (* TODO: show info *)
+  
   exception Alias
   let rec occur : top:bool -> tyvar option ref -> tyvar -> bool =
     fun ~top r tv -> match tv with
-      | TvInt | TvBool -> false
-      | TvArrow(tv1, tv2) -> occur ~top:false r tv1 || occur ~top:false r tv2
-      | TvRef(_, ({contents=None} as r')) ->
+      | TvInt _ | TvBool _ -> false
+      | TvArrow(tv1, tv2, _) -> occur ~top:false r tv1 || occur ~top:false r tv2
+      | TvRef(_, ({contents=None} as r'), _) ->
           if r == r' && top then raise Alias else r == r'
-      | TvRef(_, ({contents=Some tv} as r')) ->
+      | TvRef(_, ({contents=Some tv} as r'), _) ->
           if r == r' && top then raise Alias else r == r' || occur ~top r tv
   type occur_check_result = [ `Ok | `Alias ]
   let occur_check r tv =
     try
       if occur ~top:true r tv then begin
         Log.err begin fun m -> m ~header:"Occur Check"
-          "r=%a; tv=%a" pp_hum_tyvar (TvRef (-1, r)) pp_hum_tyvar tv;
+          "r=%a; tv=%a" pp_hum_tyvar (TvRef (-1, r, InfoDummy)) pp_hum_tyvar tv;
         end;
         Fn.fatal "Recursive type is unsupported"
       end else begin
@@ -117,8 +138,8 @@ module Typing = struct
 
   let rec write : tyvar option ref -> tyvar -> unit =
     fun r tv -> match tv with
-      | TvInt | TvBool | TvArrow _ -> r := Some tv
-      | TvRef (_, r') ->
+      | TvInt _ | TvBool _ | TvArrow _ -> r := Some tv
+      | TvRef (_, r', _) ->
           begin match !r' with
           | None -> r := Some tv
           | Some tv' -> write r tv'
@@ -131,15 +152,20 @@ module Typing = struct
         pp_hum_tyvar tv1
         pp_hum_tyvar tv2
       end; *)
+      (* Print.pr "UNIFY %a (%a) -- %a (%a)@."
+        pp_hum_tyvar tv1
+        pp_info (get_info tv1)
+        pp_hum_tyvar tv2
+        pp_info (get_info tv2); *)
       Print.pr "UNIFY %a -- %a@."
         pp_hum_tyvar tv1
         pp_hum_tyvar tv2;
       match tv1, tv2 with
-      | TvInt, TvInt -> ()
-      | TvBool, TvBool -> ()
-      | TvArrow(tv11,tv12),  TvArrow(tv21,tv22) ->
+      | TvInt _, TvInt _ -> ()
+      | TvBool _, TvBool _ -> ()
+      | TvArrow(tv11,tv12, _),  TvArrow(tv21,tv22, _) ->
           unify tv11 tv21; unify tv12 tv22
-      | TvRef (_,r1), TvRef (_,r2) when r1 == r2 ->
+      | TvRef (_,r1, _), TvRef (_,r2, _) when r1 == r2 ->
           Log.debug begin fun _ -> Print.pr "EQUAL %a == %a@."
             pp_hum_tyvar tv1
             pp_hum_tyvar tv2
@@ -154,8 +180,8 @@ module Typing = struct
                 write r1 tv2
             | `Alias -> ()
           end;
-      | (TvRef (_, ({contents = None} as r)) as tv_src), tv
-      | tv, (TvRef (_, ({contents = None} as r)) as tv_src) ->
+      | (TvRef (_, ({contents = None} as r), _) as tv_src), tv
+      | tv, (TvRef (_, ({contents = None} as r), _) as tv_src) ->
           Log.debug begin fun _ -> Print.pr "APPLY2 %a := %a@."
             pp_hum_tyvar tv_src
             pp_hum_tyvar tv
@@ -164,8 +190,8 @@ module Typing = struct
           | `Ok -> write r tv
           | `Alias -> ()
           end
-      | (TvRef (_, ({contents = Some tv_inner} as r)) as tv_src), tv
-      | tv, (TvRef (_, ({contents = Some tv_inner} as r)) as tv_src) ->
+      | (TvRef (_, ({contents = Some tv_inner} as r), _) as tv_src), tv
+      | tv, (TvRef (_, ({contents = Some tv_inner} as r), _) as tv_src) ->
           (* XXX occur_check r tv; *)
           Log.debug begin fun _ -> Print.pr "HERE@." end;
           write r tv;
@@ -175,7 +201,7 @@ module Typing = struct
             pp_hum_tyvar x
             pp_hum_tyvar y
           );
-          failwith "FAIL unify"
+          failwith @@ "FAIL unify: left=" ^ (show_info @@ get_info x) ^ " / right=" ^ (show_info @@ get_info y)
 
   type id_env = int StrMap.t   (* name to id *)
   (* なんでid_envとty_envの持ち方が違う実装になってるんだろう．これ書いた人バカなのかな？ *)
@@ -218,7 +244,7 @@ module Typing = struct
               | Some id, _ | _, Some id  -> (* the order of match matters! *)
                   Id.{ name; id; ty=`Int }
             in
-            self#add_ty_env x TvInt; Arith.mk_var x
+            self#add_ty_env x (TvInt (InfoProg {expr=Var name})); Arith.mk_var x
         | Op (op, as') -> Op (op, List.map ~f:(self#arith id_env) as')
         | _ -> failwith "annot.arith"
 
@@ -230,7 +256,7 @@ module Typing = struct
           pp_hum_tyvar tv
         end;
         match psi with
-        | Bool b -> unify tv TvBool; Bool b
+        | Bool b -> unify tv (TvBool (InfoProg {expr=psi})); Bool b
         | Var name ->
             let id,ty =
               match
@@ -240,43 +266,43 @@ module Typing = struct
               | Some id, _ ->
                   id, tv
               | _, Some id ->
-                  unify tv TvInt;
-                  id, TvInt
+                  unify tv (TvInt (InfoProg {expr=psi}));
+                  id, (TvInt (InfoProg {expr=psi}))
               | _, _ ->
                   let id = new_id() in
-                  unify tv TvInt;
+                  unify tv (TvInt (InfoProg {expr=psi}));
                   unbound_ints <- StrMap.add_exn unbound_ints ~key:name ~data:id;
-                  id, TvInt
+                  id, (TvInt (InfoProg {expr=psi}))
             in
             let x = Id.{ name; id; ty=() } in
             self#add_ty_env x ty;
             Hflz.Sugar.mk_var x
         | Or (psi1,psi2) ->
-            let psi1 = self#term id_env psi1 TvBool in
-            let psi2 = self#term id_env psi2 TvBool in
-            unify tv TvBool;
+            let psi1 = self#term id_env psi1 (TvBool(InfoProg{expr=psi1})) in
+            let psi2 = self#term id_env psi2 (TvBool(InfoProg{expr=psi2})) in
+            unify tv (TvBool(InfoProg{expr=psi}));
             Or (psi1,psi2)
         | And (psi1,psi2) ->
-            let psi1 = self#term id_env psi1 TvBool in
-            let psi2 = self#term id_env psi2 TvBool in
-            unify tv TvBool;
+            let psi1 = self#term id_env psi1 (TvBool(InfoProg{expr=psi1})) in
+            let psi2 = self#term id_env psi2 (TvBool(InfoProg{expr=psi2})) in
+            unify tv (TvBool(InfoProg{expr=psi}));
             And (psi1,psi2)
         | Not (psi1) ->
-            let psi1 = self#term id_env psi1 TvBool in
-            unify tv TvBool;
+            let psi1 = self#term id_env psi1 (TvBool(InfoProg{expr=psi1})) in
+            unify tv (TvBool(InfoProg{expr=psi}));
             Not (psi1)
         | Pred (pred,as') ->
-            unify tv TvBool;
+            unify tv (TvBool(InfoProg{expr=psi}));
             Pred(pred, List.map ~f:(self#arith id_env) as')
         | Int _ | Op _ ->
-            unify tv TvInt;
+            unify tv (TvInt(InfoProg{expr=psi}));
             Arith (self#arith id_env psi)
         | Abs(name, psi) ->
             let id = new_id() in
             let x = Id.{ name; id; ty = () } in
-            let tv_arg = new_tyvar() in
-            let tv_ret = new_tyvar() in
-            unify tv (TvArrow(tv_arg, tv_ret));
+            let tv_arg = new_tyvar(InfoProg{expr=Var x.name}) in
+            let tv_ret = new_tyvar(InfoProg{expr=psi}) in
+            unify tv (TvArrow(tv_arg, tv_ret, (InfoProg{expr=Abs(name, psi)})));
             let id_env = StrMap.replace id_env ~key:name ~data:id in
             self#add_ty_env x tv_arg;
             let psi = self#term id_env psi tv_ret in
@@ -284,24 +310,24 @@ module Typing = struct
         | Forall(name, psi) -> 
             let id = new_id() in
             let x = Id.{ name; id; ty = () } in
-            let tv_arg = new_tyvar() in
-            unify tv TvBool;
+            let tv_arg = new_tyvar(InfoProg{expr=Var x.name}) in
+            unify tv (TvBool(InfoProg{expr=Forall(name,psi)}));
             let id_env = StrMap.replace id_env ~key:name ~data:id in
             self#add_ty_env x tv_arg;
-            let psi = self#term id_env psi TvBool in
+            let psi = self#term id_env psi (TvBool(InfoProg{expr=psi})) in
             Forall(lift_arg x, psi)
         | Exists(name, psi) -> 
             let id = new_id() in
             let x = Id.{ name; id; ty = () } in
-            let tv_arg = new_tyvar() in
-            unify tv TvBool;
+            let tv_arg = new_tyvar(InfoProg{expr=Var x.name}) in
+            unify tv (TvBool(InfoProg{expr=Exists(name,psi)}));
             let id_env = StrMap.replace id_env ~key:name ~data:id in
             self#add_ty_env x tv_arg;
-            let psi = self#term id_env psi TvBool in
+            let psi = self#term id_env psi (TvBool(InfoProg{expr=psi})) in
             Exists(lift_arg x, psi)
         | App (psi1, psi2) ->
-            let tv_arg = new_tyvar() in
-            let psi1 = self#term id_env psi1 (TvArrow(tv_arg, tv)) in
+            let tv_arg = new_tyvar(InfoProg{expr=psi2}) in
+            let psi1 = self#term id_env psi1 (TvArrow(tv_arg, tv, InfoProg{expr=psi1})) in
             let psi2 = self#term id_env psi2 tv_arg in
             App (psi1, psi2)
             
@@ -312,7 +338,7 @@ module Typing = struct
           Print.pr "hes_rule.vars %a@." Print.string rule.var
         end;
         let id   = StrMap.find_exn id_env rule.var in
-        let tv_F = new_tyvar() in
+        let tv_F = new_tyvar(InfoProg({expr=Var rule.var})) in
         let _F   = Id.{ name=rule.var; id=id; ty=() } in
         self#add_ty_env _F tv_F;
 
@@ -322,7 +348,7 @@ module Typing = struct
         let var_env =
           List.map rule.args ~f:begin fun name ->
             let id  = new_id() in
-            let tv  = new_tyvar() in
+            let tv  = new_tyvar(InfoProg({expr=Var name})) in
             let var = Id.{ name; id; ty = TySigma() } in
             self#add_ty_env var tv;
             (var, id, tv)
@@ -337,10 +363,10 @@ module Typing = struct
         Log.debug begin fun _ -> 
           Print.pr "ID_ENV: %a@." pp_id_env id_env
         end;
-        let body = self#term id_env rule.body TvBool in
+        let body = self#term id_env rule.body (TvBool(InfoProg{expr=rule.body})) in
         unify tv_F @@
           List.fold_left (List.rev tv_vars)
-            ~init:TvBool ~f:(fun ret arg -> TvArrow (arg, ret));
+            ~init:(TvBool(InfoProg{expr=rule.body})) ~f:(fun ret arg -> TvArrow (arg, ret, get_info arg));
         { var  = _F
         ; body = Hflz.Sugar.mk_abss vars body
         ; fix  = rule.fix }
@@ -364,15 +390,15 @@ module Typing = struct
     val ty_env : ty_env = ty_env
 
     method arg_ty : string -> tyvar -> simple_ty arg = fun info -> function
-      | TvInt  -> TyInt
-      | TvBool -> TySigma (TyBool())
-      | TvRef (_, {contents=None}) as tv ->
+      | TvInt _ -> TyInt
+      | TvBool _ -> TySigma (TyBool())
+      | TvRef (_, {contents=None}, _) as tv ->
           Log.debug begin fun _ ->
             Print.pr "DEFAULT %s : %a@." info pp_hum_tyvar tv
           end;
           TySigma (TyBool())
-      | TvRef (_, {contents=Some tv}) -> self#arg_ty info tv
-      | TvArrow (tv1, tv2) ->
+      | TvRef (_, {contents=Some tv}, _) -> self#arg_ty info tv
+      | TvArrow (tv1, tv2, _) ->
           let x = Id.gen ~name:"t" (self#arg_ty (info^".arg") tv1) in
           TySigma (TyArrow (x, self#ty (info^".ret") tv2))
     method ty : string -> tyvar -> simple_ty =

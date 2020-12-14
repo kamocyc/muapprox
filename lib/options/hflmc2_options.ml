@@ -15,6 +15,7 @@ let no_backend_inlining = ref (Obj.magic())
 let no_separate_original_formula_in_exists = ref (Obj.magic())
 let solver = ref (Obj.magic())
 let first_order_solver = ref (Obj.magic())
+let coe = ref (Obj.magic())
 
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -53,6 +54,8 @@ type params =
   
   ; first_order_solver : string [@default ""]
   (** Solver for solving first-order formulas. If empty (or default), always use solvers for higher-order formulas. Available: fptprover-rec-limit **)
+  
+  ; coe : string [@default ""]
   }
   [@@deriving cmdliner,show]
 
@@ -68,6 +71,7 @@ let set_up_params params =
   set_ref no_backend_inlining      params.no_inlining_backend;
   set_ref solver                   params.solver;
   set_ref first_order_solver       params.first_order_solver;
+  set_ref coe                      params.coe;
   params.input
 
 (******************************************************************************)

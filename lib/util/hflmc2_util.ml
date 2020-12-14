@@ -366,9 +366,10 @@ type ('a, 'b) result = Ok of 'a | Error of 'b
 
 let show_list f ls = "[ " ^ (List.map ~f:f ls |> String.concat ~sep:"; \n") ^ " ]"
 let print_list f ls = print_endline @@ show_list f ls
-let fmt_string (outputter : Format.formatter -> 'a -> unit) (data : 'a): string =
+let fmt_string (outputter : Format.formatter -> 'a -> unit) ?margin (data : 'a): string =
   let buf = Buffer.create 100 in
   let fmt = Format.formatter_of_buffer buf in
+  (match margin with Some m -> Format.pp_set_margin fmt m | None -> ());
   outputter fmt data;
   Format.pp_print_flush fmt ();
   Buffer.contents buf

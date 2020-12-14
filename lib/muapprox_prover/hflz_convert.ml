@@ -84,6 +84,7 @@ let rec go_arith env (arith : Ast.Logic.Term.t) : Arith.t =
     | Ast.Logic.T_int.Mult-> Op (Mult,List.map ~f:(go_arith env) args)
     | Ast.Logic.T_int.Div -> Op (Div, List.map ~f:(go_arith env) args)
     | Ast.Logic.T_int.Mod -> Op (Mod, List.map ~f:(go_arith env) args)
+    | Ast.Logic.T_int.UnaryNeg when List.length args = 1 -> Op (Sub, [Int 0; go_arith env (List.nth_exn args 0)])
     | _ -> failwith "fun_app"
   end
   
