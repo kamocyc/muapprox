@@ -117,6 +117,25 @@ let%expect_test "to_forall" =
           ))
        )) |}]
 
+(* 変数の出現を置換 *)
+let replace_var_occurences : ('ty Id.t -> 'ty Hflz.t) -> 'ty Hflz.t -> 'ty Hflz.t =
+  fun subst hfl -> 
+  (* TODO: IDのeqが正しく判定される？ *)
+  let rec go = function
+    | Var   id -> subst (id)
+    | Bool   b -> Bool b
+    | Or (f1, f2) -> Or (go f1, go f2)
+    | And (f1, f2) -> And (go f1, go f2)
+    | Abs (v, f1) -> Abs (v, go f1)
+    | Forall (v, f1) -> Forall (v, go f1)
+    | Exists (v, f1) -> Exists (v, go f1)
+    | App (f1, f2) -> App (go f1, go f2)
+    | Arith t -> Arith t
+    | Pred (p, t) -> Pred (p, t)
+  in
+  (* predicateはboolean以外を返すことは無い。arithmeticの中にhfl predicateは現れない *)
+  go hfl
+  
 (* Abstractionから、それに適用する変数の列を生成 *)
 let to_vars : 'ty Hflz.t -> ('ty Hflz.t -> 'ty Hflz.t) = fun hfl ->
   fun body ->
@@ -150,7 +169,37 @@ let%expect_test "to_vars" =
              (Hflz.Arith (Arith.Var { Id.name = "x_1"; id = 1; ty = `Int })))),
           (Hflz.Arith (Arith.Var { Id.name = "x_2"; id = 2; ty = `Int })))),
        (Hflz.Var { Id.name = "x_3"; id = 3; ty = (Type.TyBool ()) }))) |}] 
-     
+
+let to_app inner terms =
+  let rec go terms = match terms with
+    | t::ts -> App (go ts, t)
+    | [] -> inner in
+  go @@ List.rev terms
+
+let%expect_test "to_app" =
+  let open Type in
+  let seed = [1; 2; 3] in
+  let res =
+    to_app
+      (Bool false)
+      (List.map (fun i -> Arith(Var (id_n i `Int))) seed) in
+  ignore [%expect.output];
+  print_endline @@ show_hflz_full res;
+  [%expect {|
+    (Hflz.App (
+       (Hflz.App (
+          (Hflz.App ((Hflz.Bool false),
+             (Hflz.Arith (Arith.Var { Id.name = "x_1"; id = 1; ty = `Int })))),
+          (Hflz.Arith (Arith.Var { Id.name = "x_2"; id = 2; ty = `Int })))),
+       (Hflz.Var { Id.name = "x_3"; id = 3; ty = (Type.TyBool ()) }))) |}] 
+
+let argty_to_ty {Id.name; id; ty} =
+  match ty with
+  | Type.TyInt -> 
+    Arith (Var {name; id; ty=`Int})
+  | Type.TySigma x -> 
+    Var {name; id; ty=x}
+
 let make_guessed_terms (coe1 : int) (coe2 : int) vars =
   let mk_affine term coe1 coe2 = Arith.Op (Arith.Add, [Arith.Op (Mult, [Int coe1; term]); Int coe2]) in
   match vars |>
@@ -241,71 +290,6 @@ let%expect_test "rev_abs" =
              (Hflz.Bool true)))
           ))
        )) |}]
-  
-
-(* 環境は、近似式を作るためだけに使う *)
-(* 引数は近似回数用の変数の1つぶんだけ増える *)
-let replace_caller_sub coe1 coe2 env id id' =
-  (* 処理対象のpredicateであるとき *)
-  let new_rec_var = Id.gen ~name:"forall_y" Type.TyInt in
-  let new_rec_var_f = {new_rec_var with ty = `Int} in
-  (* predicateの型から引数を取得 *)
-  (* TODO: predicateが部分適用されているとき *)
-  (* negativeにしているので注意 *)
-  let approx_formula =
-    let bound_int_vars = filter_int_variable env in
-    let guessed_terms = make_guessed_terms coe1 coe2 bound_int_vars in
-    make_approx_formula new_rec_var_f guessed_terms in
-  let abs = to_abs (List.rev @@ to_args id'.Id.ty) in
-  let vars = to_vars (rev_abs (abs @@ (* Dummy *) Bool true)) in
-  Forall (new_rec_var, abs @@ Or (approx_formula, vars @@ App (Var id, Arith (Var new_rec_var_f))))
-
-let%expect_test "replace_caller_sub" =
-  let open Type in
-  let res =
-    replace_caller_sub
-      1
-      10
-      [
-        id_n 1 TyInt;
-        id_n 2 (TySigma (TyBool ()));
-        id_n 3 (TySigma (TyArrow (id_n 4 TyInt, TyBool ())));
-        id_n 5 TyInt] (* env *)
-      (id_n 11 (TyArrow (id_n 12 TyInt, TyArrow (id_n 13 (TySigma (TyBool ())), TyArrow (id_n 14 (TySigma (TyArrow (id_n 15 TyInt, TyBool ()))), TyBool ())))))
-      (id_n 21 (                        TyArrow (id_n 13 (TySigma (TyBool ())), TyArrow (id_n 14 (TySigma (TyArrow (id_n 15 TyInt, TyBool ()))), TyBool ()))))
-      in
-  ignore [%expect.output];
-  print_endline @@ show_hflz res;
-  [%expect {|
-    ∀forall_y3.
-     λx_134:bool.
-      λx_145:(int -> bool).
-       forall_y3 < 1 * x_11 + 10 || forall_y3 < -1 * x_11 + 10
-       || forall_y3 < 1 * x_55 + 10
-       || forall_y3 < -1 * x_55 + 10
-       || (x_1111 :int -> bool -> (int -> bool) -> bool) forall_y3 (x_134 :bool)
-           (x_145 :int -> bool) |}]
-
-(* 変換した述語の呼び出し元を置換 *)
-let replace_caller (hfl : Type.simple_ty Hflz.t) (preds : Type.simple_ty Id.t list) (coe1 : int) (coe2 : int) : Type.simple_ty Hflz.t =
-  let rec go env (hfl : Type.simple_ty Hflz.t) : Type.simple_ty Hflz.t = match hfl with
-    | Var id' -> begin
-      match List.find_opt (fun pred -> Id.eq pred id') preds with
-      | Some id -> replace_caller_sub coe1 coe2 env id id'
-      | None -> Var id'
-    end
-    | Bool   b -> Bool b
-    | Or (f1, f2) -> Or (go env f1, go env f2)
-    | And (f1, f2) -> And (go env f1, go env f2)
-    | Abs (v, f1) -> Abs (v, go ((v)::env) f1)
-    | Forall (v, f1) -> Forall (v, go ((v)::env) f1)
-    | Exists (v, f1) -> Exists (v, go ((v)::env) f1)
-    | App (f1, f2) -> App (go env f1, go env f2)
-    | Arith t -> Arith t
-    | Pred (p, t) -> Pred (p, t)
-  in
-  (* predicateはboolean以外を返すことは無い。arithmeticの中にhfl predicateは現れない *)
-  go [] hfl
 
 let extract_head_abstracts : Type.simple_ty Hflz.t -> ((Type.simple_ty Hflz.t -> Type.simple_ty Hflz.t) * Type.simple_ty Hflz.t) = fun hfl -> 
   ((fun body ->     
@@ -338,82 +322,6 @@ let args_ids_to_apps (ids : 'ty Type.arg Id.t list) : ('ty Hflz.t -> 'ty Hflz.t)
     | x::xs -> App (go xs, arg_id_to_var x)
     | [] -> body in
   go @@ List.rev ids
-
-(* 次のレベル (=同じ種類のfixpoint) のequationsを取得 *)
-let get_next_level : 'ty Hflz.hes -> ('ty Hflz.hes * 'ty Hflz.hes) =
-  fun hes -> match hes with
-    | [] -> ([], [])
-    | _ -> begin
-      let revl = List.rev hes in
-      let ({fix; _}) = List.nth revl 0 in
-      let rec go acc = function
-        | [] -> ([], acc)
-        | ({fix=fix'; _} as eq)::eqs -> 
-          if fix = fix'
-          then go (eq::acc) eqs
-          else (eq::eqs, acc)
-      in
-      go [] revl
-      |> (fun (l1, l2) -> (List.rev l1, List.rev l2))
-    end
-
-let get_next_mu_level : 'ty Hflz.hes -> ('ty Hflz.hes * 'ty Hflz.hes * 'ty Hflz.hes) = fun hes -> 
-    let (remain_level, next_level) = get_next_level hes in
-    match next_level with 
-    | [] -> ([], [], [])
-    | ({fix; _}::_) -> begin
-      let (remain_level', next_level') = get_next_level remain_level in
-      match fix with
-      | Fixpoint.Greatest -> 
-        (remain_level', next_level', next_level)
-      | Fixpoint.Least -> 
-        (remain_level, next_level, [])
-    end
-
-(* 変数の出現を置換 *)
-let replace_var_occurences : ('ty Id.t -> 'ty Hflz.t) -> 'ty Hflz.t -> 'ty Hflz.t =
-  fun subst hfl -> 
-  (* TODO: IDのeqが正しく判定される？ *)
-  let rec go = function
-    | Var   id -> subst (id)
-    | Bool   b -> Bool b
-    | Or (f1, f2) -> Or (go f1, go f2)
-    | And (f1, f2) -> And (go f1, go f2)
-    | Abs (v, f1) -> Abs (v, go f1)
-    | Forall (v, f1) -> Forall (v, go f1)
-    | Exists (v, f1) -> Exists (v, go f1)
-    | App (f1, f2) -> App (go f1, go f2)
-    | Arith t -> Arith t
-    | Pred (p, t) -> Pred (p, t)
-  in
-  (* predicateはboolean以外を返すことは無い。arithmeticの中にhfl predicateは現れない *)
-  go hfl
-  
-let replace_mu_var_occurences : [`Int] Id.t -> Type.simple_ty Hflz.t -> Type.simple_ty Id.t -> 'ty Hflz.t =
-  fun var_y hfl sub_var -> 
-    (* print_endline "replace_mu_var_occurences";
-    print_endline @@ Id.to_string sub_var;
-    print_endline @@ fmt_string Print.simple_ty sub_var.ty;
-    print_endline ""; *)
-    replace_var_occurences
-      (fun id -> if Id.eq id sub_var then App (Var sub_var, Arith (Op (Sub, [Var var_y; Int 1]))) else Var id)
-      hfl
-
-let replace_nu_var_occurences : [`Int] Id.t -> Type.simple_ty Hflz.t -> Type.simple_ty Id.t -> 'ty Hflz.t =
-  fun var_y hfl sub_var -> 
-    (* print_endline "replace_nu_var_occurences";
-    print_endline @@ Id.to_string sub_var;
-    print_endline @@ fmt_string Print.simple_ty sub_var.ty;
-    print_endline ""; *)
-    replace_var_occurences
-      (fun id -> if Id.eq id sub_var then App (Var sub_var, Arith (Var var_y)) else Var id)
-      hfl
-
-let get_rule : 'ty Id.t -> 'ty hes -> 'ty hes_rule =
-  fun id hes ->
-    match List.find_opt (fun {var;_} -> Id.eq var id) hes with
-    | None -> assert false
-    | Some rule -> rule
 
 let extract_abstraction phi not_apply_vars new_rule_name_base =
   let xs, phi' = decompose_abs phi in
@@ -575,59 +483,6 @@ let decompose_lambdas hes (rule : Type.simple_ty hes_rule) =
 
 let decompose_lambdas_hes hes =
   hes |> List.map (decompose_lambdas hes) |> List.flatten
-
-let elim_mu_with_rec (coe1 : int) (coe2 : int) (hes : Type.simple_ty Hflz.hes) : Type.simple_ty Hflz.hes =
-  Log.app begin fun m -> m ~header:"FIRST" "%a" Print.(hflz_hes simple_ty_) hes end;
-  (* calc outer_mu_funcs *)
-  (* これが何をやっているのか不明。hesはトップレベルの述語の情報は別途持っていて、それ以外は参照グラフから再構成する必要があるということ？listだから、順番の情報はあると思うが *)
-  (* let outer_mu_funcs = get_outer_mu_funcs funcs in make tvars *)
-  type_check hes;
-  if List.length hes = 0 then failwith "EMPTY HES";
-  (* let {var=original_top_level_predicate;_} = List.nth hes 0 in *)
-  let extract_var ({var; _} as level) =
-    let rec_var = Id.gen ~name:("rec_" ^ var.Id.name) `Int in
-    (level, rec_var, {var with Id.ty=Type.TyArrow({rec_var with ty=TyInt}, var.Id.ty)}) in
-  let rec go (hes : Type.simple_ty Hflz.hes) : Type.simple_ty Hflz.hes =
-    (* 最下層のmuを取得 *)
-    let rem_level, mu_level, nu_level = get_next_mu_level hes in
-    Log.app begin fun m -> m ~header:"nu_level" "%a" Print.(hflz_hes simple_ty_)  nu_level  end;
-    Log.app begin fun m -> m ~header:"mu_level" "%a" Print.(hflz_hes simple_ty_)  mu_level  end;
-    Log.app begin fun m -> m ~header:"rem_level" "%a" Print.(hflz_hes simple_ty_) rem_level end;
-    match mu_level with
-    | [] -> hes (* finish *)
-    | _ -> begin
-      let mu_vars = List.map extract_var mu_level in
-      let nu_vars = List.map extract_var nu_level in
-      (* print_string @@ "len=" ^ string_of_int @@ List.length nu_vars; *)
-      (* 置換 *)
-      let new_level = (mu_vars @ nu_vars) |> List.map (fun ({body; fix; _}, rec_var, var) -> begin
-        let head_abstacts, body = extract_head_abstracts body in
-        (* 型: `IntはFormulaの中で使われる（Predの型で規定）、TypIntは述語の型で使う *)
-        (* TODO: 名前の生成方法はこれでいいか確認 *)
-        let body = mu_vars |> List.fold_left (fun body (_, _, mu_var) -> replace_mu_var_occurences rec_var body mu_var) body in
-        let body = nu_vars |> List.fold_left (fun body (_, _, nu_var) -> replace_nu_var_occurences rec_var body nu_var) body in
-        let body =
-          head_abstacts @@ match fix with
-          | Fixpoint.Least    -> And (Pred (Formula.Ge, [Var rec_var; Int 0]), body)
-          | Fixpoint.Greatest -> body in
-        let body = Abs ({rec_var with ty=TyInt}, body) in
-        {var; body; fix=Fixpoint.Greatest}
-      end) in
-      let mu_nu_var_ids = List.map (fun (_, _, v) -> v) (nu_vars @ mu_vars) in
-      let rem_level = rem_level |> List.map (fun rule -> {rule with body = replace_caller rule.body mu_nu_var_ids coe1 coe2}) in
-      go (rem_level @ new_level)
-    end in
-  let hes = go hes in
-  let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
-  print_endline @@ "Not decomposed HES path: " ^ path;
-  let hes = decompose_lambdas_hes hes in
-  (* TODO: 場合によっては、TOP levelを上に持ってくることが必要になる？ *)
-    (* |> move_first (fun {var; _} -> var.name = original_top_level_predicate.name) in *)
-  Log.app begin fun m -> m ~header:"FINAL" "%a"
-    Print.(hflz_hes simple_ty_) hes
-  end;
-  type_check hes;
-  hes
   
 let get_top_rule hes =
   match hes with
@@ -674,13 +529,6 @@ let var_as_arith v = {v with Id.ty=`Int}
 let rec to_tree seq f b = match seq with
   | [] -> b
   | x::xs -> f x (to_tree xs f b)
-  
-(* let () =
-  let open Type in
-  let rec go vars = match vars with
-    | [] -> TyBool ()
-    | x::xs -> TyArrow (x, go xs) in
-  rep  *)
   
 (* 高階だからちょっと変わる *)
 let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl = 
@@ -983,3 +831,264 @@ let encode_body_exists coe1 coe2 (hes : Type.simple_ty Hflz.hes) =
     let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
     print_endline @@ "Not decomposed HES path (Exists): " ^ path; hes)
   |> decompose_lambdas_hes
+
+
+
+let rec beta : 'a Hflz.t -> 'a Hflz.t = function
+  | Or (phi1, phi2) -> Or (beta phi1, beta phi2)
+  | And(phi1, phi2) -> And(beta phi1, beta phi2)
+  | App(phi1, phi2) -> begin
+    let phi1, phi2 = beta phi1, beta phi2 in
+    let reduced = ref false in
+    let rec go acc phi1 = match phi1 with
+      | Forall (x, phi1) -> Forall (x, go (x::acc) phi1)
+      | Exists (x, phi1) -> Exists (x, go (x::acc) phi1)
+      | Abs(x, phi1) -> begin
+        let fvs = fvs_with_type phi2 in
+        (* print_endline "fvs"; Util.print_list Id.to_string fvs;
+        print_endline "acc"; Util.print_list Id.to_string acc; *)
+        if List.exists (fun a -> List.exists (fun v -> Id.eq a v) acc) fvs then failwith "a";
+        reduced := true;
+        beta @@ Hflmc2_syntax.Trans.Subst.Hflz.hflz (Hflmc2_syntax.IdMap.of_list [x, phi2]) phi1
+      end
+      | phi1 -> phi1 in
+    let res = go [] phi1 in
+    if !reduced then
+      res
+    else (
+      (* Log.app begin fun m -> m ~header:"not done" "%a" Print.(hflz simple_ty_) (App (phi1, phi2)) end; *)
+      App (phi1, phi2))
+  end
+  | Abs(x, phi) -> Abs(x, beta phi)
+  
+  | phi -> phi
+
+let get_outer_mu_funcs (funcs : 'a hes) =
+  let funcs_count = List.length funcs in
+  (* construct a table *)
+  let pvar_to_nid = Hashtbl.create funcs_count in
+  let nid_to_pvar, is_mu =
+    funcs
+    |> List.mapi
+      (fun nid {fix; var; _} ->
+        Hashtbl.add pvar_to_nid var nid;
+        (var, fix = Fixpoint.Least)
+      )
+    |> List.split in
+  (* make a graph *)
+  let _, g = Hflz_util.get_dependency_graph funcs in
+  (* make a rev graph *)
+  let rg = Mygraph.reverse_edges g in
+  (* get nid list s.t. a ->* b /\ b *<- a through only min(a, b) nodes *)
+  let outer_nids = Mygraph.init funcs_count in
+  for i = 0 to funcs_count - 1 do
+    let nids1 = Mygraph.reachable_nodes_from ~start_is_reachable_initially:false i g in
+    let nids2 = Mygraph.reachable_nodes_from ~start_is_reachable_initially:false i rg in
+    Core.Set.Poly.inter
+      (Core.Set.Poly.of_list nids1)
+      (Core.Set.Poly.of_list nids2)
+    |> Core.Set.Poly.to_list
+    |> List.iter
+      (fun nid ->
+         Mygraph.add_edge nid i outer_nids
+      );
+    Mygraph.reset_node i g;
+    Mygraph.reset_node i rg
+  done;
+  (* filter by fixpoints *)
+  let res =
+    List.map
+      (fun {var=pvar; _} ->
+         let nid = Hashtbl.find pvar_to_nid pvar in
+         pvar,
+         Mygraph.get_next_nids nid outer_nids
+         |> List.filter
+           (fun to_nid -> List.nth is_mu to_nid)
+         |> List.map
+           (fun to_nid ->
+              List.nth nid_to_pvar to_nid
+           )
+      )
+      funcs
+  in
+  (* print_endline "get_outer_mu_funcs";
+  List.map (fun (pvar, pvars) -> Printf.sprintf "%s: %s" (pvar.Id.name) (List.map (fun v -> v.Id.name) pvars |> String.concat ", ")) res
+     |> String.concat "\n"
+     |> print_endline; *)
+  Env.create res
+
+let rectvar_prefix = "rec"
+let rectvar_of_pvar pvar =
+  let id = Id.gen_id () in
+  { 
+    Id.name = rectvar_prefix ^ pvar.Id.name ^ string_of_int id;
+    id = id;
+    ty = Type.TyInt;
+  }
+
+(* TODO: 元からrecがprefixの場合 *)
+let is_rectvar v =
+  String.length v.Id.name >=3 &&
+  String.sub v.Id.name 0 3 = rectvar_prefix
+  
+let get_guessed_terms_rep coe arg_terms term res =
+  let arg_terms = List.filter_map (function Arith a -> Some a | _ -> None) arg_terms in
+  let rec go arg_terms res = 
+    match arg_terms with
+    | [] -> res
+    | arg_term :: tail ->
+      let open Arith in
+      let pterm = Op(Add, [term; Op(Mult, [Int coe; arg_term])]) in
+      let nterm = Op(Add, [term; Op(Mult, [Int (-coe); arg_term])]) in
+      let acc =
+        match arg_term with
+        | Var v ->
+          if is_rectvar v then
+            res
+          else
+            pterm::nterm::res
+        | Int i ->
+          if i = 0 then
+            res
+          else
+            pterm::nterm::res
+        | _ -> pterm::nterm::res in
+      go tail acc in
+  go arg_terms res
+
+let get_guessed_terms coe1 coe2 arg_terms =
+  let const_term = Arith.Int coe2 in
+  let res = get_guessed_terms_rep coe1 arg_terms const_term [const_term] in
+  res
+
+let to_ty argty basety =
+  let rec go argty = match argty with
+    | [] -> basety
+    | x::xs -> Type.TyArrow (x, go xs) in
+  go argty
+
+let is_pred pvar =
+  String.length pvar.Id.name >= 0 &&
+  (String.uppercase_ascii @@ String.sub pvar.Id.name 0 1) = String.sub pvar.Id.name 0 1
+  
+let replace_occurences coe1 coe2 (outer_mu_funcs : (unit Type.ty Id.t * unit Type.ty Id.t list) list) scoped_rec_tvars rec_tvars (fml : 'a Hflz.t) : 'a Hflz.t =
+  let rec go apps fml : 'a Hflz.t = 
+    match fml with
+    | Var pvar when is_pred pvar -> begin
+      print_endline @@ Id.to_string pvar;
+      let arg_pvars = Env.lookup pvar outer_mu_funcs in
+      let make_args env_guessed env =
+        arg_pvars
+        |> List.map
+          (fun pvar' ->
+            try let term = Env.lookup pvar' env in
+              if Id.eq pvar' pvar then
+                Arith.Op (Sub, [Var{term with Id.ty=`Int}; Int 1])
+              else
+                Var{term with ty=`Int}
+            with
+              Not_found -> Var {(Env.lookup pvar' env_guessed) with Id.ty=`Int})
+        |> List.map (fun v -> Arith v)
+      in
+      (* S_j - S_i *)
+      let new_pvars = List.filter (fun pvar -> not @@ Env.has pvar scoped_rec_tvars) arg_pvars in
+      let new_fml = Var {pvar with ty=to_ty (List.map (fun pvar -> Env.lookup pvar rec_tvars) arg_pvars) pvar.ty} in
+      (* print_endline "pvar type";
+      let Var v = new_fml in
+      print_endline @@ Id.show Type.pp_simple_ty v; *)
+      if new_pvars = [] then
+        to_app new_fml (make_args Env.empty scoped_rec_tvars)
+      else begin
+        let new_tvars = List.map (fun pvar -> Env.lookup pvar rec_tvars) new_pvars in
+        let guessed_terms = get_guessed_terms coe1 coe2 apps in
+        let havocs =
+          (Core.List.cartesian_product
+            (List.map (fun tvar -> Arith.Var{tvar with Id.ty=`Int}) new_tvars)
+            guessed_terms)
+          |> List.map (fun (t1, t2) -> Pred (Lt, [t1; t2]))
+          |> formula_fold (fun acc t -> Or (acc, t)) in
+        let formula_type_vars = pvar.ty |> to_args |> List.rev in
+        to_forall
+          new_tvars
+          (to_abs'
+            formula_type_vars
+            (Or (
+              havocs,
+              to_app
+                new_fml
+                (make_args (Env.create (Core.List.zip_exn new_pvars new_tvars)) scoped_rec_tvars @ (List.map argty_to_ty formula_type_vars))
+            )))
+      end
+    end
+    | App (f1,f2) ->  App (go (f2::apps) f1, go [] f2)
+    | Or (f1,f2) -> Or (go [] f1, go [] f2)
+    | And(f1,f2) -> And(go [] f1, go [] f2)
+    | Abs(x, f1) -> Abs(x, go [] f1)
+    | Forall(x, f1) -> Forall (x, go [] f1)
+    | Exists(x, f1) -> Exists (x, go [] f1)
+    | Bool _ | Pred _ | Arith _ | Var _ -> fml in
+  go [] fml
+
+let elim_mu_with_rec hes coe1 coe2 =
+  (* calc outer_mu_funcs *)
+  let outer_mu_funcs = get_outer_mu_funcs hes in
+(* 最上部のruleは再帰参照されない前提 *)
+  if List.length (Env.lookup (List.nth hes 0).var outer_mu_funcs) <> 0 then assert false;
+  (* make tvars *)
+  let rec_tvars =
+    hes
+    |> List.filter_map
+      (fun {fix; var=pvar; _} ->
+        if fix = Fixpoint.Least then
+          Some (pvar, rectvar_of_pvar pvar)
+        else None)
+    |> Env.create in
+  (* make new hes *)
+  let hes = List.map
+    (fun {var=mypvar; body; _} ->
+      let outer_pvars = Env.lookup mypvar outer_mu_funcs in
+      let scoped_rec_tvars =
+        Env.create (List.map (fun pvar -> (pvar, (Env.lookup pvar rec_tvars))) outer_pvars) in
+      let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars body in
+      Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end;
+      let formula_type_vars = Hflz.get_hflz_type body |> to_args |> List.rev in
+      (* add rec > 0 if need *)
+      (* if needというのは、mypvarをtopとするループがあるとき *)
+      (* 残りに受け取る引数をいったんlambdaで「受ける」 *)
+      let rec_tvar_bounds' = List.map snd scoped_rec_tvars in
+      let body = 
+        to_app
+          body @@
+          List.map
+            argty_to_ty
+            formula_type_vars in
+      let body =
+        if Env.has mypvar scoped_rec_tvars then
+          let mytvar = Env.lookup mypvar scoped_rec_tvars in
+          to_abs'
+            (rec_tvar_bounds' @ formula_type_vars) @@
+            And (
+              Pred (Gt, [Var {mytvar with ty=`Int}; Int 0]),
+              body
+            )
+        else
+          to_abs'
+            (rec_tvar_bounds' @ formula_type_vars)
+            body
+      in
+      (* boundsを追加 -> ここが若干面倒？といっても、前に高階部分を加えればいいのか *)
+      let mypvar = {mypvar with ty=to_ty (List.map (fun pvar -> Env.lookup pvar rec_tvars) outer_pvars) mypvar.ty} in
+      Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end;
+      {fix=Greatest; var=mypvar; body=beta body}
+    )
+    hes
+  in
+  let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
+  print_endline @@ "Not decomposed HES path: " ^ path;
+  let hes = decompose_lambdas_hes hes in
+  (* TODO: 場合によっては、TOP levelを上に持ってくることが必要になる？ *)
+    (* |> move_first (fun {var; _} -> var.name = original_top_level_predicate.name) in *)
+  Log.app begin fun m -> m ~header:"FINAL" "%a" Print.(hflz_hes simple_ty_) hes end;
+  type_check hes;
+  hes
+  (* failwith "end" *)

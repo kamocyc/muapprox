@@ -82,7 +82,7 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
       let ty2 = go env f2 in
       if Type.eq_modulo_arg_ids ty2 ty
       then tybody
-      else failwith @@ "App_TyArrow type mismatch" ^ (show_fm  hfl) ^ "ty1=" ^ (show_arg arg.ty) ^ "/ty2=" ^ (show_arg (TySigma ty2))
+      else failwith @@ "App_TyArrow type mismatch" ^ (show_fm hfl) ^ "ty1=" ^ (show_arg arg.ty) ^ " / ty2=" ^ (show_arg (TySigma ty2))
     end
     | TyBool _ -> failwith @@ "App: left-hand term should not be boolean. (left-hand term=" ^ (show_fm f1) ^ ", right-hand term=" ^ (show_fm f2) ^ ")"
   end
@@ -92,7 +92,7 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
     if arg_num <> 2 then assert false;
     Type.TyBool ()
   end
-  | Arith _ -> assert false in
+  | Arith _ -> failwith @@ "Illegal Arith: " ^ (show_fm hfl) in
   go env hfl
   
 let type_check (hes : Type.simple_ty hes) : unit =

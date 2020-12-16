@@ -19,11 +19,14 @@ let get_solver solver_name =
   | "katsura" -> Katsura
   | s -> failwith @@ "unknown solver \"" ^ s ^ "\""
 
-let get_first_order_solver solver_name =
+let get_first_order_solver use_fo_solver = 
+  if use_fo_solver then Some FptProverRecLimit else None
+  
+(* let get_first_order_solver solver_name =
   match solver_name with
   | "fptprover-rec-limit" -> Some FptProverRecLimit
   | "" -> None
-  | s -> failwith @@ "unknown solver \"" ^ s ^ "\""
+  | s -> failwith @@ "unknown solver \"" ^ s ^ "\"" *)
 
 let get_coe coe_opt = 
   match String.trim coe_opt with

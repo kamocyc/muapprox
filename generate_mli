@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+
+# Works with merlin version 2.5.4. Using protocol described at
+# https://github.com/ocaml/merlin/blob/master/doc/dev/OLD-PROTOCOL.md#type-checking
+
+usage ()
+{
+  echo Usage: either of the following will work:
+  echo
+  echo '  sig module.ml'
+  echo '  sig module.mli'
+
+  exit 1
+}
+
+[ -z "$1" ] && usage
+
+it=~/tmp/it
+
+echo '["tell","start","end","module It = struct' >$it
+sed 's/"/\\"/g' ${1%i} >>$it
+echo ' end let () = ()"]' >>$it
+echo '["type","expression","It","at","end"]' >>$it
+
+ocamlmerlin <$it | sed -e '/^\["return",true\]$/d' -e 's/^\["return","sig *//' -e 's/ *end"\]$//' -e 's/\\"/"/g' -e 's/\\n/\
+/g' | sed -e '/^ *$/d' -e 's/^  //'
+
+# Reason syntax tweaks (untested, but should work):
+#
+# L20: echo '["tell","start","end","module It = {' >$it
+# L22: echo '}; let () = ();"]' >>$it
+# L25: ocamlmerlin <$it | sed -e '/^\["return",true\]$/d' -e 's/^\["return","{//' -e 's/};"\]$//' -e 's/\\"/"/g' -e 's/\\n/\
+# /g' | sed -e '/^ *$/d' -e 's/^  //'

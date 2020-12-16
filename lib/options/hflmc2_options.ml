@@ -52,8 +52,8 @@ type params =
   ; solver : string [@default "katsura"]
   (** Choose background mu-only-CHC solver. Available: katsura, iwayama *)
   
-  ; first_order_solver : string [@default ""]
-  (** Solver for solving first-order formulas. If empty (or default), always use solvers for higher-order formulas. Available: fptprover-rec-limit **)
+  ; first_order_solver : bool [@default false]
+  (** If true, use solver for solving first-order formulas. If empty (or default), always use solvers for higher-order formulas. **)
   
   ; coe : string [@default ""]
   }

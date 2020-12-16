@@ -247,7 +247,7 @@ let elim_mu_exists coe1 coe2 rec_preds hes =
   (* forall, existential, nu, mu *)
   (* forall, nu, mu *)
   let hes = Hflz_mani.encode_body_exists coe1 coe2 hes in
-  let hes = Hflz_mani.elim_mu_with_rec coe1 coe2 hes in
+  let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 in
   if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu_exists";
   (* forall, nu *)
   hes

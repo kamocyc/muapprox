@@ -1,0 +1,9 @@
+forall (v_exists_x: int). v_exists_x < 1 \/ Exists v_exists_x
+where
+Exists (v_exists_x: int): bool =nu (F_0_ff v_exists_x \/ F_0_ff (-v_exists_x) \/ Exists (v_exists_x - 1)) /\ v_exists_x >= 0;
+F_0_tt (x: int): bool =nu forall (v_exists_r: int). v_exists_r < 1 \/ v_exists_r < 1 * x \/ v_exists_r < -1 * x \/ F_0_tt_ap x v_exists_r;
+F_0_tt_ap (x: int) (v_exists_r: int): bool =nu (G_0_ff_1 x v_exists_r /\ F_0_tt v_exists_r \/ G_0_ff_1 x (-v_exists_r) /\ F_0_tt (-v_exists_r) \/ F_0_tt_ap x (v_exists_r - 1)) /\ v_exists_r >= 0;
+F_0_ff (x: int): bool =mu forall (v_exists_r: int). v_exists_r < 1 \/ v_exists_r < 1 * x \/ v_exists_r < -1 * x \/ F_0_ff_ap x v_exists_r;
+F_0_ff_ap (x: int) (v_exists_r: int): bool =nu (G_0_ff_1 x v_exists_r /\ F_0_tt v_exists_r \/ G_0_ff_1 x (-v_exists_r) /\ F_0_tt (-v_exists_r) \/ F_0_ff_ap x (v_exists_r - 1)) /\ v_exists_r >= 0;
+G_0_ff_1 (x: int) (r: int): bool =mu x >= 0 /\ G_1_ff_1 (x - 1) r \/ x < 0 /\ r = 5;
+G_1_ff_1 (x: int) (r: int): bool =mu x >= 0 /\ G_1_ff_1 (x - 1) r \/ x < 0 /\ r = 5;
