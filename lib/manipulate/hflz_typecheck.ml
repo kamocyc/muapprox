@@ -98,6 +98,8 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
 let type_check (hes : Type.simple_ty hes) : unit =
   let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
   print_endline @@ "Not checked HES path: " ^ path;
+  let path = Print_syntax.FptProverHes.save_hes_to_file hes in
+  print_endline @@ "Not checked HES path (.hes): " ^ path;
   let show_ty = Type.show_ty Fmt.nop in
   let env = List.map (fun {var={ty;_} as var;_} -> {var with ty=Type.TySigma ty}) hes in
   List.iter (fun ({var={ty;_}; body; _}) -> 

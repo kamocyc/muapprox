@@ -1,0 +1,1268 @@
+no_separate_original_formula_in_exists
+pvar key
+F_0_tt
+show_typ
+SInt
+gen name: x, id: 0
+gen name: F_0_tt, id: 1
+pvar key
+F_0_ff
+show_typ
+SInt
+gen name: x, id: 2
+gen name: F_0_ff, id: 3
+pvar key
+G_0_ff_1
+show_typ
+SInt;SInt
+gen name: r, id: 4
+gen name: x, id: 5
+gen name: G_0_ff_1, id: 6
+pvar key
+G_1_ff_1
+show_typ
+SInt;SInt
+gen name: r, id: 7
+gen name: x, id: 8
+gen name: G_1_ff_1, id: 9
+key
+x
+gen name: x, id: 10
+gen name: Sentry, id: 11
+key
+x
+gen name: x, id: 12
+key
+r
+gen name: r, id: 13
+key
+x
+gen name: x, id: 14
+key
+r
+gen name: r, id: 15
+key
+x
+gen name: x, id: 16
+key
+r
+gen name: r, id: 17
+key
+x
+gen name: x, id: 18
+key
+r
+gen name: r, id: 19
+[Main:App:hes Input]
+  Sentry : bool =ν ∀x10.F_0_ff x10
+  F_0_tt : int -> bool =ν λx12:int.∃r13.G_0_ff_1 x12 r13 && F_0_tt r13
+  F_0_ff : int -> bool =μ λx14:int.∃r15.G_0_ff_1 x14 r15 && F_0_tt r15
+  G_0_ff_1 : int -> int -> bool =μ
+    λx16:int.λr17:int.x16 >= 0 && G_1_ff_1 (x16 - 1) r17 || x16 < 0 && r17 = 5
+  G_1_ff_1 : int -> int -> bool =μ
+    λx18:int.λr19:int.x18 >= 0 && G_1_ff_1 (x18 - 1) r19 || x18 < 0 && r19 = 5
+[Main:App:Simplified]
+  Sentry : bool =ν
+    ∀x10.
+     (λx14:int.
+       ∃r15.
+        (λx16:int.λr17:int.x16 >= 0 && G_1_ff_1 (x16 - 1) r17 || x16 < 0 && r17 = 5) x14 r15
+        && F_0_tt r15)
+      x10
+  F_0_tt : int -> bool =ν
+    λx12:int.
+     ∃r13.
+      (λx16:int.λr17:int.x16 >= 0 && G_1_ff_1 (x16 - 1) r17 || x16 < 0 && r17 = 5) x12 r13
+      && F_0_tt r13
+  G_1_ff_1 : int -> int -> bool =μ
+    λx18:int.λr19:int.x18 >= 0 && G_1_ff_1 (x18 - 1) r19 || x18 < 0 && r19 = 5
+[Solver:App:check_validity (first)]
+  Sentry  =ν
+    (\x14.
+      ∃r15.
+       (\x16.\r17.x16 >= 0 && G_1_ff_1 (x16 - 1) r17 || x16 < 0 && r17 = 5) x14 r15 && F_0_tt r15)
+     x10.
+  F_0_tt x12 =ν
+    ∃r13.
+     (\x16.\r17.x16 >= 0 && G_1_ff_1 (x16 - 1) r17 || x16 < 0 && r17 = 5) x12 r13 && F_0_tt r13.
+  G_1_ff_1 x18 r19 =μ x18 >= 0 && G_1_ff_1 (x18 - 1) r19 || x18 < 0 && r19 = 5.
+extract_abstraction
+x14
+not_apply
+Sentry11;Sentry11;F_0_tt1;G_1_ff_19;freevars
+gen name: Sentry_sub20, id: 21
+NEW_RULE
+Sentry_sub20 : int -> bool =ν
+  λx14:int.
+   ∃r15.
+    (λx16:int.
+      λr17:int.
+       x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17
+       || x16 < 0 && r17 = 5)
+     x14 r15
+    && (F_0_tt :int -> bool) r15
+extract_abstraction
+x16
+r17
+not_apply
+Sentry_sub2021;Sentry11;F_0_tt1;G_1_ff_19;freevars
+gen name: Sentry_sub20_sub22, id: 23
+NEW_RULE
+Sentry_sub20_sub22 : int -> int -> bool =ν
+  λx16:int.
+   λr17:int.
+    x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17
+    || x16 < 0 && r17 = 5
+extract_abstraction
+x16
+r17
+not_apply
+F_0_tt1;Sentry11;F_0_tt1;G_1_ff_19;freevars
+gen name: F_0_tt_sub24, id: 25
+NEW_RULE
+F_0_tt_sub24 : int -> int -> bool =ν
+  λx16:int.
+   λr17:int.
+    x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17
+    || x16 < 0 && r17 = 5
+[Solver:App:Decompose lambdas]
+  Sentry : bool =ν ∀x10.(Sentry_sub20 :int -> bool) x10
+  Sentry_sub20 : int -> bool =ν
+    λx14:int.∃r15.(Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+  Sentry_sub20_sub22 : int -> int -> bool =ν
+    λx16:int.
+     λr17:int.x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17 || x16 < 0 && r17 = 5
+  F_0_tt : int -> bool =ν
+    λx12:int.∃r13.(F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+  F_0_tt_sub24 : int -> int -> bool =ν
+    λx16:int.
+     λr17:int.x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17 || x16 < 0 && r17 = 5
+  G_1_ff_1 : int -> int -> bool =μ
+    λx18:int.
+     λr19:int.x18 >= 0 && (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19 || x18 < 0 && r19 = 5
+get_recurring_predicates
+F_0_tt, G_1_ff_1, 
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  ∀x10.(Sentry_sub20 :int -> bool) x10
+[Solver:App:encode_body_exists_formula]
+  ∀x10.(Sentry_sub20 :int -> bool) x10
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx14:int.∃r15.(Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+encode_body_exists_formula
+var=r
+
+HFLLL
+∀r15.
+ r15 < 1 || r15 < 1 * x14 || r15 < -1 * x14
+ || (Sentry_sub20_e26 :int -> int -> bool) x14 r15
+
+intint[Solver:App:encode_body_exists_formula]
+        λx14:int.
+         ∀r15.
+          r15 < 1 || r15 < 1 * x14 || r15 < -1 * x14
+          || (Sentry_sub20_e26 :int -> int -> bool) x14 r15
+[Solver:App:!new_rules]
+  Sentry_sub20_e26 : int -> int -> bool =ν
+    λx14:int.
+     λr15:int.
+      r15 >= 0
+      && ((Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+          || (Sentry_sub20_sub22 :int -> int -> bool) x14 (-r15) && (F_0_tt :int -> bool) (-r15)
+          || (Sentry_sub20_e26 :int -> int -> bool) x14 (r15 - 1))
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx16:int.
+   λr17:int.x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17 || x16 < 0 && r17 = 5
+[Solver:App:encode_body_exists_formula]
+  λx16:int.
+   λr17:int.x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17 || x16 < 0 && r17 = 5
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx12:int.∃r13.(F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+encode_body_exists_formula
+var=r
+
+HFLLL
+∀r13.
+ r13 < 1 || r13 < 1 * x12 || r13 < -1 * x12
+ || (F_0_tt_e27 :int -> int -> bool) x12 r13
+
+intint[Solver:App:encode_body_exists_formula]
+        λx12:int.
+         ∀r13.
+          r13 < 1 || r13 < 1 * x12 || r13 < -1 * x12 || (F_0_tt_e27 :int -> int -> bool) x12 r13
+[Solver:App:!new_rules]
+  F_0_tt_e27 : int -> int -> bool =ν
+    λx12:int.
+     λr13:int.
+      r13 >= 0
+      && ((F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+          || (F_0_tt_sub24 :int -> int -> bool) x12 (-r13) && (F_0_tt :int -> bool) (-r13)
+          || (F_0_tt_e27 :int -> int -> bool) x12 (r13 - 1))
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx16:int.
+   λr17:int.x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17 || x16 < 0 && r17 = 5
+[Solver:App:encode_body_exists_formula]
+  λx16:int.
+   λr17:int.x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17 || x16 < 0 && r17 = 5
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx18:int.
+   λr19:int.x18 >= 0 && (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19 || x18 < 0 && r19 = 5
+[Solver:App:encode_body_exists_formula]
+  λx18:int.
+   λr19:int.x18 >= 0 && (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19 || x18 < 0 && r19 = 5
+[Solver:App:!new_rules]
+  
+Not decomposed HES path (Exists): /tmp/nuonly-39421040.smt2
+Sentry_sub20
+[Solver:App:body]
+  ∀x10.(Sentry_sub20 :int -> bool) x10
+[Solver:App:body]
+  ∀x10.(Sentry_sub20 :int -> bool) x10
+Sentry_sub20_e26
+[Solver:App:body]
+  λx14:int.
+   ∀r15.
+    r15 < 1 || r15 < 1 * x14 || r15 < -1 * x14 || (Sentry_sub20_e26 :int -> int -> bool) x14 r15
+[Solver:App:body]
+  λx14:int.
+   (λx14:int.
+     ∀r15.
+      r15 < 1 || r15 < 1 * x14 || r15 < -1 * x14 || (Sentry_sub20_e26 :int -> int -> bool) x14 r15)
+    x14
+Sentry_sub20_e26
+F_0_tt
+Sentry_sub20_sub22
+F_0_tt
+Sentry_sub20_sub22
+[Solver:App:body]
+  λx14:int.
+   λr15:int.
+    r15 >= 0
+    && ((Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+        || (Sentry_sub20_sub22 :int -> int -> bool) x14 (-r15) && (F_0_tt :int -> bool) (-r15)
+        || (Sentry_sub20_e26 :int -> int -> bool) x14 (r15 - 1))
+[Solver:App:body]
+  λx14:int.
+   λr15:int.
+    (λx14:int.
+      λr15:int.
+       r15 >= 0
+       && ((Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+           || (Sentry_sub20_sub22 :int -> int -> bool) x14 (-r15) && (F_0_tt :int -> bool) (-r15)
+           || (Sentry_sub20_e26 :int -> int -> bool) x14 (r15 - 1)))
+     x14 r15
+G_1_ff_1
+[Solver:App:body]
+  λx16:int.
+   λr17:int.
+    x16 >= 0
+    && (∀recG_1_ff_12828.
+         λx8:int.
+          λr7:int.
+           recG_1_ff_12828 < 1 + 1 * r17 || recG_1_ff_12828 < 1 + -1 * r17
+           || recG_1_ff_12828 < 1 + 1 * (x16 - 1)
+           || recG_1_ff_12828 < 1 + -1 * (x16 - 1)
+           || recG_1_ff_12828 < 1
+           || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_12828 x8 r7)
+        (x16 - 1) r17
+    || x16 < 0 && r17 = 5
+[Solver:App:body]
+  λx16:int.
+   λr17:int.
+    (λx16:int.
+      λr17:int.
+       x16 >= 0
+       && (∀recG_1_ff_12828.
+            λx8:int.
+             λr7:int.
+              recG_1_ff_12828 < 1 + 1 * r17 || recG_1_ff_12828 < 1 + -1 * r17
+              || recG_1_ff_12828 < 1 + 1 * (x16 - 1)
+              || recG_1_ff_12828 < 1 + -1 * (x16 - 1)
+              || recG_1_ff_12828 < 1
+              || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_12828 x8 r7)
+           (x16 - 1) r17
+       || x16 < 0 && r17 = 5)
+     x16 r17
+F_0_tt_e27
+[Solver:App:body]
+  λx12:int.
+   ∀r13.r13 < 1 || r13 < 1 * x12 || r13 < -1 * x12 || (F_0_tt_e27 :int -> int -> bool) x12 r13
+[Solver:App:body]
+  λx12:int.
+   (λx12:int.
+     ∀r13.r13 < 1 || r13 < 1 * x12 || r13 < -1 * x12 || (F_0_tt_e27 :int -> int -> bool) x12 r13)
+    x12
+F_0_tt_e27
+F_0_tt
+F_0_tt_sub24
+F_0_tt
+F_0_tt_sub24
+[Solver:App:body]
+  λx12:int.
+   λr13:int.
+    r13 >= 0
+    && ((F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+        || (F_0_tt_sub24 :int -> int -> bool) x12 (-r13) && (F_0_tt :int -> bool) (-r13)
+        || (F_0_tt_e27 :int -> int -> bool) x12 (r13 - 1))
+[Solver:App:body]
+  λx12:int.
+   λr13:int.
+    (λx12:int.
+      λr13:int.
+       r13 >= 0
+       && ((F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+           || (F_0_tt_sub24 :int -> int -> bool) x12 (-r13) && (F_0_tt :int -> bool) (-r13)
+           || (F_0_tt_e27 :int -> int -> bool) x12 (r13 - 1)))
+     x12 r13
+G_1_ff_1
+[Solver:App:body]
+  λx16:int.
+   λr17:int.
+    x16 >= 0
+    && (∀recG_1_ff_12828.
+         λx8:int.
+          λr7:int.
+           recG_1_ff_12828 < 1 + 1 * r17 || recG_1_ff_12828 < 1 + -1 * r17
+           || recG_1_ff_12828 < 1 + 1 * (x16 - 1)
+           || recG_1_ff_12828 < 1 + -1 * (x16 - 1)
+           || recG_1_ff_12828 < 1
+           || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_12828 x8 r7)
+        (x16 - 1) r17
+    || x16 < 0 && r17 = 5
+[Solver:App:body]
+  λx16:int.
+   λr17:int.
+    (λx16:int.
+      λr17:int.
+       x16 >= 0
+       && (∀recG_1_ff_12828.
+            λx8:int.
+             λr7:int.
+              recG_1_ff_12828 < 1 + 1 * r17 || recG_1_ff_12828 < 1 + -1 * r17
+              || recG_1_ff_12828 < 1 + 1 * (x16 - 1)
+              || recG_1_ff_12828 < 1 + -1 * (x16 - 1)
+              || recG_1_ff_12828 < 1
+              || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_12828 x8 r7)
+           (x16 - 1) r17
+       || x16 < 0 && r17 = 5)
+     x16 r17
+G_1_ff_1
+[Solver:App:body]
+  λx18:int.
+   λr19:int.
+    x18 >= 0 && (G_1_ff_1 :int -> int -> int -> bool) (recG_1_ff_12828 - 1) (x18 - 1) r19
+    || x18 < 0 && r19 = 5
+[Solver:App:body]
+  λrecG_1_ff_12828:int.
+   λx18:int.
+    λr19:int.
+     recG_1_ff_12828 > 0
+     && (λx18:int.
+          λr19:int.
+           x18 >= 0 && (G_1_ff_1 :int -> int -> int -> bool) (recG_1_ff_12828 - 1) (x18 - 1) r19
+           || x18 < 0 && r19 = 5)
+         x18 r19
+Not decomposed HES path: /tmp/nuonly-26639492.smt2
+[Solver:App:FINAL]
+  Sentry : bool =ν ∀x10.(Sentry_sub20 :int -> bool) x10
+  Sentry_sub20 : int -> bool =ν
+    λx14:int.
+     ∀r15.
+      r15 < 1 || r15 < 1 * x14 || r15 < -1 * x14 || (Sentry_sub20_e26 :int -> int -> bool) x14 r15
+  Sentry_sub20_e26 : int -> int -> bool =ν
+    λx14:int.
+     λr15:int.
+      r15 >= 0
+      && ((Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+          || (Sentry_sub20_sub22 :int -> int -> bool) x14 (-r15) && (F_0_tt :int -> bool) (-r15)
+          || (Sentry_sub20_e26 :int -> int -> bool) x14 (r15 - 1))
+  Sentry_sub20_sub22 : int -> int -> bool =ν
+    λx16:int.
+     λr17:int.
+      x16 >= 0
+      && (∀recG_1_ff_12828.
+           recG_1_ff_12828 < 1 + 1 * r17 || recG_1_ff_12828 < 1 + -1 * r17
+           || recG_1_ff_12828 < 1 + 1 * (x16 - 1)
+           || recG_1_ff_12828 < 1 + -1 * (x16 - 1)
+           || recG_1_ff_12828 < 1
+           || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_12828 (x16 - 1) r17)
+      || x16 < 0 && r17 = 5
+  F_0_tt : int -> bool =ν
+    λx12:int.
+     ∀r13.r13 < 1 || r13 < 1 * x12 || r13 < -1 * x12 || (F_0_tt_e27 :int -> int -> bool) x12 r13
+  F_0_tt_e27 : int -> int -> bool =ν
+    λx12:int.
+     λr13:int.
+      r13 >= 0
+      && ((F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+          || (F_0_tt_sub24 :int -> int -> bool) x12 (-r13) && (F_0_tt :int -> bool) (-r13)
+          || (F_0_tt_e27 :int -> int -> bool) x12 (r13 - 1))
+  F_0_tt_sub24 : int -> int -> bool =ν
+    λx16:int.
+     λr17:int.
+      x16 >= 0
+      && (∀recG_1_ff_12828.
+           recG_1_ff_12828 < 1 + 1 * r17 || recG_1_ff_12828 < 1 + -1 * r17
+           || recG_1_ff_12828 < 1 + 1 * (x16 - 1)
+           || recG_1_ff_12828 < 1 + -1 * (x16 - 1)
+           || recG_1_ff_12828 < 1
+           || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_12828 (x16 - 1) r17)
+      || x16 < 0 && r17 = 5
+  G_1_ff_1 : int -> int -> int -> bool =ν
+    λrecG_1_ff_12828:int.
+     λx18:int.
+      λr19:int.
+       recG_1_ff_12828 > 0
+       && (x18 >= 0 && (G_1_ff_1 :int -> int -> int -> bool) (recG_1_ff_12828 - 1) (x18 - 1) r19
+           || x18 < 0 && r19 = 5)
+Not checked HES path: /tmp/nuonly-28159299.smt2
+Not checked HES path (.hes): /tmp/nuonly-238700464.smt2
+FIRST-ORDER
+HES PATH: /tmp/nuonly-179346145.smt2
+Converted Hes: forall (x10: int). Sentry_sub20 x10
+where
+Sentry_sub20 (x14: int): bool =nu forall (r15: int). r15 < 1 \/ r15 < 1 * x14 \/ r15 < -1 * x14 \/ Sentry_sub20_e26 x14 r15;
+Sentry_sub20_e26 (x14: int) (r15: int): bool =nu r15 >= 0 /\ (Sentry_sub20_sub22 x14 r15 /\ F_0_tt r15 \/ Sentry_sub20_sub22 x14 (0 - r15) /\ F_0_tt (0 - r15) \/ Sentry_sub20_e26 x14 (r15 - 1));
+Sentry_sub20_sub22 (x16: int) (r17: int): bool =nu x16 >= 0 /\ (forall (recG_1_ff_12828: int). recG_1_ff_12828 < 1 + 1 * r17 \/ recG_1_ff_12828 < 1 + -1 * r17 \/ recG_1_ff_12828 < 1 + 1 * (x16 - 1) \/ recG_1_ff_12828 < 1 + -1 * (x16 - 1) \/ recG_1_ff_12828 < 1 \/ G_1_ff_1 recG_1_ff_12828 (x16 - 1) r17) \/ x16 < 0 /\ r17 = 5;
+F_0_tt (x12: int): bool =nu forall (r13: int). r13 < 1 \/ r13 < 1 * x12 \/ r13 < -1 * x12 \/ F_0_tt_e27 x12 r13;
+F_0_tt_e27 (x12: int) (r13: int): bool =nu r13 >= 0 /\ (F_0_tt_sub24 x12 r13 /\ F_0_tt r13 \/ F_0_tt_sub24 x12 (0 - r13) /\ F_0_tt (0 - r13) \/ F_0_tt_e27 x12 (r13 - 1));
+F_0_tt_sub24 (x16: int) (r17: int): bool =nu x16 >= 0 /\ (forall (recG_1_ff_12828: int). recG_1_ff_12828 < 1 + 1 * r17 \/ recG_1_ff_12828 < 1 + -1 * r17 \/ recG_1_ff_12828 < 1 + 1 * (x16 - 1) \/ recG_1_ff_12828 < 1 + -1 * (x16 - 1) \/ recG_1_ff_12828 < 1 \/ G_1_ff_1 recG_1_ff_12828 (x16 - 1) r17) \/ x16 < 0 /\ r17 = 5;
+G_1_ff_1 (recG_1_ff_12828: int) (x18: int) (r19: int): bool =nu recG_1_ff_12828 > 0 /\ (x18 >= 0 /\ G_1_ff_1 (recG_1_ff_12828 - 1) (x18 - 1) r19 \/ x18 < 0 /\ r19 = 5);
+pvar key
+Sentry_sub20
+show_typ
+SInt
+gen name: x14, id: 29
+gen name: Sentry_sub20, id: 30
+pvar key
+Sentry_sub20_e26
+show_typ
+SInt;SInt
+gen name: r15, id: 31
+gen name: x14, id: 32
+gen name: Sentry_sub20_e26, id: 33
+pvar key
+Sentry_sub20_sub22
+show_typ
+SInt;SInt
+gen name: r17, id: 34
+gen name: x16, id: 35
+gen name: Sentry_sub20_sub22, id: 36
+pvar key
+F_0_tt
+show_typ
+SInt
+gen name: x12, id: 37
+gen name: F_0_tt, id: 38
+pvar key
+F_0_tt_e27
+show_typ
+SInt;SInt
+gen name: r13, id: 39
+gen name: x12, id: 40
+gen name: F_0_tt_e27, id: 41
+pvar key
+F_0_tt_sub24
+show_typ
+SInt;SInt
+gen name: r17, id: 42
+gen name: x16, id: 43
+gen name: F_0_tt_sub24, id: 44
+pvar key
+G_1_ff_1
+show_typ
+SInt;SInt;SInt
+gen name: r19, id: 45
+gen name: x18, id: 46
+gen name: recG_1_ff_12828, id: 47
+gen name: G_1_ff_1, id: 48
+key
+x10
+gen name: x10, id: 49
+gen name: Sentry, id: 50
+key
+x14
+gen name: x14, id: 51
+key
+r15
+gen name: r15, id: 52
+key
+x14
+gen name: x14, id: 53
+key
+r15
+gen name: r15, id: 54
+key
+x16
+gen name: x16, id: 55
+key
+r17
+gen name: r17, id: 56
+key
+recG_1_ff_12828
+gen name: recG_1_ff_12828, id: 57
+key
+x12
+gen name: x12, id: 58
+key
+r13
+gen name: r13, id: 59
+key
+x12
+gen name: x12, id: 60
+key
+r13
+gen name: r13, id: 61
+key
+x16
+gen name: x16, id: 62
+key
+r17
+gen name: r17, id: 63
+key
+recG_1_ff_12828
+gen name: recG_1_ff_12828, id: 64
+key
+recG_1_ff_12828
+gen name: recG_1_ff_12828, id: 65
+key
+x18
+gen name: x18, id: 66
+key
+r19
+gen name: r19, id: 67
+HES PATH 2: /tmp/nuonly-139920911.smt2
+show_commands
+name: hoice
+arguments: --timeout,240
+input: (set-logic HORN),(declare-fun Entry_ (Int) Bool),(declare-fun Sentry_sub20 (Int) Bool),(declare-fun G_1_ff_1 (Int Int Int) Bool),(declare-fun P!!0 (Int Int Int) Bool),(declare-fun F_0_tt_sub24 (Int Int) Bool),(declare-fun P!!1 (Int Int Int) Bool),(declare-fun F_0_tt_e27 (Int Int) Bool),(declare-fun P!!2 (Int Int) Bool),(declare-fun P!!3 (Int Int) Bool),(declare-fun F_0_tt (Int) Bool),(declare-fun Sentry_sub20_sub22 (Int Int) Bool),(declare-fun P!!4 (Int Int Int) Bool),(declare-fun Sentry_sub20_e26 (Int Int) Bool),(declare-fun P!!5 (Int Int) Bool),(declare-fun P!!6 (Int Int) Bool),(assert (forall ((A Int)) (=> (Sentry_sub20 A) (Entry_ A)))),(assert (forall ((A Int) (B Int) (C Int)),  (let ((a!1 (and (P!!0 C B A) (or (>= B 0) (not (= C 5)))))),    (=> a!1 (G_1_ff_1 A B C))))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (=> (and (G_1_ff_1 B A E) (= A (- D 1)) (= B (- C 1))) (P!!0 E D C)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (< B 0) (P!!0 C B A)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= A 0) (G_1_ff_1 A B C)))),(assert (forall ((A Int) (B Int) (C Int)),  (let ((a!1 (and (P!!1 C B A) (or (>= A 0) (not (= B 5)))))),    (=> a!1 (F_0_tt_sub24 A B))))),(assert (forall ((A Int) (B Int) (C Int) (D Int)),  (let ((a!1 (>= D (+ 1 (* 1 (- B 1))))) (a!2 (>= D (+ 1 (* (- 1) (- B 1)))))),  (let ((a!3 (and (G_1_ff_1 D A C),                  (= A (- B 1)),                  (>= D (+ 1 (* (- 1) C))),                  a!1,                  a!2,                  (>= D 1),                  (>= D (+ 1 (* 1 C)))))),    (=> a!3 (P!!1 D C B)))))),(assert (forall ((A Int) (B Int) (C Int)) (=> (< A 0) (P!!1 C B A)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (P!!3 C B) (F_0_tt_e27 B A) (P!!2 C B) (= A (- C 1))),      (F_0_tt_e27 B C)))),(assert (forall ((A Int) (B Int)) (=> (F_0_tt B) (P!!3 B A)))),(assert (forall ((A Int) (B Int)) (=> (F_0_tt_sub24 A B) (P!!3 B A)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (F_0_tt A) (= A (- 0 C))) (P!!2 C B)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (F_0_tt_sub24 B A) (= A (- 0 C))) (P!!2 C B)))),(assert (forall ((A Int) (B Int)) (=> (< B 0) (F_0_tt_e27 A B)))),(assert (forall ((A Int) (B Int)),  (=> (and (F_0_tt_e27 A B) (>= B 1) (>= B (* 1 A)) (>= B (* (- 1) A))),      (F_0_tt A)))),(assert (forall ((A Int) (B Int) (C Int)),  (let ((a!1 (and (P!!4 C B A) (or (>= A 0) (not (= B 5)))))),    (=> a!1 (Sentry_sub20_sub22 A B))))),(assert (forall ((A Int) (B Int) (C Int) (D Int)),  (let ((a!1 (>= D (+ 1 (* 1 (- B 1))))) (a!2 (>= D (+ 1 (* (- 1) (- B 1)))))),  (let ((a!3 (and (G_1_ff_1 D A C),                  (= A (- B 1)),                  (>= D (+ 1 (* (- 1) C))),                  a!1,                  a!2,                  (>= D 1),                  (>= D (+ 1 (* 1 C)))))),    (=> a!3 (P!!4 D C B)))))),(assert (forall ((A Int) (B Int) (C Int)) (=> (< A 0) (P!!4 C B A)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (P!!6 C B) (Sentry_sub20_e26 B A) (P!!5 C B) (= A (- C 1))),      (Sentry_sub20_e26 B C)))),(assert (forall ((A Int) (B Int)) (=> (F_0_tt B) (P!!6 B A)))),(assert (forall ((A Int) (B Int)) (=> (Sentry_sub20_sub22 A B) (P!!6 B A)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (F_0_tt A) (= A (- 0 C))) (P!!5 C B)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (Sentry_sub20_sub22 B A) (= A (- 0 C))) (P!!5 C B)))),(assert (forall ((A Int) (B Int)) (=> (< B 0) (Sentry_sub20_e26 A B)))),(assert (forall ((A Int) (B Int)),  (=> (and (Sentry_sub20_e26 A B) (>= B 1) (>= B (* 1 A)) (>= B (* (- 1) A))),      (Sentry_sub20 A)))),,,(assert (forall ((X0 Int)) (not (Entry_ X0)))),(check-sat),(exit)
+====
+[Solver:App:get_dual_hes]
+  Sentry : bool =ν ∃x10.(Sentry_sub20 :int -> bool) x10
+  Sentry_sub20 : int -> bool =μ
+    λx14:int.∀r15.(Sentry_sub20_sub22 :int -> int -> bool) x14 r15 || (F_0_tt :int -> bool) r15
+  Sentry_sub20_sub22 : int -> int -> bool =μ
+    λx16:int.
+     λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5)
+  F_0_tt : int -> bool =μ
+    λx12:int.∀r13.(F_0_tt_sub24 :int -> int -> bool) x12 r13 || (F_0_tt :int -> bool) r13
+  F_0_tt_sub24 : int -> int -> bool =μ
+    λx16:int.
+     λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5)
+  G_1_ff_1 : int -> int -> bool =ν
+    λx18:int.
+     λr19:int.(x18 < 0 || (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19) && (x18 >= 0 || r19 != 5)
+Not checked HES path: /tmp/nuonly-5238545.smt2
+Not checked HES path (.hes): /tmp/nuonly-208120797.smt2
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  ∃x10.(Sentry_sub20 :int -> bool) x10
+encode_body_exists_formula
+var=x
+
+HFLLL
+∀x10.x10 < 1 || (Exists68 :int -> bool) x10
+
+intint[Solver:App:encode_body_exists_formula]
+        ∀x10.x10 < 1 || (Exists68 :int -> bool) x10
+[Solver:App:!new_rules]
+  Exists68 : int -> bool =ν
+    λx10:int.
+     x10 >= 0
+     && ((Sentry_sub20 :int -> bool) x10 || (Sentry_sub20 :int -> bool) (-x10)
+         || (Exists68 :int -> bool) (x10 - 1))
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx14:int.∀r15.(Sentry_sub20_sub22 :int -> int -> bool) x14 r15 || (F_0_tt :int -> bool) r15
+[Solver:App:encode_body_exists_formula]
+  λx14:int.∀r15.(Sentry_sub20_sub22 :int -> int -> bool) x14 r15 || (F_0_tt :int -> bool) r15
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx16:int.
+   λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5)
+[Solver:App:encode_body_exists_formula]
+  λx16:int.
+   λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5)
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx12:int.∀r13.(F_0_tt_sub24 :int -> int -> bool) x12 r13 || (F_0_tt :int -> bool) r13
+[Solver:App:encode_body_exists_formula]
+  λx12:int.∀r13.(F_0_tt_sub24 :int -> int -> bool) x12 r13 || (F_0_tt :int -> bool) r13
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx16:int.
+   λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5)
+[Solver:App:encode_body_exists_formula]
+  λx16:int.
+   λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5)
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx18:int.
+   λr19:int.(x18 < 0 || (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19) && (x18 >= 0 || r19 != 5)
+[Solver:App:encode_body_exists_formula]
+  λx18:int.
+   λr19:int.(x18 < 0 || (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19) && (x18 >= 0 || r19 != 5)
+[Solver:App:!new_rules]
+  
+Not decomposed HES path (Exists): /tmp/nuonly-242057509.smt2
+Exists68
+[Solver:App:body]
+  ∀x10.x10 < 1 || (Exists68 :int -> bool) x10
+[Solver:App:body]
+  ∀x10.x10 < 1 || (Exists68 :int -> bool) x10
+Exists68
+Sentry_sub20
+Sentry_sub20
+[Solver:App:body]
+  λx10:int.
+   x10 >= 0
+   && ((Sentry_sub20 :int -> bool) x10 || (Sentry_sub20 :int -> bool) (-x10)
+       || (Exists68 :int -> bool) (x10 - 1))
+[Solver:App:body]
+  λx10:int.
+   (λx10:int.
+     x10 >= 0
+     && ((Sentry_sub20 :int -> bool) x10 || (Sentry_sub20 :int -> bool) (-x10)
+         || (Exists68 :int -> bool) (x10 - 1)))
+    x10
+F_0_tt
+Sentry_sub20_sub22
+[Solver:App:body]
+  λx14:int.
+   ∀r15.
+    (Sentry_sub20_sub22 :int -> int -> bool) x14 r15
+    || (∀recF_0_tt7171.
+         λx0:int.
+          recF_0_tt7171 < 1 + 1 * r15 || recF_0_tt7171 < 1 + -1 * r15 || recF_0_tt7171 < 1
+          || (F_0_tt :int -> int -> bool) recF_0_tt7171 x0)
+        r15
+[Solver:App:body]
+  λx14:int.
+   (λx14:int.
+     ∀r15.
+      (Sentry_sub20_sub22 :int -> int -> bool) x14 r15
+      || (∀recF_0_tt7171.
+           λx0:int.
+            recF_0_tt7171 < 1 + 1 * r15 || recF_0_tt7171 < 1 + -1 * r15 || recF_0_tt7171 < 1
+            || (F_0_tt :int -> int -> bool) recF_0_tt7171 x0)
+          r15)
+    x14
+G_1_ff_1
+[Solver:App:body]
+  λx16:int.
+   λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5)
+[Solver:App:body]
+  λx16:int.
+   λr17:int.
+    (λx16:int.
+      λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5))
+     x16 r17
+F_0_tt
+F_0_tt_sub24
+[Solver:App:body]
+  λx12:int.
+   ∀r13.
+    (F_0_tt_sub24 :int -> int -> bool) x12 r13
+    || (F_0_tt :int -> int -> bool) (recF_0_tt7171 - 1) r13
+[Solver:App:body]
+  λrecF_0_tt7171:int.
+   λx12:int.
+    recF_0_tt7171 > 0
+    && (λx12:int.
+         ∀r13.
+          (F_0_tt_sub24 :int -> int -> bool) x12 r13
+          || (F_0_tt :int -> int -> bool) (recF_0_tt7171 - 1) r13)
+        x12
+G_1_ff_1
+[Solver:App:body]
+  λx16:int.
+   λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5)
+[Solver:App:body]
+  λx16:int.
+   λr17:int.
+    (λx16:int.
+      λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5))
+     x16 r17
+G_1_ff_1
+[Solver:App:body]
+  λx18:int.
+   λr19:int.(x18 < 0 || (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19) && (x18 >= 0 || r19 != 5)
+[Solver:App:body]
+  λx18:int.
+   λr19:int.
+    (λx18:int.
+      λr19:int.(x18 < 0 || (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19) && (x18 >= 0 || r19 != 5))
+     x18 r19
+Not decomposed HES path: /tmp/nuonly-80609703.smt2
+extract_abstraction
+x0
+not_apply
+recF_0_tt7171;Sentry_sub2021;Sentry11;Exists6868;Sentry_sub2021;Sentry_sub20_sub2223;F_0_tt1;F_0_tt_sub2425;G_1_ff_19;freevars
+r15;gen name: Sentry_sub20_sub73, id: 74
+NEW_RULE
+Sentry_sub20_sub73 : int -> int -> bool =ν
+  λr15:int.
+   λx0:int.
+    recF_0_tt7171 < 1 + 1 * r15 || recF_0_tt7171 < 1 + -1 * r15
+    || recF_0_tt7171 < 1
+    || (F_0_tt :int -> int -> bool) recF_0_tt7171 x0
+[Solver:App:FINAL]
+  Sentry : bool =ν ∀x10.x10 < 1 || (Exists68 :int -> bool) x10
+  Exists68 : int -> bool =ν
+    λx10:int.
+     x10 >= 0
+     && ((Sentry_sub20 :int -> bool) x10 || (Sentry_sub20 :int -> bool) (-x10)
+         || (Exists68 :int -> bool) (x10 - 1))
+  Sentry_sub20 : int -> bool =ν
+    λx14:int.
+     ∀r15.
+      (Sentry_sub20_sub22 :int -> int -> bool) x14 r15
+      || (Sentry_sub20_sub73 :int -> int -> bool) r15 r15
+  Sentry_sub20_sub73 : int -> int -> bool =ν
+    λr15:int.
+     λx0:int.
+      ∀recF_0_tt7171.
+       recF_0_tt7171 < 1 + 1 * r15 || recF_0_tt7171 < 1 + -1 * r15 || recF_0_tt7171 < 1
+       || (F_0_tt :int -> int -> bool) recF_0_tt7171 x0
+  Sentry_sub20_sub22 : int -> int -> bool =ν
+    λx16:int.
+     λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5)
+  F_0_tt : int -> int -> bool =ν
+    λrecF_0_tt7171:int.
+     λx12:int.
+      recF_0_tt7171 > 0
+      && (∀r13.
+           (F_0_tt_sub24 :int -> int -> bool) x12 r13
+           || (F_0_tt :int -> int -> bool) (recF_0_tt7171 - 1) r13)
+  F_0_tt_sub24 : int -> int -> bool =ν
+    λx16:int.
+     λr17:int.(x16 < 0 || (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17) && (x16 >= 0 || r17 != 5)
+  G_1_ff_1 : int -> int -> bool =ν
+    λx18:int.
+     λr19:int.(x18 < 0 || (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19) && (x18 >= 0 || r19 != 5)
+Not checked HES path: /tmp/nuonly-47270040.smt2
+Not checked HES path (.hes): /tmp/nuonly-54679056.smt2
+FIRST-ORDER
+HES PATH: /tmp/nuonly-202630149.smt2
+Converted Hes: forall (x10: int). x10 < 1 \/ Exists68 x10
+where
+Exists68 (x10: int): bool =nu x10 >= 0 /\ (Sentry_sub20 x10 \/ Sentry_sub20 (0 - x10) \/ Exists68 (x10 - 1));
+Sentry_sub20 (x14: int): bool =nu forall (r15: int). Sentry_sub20_sub22 x14 r15 \/ Sentry_sub20_sub73 r15 r15;
+Sentry_sub20_sub73 (r15: int) (x0: int): bool =nu forall (recF_0_tt7171: int). recF_0_tt7171 < 1 + 1 * r15 \/ recF_0_tt7171 < 1 + -1 * r15 \/ recF_0_tt7171 < 1 \/ F_0_tt recF_0_tt7171 x0;
+Sentry_sub20_sub22 (x16: int) (r17: int): bool =nu (x16 < 0 \/ G_1_ff_1 (x16 - 1) r17) /\ (x16 >= 0 \/ r17 != 5);
+F_0_tt (recF_0_tt7171: int) (x12: int): bool =nu recF_0_tt7171 > 0 /\ (forall (r13: int). F_0_tt_sub24 x12 r13 \/ F_0_tt (recF_0_tt7171 - 1) r13);
+F_0_tt_sub24 (x16: int) (r17: int): bool =nu (x16 < 0 \/ G_1_ff_1 (x16 - 1) r17) /\ (x16 >= 0 \/ r17 != 5);
+G_1_ff_1 (x18: int) (r19: int): bool =nu (x18 < 0 \/ G_1_ff_1 (x18 - 1) r19) /\ (x18 >= 0 \/ r19 != 5);
+pvar key
+Exists68
+show_typ
+SInt
+gen name: x10, id: 75
+gen name: Exists68, id: 76
+pvar key
+Sentry_sub20
+show_typ
+SInt
+gen name: x14, id: 77
+gen name: Sentry_sub20, id: 78
+pvar key
+Sentry_sub20_sub73
+show_typ
+SInt;SInt
+gen name: x0, id: 79
+gen name: r15, id: 80
+gen name: Sentry_sub20_sub73, id: 81
+pvar key
+Sentry_sub20_sub22
+show_typ
+SInt;SInt
+gen name: r17, id: 82
+gen name: x16, id: 83
+gen name: Sentry_sub20_sub22, id: 84
+pvar key
+F_0_tt
+show_typ
+SInt;SInt
+gen name: x12, id: 85
+gen name: recF_0_tt7171, id: 86
+gen name: F_0_tt, id: 87
+pvar key
+F_0_tt_sub24
+show_typ
+SInt;SInt
+gen name: r17, id: 88
+gen name: x16, id: 89
+gen name: F_0_tt_sub24, id: 90
+pvar key
+G_1_ff_1
+show_typ
+SInt;SInt
+gen name: r19, id: 91
+gen name: x18, id: 92
+gen name: G_1_ff_1, id: 93
+key
+x10
+gen name: x10, id: 94
+gen name: Sentry, id: 95
+key
+x10
+gen name: x10, id: 96
+key
+x14
+gen name: x14, id: 97
+key
+r15
+gen name: r15, id: 98
+key
+r15
+gen name: r15, id: 99
+key
+x0
+gen name: x0, id: 100
+key
+recF_0_tt7171
+gen name: recF_0_tt7171, id: 101
+key
+x16
+gen name: x16, id: 102
+key
+r17
+gen name: r17, id: 103
+key
+recF_0_tt7171
+gen name: recF_0_tt7171, id: 104
+key
+x12
+gen name: x12, id: 105
+key
+r13
+gen name: r13, id: 106
+key
+x16
+gen name: x16, id: 107
+key
+r17
+gen name: r17, id: 108
+key
+x18
+gen name: x18, id: 109
+key
+r19
+gen name: r19, id: 110
+HES PATH 2: /tmp/nuonly-30432275.smt2
+show_commands
+name: hoice
+arguments: --timeout,240
+input: (set-logic HORN),(declare-fun Entry_ (Int) Bool),(declare-fun Exists68 (Int) Bool),(declare-fun G_1_ff_1 (Int Int) Bool),(declare-fun F_0_tt_sub24 (Int Int) Bool),(declare-fun F_0_tt (Int Int) Bool),(declare-fun Sentry_sub20_sub22 (Int Int) Bool),(declare-fun Sentry_sub20_sub73 (Int Int) Bool),(declare-fun Sentry_sub20 (Int) Bool),(assert (forall ((A Int)) (=> (and (Exists68 A) (>= A 1)) (Entry_ A)))),(assert (forall ((A Int) (B Int)) (=> (and (= B 5) (< A 0)) (G_1_ff_1 A B)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (G_1_ff_1 A C) (= A (- B 1)) (>= B 0)) (G_1_ff_1 B C)))),(assert (forall ((A Int) (B Int)) (=> (and (= B 5) (< A 0)) (F_0_tt_sub24 A B)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (G_1_ff_1 A C) (= A (- B 1)) (>= B 0)) (F_0_tt_sub24 B C)))),(assert (forall ((A Int) (B Int) (C Int) (D Int)),  (=> (and (F_0_tt_sub24 C D) (F_0_tt A D) (= A (- B 1))) (F_0_tt B C)))),(assert (forall ((A Int) (B Int)) (=> (<= A 0) (F_0_tt A B)))),(assert (forall ((A Int) (B Int)) (=> (and (= B 5) (< A 0)) (Sentry_sub20_sub22 A B)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (G_1_ff_1 A C) (= A (- B 1)) (>= B 0)) (Sentry_sub20_sub22 B C)))),(assert (forall ((A Int) (B Int) (C Int)),  (let ((a!1 (and (F_0_tt C B),                  (>= C (+ 1 (* 1 A))),                  (>= C (+ 1 (* (- 1) A))),                  (>= C 1)))),    (=> a!1 (Sentry_sub20_sub73 A B))))),(assert (forall ((A Int) (B Int)),  (=> (and (Sentry_sub20_sub73 B B) (Sentry_sub20_sub22 A B)) (Sentry_sub20 A)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (Sentry_sub20 C),           (Exists68 B),           (Sentry_sub20 A),           (= A (- 0 C)),           (= B (- C 1))),      (Exists68 C)))),(assert (forall ((A Int)) (=> (< A 0) (Exists68 A)))),,,(assert (forall ((X0 Int)) (not (Entry_ X0)))),(check-sat),(exit)
+====
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  ∀x10.(Sentry_sub20 :int -> bool) x10
+[Solver:App:encode_body_exists_formula]
+  ∀x10.(Sentry_sub20 :int -> bool) x10
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx14:int.∃r15.(Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+encode_body_exists_formula
+var=r
+
+HFLLL
+∀r15.
+ r15 < 8 || r15 < 1 * x14 || r15 < -1 * x14
+ || (Sentry_sub20_e111 :int -> int -> bool) x14 r15
+
+intint[Solver:App:encode_body_exists_formula]
+        λx14:int.
+         ∀r15.
+          r15 < 8 || r15 < 1 * x14 || r15 < -1 * x14
+          || (Sentry_sub20_e111 :int -> int -> bool) x14 r15
+[Solver:App:!new_rules]
+  Sentry_sub20_e111 : int -> int -> bool =ν
+    λx14:int.
+     λr15:int.
+      r15 >= 0
+      && ((Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+          || (Sentry_sub20_sub22 :int -> int -> bool) x14 (-r15) && (F_0_tt :int -> bool) (-r15)
+          || (Sentry_sub20_e111 :int -> int -> bool) x14 (r15 - 1))
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx16:int.
+   λr17:int.x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17 || x16 < 0 && r17 = 5
+[Solver:App:encode_body_exists_formula]
+  λx16:int.
+   λr17:int.x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17 || x16 < 0 && r17 = 5
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx12:int.∃r13.(F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+encode_body_exists_formula
+var=r
+
+HFLLL
+∀r13.
+ r13 < 8 || r13 < 1 * x12 || r13 < -1 * x12
+ || (F_0_tt_e112 :int -> int -> bool) x12 r13
+
+intint[Solver:App:encode_body_exists_formula]
+        λx12:int.
+         ∀r13.
+          r13 < 8 || r13 < 1 * x12 || r13 < -1 * x12 || (F_0_tt_e112 :int -> int -> bool) x12 r13
+[Solver:App:!new_rules]
+  F_0_tt_e112 : int -> int -> bool =ν
+    λx12:int.
+     λr13:int.
+      r13 >= 0
+      && ((F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+          || (F_0_tt_sub24 :int -> int -> bool) x12 (-r13) && (F_0_tt :int -> bool) (-r13)
+          || (F_0_tt_e112 :int -> int -> bool) x12 (r13 - 1))
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx16:int.
+   λr17:int.x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17 || x16 < 0 && r17 = 5
+[Solver:App:encode_body_exists_formula]
+  λx16:int.
+   λr17:int.x16 >= 0 && (G_1_ff_1 :int -> int -> bool) (x16 - 1) r17 || x16 < 0 && r17 = 5
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx18:int.
+   λr19:int.x18 >= 0 && (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19 || x18 < 0 && r19 = 5
+[Solver:App:encode_body_exists_formula]
+  λx18:int.
+   λr19:int.x18 >= 0 && (G_1_ff_1 :int -> int -> bool) (x18 - 1) r19 || x18 < 0 && r19 = 5
+[Solver:App:!new_rules]
+  
+Not decomposed HES path (Exists): /tmp/nuonly-164161225.smt2
+Sentry_sub20
+[Solver:App:body]
+  ∀x10.(Sentry_sub20 :int -> bool) x10
+[Solver:App:body]
+  ∀x10.(Sentry_sub20 :int -> bool) x10
+Sentry_sub20_e111
+[Solver:App:body]
+  λx14:int.
+   ∀r15.
+    r15 < 8 || r15 < 1 * x14 || r15 < -1 * x14 || (Sentry_sub20_e111 :int -> int -> bool) x14 r15
+[Solver:App:body]
+  λx14:int.
+   (λx14:int.
+     ∀r15.
+      r15 < 8 || r15 < 1 * x14 || r15 < -1 * x14 || (Sentry_sub20_e111 :int -> int -> bool) x14 r15)
+    x14
+Sentry_sub20_e111
+F_0_tt
+Sentry_sub20_sub22
+F_0_tt
+Sentry_sub20_sub22
+[Solver:App:body]
+  λx14:int.
+   λr15:int.
+    r15 >= 0
+    && ((Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+        || (Sentry_sub20_sub22 :int -> int -> bool) x14 (-r15) && (F_0_tt :int -> bool) (-r15)
+        || (Sentry_sub20_e111 :int -> int -> bool) x14 (r15 - 1))
+[Solver:App:body]
+  λx14:int.
+   λr15:int.
+    (λx14:int.
+      λr15:int.
+       r15 >= 0
+       && ((Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+           || (Sentry_sub20_sub22 :int -> int -> bool) x14 (-r15) && (F_0_tt :int -> bool) (-r15)
+           || (Sentry_sub20_e111 :int -> int -> bool) x14 (r15 - 1)))
+     x14 r15
+G_1_ff_1
+[Solver:App:body]
+  λx16:int.
+   λr17:int.
+    x16 >= 0
+    && (∀recG_1_ff_1113113.
+         λx8:int.
+          λr7:int.
+           recG_1_ff_1113113 < 8 + 1 * r17 || recG_1_ff_1113113 < 8 + -1 * r17
+           || recG_1_ff_1113113 < 8 + 1 * (x16 - 1)
+           || recG_1_ff_1113113 < 8 + -1 * (x16 - 1)
+           || recG_1_ff_1113113 < 8
+           || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_1113113 x8 r7)
+        (x16 - 1) r17
+    || x16 < 0 && r17 = 5
+[Solver:App:body]
+  λx16:int.
+   λr17:int.
+    (λx16:int.
+      λr17:int.
+       x16 >= 0
+       && (∀recG_1_ff_1113113.
+            λx8:int.
+             λr7:int.
+              recG_1_ff_1113113 < 8 + 1 * r17 || recG_1_ff_1113113 < 8 + -1 * r17
+              || recG_1_ff_1113113 < 8 + 1 * (x16 - 1)
+              || recG_1_ff_1113113 < 8 + -1 * (x16 - 1)
+              || recG_1_ff_1113113 < 8
+              || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_1113113 x8 r7)
+           (x16 - 1) r17
+       || x16 < 0 && r17 = 5)
+     x16 r17
+F_0_tt_e112
+[Solver:App:body]
+  λx12:int.
+   ∀r13.r13 < 8 || r13 < 1 * x12 || r13 < -1 * x12 || (F_0_tt_e112 :int -> int -> bool) x12 r13
+[Solver:App:body]
+  λx12:int.
+   (λx12:int.
+     ∀r13.r13 < 8 || r13 < 1 * x12 || r13 < -1 * x12 || (F_0_tt_e112 :int -> int -> bool) x12 r13)
+    x12
+F_0_tt_e112
+F_0_tt
+F_0_tt_sub24
+F_0_tt
+F_0_tt_sub24
+[Solver:App:body]
+  λx12:int.
+   λr13:int.
+    r13 >= 0
+    && ((F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+        || (F_0_tt_sub24 :int -> int -> bool) x12 (-r13) && (F_0_tt :int -> bool) (-r13)
+        || (F_0_tt_e112 :int -> int -> bool) x12 (r13 - 1))
+[Solver:App:body]
+  λx12:int.
+   λr13:int.
+    (λx12:int.
+      λr13:int.
+       r13 >= 0
+       && ((F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+           || (F_0_tt_sub24 :int -> int -> bool) x12 (-r13) && (F_0_tt :int -> bool) (-r13)
+           || (F_0_tt_e112 :int -> int -> bool) x12 (r13 - 1)))
+     x12 r13
+G_1_ff_1
+[Solver:App:body]
+  λx16:int.
+   λr17:int.
+    x16 >= 0
+    && (∀recG_1_ff_1113113.
+         λx8:int.
+          λr7:int.
+           recG_1_ff_1113113 < 8 + 1 * r17 || recG_1_ff_1113113 < 8 + -1 * r17
+           || recG_1_ff_1113113 < 8 + 1 * (x16 - 1)
+           || recG_1_ff_1113113 < 8 + -1 * (x16 - 1)
+           || recG_1_ff_1113113 < 8
+           || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_1113113 x8 r7)
+        (x16 - 1) r17
+    || x16 < 0 && r17 = 5
+[Solver:App:body]
+  λx16:int.
+   λr17:int.
+    (λx16:int.
+      λr17:int.
+       x16 >= 0
+       && (∀recG_1_ff_1113113.
+            λx8:int.
+             λr7:int.
+              recG_1_ff_1113113 < 8 + 1 * r17 || recG_1_ff_1113113 < 8 + -1 * r17
+              || recG_1_ff_1113113 < 8 + 1 * (x16 - 1)
+              || recG_1_ff_1113113 < 8 + -1 * (x16 - 1)
+              || recG_1_ff_1113113 < 8
+              || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_1113113 x8 r7)
+           (x16 - 1) r17
+       || x16 < 0 && r17 = 5)
+     x16 r17
+G_1_ff_1
+[Solver:App:body]
+  λx18:int.
+   λr19:int.
+    x18 >= 0 && (G_1_ff_1 :int -> int -> int -> bool) (recG_1_ff_1113113 - 1) (x18 - 1) r19
+    || x18 < 0 && r19 = 5
+[Solver:App:body]
+  λrecG_1_ff_1113113:int.
+   λx18:int.
+    λr19:int.
+     recG_1_ff_1113113 > 0
+     && (λx18:int.
+          λr19:int.
+           x18 >= 0 && (G_1_ff_1 :int -> int -> int -> bool) (recG_1_ff_1113113 - 1) (x18 - 1) r19
+           || x18 < 0 && r19 = 5)
+         x18 r19
+Not decomposed HES path: /tmp/nuonly-169478099.smt2
+[Solver:App:FINAL]
+  Sentry : bool =ν ∀x10.(Sentry_sub20 :int -> bool) x10
+  Sentry_sub20 : int -> bool =ν
+    λx14:int.
+     ∀r15.
+      r15 < 8 || r15 < 1 * x14 || r15 < -1 * x14 || (Sentry_sub20_e111 :int -> int -> bool) x14 r15
+  Sentry_sub20_e111 : int -> int -> bool =ν
+    λx14:int.
+     λr15:int.
+      r15 >= 0
+      && ((Sentry_sub20_sub22 :int -> int -> bool) x14 r15 && (F_0_tt :int -> bool) r15
+          || (Sentry_sub20_sub22 :int -> int -> bool) x14 (-r15) && (F_0_tt :int -> bool) (-r15)
+          || (Sentry_sub20_e111 :int -> int -> bool) x14 (r15 - 1))
+  Sentry_sub20_sub22 : int -> int -> bool =ν
+    λx16:int.
+     λr17:int.
+      x16 >= 0
+      && (∀recG_1_ff_1113113.
+           recG_1_ff_1113113 < 8 + 1 * r17 || recG_1_ff_1113113 < 8 + -1 * r17
+           || recG_1_ff_1113113 < 8 + 1 * (x16 - 1)
+           || recG_1_ff_1113113 < 8 + -1 * (x16 - 1)
+           || recG_1_ff_1113113 < 8
+           || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_1113113 (x16 - 1) r17)
+      || x16 < 0 && r17 = 5
+  F_0_tt : int -> bool =ν
+    λx12:int.
+     ∀r13.r13 < 8 || r13 < 1 * x12 || r13 < -1 * x12 || (F_0_tt_e112 :int -> int -> bool) x12 r13
+  F_0_tt_e112 : int -> int -> bool =ν
+    λx12:int.
+     λr13:int.
+      r13 >= 0
+      && ((F_0_tt_sub24 :int -> int -> bool) x12 r13 && (F_0_tt :int -> bool) r13
+          || (F_0_tt_sub24 :int -> int -> bool) x12 (-r13) && (F_0_tt :int -> bool) (-r13)
+          || (F_0_tt_e112 :int -> int -> bool) x12 (r13 - 1))
+  F_0_tt_sub24 : int -> int -> bool =ν
+    λx16:int.
+     λr17:int.
+      x16 >= 0
+      && (∀recG_1_ff_1113113.
+           recG_1_ff_1113113 < 8 + 1 * r17 || recG_1_ff_1113113 < 8 + -1 * r17
+           || recG_1_ff_1113113 < 8 + 1 * (x16 - 1)
+           || recG_1_ff_1113113 < 8 + -1 * (x16 - 1)
+           || recG_1_ff_1113113 < 8
+           || (G_1_ff_1 :int -> int -> int -> bool) recG_1_ff_1113113 (x16 - 1) r17)
+      || x16 < 0 && r17 = 5
+  G_1_ff_1 : int -> int -> int -> bool =ν
+    λrecG_1_ff_1113113:int.
+     λx18:int.
+      λr19:int.
+       recG_1_ff_1113113 > 0
+       && (x18 >= 0 && (G_1_ff_1 :int -> int -> int -> bool) (recG_1_ff_1113113 - 1) (x18 - 1) r19
+           || x18 < 0 && r19 = 5)
+Not checked HES path: /tmp/nuonly-133086467.smt2
+Not checked HES path (.hes): /tmp/nuonly-165908233.smt2
+FIRST-ORDER
+HES PATH: /tmp/nuonly-61443058.smt2
+Converted Hes: forall (x10: int). Sentry_sub20 x10
+where
+Sentry_sub20 (x14: int): bool =nu forall (r15: int). r15 < 8 \/ r15 < 1 * x14 \/ r15 < -1 * x14 \/ Sentry_sub20_e111 x14 r15;
+Sentry_sub20_e111 (x14: int) (r15: int): bool =nu r15 >= 0 /\ (Sentry_sub20_sub22 x14 r15 /\ F_0_tt r15 \/ Sentry_sub20_sub22 x14 (0 - r15) /\ F_0_tt (0 - r15) \/ Sentry_sub20_e111 x14 (r15 - 1));
+Sentry_sub20_sub22 (x16: int) (r17: int): bool =nu x16 >= 0 /\ (forall (recG_1_ff_1113113: int). recG_1_ff_1113113 < 8 + 1 * r17 \/ recG_1_ff_1113113 < 8 + -1 * r17 \/ recG_1_ff_1113113 < 8 + 1 * (x16 - 1) \/ recG_1_ff_1113113 < 8 + -1 * (x16 - 1) \/ recG_1_ff_1113113 < 8 \/ G_1_ff_1 recG_1_ff_1113113 (x16 - 1) r17) \/ x16 < 0 /\ r17 = 5;
+F_0_tt (x12: int): bool =nu forall (r13: int). r13 < 8 \/ r13 < 1 * x12 \/ r13 < -1 * x12 \/ F_0_tt_e112 x12 r13;
+F_0_tt_e112 (x12: int) (r13: int): bool =nu r13 >= 0 /\ (F_0_tt_sub24 x12 r13 /\ F_0_tt r13 \/ F_0_tt_sub24 x12 (0 - r13) /\ F_0_tt (0 - r13) \/ F_0_tt_e112 x12 (r13 - 1));
+F_0_tt_sub24 (x16: int) (r17: int): bool =nu x16 >= 0 /\ (forall (recG_1_ff_1113113: int). recG_1_ff_1113113 < 8 + 1 * r17 \/ recG_1_ff_1113113 < 8 + -1 * r17 \/ recG_1_ff_1113113 < 8 + 1 * (x16 - 1) \/ recG_1_ff_1113113 < 8 + -1 * (x16 - 1) \/ recG_1_ff_1113113 < 8 \/ G_1_ff_1 recG_1_ff_1113113 (x16 - 1) r17) \/ x16 < 0 /\ r17 = 5;
+G_1_ff_1 (recG_1_ff_1113113: int) (x18: int) (r19: int): bool =nu recG_1_ff_1113113 > 0 /\ (x18 >= 0 /\ G_1_ff_1 (recG_1_ff_1113113 - 1) (x18 - 1) r19 \/ x18 < 0 /\ r19 = 5);
+pvar key
+Sentry_sub20
+show_typ
+SInt
+gen name: x14, id: 114
+gen name: Sentry_sub20, id: 115
+pvar key
+Sentry_sub20_e111
+show_typ
+SInt;SInt
+gen name: r15, id: 116
+gen name: x14, id: 117
+gen name: Sentry_sub20_e111, id: 118
+pvar key
+Sentry_sub20_sub22
+show_typ
+SInt;SInt
+gen name: r17, id: 119
+gen name: x16, id: 120
+gen name: Sentry_sub20_sub22, id: 121
+pvar key
+F_0_tt
+show_typ
+SInt
+gen name: x12, id: 122
+gen name: F_0_tt, id: 123
+pvar key
+F_0_tt_e112
+show_typ
+SInt;SInt
+gen name: r13, id: 124
+gen name: x12, id: 125
+gen name: F_0_tt_e112, id: 126
+pvar key
+F_0_tt_sub24
+show_typ
+SInt;SInt
+gen name: r17, id: 127
+gen name: x16, id: 128
+gen name: F_0_tt_sub24, id: 129
+pvar key
+G_1_ff_1
+show_typ
+SInt;SInt;SInt
+gen name: r19, id: 130
+gen name: x18, id: 131
+gen name: recG_1_ff_1113113, id: 132
+gen name: G_1_ff_1, id: 133
+key
+x10
+gen name: x10, id: 134
+gen name: Sentry, id: 135
+key
+x14
+gen name: x14, id: 136
+key
+r15
+gen name: r15, id: 137
+key
+x14
+gen name: x14, id: 138
+key
+r15
+gen name: r15, id: 139
+key
+x16
+gen name: x16, id: 140
+key
+r17
+gen name: r17, id: 141
+key
+recG_1_ff_1113113
+gen name: recG_1_ff_1113113, id: 142
+key
+x12
+gen name: x12, id: 143
+key
+r13
+gen name: r13, id: 144
+key
+x12
+gen name: x12, id: 145
+key
+r13
+gen name: r13, id: 146
+key
+x16
+gen name: x16, id: 147
+key
+r17
+gen name: r17, id: 148
+key
+recG_1_ff_1113113
+gen name: recG_1_ff_1113113, id: 149
+key
+recG_1_ff_1113113
+gen name: recG_1_ff_1113113, id: 150
+key
+x18
+gen name: x18, id: 151
+key
+r19
+gen name: r19, id: 152
+HES PATH 2: /tmp/nuonly-90422835.smt2
+show_commands
+name: hoice
+arguments: --timeout,240
+input: (set-logic HORN),(declare-fun Entry_ (Int) Bool),(declare-fun Sentry_sub20 (Int) Bool),(declare-fun G_1_ff_1 (Int Int Int) Bool),(declare-fun P!!0 (Int Int Int) Bool),(declare-fun F_0_tt_sub24 (Int Int) Bool),(declare-fun P!!1 (Int Int Int) Bool),(declare-fun F_0_tt_e112 (Int Int) Bool),(declare-fun P!!2 (Int Int) Bool),(declare-fun P!!3 (Int Int) Bool),(declare-fun F_0_tt (Int) Bool),(declare-fun Sentry_sub20_sub22 (Int Int) Bool),(declare-fun P!!4 (Int Int Int) Bool),(declare-fun Sentry_sub20_e111 (Int Int) Bool),(declare-fun P!!5 (Int Int) Bool),(declare-fun P!!6 (Int Int) Bool),(assert (forall ((A Int)) (=> (Sentry_sub20 A) (Entry_ A)))),(assert (forall ((A Int) (B Int) (C Int)),  (let ((a!1 (and (P!!0 C B A) (or (>= B 0) (not (= C 5)))))),    (=> a!1 (G_1_ff_1 A B C))))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (=> (and (G_1_ff_1 B A E) (= A (- D 1)) (= B (- C 1))) (P!!0 E D C)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (< B 0) (P!!0 C B A)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= A 0) (G_1_ff_1 A B C)))),(assert (forall ((A Int) (B Int) (C Int)),  (let ((a!1 (and (P!!1 C B A) (or (>= A 0) (not (= B 5)))))),    (=> a!1 (F_0_tt_sub24 A B))))),(assert (forall ((A Int) (B Int) (C Int) (D Int)),  (let ((a!1 (>= D (+ 8 (* 1 (- B 1))))) (a!2 (>= D (+ 8 (* (- 1) (- B 1)))))),  (let ((a!3 (and (G_1_ff_1 D A C),                  (= A (- B 1)),                  (>= D (+ 8 (* (- 1) C))),                  a!1,                  a!2,                  (>= D 8),                  (>= D (+ 8 (* 1 C)))))),    (=> a!3 (P!!1 D C B)))))),(assert (forall ((A Int) (B Int) (C Int)) (=> (< A 0) (P!!1 C B A)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (P!!3 C B) (F_0_tt_e112 B A) (P!!2 C B) (= A (- C 1))),      (F_0_tt_e112 B C)))),(assert (forall ((A Int) (B Int)) (=> (F_0_tt B) (P!!3 B A)))),(assert (forall ((A Int) (B Int)) (=> (F_0_tt_sub24 A B) (P!!3 B A)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (F_0_tt A) (= A (- 0 C))) (P!!2 C B)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (F_0_tt_sub24 B A) (= A (- 0 C))) (P!!2 C B)))),(assert (forall ((A Int) (B Int)) (=> (< B 0) (F_0_tt_e112 A B)))),(assert (forall ((A Int) (B Int)),  (=> (and (F_0_tt_e112 A B) (>= B 8) (>= B (* 1 A)) (>= B (* (- 1) A))),      (F_0_tt A)))),(assert (forall ((A Int) (B Int) (C Int)),  (let ((a!1 (and (P!!4 C B A) (or (>= A 0) (not (= B 5)))))),    (=> a!1 (Sentry_sub20_sub22 A B))))),(assert (forall ((A Int) (B Int) (C Int) (D Int)),  (let ((a!1 (>= D (+ 8 (* 1 (- B 1))))) (a!2 (>= D (+ 8 (* (- 1) (- B 1)))))),  (let ((a!3 (and (G_1_ff_1 D A C),                  (= A (- B 1)),                  (>= D (+ 8 (* (- 1) C))),                  a!1,                  a!2,                  (>= D 8),                  (>= D (+ 8 (* 1 C)))))),    (=> a!3 (P!!4 D C B)))))),(assert (forall ((A Int) (B Int) (C Int)) (=> (< A 0) (P!!4 C B A)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (P!!6 C B) (Sentry_sub20_e111 B A) (P!!5 C B) (= A (- C 1))),      (Sentry_sub20_e111 B C)))),(assert (forall ((A Int) (B Int)) (=> (F_0_tt B) (P!!6 B A)))),(assert (forall ((A Int) (B Int)) (=> (Sentry_sub20_sub22 A B) (P!!6 B A)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (F_0_tt A) (= A (- 0 C))) (P!!5 C B)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (Sentry_sub20_sub22 B A) (= A (- 0 C))) (P!!5 C B)))),(assert (forall ((A Int) (B Int)) (=> (< B 0) (Sentry_sub20_e111 A B)))),(assert (forall ((A Int) (B Int)),  (=> (and (Sentry_sub20_e111 A B) (>= B 8) (>= B (* 1 A)) (>= B (* (- 1) A))),      (Sentry_sub20 A)))),,,(assert (forall ((X0 Int)) (not (Entry_ X0)))),(check-sat),(exit)
+====
+[[MAIN]] Verification Result:
+  valid
+Profiling:
+  total: 3.905088 sec

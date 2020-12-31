@@ -22,7 +22,7 @@ def append(text):
 # not used
 RETRY_COOLDOWN = 10
 
-timeout = 60
+timeout = 90
 
 nth_last_line = -1
 BENCH_SET = 6
@@ -68,9 +68,10 @@ if BENCH_SET == 6:
     lists_path = './list.txt'
     base_dir = '/opt/home2/git/muapprox/benchmark/hes/'
     exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
-    add_args = ['--hes']
+    #add_args = ['--hes']
     #add_args = ['--hes', '--solver', 'iwayama']
-    kill_process_names = ["hflmc2", "main.exe"]
+    add_args = ['--hes', '--first-order-solver']
+    kill_process_names = ["hflmc2", "main.exe", "z3"]
     nth_last_line = -3
 
 def get_lines(text):
@@ -222,14 +223,14 @@ def handle(exe_path, file, parser, callback, retry=0):
 
 def main():
     print("START")
-    print({
-        lists_path: lists_path,
-        base_dir: base_dir,
-        exe_path: exe_path,
-        add_args: add_args,
-        nth_last_line: nth_last_line,
-        kill_process_names: kill_process_names,
-        use_file_for_output: use_file_for_output,
+    pprint({
+        "lists_path": lists_path,
+        "base_dir": base_dir,
+        "exe_path": exe_path,
+        "add_args": add_args,
+        "nth_last_line": nth_last_line,
+        "kill_process_names": kill_process_names,
+        "use_file_for_output": use_file_for_output
     })
     
     with open(lists_path) as f:

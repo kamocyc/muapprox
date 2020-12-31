@@ -1,0 +1,1143 @@
+File "lib2/ast/dune", line 21, characters 14-28:
+21 |   (preprocess (pps ppx_jane))
+                   ^^^^^^^^^^^^^^
+Warning: .merlin generated is inaccurate. Cannot mix preprocessed and non
+preprocessed specificiations.
+Split the stanzas into different directories or silence this warning by
+adding (allow_approximate_merlin) to your dune-project.
+no_separate_original_formula_in_exists
+pvar key
+F2
+show_typ
+SInt;SInt
+gen name: y, id: 0
+gen name: x, id: 1
+gen name: F2, id: 2
+pvar key
+B2
+show_typ
+SInt;SInt
+gen name: y, id: 3
+gen name: x, id: 4
+gen name: B2, id: 5
+pvar key
+A2
+show_typ
+SInt;SInt
+gen name: y, id: 6
+gen name: x, id: 7
+gen name: A2, id: 8
+pvar key
+F
+show_typ
+SInt;SInt
+gen name: y, id: 9
+gen name: x, id: 10
+gen name: F, id: 11
+pvar key
+B
+show_typ
+SInt;SInt
+gen name: y, id: 12
+gen name: x, id: 13
+gen name: B, id: 14
+pvar key
+A
+show_typ
+SInt;SInt
+gen name: y, id: 15
+gen name: x, id: 16
+gen name: A, id: 17
+key
+m
+gen name: m, id: 18
+key
+n
+gen name: n, id: 19
+gen name: Sentry, id: 20
+key
+x
+gen name: x, id: 21
+key
+y
+gen name: y, id: 22
+key
+x
+gen name: x, id: 23
+key
+y
+gen name: y, id: 24
+key
+x
+gen name: x, id: 25
+key
+y
+gen name: y, id: 26
+key
+x
+gen name: x, id: 27
+key
+y
+gen name: y, id: 28
+key
+x
+gen name: x, id: 29
+key
+y
+gen name: y, id: 30
+key
+x
+gen name: x, id: 31
+key
+y
+gen name: y, id: 32
+[Main:App:hes Input]
+  Sentry : bool =ν ∀m18.∀n19.(m18 <= 0 || F n19 m18) && (F2 n19 m18 || m18 > 0)
+  F2 : int -> int -> bool =μ
+    λx21:int.
+     λy22:int.
+      A2 x21 y22 || B2 x21 y22 || x21 <= 0 && F2 (x21 + y22) y22 || x21 > 0 && F2 (x21 - y22) y22
+  B2 : int -> int -> bool =ν λx23:int.λy24:int.x23 > 0 && B2 (x23 - y24) y24
+  A2 : int -> int -> bool =ν λx25:int.λy26:int.x25 <= 0 && A2 (x25 + y26) y26
+  F : int -> int -> bool =ν
+    λx27:int.
+     λy28:int.
+      A x27 y28 && B x27 y28 && (x27 > 0 || F (x27 + y28) y28) && (x27 <= 0 || F (x27 - y28) y28)
+  B : int -> int -> bool =μ λx29:int.λy30:int.x29 <= 0 || B (x29 - y30) y30
+  A : int -> int -> bool =μ λx31:int.λy32:int.x31 > 0 || A (x31 + y32) y32
+[Main:App:Simplified]
+  Sentry : bool =ν ∀m18.∀n19.(m18 <= 0 || F n19 m18) && (F2 n19 m18 || m18 > 0)
+  F2 : int -> int -> bool =μ
+    λx21:int.
+     λy22:int.
+      A2 x21 y22 || B2 x21 y22 || x21 <= 0 && F2 (x21 + y22) y22 || x21 > 0 && F2 (x21 - y22) y22
+  B2 : int -> int -> bool =ν λx23:int.λy24:int.x23 > 0 && B2 (x23 - y24) y24
+  A2 : int -> int -> bool =ν λx25:int.λy26:int.x25 <= 0 && A2 (x25 + y26) y26
+  F : int -> int -> bool =ν
+    λx27:int.
+     λy28:int.
+      A x27 y28 && B x27 y28 && (x27 > 0 || F (x27 + y28) y28) && (x27 <= 0 || F (x27 - y28) y28)
+  B : int -> int -> bool =μ λx29:int.λy30:int.x29 <= 0 || B (x29 - y30) y30
+  A : int -> int -> bool =μ λx31:int.λy32:int.x31 > 0 || A (x31 + y32) y32
+[Solver:App:check_validity (first)]
+  Sentry  =ν (m18 <= 0 || F n19 m18) && (F2 n19 m18 || m18 > 0).
+  F2 x21 y22 =μ
+    A2 x21 y22 || B2 x21 y22 || x21 <= 0 && F2 (x21 + y22) y22 || x21 > 0 && F2 (x21 - y22) y22.
+  B2 x23 y24 =ν x23 > 0 && B2 (x23 - y24) y24.
+  A2 x25 y26 =ν x25 <= 0 && A2 (x25 + y26) y26.
+  F x27 y28 =ν
+    A x27 y28 && B x27 y28 && (x27 > 0 || F (x27 + y28) y28) && (x27 <= 0 || F (x27 - y28) y28).
+  B x29 y30 =μ x29 <= 0 || B (x29 - y30) y30.
+  A x31 y32 =μ x31 > 0 || A (x31 + y32) y32.
+[Solver:App:Decompose lambdas]
+  Sentry : bool =ν
+    ∀m18.
+     ∀n19.
+      (m18 <= 0 || (F :int -> int -> bool) n19 m18)
+      && ((F2 :int -> int -> bool) n19 m18 || m18 > 0)
+  F2 : int -> int -> bool =μ
+    λx21:int.
+     λy22:int.
+      (A2 :int -> int -> bool) x21 y22
+      || (B2 :int -> int -> bool) x21 y22
+         || x21 <= 0 && (F2 :int -> int -> bool) (x21 + y22) y22
+            || x21 > 0 && (F2 :int -> int -> bool) (x21 - y22) y22
+  B2 : int -> int -> bool =ν
+    λx23:int.λy24:int.x23 > 0 && (B2 :int -> int -> bool) (x23 - y24) y24
+  A2 : int -> int -> bool =ν
+    λx25:int.λy26:int.x25 <= 0 && (A2 :int -> int -> bool) (x25 + y26) y26
+  F : int -> int -> bool =ν
+    λx27:int.
+     λy28:int.
+      (A :int -> int -> bool) x27 y28
+      && (B :int -> int -> bool) x27 y28
+         && (x27 > 0 || (F :int -> int -> bool) (x27 + y28) y28)
+            && (x27 <= 0 || (F :int -> int -> bool) (x27 - y28) y28)
+  B : int -> int -> bool =μ
+    λx29:int.λy30:int.x29 <= 0 || (B :int -> int -> bool) (x29 - y30) y30
+  A : int -> int -> bool =μ λx31:int.λy32:int.x31 > 0 || (A :int -> int -> bool) (x31 + y32) y32
+get_recurring_predicates
+F2, B2, A2, F, B, A, 
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  ∀m18.
+   ∀n19.
+    (m18 <= 0 || (F :int -> int -> bool) n19 m18) && ((F2 :int -> int -> bool) n19 m18 || m18 > 0)
+[Solver:App:encode_body_exists_formula]
+  ∀m18.
+   ∀n19.
+    (m18 <= 0 || (F :int -> int -> bool) n19 m18) && ((F2 :int -> int -> bool) n19 m18 || m18 > 0)
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx21:int.
+   λy22:int.
+    (A2 :int -> int -> bool) x21 y22
+    || (B2 :int -> int -> bool) x21 y22
+       || x21 <= 0 && (F2 :int -> int -> bool) (x21 + y22) y22
+          || x21 > 0 && (F2 :int -> int -> bool) (x21 - y22) y22
+[Solver:App:encode_body_exists_formula]
+  λx21:int.
+   λy22:int.
+    (A2 :int -> int -> bool) x21 y22
+    || (B2 :int -> int -> bool) x21 y22
+       || x21 <= 0 && (F2 :int -> int -> bool) (x21 + y22) y22
+          || x21 > 0 && (F2 :int -> int -> bool) (x21 - y22) y22
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx23:int.λy24:int.x23 > 0 && (B2 :int -> int -> bool) (x23 - y24) y24
+[Solver:App:encode_body_exists_formula]
+  λx23:int.λy24:int.x23 > 0 && (B2 :int -> int -> bool) (x23 - y24) y24
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx25:int.λy26:int.x25 <= 0 && (A2 :int -> int -> bool) (x25 + y26) y26
+[Solver:App:encode_body_exists_formula]
+  λx25:int.λy26:int.x25 <= 0 && (A2 :int -> int -> bool) (x25 + y26) y26
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx27:int.
+   λy28:int.
+    (A :int -> int -> bool) x27 y28
+    && (B :int -> int -> bool) x27 y28
+       && (x27 > 0 || (F :int -> int -> bool) (x27 + y28) y28)
+          && (x27 <= 0 || (F :int -> int -> bool) (x27 - y28) y28)
+[Solver:App:encode_body_exists_formula]
+  λx27:int.
+   λy28:int.
+    (A :int -> int -> bool) x27 y28
+    && (B :int -> int -> bool) x27 y28
+       && (x27 > 0 || (F :int -> int -> bool) (x27 + y28) y28)
+          && (x27 <= 0 || (F :int -> int -> bool) (x27 - y28) y28)
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx29:int.λy30:int.x29 <= 0 || (B :int -> int -> bool) (x29 - y30) y30
+[Solver:App:encode_body_exists_formula]
+  λx29:int.λy30:int.x29 <= 0 || (B :int -> int -> bool) (x29 - y30) y30
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx31:int.λy32:int.x31 > 0 || (A :int -> int -> bool) (x31 + y32) y32
+[Solver:App:encode_body_exists_formula]
+  λx31:int.λy32:int.x31 > 0 || (A :int -> int -> bool) (x31 + y32) y32
+[Solver:App:!new_rules]
+  
+Not decomposed HES path (Exists): /tmp/nuonly-249307525.smt2
+F2
+F
+[Solver:App:body]
+  ∀m18.
+   ∀n19.
+    (m18 <= 0 || (F :int -> int -> bool) n19 m18)
+    && ((∀recF23333.
+          λx1:int.
+           λy0:int.
+            recF23333 < 1 + 1 * m18 || recF23333 < 1 + -1 * m18 || recF23333 < 1 + 1 * n19
+            || recF23333 < 1 + -1 * n19
+            || recF23333 < 1
+            || (F2 :int -> int -> int -> bool) recF23333 x1 y0)
+         n19 m18
+        || m18 > 0)
+[Solver:App:body]
+  ∀m18.
+   ∀n19.
+    (m18 <= 0 || (F :int -> int -> bool) n19 m18)
+    && ((∀recF23333.
+          λx1:int.
+           λy0:int.
+            recF23333 < 1 + 1 * m18 || recF23333 < 1 + -1 * m18 || recF23333 < 1 + 1 * n19
+            || recF23333 < 1 + -1 * n19
+            || recF23333 < 1
+            || (F2 :int -> int -> int -> bool) recF23333 x1 y0)
+         n19 m18
+        || m18 > 0)
+F2
+F2
+B2
+A2
+[Solver:App:body]
+  λx21:int.
+   λy22:int.
+    (A2 :int -> int -> bool) x21 y22
+    || (B2 :int -> int -> bool) x21 y22
+       || x21 <= 0 && (F2 :int -> int -> int -> bool) (recF23333 - 1) (x21 + y22) y22
+          || x21 > 0 && (F2 :int -> int -> int -> bool) (recF23333 - 1) (x21 - y22) y22
+[Solver:App:body]
+  λrecF23333:int.
+   λx21:int.
+    λy22:int.
+     recF23333 > 0
+     && (λx21:int.
+          λy22:int.
+           (A2 :int -> int -> bool) x21 y22
+           || (B2 :int -> int -> bool) x21 y22
+              || x21 <= 0 && (F2 :int -> int -> int -> bool) (recF23333 - 1) (x21 + y22) y22
+                 || x21 > 0 && (F2 :int -> int -> int -> bool) (recF23333 - 1) (x21 - y22) y22)
+         x21 y22
+B2
+[Solver:App:body]
+  λx23:int.λy24:int.x23 > 0 && (B2 :int -> int -> bool) (x23 - y24) y24
+[Solver:App:body]
+  λx23:int.
+   λy24:int.(λx23:int.λy24:int.x23 > 0 && (B2 :int -> int -> bool) (x23 - y24) y24) x23 y24
+A2
+[Solver:App:body]
+  λx25:int.λy26:int.x25 <= 0 && (A2 :int -> int -> bool) (x25 + y26) y26
+[Solver:App:body]
+  λx25:int.
+   λy26:int.(λx25:int.λy26:int.x25 <= 0 && (A2 :int -> int -> bool) (x25 + y26) y26) x25 y26
+F
+F
+B
+A
+[Solver:App:body]
+  λx27:int.
+   λy28:int.
+    (∀recA3535.
+      λx16:int.
+       λy15:int.
+        recA3535 < 1 + 1 * y28 || recA3535 < 1 + -1 * y28 || recA3535 < 1 + 1 * x27
+        || recA3535 < 1 + -1 * x27
+        || recA3535 < 1
+        || (A :int -> int -> int -> bool) recA3535 x16 y15)
+     x27 y28
+    && (∀recB3434.
+         λx13:int.
+          λy12:int.
+           recB3434 < 1 + 1 * y28 || recB3434 < 1 + -1 * y28 || recB3434 < 1 + 1 * x27
+           || recB3434 < 1 + -1 * x27
+           || recB3434 < 1
+           || (B :int -> int -> int -> bool) recB3434 x13 y12)
+        x27 y28
+       && (x27 > 0 || (F :int -> int -> bool) (x27 + y28) y28)
+          && (x27 <= 0 || (F :int -> int -> bool) (x27 - y28) y28)
+[Solver:App:body]
+  λx27:int.
+   λy28:int.
+    (λx27:int.
+      λy28:int.
+       (∀recA3535.
+         λx16:int.
+          λy15:int.
+           recA3535 < 1 + 1 * y28 || recA3535 < 1 + -1 * y28 || recA3535 < 1 + 1 * x27
+           || recA3535 < 1 + -1 * x27
+           || recA3535 < 1
+           || (A :int -> int -> int -> bool) recA3535 x16 y15)
+        x27 y28
+       && (∀recB3434.
+            λx13:int.
+             λy12:int.
+              recB3434 < 1 + 1 * y28 || recB3434 < 1 + -1 * y28 || recB3434 < 1 + 1 * x27
+              || recB3434 < 1 + -1 * x27
+              || recB3434 < 1
+              || (B :int -> int -> int -> bool) recB3434 x13 y12)
+           x27 y28
+          && (x27 > 0 || (F :int -> int -> bool) (x27 + y28) y28)
+             && (x27 <= 0 || (F :int -> int -> bool) (x27 - y28) y28))
+     x27 y28
+B
+[Solver:App:body]
+  λx29:int.λy30:int.x29 <= 0 || (B :int -> int -> int -> bool) (recB3434 - 1) (x29 - y30) y30
+[Solver:App:body]
+  λrecB3434:int.
+   λx29:int.
+    λy30:int.
+     recB3434 > 0
+     && (λx29:int.
+          λy30:int.x29 <= 0 || (B :int -> int -> int -> bool) (recB3434 - 1) (x29 - y30) y30)
+         x29 y30
+A
+[Solver:App:body]
+  λx31:int.λy32:int.x31 > 0 || (A :int -> int -> int -> bool) (recA3535 - 1) (x31 + y32) y32
+[Solver:App:body]
+  λrecA3535:int.
+   λx31:int.
+    λy32:int.
+     recA3535 > 0
+     && (λx31:int.
+          λy32:int.x31 > 0 || (A :int -> int -> int -> bool) (recA3535 - 1) (x31 + y32) y32)
+         x31 y32
+Not decomposed HES path: /tmp/nuonly-262750594.smt2
+extract_abstraction
+x1
+y0
+not_apply
+recF23333;Sentry20;Sentry20;F22;B25;A28;F11;B14;A17;freevars
+m18;n19;gen name: Sentry_sub36, id: 37
+NEW_RULE
+Sentry_sub36 : int -> int -> int -> int -> bool =ν
+  λm18:int.
+   λn19:int.
+    λx1:int.
+     λy0:int.
+      recF23333 < 1 + 1 * m18 || recF23333 < 1 + -1 * m18
+      || recF23333 < 1 + 1 * n19
+      || recF23333 < 1 + -1 * n19
+      || recF23333 < 1
+      || (F2 :int -> int -> int -> bool) recF23333 x1 y0
+[Solver:App:FINAL]
+  Sentry : bool =ν
+    ∀m18.
+     ∀n19.
+      (m18 <= 0 || (F :int -> int -> bool) n19 m18)
+      && ((Sentry_sub36 :int -> int -> int -> int -> bool) m18 n19 n19 m18 || m18 > 0)
+  Sentry_sub36 : int -> int -> int -> int -> bool =ν
+    λm18:int.
+     λn19:int.
+      λx1:int.
+       λy0:int.
+        ∀recF23333.
+         recF23333 < 1 + 1 * m18 || recF23333 < 1 + -1 * m18 || recF23333 < 1 + 1 * n19
+         || recF23333 < 1 + -1 * n19
+         || recF23333 < 1
+         || (F2 :int -> int -> int -> bool) recF23333 x1 y0
+  F2 : int -> int -> int -> bool =ν
+    λrecF23333:int.
+     λx21:int.
+      λy22:int.
+       recF23333 > 0
+       && ((A2 :int -> int -> bool) x21 y22
+           || (B2 :int -> int -> bool) x21 y22
+              || x21 <= 0 && (F2 :int -> int -> int -> bool) (recF23333 - 1) (x21 + y22) y22
+                 || x21 > 0 && (F2 :int -> int -> int -> bool) (recF23333 - 1) (x21 - y22) y22)
+  B2 : int -> int -> bool =ν
+    λx23:int.λy24:int.x23 > 0 && (B2 :int -> int -> bool) (x23 - y24) y24
+  A2 : int -> int -> bool =ν
+    λx25:int.λy26:int.x25 <= 0 && (A2 :int -> int -> bool) (x25 + y26) y26
+  F : int -> int -> bool =ν
+    λx27:int.
+     λy28:int.
+      (∀recA3535.
+        recA3535 < 1 + 1 * y28 || recA3535 < 1 + -1 * y28 || recA3535 < 1 + 1 * x27
+        || recA3535 < 1 + -1 * x27
+        || recA3535 < 1
+        || (A :int -> int -> int -> bool) recA3535 x27 y28)
+      && (∀recB3434.
+           recB3434 < 1 + 1 * y28 || recB3434 < 1 + -1 * y28 || recB3434 < 1 + 1 * x27
+           || recB3434 < 1 + -1 * x27
+           || recB3434 < 1
+           || (B :int -> int -> int -> bool) recB3434 x27 y28)
+         && (x27 > 0 || (F :int -> int -> bool) (x27 + y28) y28)
+            && (x27 <= 0 || (F :int -> int -> bool) (x27 - y28) y28)
+  B : int -> int -> int -> bool =ν
+    λrecB3434:int.
+     λx29:int.
+      λy30:int.
+       recB3434 > 0 && (x29 <= 0 || (B :int -> int -> int -> bool) (recB3434 - 1) (x29 - y30) y30)
+  A : int -> int -> int -> bool =ν
+    λrecA3535:int.
+     λx31:int.
+      λy32:int.
+       recA3535 > 0 && (x31 > 0 || (A :int -> int -> int -> bool) (recA3535 - 1) (x31 + y32) y32)
+Not checked HES path: /tmp/nuonly-90624511.smt2
+Not checked HES path (.hes): /tmp/nuonly-144890020.smt2
+FIRST-ORDER
+HES PATH: /tmp/nuonly-126383352.smt2
+Converted Hes: forall (m18: int). forall (n19: int). (m18 <= 0 \/ F n19 m18) /\ (Sentry_sub36 m18 n19 n19 m18 \/ m18 > 0)
+where
+Sentry_sub36 (m18: int) (n19: int) (x1: int) (y0: int): bool =nu forall (recF23333: int). recF23333 < 1 + 1 * m18 \/ recF23333 < 1 + -1 * m18 \/ recF23333 < 1 + 1 * n19 \/ recF23333 < 1 + -1 * n19 \/ recF23333 < 1 \/ F2 recF23333 x1 y0;
+F2 (recF23333: int) (x21: int) (y22: int): bool =nu recF23333 > 0 /\ (A2 x21 y22 \/ B2 x21 y22 \/ x21 <= 0 /\ F2 (recF23333 - 1) (x21 + y22) y22 \/ x21 > 0 /\ F2 (recF23333 - 1) (x21 - y22) y22);
+B2 (x23: int) (y24: int): bool =nu x23 > 0 /\ B2 (x23 - y24) y24;
+A2 (x25: int) (y26: int): bool =nu x25 <= 0 /\ A2 (x25 + y26) y26;
+F (x27: int) (y28: int): bool =nu (forall (recA3535: int). recA3535 < 1 + 1 * y28 \/ recA3535 < 1 + -1 * y28 \/ recA3535 < 1 + 1 * x27 \/ recA3535 < 1 + -1 * x27 \/ recA3535 < 1 \/ A recA3535 x27 y28) /\ (forall (recB3434: int). recB3434 < 1 + 1 * y28 \/ recB3434 < 1 + -1 * y28 \/ recB3434 < 1 + 1 * x27 \/ recB3434 < 1 + -1 * x27 \/ recB3434 < 1 \/ B recB3434 x27 y28) /\ (x27 > 0 \/ F (x27 + y28) y28) /\ (x27 <= 0 \/ F (x27 - y28) y28);
+B (recB3434: int) (x29: int) (y30: int): bool =nu recB3434 > 0 /\ (x29 <= 0 \/ B (recB3434 - 1) (x29 - y30) y30);
+A (recA3535: int) (x31: int) (y32: int): bool =nu recA3535 > 0 /\ (x31 > 0 \/ A (recA3535 - 1) (x31 + y32) y32);
+pvar key
+Sentry_sub36
+show_typ
+SInt;SInt;SInt;SInt
+gen name: y0, id: 38
+gen name: x1, id: 39
+gen name: n19, id: 40
+gen name: m18, id: 41
+gen name: Sentry_sub36, id: 42
+pvar key
+F2
+show_typ
+SInt;SInt;SInt
+gen name: y22, id: 43
+gen name: x21, id: 44
+gen name: recF23333, id: 45
+gen name: F2, id: 46
+pvar key
+B2
+show_typ
+SInt;SInt
+gen name: y24, id: 47
+gen name: x23, id: 48
+gen name: B2, id: 49
+pvar key
+A2
+show_typ
+SInt;SInt
+gen name: y26, id: 50
+gen name: x25, id: 51
+gen name: A2, id: 52
+pvar key
+F
+show_typ
+SInt;SInt
+gen name: y28, id: 53
+gen name: x27, id: 54
+gen name: F, id: 55
+pvar key
+B
+show_typ
+SInt;SInt;SInt
+gen name: y30, id: 56
+gen name: x29, id: 57
+gen name: recB3434, id: 58
+gen name: B, id: 59
+pvar key
+A
+show_typ
+SInt;SInt;SInt
+gen name: y32, id: 60
+gen name: x31, id: 61
+gen name: recA3535, id: 62
+gen name: A, id: 63
+key
+m18
+gen name: m18, id: 64
+key
+n19
+gen name: n19, id: 65
+gen name: Sentry, id: 66
+key
+m18
+gen name: m18, id: 67
+key
+n19
+gen name: n19, id: 68
+key
+x1
+gen name: x1, id: 69
+key
+y0
+gen name: y0, id: 70
+key
+recF23333
+gen name: recF23333, id: 71
+key
+recF23333
+gen name: recF23333, id: 72
+key
+x21
+gen name: x21, id: 73
+key
+y22
+gen name: y22, id: 74
+key
+x23
+gen name: x23, id: 75
+key
+y24
+gen name: y24, id: 76
+key
+x25
+gen name: x25, id: 77
+key
+y26
+gen name: y26, id: 78
+key
+x27
+gen name: x27, id: 79
+key
+y28
+gen name: y28, id: 80
+key
+recB3434
+gen name: recB3434, id: 81
+key
+recA3535
+gen name: recA3535, id: 82
+key
+recB3434
+gen name: recB3434, id: 83
+key
+x29
+gen name: x29, id: 84
+key
+y30
+gen name: y30, id: 85
+key
+recA3535
+gen name: recA3535, id: 86
+key
+x31
+gen name: x31, id: 87
+key
+y32
+gen name: y32, id: 88
+HES PATH 2: /tmp/nuonly-233704795.smt2
+show_commands
+name: hoice
+arguments: --timeout,240
+input: (set-logic HORN),(declare-fun Entry_ (Int Int) Bool),(declare-fun Sentry_sub36 (Int Int Int Int) Bool),(declare-fun F (Int Int) Bool),(declare-fun A (Int Int Int) Bool),(declare-fun B (Int Int Int) Bool),(declare-fun A2 (Int Int) Bool),(declare-fun B2 (Int Int) Bool),(declare-fun F2 (Int Int Int) Bool),(declare-fun P!!0 (Int Int Int) Bool),(declare-fun P!!1 (Int Int Int) Bool),(assert (forall ((A Int) (B Int)),  (=> (and (Sentry_sub36 B A A B) (<= B 0)) (Entry_ A B)))),(assert (forall ((A Int) (B Int)) (=> (and (F A B) (> B 0)) (Entry_ A B)))),(assert (forall ((B Int) (C Int) (D Int) (E Int) (F Int)),  (=> (and (A C B F) (= B (+ E F)) (= C (- D 1)) (<= E 0)) (A D E F)))),(assert (forall ((B Int) (C Int) (D Int)) (=> (<= B 0) (A B C D)))),(assert (forall ((A Int) (C Int) (D Int) (E Int) (F Int)),  (=> (and (B C A F) (= A (- E F)) (= C (- D 1)) (> E 0)) (B D E F)))),(assert (forall ((A Int) (C Int) (D Int)) (=> (<= A 0) (B A C D)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (F A C) (= A (- B C)) (> B 0)) (F B C)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (F A C) (= A (+ B C)) (<= B 0)) (F B C)))),(assert (forall ((A Int) (C Int) (D Int)),  (let ((a!1 (and (B D A C),                  (>= D (+ 1 (* (- 1) C))),                  (>= D (+ 1 (* 1 A))),                  (>= D (+ 1 (* (- 1) A))),                  (>= D 1),                  (>= D (+ 1 (* 1 C)))))),    (=> a!1 (F A C))))),(assert (forall ((B Int) (C Int) (D Int)),  (let ((a!1 (and (A D B C),                  (>= D (+ 1 (* (- 1) C))),                  (>= D (+ 1 (* 1 B))),                  (>= D (+ 1 (* (- 1) B))),                  (>= D 1),                  (>= D (+ 1 (* 1 C)))))),    (=> a!1 (F B C))))),(assert (forall ((A Int) (B Int) (C Int)) (=> (and (A2 A C) (= A (+ B C))) (A2 B C)))),(assert (forall ((A Int) (B Int)) (=> (> A 0) (A2 A B)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (and (B2 A C) (= A (- B C))) (B2 B C)))),(assert (forall ((A Int) (B Int)) (=> (<= A 0) (B2 A B)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (P!!1 C B A) (P!!0 C B A) (A2 B C) (B2 B C)) (F2 A B C)))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (=> (and (F2 B A E) (= A (+ D E)) (= B (- C 1))) (P!!1 E D C)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (> B 0) (P!!1 C B A)))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (=> (and (F2 B A E) (= A (- D E)) (= B (- C 1))) (P!!0 E D C)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= B 0) (P!!0 C B A)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= A 0) (F2 A B C)))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (let ((a!1 (and (F2 E C D),                  (>= E (+ 1 (* 1 A))),                  (>= E (+ 1 (* (- 1) A))),                  (>= E (+ 1 (* 1 B))),                  (>= E (+ 1 (* (- 1) B))),                  (>= E 1)))),    (=> a!1 (Sentry_sub36 A B C D))))),,,(assert (forall ((X0 Int) (X1 Int)) (not (Entry_ X0 X1)))),(check-sat),(exit)
+====
+[Solver:App:get_dual_hes]
+  Sentry : bool =ν
+    ∃m18.
+     ∃n19.
+      m18 > 0 && (F :int -> int -> bool) n19 m18 || (F2 :int -> int -> bool) n19 m18 && m18 <= 0
+  F2 : int -> int -> bool =ν
+    λx21:int.
+     λy22:int.
+      (A2 :int -> int -> bool) x21 y22
+      && (B2 :int -> int -> bool) x21 y22
+         && (x21 > 0 || (F2 :int -> int -> bool) (x21 + y22) y22)
+            && (x21 <= 0 || (F2 :int -> int -> bool) (x21 - y22) y22)
+  B2 : int -> int -> bool =μ
+    λx23:int.λy24:int.x23 <= 0 || (B2 :int -> int -> bool) (x23 - y24) y24
+  A2 : int -> int -> bool =μ
+    λx25:int.λy26:int.x25 > 0 || (A2 :int -> int -> bool) (x25 + y26) y26
+  F : int -> int -> bool =μ
+    λx27:int.
+     λy28:int.
+      (A :int -> int -> bool) x27 y28
+      || (B :int -> int -> bool) x27 y28
+         || x27 <= 0 && (F :int -> int -> bool) (x27 + y28) y28
+            || x27 > 0 && (F :int -> int -> bool) (x27 - y28) y28
+  B : int -> int -> bool =ν λx29:int.λy30:int.x29 > 0 && (B :int -> int -> bool) (x29 - y30) y30
+  A : int -> int -> bool =ν
+    λx31:int.λy32:int.x31 <= 0 && (A :int -> int -> bool) (x31 + y32) y32
+Not checked HES path: /tmp/nuonly-170859026.smt2
+Not checked HES path (.hes): /tmp/nuonly-184598256.smt2
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  ∃m18.
+   ∃n19.
+    m18 > 0 && (F :int -> int -> bool) n19 m18 || (F2 :int -> int -> bool) n19 m18 && m18 <= 0
+encode_body_exists_formula
+var=m
+
+HFLLL
+∀m18.∀n19.m18 < 1 || n19 < 1 || (Exists89 :int -> int -> bool) m18 n19
+
+intint[Solver:App:encode_body_exists_formula]
+        ∀m18.∀n19.m18 < 1 || n19 < 1 || (Exists89 :int -> int -> bool) m18 n19
+[Solver:App:!new_rules]
+  Exists89 : int -> int -> bool =ν
+    λm18:int.
+     λn19:int.
+      m18 >= 0 && n19 >= 0
+      && (m18 > 0 && (F :int -> int -> bool) n19 m18
+          || (F2 :int -> int -> bool) n19 m18 && m18 <= 0
+          || m18 > 0 && (F :int -> int -> bool) (-n19) m18
+             || (F2 :int -> int -> bool) (-n19) m18 && m18 <= 0
+          || -m18 > 0 && (F :int -> int -> bool) n19 (-m18)
+             || (F2 :int -> int -> bool) n19 (-m18) && -m18 <= 0
+          || -m18 > 0 && (F :int -> int -> bool) (-n19) (-m18)
+             || (F2 :int -> int -> bool) (-n19) (-m18) && -m18 <= 0
+          || (Exists89 :int -> int -> bool) (m18 - 1) n19
+          || (Exists89 :int -> int -> bool) m18 (n19 - 1))
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx21:int.
+   λy22:int.
+    (A2 :int -> int -> bool) x21 y22
+    && (B2 :int -> int -> bool) x21 y22
+       && (x21 > 0 || (F2 :int -> int -> bool) (x21 + y22) y22)
+          && (x21 <= 0 || (F2 :int -> int -> bool) (x21 - y22) y22)
+[Solver:App:encode_body_exists_formula]
+  λx21:int.
+   λy22:int.
+    (A2 :int -> int -> bool) x21 y22
+    && (B2 :int -> int -> bool) x21 y22
+       && (x21 > 0 || (F2 :int -> int -> bool) (x21 + y22) y22)
+          && (x21 <= 0 || (F2 :int -> int -> bool) (x21 - y22) y22)
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx23:int.λy24:int.x23 <= 0 || (B2 :int -> int -> bool) (x23 - y24) y24
+[Solver:App:encode_body_exists_formula]
+  λx23:int.λy24:int.x23 <= 0 || (B2 :int -> int -> bool) (x23 - y24) y24
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx25:int.λy26:int.x25 > 0 || (A2 :int -> int -> bool) (x25 + y26) y26
+[Solver:App:encode_body_exists_formula]
+  λx25:int.λy26:int.x25 > 0 || (A2 :int -> int -> bool) (x25 + y26) y26
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx27:int.
+   λy28:int.
+    (A :int -> int -> bool) x27 y28
+    || (B :int -> int -> bool) x27 y28
+       || x27 <= 0 && (F :int -> int -> bool) (x27 + y28) y28
+          || x27 > 0 && (F :int -> int -> bool) (x27 - y28) y28
+[Solver:App:encode_body_exists_formula]
+  λx27:int.
+   λy28:int.
+    (A :int -> int -> bool) x27 y28
+    || (B :int -> int -> bool) x27 y28
+       || x27 <= 0 && (F :int -> int -> bool) (x27 + y28) y28
+          || x27 > 0 && (F :int -> int -> bool) (x27 - y28) y28
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx29:int.λy30:int.x29 > 0 && (B :int -> int -> bool) (x29 - y30) y30
+[Solver:App:encode_body_exists_formula]
+  λx29:int.λy30:int.x29 > 0 && (B :int -> int -> bool) (x29 - y30) y30
+[Solver:App:!new_rules]
+  
+[Solver:App:encode_body_exists_formula (ORIGINAL)]
+  λx31:int.λy32:int.x31 <= 0 && (A :int -> int -> bool) (x31 + y32) y32
+[Solver:App:encode_body_exists_formula]
+  λx31:int.λy32:int.x31 <= 0 && (A :int -> int -> bool) (x31 + y32) y32
+[Solver:App:!new_rules]
+  
+Not decomposed HES path (Exists): /tmp/nuonly-142480699.smt2
+Exists89
+[Solver:App:body]
+  ∀m18.∀n19.m18 < 1 || n19 < 1 || (Exists89 :int -> int -> bool) m18 n19
+[Solver:App:body]
+  ∀m18.∀n19.m18 < 1 || n19 < 1 || (Exists89 :int -> int -> bool) m18 n19
+Exists89
+Exists89
+F2
+F
+F2
+F
+F2
+F
+F2
+F
+[Solver:App:body]
+  λm18:int.
+   λn19:int.
+    m18 >= 0 && n19 >= 0
+    && (m18 > 0
+        && (∀recF9292.
+             λx10:int.
+              λy9:int.
+               recF9292 < 1 + 1 * m18 || recF9292 < 1 + -1 * m18 || recF9292 < 1 + 1 * n19
+               || recF9292 < 1 + -1 * n19
+               || recF9292 < 1
+               || (F :int -> int -> int -> bool) recF9292 x10 y9)
+            n19 m18
+        || (F2 :int -> int -> bool) n19 m18 && m18 <= 0
+        || m18 > 0
+           && (∀recF9292.
+                λx10:int.
+                 λy9:int.
+                  recF9292 < 1 + 1 * m18 || recF9292 < 1 + -1 * m18 || recF9292 < 1 + 1 * -n19
+                  || recF9292 < 1 + -1 * -n19
+                  || recF9292 < 1
+                  || (F :int -> int -> int -> bool) recF9292 x10 y9)
+               (-n19) m18
+           || (F2 :int -> int -> bool) (-n19) m18 && m18 <= 0
+        || -m18 > 0
+           && (∀recF9292.
+                λx10:int.
+                 λy9:int.
+                  recF9292 < 1 + 1 * -m18 || recF9292 < 1 + -1 * -m18 || recF9292 < 1 + 1 * n19
+                  || recF9292 < 1 + -1 * n19
+                  || recF9292 < 1
+                  || (F :int -> int -> int -> bool) recF9292 x10 y9)
+               n19 (-m18)
+           || (F2 :int -> int -> bool) n19 (-m18) && -m18 <= 0
+        || -m18 > 0
+           && (∀recF9292.
+                λx10:int.
+                 λy9:int.
+                  recF9292 < 1 + 1 * -m18 || recF9292 < 1 + -1 * -m18 || recF9292 < 1 + 1 * -n19
+                  || recF9292 < 1 + -1 * -n19
+                  || recF9292 < 1
+                  || (F :int -> int -> int -> bool) recF9292 x10 y9)
+               (-n19) (-m18)
+           || (F2 :int -> int -> bool) (-n19) (-m18) && -m18 <= 0
+        || (Exists89 :int -> int -> bool) (m18 - 1) n19
+        || (Exists89 :int -> int -> bool) m18 (n19 - 1))
+[Solver:App:body]
+  λm18:int.
+   λn19:int.
+    (λm18:int.
+      λn19:int.
+       m18 >= 0 && n19 >= 0
+       && (m18 > 0
+           && (∀recF9292.
+                λx10:int.
+                 λy9:int.
+                  recF9292 < 1 + 1 * m18 || recF9292 < 1 + -1 * m18 || recF9292 < 1 + 1 * n19
+                  || recF9292 < 1 + -1 * n19
+                  || recF9292 < 1
+                  || (F :int -> int -> int -> bool) recF9292 x10 y9)
+               n19 m18
+           || (F2 :int -> int -> bool) n19 m18 && m18 <= 0
+           || m18 > 0
+              && (∀recF9292.
+                   λx10:int.
+                    λy9:int.
+                     recF9292 < 1 + 1 * m18 || recF9292 < 1 + -1 * m18 || recF9292 < 1 + 1 * -n19
+                     || recF9292 < 1 + -1 * -n19
+                     || recF9292 < 1
+                     || (F :int -> int -> int -> bool) recF9292 x10 y9)
+                  (-n19) m18
+              || (F2 :int -> int -> bool) (-n19) m18 && m18 <= 0
+           || -m18 > 0
+              && (∀recF9292.
+                   λx10:int.
+                    λy9:int.
+                     recF9292 < 1 + 1 * -m18 || recF9292 < 1 + -1 * -m18 || recF9292 < 1 + 1 * n19
+                     || recF9292 < 1 + -1 * n19
+                     || recF9292 < 1
+                     || (F :int -> int -> int -> bool) recF9292 x10 y9)
+                  n19 (-m18)
+              || (F2 :int -> int -> bool) n19 (-m18) && -m18 <= 0
+           || -m18 > 0
+              && (∀recF9292.
+                   λx10:int.
+                    λy9:int.
+                     recF9292 < 1 + 1 * -m18 || recF9292 < 1 + -1 * -m18 || recF9292 < 1 + 1 * -n19
+                     || recF9292 < 1 + -1 * -n19
+                     || recF9292 < 1
+                     || (F :int -> int -> int -> bool) recF9292 x10 y9)
+                  (-n19) (-m18)
+              || (F2 :int -> int -> bool) (-n19) (-m18) && -m18 <= 0
+           || (Exists89 :int -> int -> bool) (m18 - 1) n19
+           || (Exists89 :int -> int -> bool) m18 (n19 - 1)))
+     m18 n19
+F2
+F2
+B2
+A2
+[Solver:App:body]
+  λx21:int.
+   λy22:int.
+    (∀recA29191.
+      λx7:int.
+       λy6:int.
+        recA29191 < 1 + 1 * y22 || recA29191 < 1 + -1 * y22 || recA29191 < 1 + 1 * x21
+        || recA29191 < 1 + -1 * x21
+        || recA29191 < 1
+        || (A2 :int -> int -> int -> bool) recA29191 x7 y6)
+     x21 y22
+    && (∀recB29090.
+         λx4:int.
+          λy3:int.
+           recB29090 < 1 + 1 * y22 || recB29090 < 1 + -1 * y22 || recB29090 < 1 + 1 * x21
+           || recB29090 < 1 + -1 * x21
+           || recB29090 < 1
+           || (B2 :int -> int -> int -> bool) recB29090 x4 y3)
+        x21 y22
+       && (x21 > 0 || (F2 :int -> int -> bool) (x21 + y22) y22)
+          && (x21 <= 0 || (F2 :int -> int -> bool) (x21 - y22) y22)
+[Solver:App:body]
+  λx21:int.
+   λy22:int.
+    (λx21:int.
+      λy22:int.
+       (∀recA29191.
+         λx7:int.
+          λy6:int.
+           recA29191 < 1 + 1 * y22 || recA29191 < 1 + -1 * y22 || recA29191 < 1 + 1 * x21
+           || recA29191 < 1 + -1 * x21
+           || recA29191 < 1
+           || (A2 :int -> int -> int -> bool) recA29191 x7 y6)
+        x21 y22
+       && (∀recB29090.
+            λx4:int.
+             λy3:int.
+              recB29090 < 1 + 1 * y22 || recB29090 < 1 + -1 * y22 || recB29090 < 1 + 1 * x21
+              || recB29090 < 1 + -1 * x21
+              || recB29090 < 1
+              || (B2 :int -> int -> int -> bool) recB29090 x4 y3)
+           x21 y22
+          && (x21 > 0 || (F2 :int -> int -> bool) (x21 + y22) y22)
+             && (x21 <= 0 || (F2 :int -> int -> bool) (x21 - y22) y22))
+     x21 y22
+B2
+[Solver:App:body]
+  λx23:int.λy24:int.x23 <= 0 || (B2 :int -> int -> int -> bool) (recB29090 - 1) (x23 - y24) y24
+[Solver:App:body]
+  λrecB29090:int.
+   λx23:int.
+    λy24:int.
+     recB29090 > 0
+     && (λx23:int.
+          λy24:int.x23 <= 0 || (B2 :int -> int -> int -> bool) (recB29090 - 1) (x23 - y24) y24)
+         x23 y24
+A2
+[Solver:App:body]
+  λx25:int.λy26:int.x25 > 0 || (A2 :int -> int -> int -> bool) (recA29191 - 1) (x25 + y26) y26
+[Solver:App:body]
+  λrecA29191:int.
+   λx25:int.
+    λy26:int.
+     recA29191 > 0
+     && (λx25:int.
+          λy26:int.x25 > 0 || (A2 :int -> int -> int -> bool) (recA29191 - 1) (x25 + y26) y26)
+         x25 y26
+F
+F
+B
+A
+[Solver:App:body]
+  λx27:int.
+   λy28:int.
+    (A :int -> int -> bool) x27 y28
+    || (B :int -> int -> bool) x27 y28
+       || x27 <= 0 && (F :int -> int -> int -> bool) (recF9292 - 1) (x27 + y28) y28
+          || x27 > 0 && (F :int -> int -> int -> bool) (recF9292 - 1) (x27 - y28) y28
+[Solver:App:body]
+  λrecF9292:int.
+   λx27:int.
+    λy28:int.
+     recF9292 > 0
+     && (λx27:int.
+          λy28:int.
+           (A :int -> int -> bool) x27 y28
+           || (B :int -> int -> bool) x27 y28
+              || x27 <= 0 && (F :int -> int -> int -> bool) (recF9292 - 1) (x27 + y28) y28
+                 || x27 > 0 && (F :int -> int -> int -> bool) (recF9292 - 1) (x27 - y28) y28)
+         x27 y28
+B
+[Solver:App:body]
+  λx29:int.λy30:int.x29 > 0 && (B :int -> int -> bool) (x29 - y30) y30
+[Solver:App:body]
+  λx29:int.
+   λy30:int.(λx29:int.λy30:int.x29 > 0 && (B :int -> int -> bool) (x29 - y30) y30) x29 y30
+A
+[Solver:App:body]
+  λx31:int.λy32:int.x31 <= 0 && (A :int -> int -> bool) (x31 + y32) y32
+[Solver:App:body]
+  λx31:int.
+   λy32:int.(λx31:int.λy32:int.x31 <= 0 && (A :int -> int -> bool) (x31 + y32) y32) x31 y32
+Not decomposed HES path: /tmp/nuonly-32056667.smt2
+[Solver:App:FINAL]
+  Sentry : bool =ν ∀m18.∀n19.m18 < 1 || n19 < 1 || (Exists89 :int -> int -> bool) m18 n19
+  Exists89 : int -> int -> bool =ν
+    λm18:int.
+     λn19:int.
+      m18 >= 0 && n19 >= 0
+      && (m18 > 0
+          && (∀recF9292.
+               recF9292 < 1 + 1 * m18 || recF9292 < 1 + -1 * m18 || recF9292 < 1 + 1 * n19
+               || recF9292 < 1 + -1 * n19
+               || recF9292 < 1
+               || (F :int -> int -> int -> bool) recF9292 n19 m18)
+          || (F2 :int -> int -> bool) n19 m18 && m18 <= 0
+          || m18 > 0
+             && (∀recF9292.
+                  recF9292 < 1 + 1 * m18 || recF9292 < 1 + -1 * m18 || recF9292 < 1 + 1 * -n19
+                  || recF9292 < 1 + -1 * -n19
+                  || recF9292 < 1
+                  || (F :int -> int -> int -> bool) recF9292 (-n19) m18)
+             || (F2 :int -> int -> bool) (-n19) m18 && m18 <= 0
+          || -m18 > 0
+             && (∀recF9292.
+                  recF9292 < 1 + 1 * -m18 || recF9292 < 1 + -1 * -m18 || recF9292 < 1 + 1 * n19
+                  || recF9292 < 1 + -1 * n19
+                  || recF9292 < 1
+                  || (F :int -> int -> int -> bool) recF9292 n19 (-m18))
+             || (F2 :int -> int -> bool) n19 (-m18) && -m18 <= 0
+          || -m18 > 0
+             && (∀recF9292.
+                  recF9292 < 1 + 1 * -m18 || recF9292 < 1 + -1 * -m18 || recF9292 < 1 + 1 * -n19
+                  || recF9292 < 1 + -1 * -n19
+                  || recF9292 < 1
+                  || (F :int -> int -> int -> bool) recF9292 (-n19) (-m18))
+             || (F2 :int -> int -> bool) (-n19) (-m18) && -m18 <= 0
+          || (Exists89 :int -> int -> bool) (m18 - 1) n19
+          || (Exists89 :int -> int -> bool) m18 (n19 - 1))
+  F2 : int -> int -> bool =ν
+    λx21:int.
+     λy22:int.
+      (∀recA29191.
+        recA29191 < 1 + 1 * y22 || recA29191 < 1 + -1 * y22 || recA29191 < 1 + 1 * x21
+        || recA29191 < 1 + -1 * x21
+        || recA29191 < 1
+        || (A2 :int -> int -> int -> bool) recA29191 x21 y22)
+      && (∀recB29090.
+           recB29090 < 1 + 1 * y22 || recB29090 < 1 + -1 * y22 || recB29090 < 1 + 1 * x21
+           || recB29090 < 1 + -1 * x21
+           || recB29090 < 1
+           || (B2 :int -> int -> int -> bool) recB29090 x21 y22)
+         && (x21 > 0 || (F2 :int -> int -> bool) (x21 + y22) y22)
+            && (x21 <= 0 || (F2 :int -> int -> bool) (x21 - y22) y22)
+  B2 : int -> int -> int -> bool =ν
+    λrecB29090:int.
+     λx23:int.
+      λy24:int.
+       recB29090 > 0
+       && (x23 <= 0 || (B2 :int -> int -> int -> bool) (recB29090 - 1) (x23 - y24) y24)
+  A2 : int -> int -> int -> bool =ν
+    λrecA29191:int.
+     λx25:int.
+      λy26:int.
+       recA29191 > 0
+       && (x25 > 0 || (A2 :int -> int -> int -> bool) (recA29191 - 1) (x25 + y26) y26)
+  F : int -> int -> int -> bool =ν
+    λrecF9292:int.
+     λx27:int.
+      λy28:int.
+       recF9292 > 0
+       && ((A :int -> int -> bool) x27 y28
+           || (B :int -> int -> bool) x27 y28
+              || x27 <= 0 && (F :int -> int -> int -> bool) (recF9292 - 1) (x27 + y28) y28
+                 || x27 > 0 && (F :int -> int -> int -> bool) (recF9292 - 1) (x27 - y28) y28)
+  B : int -> int -> bool =ν λx29:int.λy30:int.x29 > 0 && (B :int -> int -> bool) (x29 - y30) y30
+  A : int -> int -> bool =ν
+    λx31:int.λy32:int.x31 <= 0 && (A :int -> int -> bool) (x31 + y32) y32
+Not checked HES path: /tmp/nuonly-40109742.smt2
+Not checked HES path (.hes): /tmp/nuonly-84370225.smt2
+FIRST-ORDER
+HES PATH: /tmp/nuonly-148262779.smt2
+Converted Hes: forall (m18: int). forall (n19: int). m18 < 1 \/ n19 < 1 \/ Exists89 m18 n19
+where
+Exists89 (m18: int) (n19: int): bool =nu m18 >= 0 /\ n19 >= 0 /\ (m18 > 0 /\ (forall (recF9292: int). recF9292 < 1 + 1 * m18 \/ recF9292 < 1 + -1 * m18 \/ recF9292 < 1 + 1 * n19 \/ recF9292 < 1 + -1 * n19 \/ recF9292 < 1 \/ F recF9292 n19 m18) \/ F2 n19 m18 /\ m18 <= 0 \/ m18 > 0 /\ (forall (recF9292: int). recF9292 < 1 + 1 * m18 \/ recF9292 < 1 + -1 * m18 \/ recF9292 < 1 + 1 * (0 - n19) \/ recF9292 < 1 + -1 * (0 - n19) \/ recF9292 < 1 \/ F recF9292 (0 - n19) m18) \/ F2 (0 - n19) m18 /\ m18 <= 0 \/ 0 - m18 > 0 /\ (forall (recF9292: int). recF9292 < 1 + 1 * (0 - m18) \/ recF9292 < 1 + -1 * (0 - m18) \/ recF9292 < 1 + 1 * n19 \/ recF9292 < 1 + -1 * n19 \/ recF9292 < 1 \/ F recF9292 n19 (0 - m18)) \/ F2 n19 (0 - m18) /\ 0 - m18 <= 0 \/ 0 - m18 > 0 /\ (forall (recF9292: int). recF9292 < 1 + 1 * (0 - m18) \/ recF9292 < 1 + -1 * (0 - m18) \/ recF9292 < 1 + 1 * (0 - n19) \/ recF9292 < 1 + -1 * (0 - n19) \/ recF9292 < 1 \/ F recF9292 (0 - n19) (0 - m18)) \/ F2 (0 - n19) (0 - m18) /\ 0 - m18 <= 0 \/ Exists89 (m18 - 1) n19 \/ Exists89 m18 (n19 - 1));
+F2 (x21: int) (y22: int): bool =nu (forall (recA29191: int). recA29191 < 1 + 1 * y22 \/ recA29191 < 1 + -1 * y22 \/ recA29191 < 1 + 1 * x21 \/ recA29191 < 1 + -1 * x21 \/ recA29191 < 1 \/ A2 recA29191 x21 y22) /\ (forall (recB29090: int). recB29090 < 1 + 1 * y22 \/ recB29090 < 1 + -1 * y22 \/ recB29090 < 1 + 1 * x21 \/ recB29090 < 1 + -1 * x21 \/ recB29090 < 1 \/ B2 recB29090 x21 y22) /\ (x21 > 0 \/ F2 (x21 + y22) y22) /\ (x21 <= 0 \/ F2 (x21 - y22) y22);
+B2 (recB29090: int) (x23: int) (y24: int): bool =nu recB29090 > 0 /\ (x23 <= 0 \/ B2 (recB29090 - 1) (x23 - y24) y24);
+A2 (recA29191: int) (x25: int) (y26: int): bool =nu recA29191 > 0 /\ (x25 > 0 \/ A2 (recA29191 - 1) (x25 + y26) y26);
+F (recF9292: int) (x27: int) (y28: int): bool =nu recF9292 > 0 /\ (A x27 y28 \/ B x27 y28 \/ x27 <= 0 /\ F (recF9292 - 1) (x27 + y28) y28 \/ x27 > 0 /\ F (recF9292 - 1) (x27 - y28) y28);
+B (x29: int) (y30: int): bool =nu x29 > 0 /\ B (x29 - y30) y30;
+A (x31: int) (y32: int): bool =nu x31 <= 0 /\ A (x31 + y32) y32;
+pvar key
+Exists89
+show_typ
+SInt;SInt
+gen name: n19, id: 93
+gen name: m18, id: 94
+gen name: Exists89, id: 95
+pvar key
+F2
+show_typ
+SInt;SInt
+gen name: y22, id: 96
+gen name: x21, id: 97
+gen name: F2, id: 98
+pvar key
+B2
+show_typ
+SInt;SInt;SInt
+gen name: y24, id: 99
+gen name: x23, id: 100
+gen name: recB29090, id: 101
+gen name: B2, id: 102
+pvar key
+A2
+show_typ
+SInt;SInt;SInt
+gen name: y26, id: 103
+gen name: x25, id: 104
+gen name: recA29191, id: 105
+gen name: A2, id: 106
+pvar key
+F
+show_typ
+SInt;SInt;SInt
+gen name: y28, id: 107
+gen name: x27, id: 108
+gen name: recF9292, id: 109
+gen name: F, id: 110
+pvar key
+B
+show_typ
+SInt;SInt
+gen name: y30, id: 111
+gen name: x29, id: 112
+gen name: B, id: 113
+pvar key
+A
+show_typ
+SInt;SInt
+gen name: y32, id: 114
+gen name: x31, id: 115
+gen name: A, id: 116
+key
+m18
+gen name: m18, id: 117
+key
+n19
+gen name: n19, id: 118
+gen name: Sentry, id: 119
+key
+m18
+gen name: m18, id: 120
+key
+n19
+gen name: n19, id: 121
+key
+recF9292
+gen name: recF9292, id: 122
+key
+recF9292
+gen name: recF9292, id: 123
+key
+recF9292
+gen name: recF9292, id: 124
+key
+recF9292
+gen name: recF9292, id: 125
+key
+x21
+gen name: x21, id: 126
+key
+y22
+gen name: y22, id: 127
+key
+recB29090
+gen name: recB29090, id: 128
+key
+recA29191
+gen name: recA29191, id: 129
+key
+recB29090
+gen name: recB29090, id: 130
+key
+x23
+gen name: x23, id: 131
+key
+y24
+gen name: y24, id: 132
+key
+recA29191
+gen name: recA29191, id: 133
+key
+x25
+gen name: x25, id: 134
+key
+y26
+gen name: y26, id: 135
+key
+recF9292
+gen name: recF9292, id: 136
+key
+x27
+gen name: x27, id: 137
+key
+y28
+gen name: y28, id: 138
+key
+x29
+gen name: x29, id: 139
+key
+y30
+gen name: y30, id: 140
+key
+x31
+gen name: x31, id: 141
+key
+y32
+gen name: y32, id: 142
+HES PATH 2: /tmp/nuonly-16629481.smt2
+show_commands
+name: hoice
+arguments: --timeout,240
+input: (set-logic HORN),(declare-fun Entry_ (Int Int) Bool),(declare-fun Exists89 (Int Int) Bool),(declare-fun A (Int Int) Bool),(declare-fun B (Int Int) Bool),(declare-fun F (Int Int Int) Bool),(declare-fun P!!0 (Int Int Int) Bool),(declare-fun P!!1 (Int Int Int) Bool),(declare-fun A2 (Int Int Int) Bool),(declare-fun B2 (Int Int Int) Bool),(declare-fun F2 (Int Int) Bool),(declare-fun P!!8 (Int Int Int) Bool),(declare-fun P!!7 (Int Int) Bool),(declare-fun P!!6 (Int Int Int) Bool),(declare-fun P!!5 (Int Int) Bool),(declare-fun P!!4 (Int Int Int) Bool),(declare-fun P!!3 (Int Int) Bool),(declare-fun P!!2 (Int Int) Bool),(declare-fun P!!9 (Int Int Int) Bool),(assert (forall ((A Int) (B Int)),  (=> (and (Exists89 B A) (>= B 1) (>= A 1)) (Entry_ A B)))),(assert (forall ((B Int) (C Int) (D Int)) (=> (and (A B D) (= B (+ C D))) (A C D)))),(assert (forall ((B Int) (C Int)) (=> (> B 0) (A B C)))),(assert (forall ((A Int) (C Int) (D Int)) (=> (and (B A D) (= A (- C D))) (B C D)))),(assert (forall ((A Int) (C Int)) (=> (<= A 0) (B A C)))),(assert (forall ((C Int) (D Int) (E Int)),  (=> (and (P!!1 E D C) (P!!0 E D C) (A D E) (B D E)) (F C D E)))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (=> (and (F B A E) (= A (+ D E)) (= B (- C 1))) (P!!1 E D C)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (> B 0) (P!!1 C B A)))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (=> (and (F B A E) (= A (- D E)) (= B (- C 1))) (P!!0 E D C)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= B 0) (P!!0 C B A)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= A 0) (F A B C)))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (=> (and (A2 B A E) (= A (+ D E)) (= B (- C 1)) (<= D 0)) (A2 C D E)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= A 0) (A2 A B C)))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (=> (and (B2 B A E) (= A (- D E)) (= B (- C 1)) (> D 0)) (B2 C D E)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= A 0) (B2 A B C)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (F2 A C) (= A (- B C)) (> B 0)) (F2 B C)))),(assert (forall ((A Int) (B Int) (C Int)),  (=> (and (F2 A C) (= A (+ B C)) (<= B 0)) (F2 B C)))),(assert (forall ((A Int) (B Int) (C Int)),  (let ((a!1 (and (B2 C A B),                  (>= C (+ 1 (* (- 1) B))),                  (>= C (+ 1 (* 1 A))),                  (>= C (+ 1 (* (- 1) A))),                  (>= C 1),                  (>= C (+ 1 (* 1 B)))))),    (=> a!1 (F2 A B))))),(assert (forall ((A Int) (B Int) (C Int)),  (let ((a!1 (and (A2 C A B),                  (>= C (+ 1 (* (- 1) B))),                  (>= C (+ 1 (* 1 A))),                  (>= C (+ 1 (* (- 1) A))),                  (>= C 1),                  (>= C (+ 1 (* 1 B)))))),    (=> a!1 (F2 A B))))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (=> (and (P!!9 E D C),           (Exists89 C B),           (Exists89 A D),           (P!!2 D C),           (P!!3 D C),           (P!!4 E D C),           (P!!5 D C),           (P!!6 E D C),           (P!!7 D C),           (P!!8 E D C),           (= A (- C 1)),           (= B (- D 1))),      (Exists89 C D)))),(assert (forall ((A Int) (B Int) (C Int)),  (let ((a!1 (and (F C B A),                  (>= C (+ 1 (* (- 1) A))),                  (>= C (+ 1 (* 1 B))),                  (>= C (+ 1 (* (- 1) B))),                  (>= C 1),                  (>= C (+ 1 (* 1 A)))))),    (=> a!1 (P!!9 C B A))))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= A 0) (P!!9 C B A)))),(assert (forall ((A Int) (B Int) (C Int) (D Int)),  (let ((a!1 (>= D (+ 1 (* 1 (- 0 C))))) (a!2 (>= D (+ 1 (* (- 1) (- 0 C)))))),  (let ((a!3 (and (F D A B),                  (= A (- 0 C)),                  (>= D (+ 1 (* (- 1) B))),                  a!1,                  a!2,                  (>= D 1),                  (>= D (+ 1 (* 1 B)))))),    (=> a!3 (P!!8 D C B)))))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= A 0) (P!!8 C B A)))),(assert (forall ((A Int) (B Int)) (=> (> A 0) (P!!7 B A)))),(assert (forall ((A Int) (B Int)) (=> (F2 B A) (P!!7 B A)))),(assert (forall ((A Int) (B Int) (C Int) (D Int)),  (let ((a!1 (>= D (+ 1 (* (- 1) (- 0 B))))) (a!2 (>= D (+ 1 (* 1 (- 0 B)))))),  (let ((a!3 (and (F D C A),                  (= A (- 0 B)),                  a!1,                  (>= D (+ 1 (* 1 C))),                  (>= D (+ 1 (* (- 1) C))),                  (>= D 1),                  a!2))),    (=> a!3 (P!!6 D C B)))))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= (- 0 A) 0) (P!!6 C B A)))),(assert (forall ((A Int) (B Int)) (=> (> A 0) (P!!5 B A)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (and (F2 A B) (= A (- 0 C))) (P!!5 C B)))),(assert (forall ((A Int) (B Int) (C Int) (D Int) (E Int)),  (let ((a!1 (>= E (+ 1 (* (- 1) (- 0 C))))),        (a!2 (>= E (+ 1 (* 1 (- 0 D))))),        (a!3 (>= E (+ 1 (* (- 1) (- 0 D))))),        (a!4 (>= E (+ 1 (* 1 (- 0 C)))))),    (=> (and (F E B A) (= A (- 0 C)) (= B (- 0 D)) a!1 a!2 a!3 (>= E 1) a!4),        (P!!4 E D C))))),(assert (forall ((A Int) (B Int) (C Int)) (=> (<= (- 0 A) 0) (P!!4 C B A)))),(assert (forall ((A Int) (B Int)) (=> (> (- 0 A) 0) (P!!3 B A)))),(assert (forall ((A Int) (B Int) (C Int)) (=> (and (F2 C A) (= A (- 0 B))) (P!!3 C B)))),(assert (forall ((A Int) (B Int)) (=> (> (- 0 A) 0) (P!!2 B A)))),(assert (forall ((A Int) (B Int) (C Int) (D Int)),  (=> (and (F2 B A) (= A (- 0 C)) (= B (- 0 D))) (P!!2 D C)))),(assert (forall ((A Int) (B Int)) (=> (or (< A 0) (< B 0)) (Exists89 A B)))),,,(assert (forall ((X0 Int) (X1 Int)) (not (Entry_ X0 X1)))),(check-sat),(exit)
+====
+Uncaught exception:
+  
+  (Failure "unknown result: unknown")
+
+Raised at file "stdlib.ml", line 29, characters 17-33
+Called from file "lib2/rfunprover/solver.ml", line 35, characters 18-51
+Called from file "lib2/rfunprover/solver.ml", line 240, characters 19-54
+Called from file "lib2/rfunprover/solver.ml", line 266, characters 19-113
+Called from file "lib/muapprox_prover/muapprox_prover.ml", line 75, characters 20-126
+Called from file "lib/muapprox_prover/muapprox_prover.ml" (inlined), line 196, characters 2-30
+Called from file "lib/muapprox_prover/muapprox_prover.ml", line 266, characters 38-102
+Called from file "lib/muapprox.ml", line 78, characters 14-72
+Called from file "bin/main.ml", line 14, characters 16-34
