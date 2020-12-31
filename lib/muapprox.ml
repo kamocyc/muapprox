@@ -72,8 +72,11 @@ let main file =
   let coe1, coe2 = solve_options.coe in
   let inlining = not @@ !Options.no_inlining in
   (* for debug *)
-  let psi = Syntax.Trans.Simplify.hflz_hes psi inlining in
-  Log.app begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
+  let psi = if inlining then (
+    let psi = Syntax.Trans.Simplify.hflz_hes psi inlining in
+    Log.app begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
+    psi
+  ) else psi in
   (* TODO: *)
   let s1, _ = Muapprox_prover.check_validity coe1 coe2 solve_options psi in
   s1

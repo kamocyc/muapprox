@@ -22,7 +22,7 @@ let to_string id =
 let gen : ?name:string -> 'annot -> 'anno t =
   fun ?(name="x") ann ->
     let id = gen_id() in
-    print_string @@ "gen name: " ^ name ^ ", id: " ^ string_of_int id ^ "\n";
+    (* print_string @@ "gen name: " ^ name ^ ", id: " ^ string_of_int id ^ "\n"; *)
     { name = name
     ; id = id
     ; ty = ann

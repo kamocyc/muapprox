@@ -22,8 +22,8 @@ let conv_ty_sub ty =
   | _ -> failwith "conv_ty"
 
 let conv_ty_pvar tys arg_names = 
-  print_endline "show_typ";
-  print_endline @@ String.concat ~sep:";" (List.map ~f:show_sort tys);
+  (* print_endline "show_typ";
+  print_endline @@ String.concat ~sep:";" (List.map ~f:show_sort tys); *)
   let tys = List.map ~f:conv_ty_sub tys in
   let ty = 
     let rec go' (tys, arg_names) =
@@ -43,8 +43,8 @@ let add_env_pvar env (k, tys) arg_names =
   | Some _ -> failwith "add_env_pvar"
   | None -> begin
     let (Ast.Ident.Pvar name) = k in
-    print_endline "pvar key";
-    print_endline name;
+    (* print_endline "pvar key";
+    print_endline name; *)
     let ty = conv_ty_pvar tys arg_names in
     let v = Id.gen ~name:name ty in
     let env = (`Pvar k, v)::env in
@@ -56,8 +56,8 @@ let add_env_tvar env (k, ty) =
   | Some _ -> failwith "add_env (possible variable shadowing)"
   | None -> begin
     let (Ast.Ident.Tvar name) = k in
-    print_endline "key";
-    print_endline name;
+    (* print_endline "key";
+    print_endline name; *)
     let ty = conv_ty_sub ty in
     let v = Id.gen ~name:name ty in
     let env = (`Tvar k, v)::env in

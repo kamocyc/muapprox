@@ -66,7 +66,6 @@ let set_up_params params =
   set_ref hes                      params.hes;
   set_ref timeout                  params.timeout;
   set_ref print_for_debug          params.print_for_debug;
-  print_endline "no_separate_original_formula_in_exists";
   set_ref no_separate_original_formula_in_exists params.no_separate_original_formula_in_exists;
   set_ref no_backend_inlining      params.no_inlining_backend;
   set_ref solver                   params.solver;
@@ -85,7 +84,7 @@ let term_set_up_params () =
 let term_setup_log () =
   (*{{{*)
   let setup style_renderer level =
-    Format.set_margin 100;
+    Format.set_margin 1000;
     Fmt_tty.setup_std_outputs ?style_renderer ();
     let pp_header ppf (src, level, header) =
       let src_str =

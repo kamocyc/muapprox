@@ -22,7 +22,8 @@ let rec hflz_ : (Prec.t -> 'ty Fmt.t) -> Prec.t -> 'ty Hflz.t Fmt.t =
   fun format_ty_ prec ppf (phi : 'ty Hflz.t) -> match phi with
     | Bool true -> Fmt.string ppf "true"
     | Bool false -> Fmt.string ppf "false"
-    | Var x -> Fmt.pf ppf "(%a :%a)" id x (format_ty_ Prec.zero) x.ty
+    (* | Var x -> Fmt.pf ppf "(%a :%a)" id x (format_ty_ Prec.zero) x.ty *)
+    | Var x -> Fmt.pf ppf "%a" id x
     | Or(phi1,phi2)  ->
         show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ || %a@]"
           (hflz_ format_ty_ Prec.or_) phi1
@@ -58,11 +59,16 @@ let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.t Fmt.t =
 
 let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes_rule Fmt.t =
   fun format_ty_ ppf rule ->
-    Fmt.pf ppf "@[<2>%s : %a =%a@ %a@]"
+    Fmt.pf ppf "@[<2>%s =%a@ %a@]"
+      (Id.to_string rule.var)
+      (* (format_ty_ Prec.zero) rule.var.ty *)
+      fixpoint rule.fix
+      (hflz format_ty_) rule.body
+    (* Fmt.pf ppf "@[<2>%s : %a =%a@ %a@]"
       (Id.to_string rule.var)
       (format_ty_ Prec.zero) rule.var.ty
       fixpoint rule.fix
-      (hflz format_ty_) rule.body
+      (hflz format_ty_) rule.body *)
 
 let hflz_hes : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes Fmt.t =
   fun format_ty_ ppf hes ->
@@ -141,8 +147,14 @@ module FptProverHes = struct
           show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ /\\ %a@]"
             (go_ Prec.and_) phi1
             (go_ Prec.and_) phi2
-      | Abs (x, psi) -> 
-          failwith @@ "(Print.Hflz) Abstractions should be converted to HES equations."
+      | Abs (x, psi) -> begin
+        show_paren (prec > Prec.abs) ppf "@[<1>λ%a.@,%a@]"
+            id' x
+            (* (argty (Prec.(succ arrow))) x.ty *)
+            (go_ Prec.abs) psi
+      end 
+      (* | Abs (x, psi) -> 
+          failwith @@ "(Print.Hflz) Abstractions should be converted to HES equations." *)
       | Forall (x, psi) ->
           show_paren (prec > Prec.abs) ppf "@[<1>forall (%a : %a).@,%a@]"
             id' x

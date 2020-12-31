@@ -29,10 +29,10 @@ adding (allow_approximate_merlin) to your dune-project.
   F =ν λx27:int.λy28:int.(∀recA3535.recA3535 < 1 + 1 * y28 || recA3535 < 1 + -1 * y28 || recA3535 < 1 + 1 * x27 || recA3535 < 1 + -1 * x27 || recA3535 < 1 || A recA3535 x27 y28) && (∀recB3434.recB3434 < 1 + 1 * y28 || recB3434 < 1 + -1 * y28 || recB3434 < 1 + 1 * x27 || recB3434 < 1 + -1 * x27 || recB3434 < 1 || B recB3434 x27 y28) && (x27 > 0 || F (x27 + y28) y28) && (x27 <= 0 || F (x27 - y28) y28)
   B =ν λrecB3434:int.λx29:int.λy30:int.recB3434 > 0 && (x29 <= 0 || B (recB3434 - 1) (x29 - y30) y30)
   A =ν λrecA3535:int.λx31:int.λy32:int.recA3535 > 0 && (x31 > 0 || A (recA3535 - 1) (x31 + y32) y32)
-Not checked HES path: /tmp/nuonly-93793927.smt2
-Not checked HES path (.hes): /tmp/nuonly-226382317.smt2
+Not checked HES path: /tmp/nuonly-147416704.smt2
+Not checked HES path (.hes): /tmp/nuonly-141061796.smt2
 FIRST-ORDER
-HES PATH: /tmp/nuonly-11420132.smt2
+HES PATH: /tmp/nuonly-111485350.smt2
 Converted Hes: forall (m18: int). forall (n19: int). (m18 <= 0 \/ F n19 m18) /\ ((forall (recF23333: int). recF23333 < 1 + 1 * m18 \/ recF23333 < 1 + -1 * m18 \/ recF23333 < 1 + 1 * n19 \/ recF23333 < 1 + -1 * n19 \/ recF23333 < 1 \/ F2 recF23333 n19 m18) \/ m18 > 0)
 where
 F2 (recF23333: int) (x21: int) (y22: int): bool =nu recF23333 > 0 /\ (A2 x21 y22 \/ B2 x21 y22 \/ x21 <= 0 /\ F2 (recF23333 - 1) (x21 + y22) y22 \/ x21 > 0 /\ F2 (recF23333 - 1) (x21 - y22) y22);
@@ -41,7 +41,7 @@ A2 (x25: int) (y26: int): bool =nu x25 <= 0 /\ A2 (x25 + y26) y26;
 F (x27: int) (y28: int): bool =nu (forall (recA3535: int). recA3535 < 1 + 1 * y28 \/ recA3535 < 1 + -1 * y28 \/ recA3535 < 1 + 1 * x27 \/ recA3535 < 1 + -1 * x27 \/ recA3535 < 1 \/ A recA3535 x27 y28) /\ (forall (recB3434: int). recB3434 < 1 + 1 * y28 \/ recB3434 < 1 + -1 * y28 \/ recB3434 < 1 + 1 * x27 \/ recB3434 < 1 + -1 * x27 \/ recB3434 < 1 \/ B recB3434 x27 y28) /\ (x27 > 0 \/ F (x27 + y28) y28) /\ (x27 <= 0 \/ F (x27 - y28) y28);
 B (recB3434: int) (x29: int) (y30: int): bool =nu recB3434 > 0 /\ (x29 <= 0 \/ B (recB3434 - 1) (x29 - y30) y30);
 A (recA3535: int) (x31: int) (y32: int): bool =nu recA3535 > 0 /\ (x31 > 0 \/ A (recA3535 - 1) (x31 + y32) y32);
-HES PATH 2: /tmp/nuonly-68540416.smt2
+HES PATH 2: /tmp/nuonly-23326095.smt2
 show_commands
 name: hoice
 arguments: --timeout,240
@@ -55,8 +55,8 @@ input: (set-logic HORN),(declare-fun Entry_ (Int Int Int) Bool),(declare-fun F2 
   F =μ λx27:int.λy28:int.A x27 y28 || B x27 y28 || x27 <= 0 && F (x27 + y28) y28 || x27 > 0 && F (x27 - y28) y28
   B =ν λx29:int.λy30:int.x29 > 0 && B (x29 - y30) y30
   A =ν λx31:int.λy32:int.x31 <= 0 && A (x31 + y32) y32
-Not checked HES path: /tmp/nuonly-262178295.smt2
-Not checked HES path (.hes): /tmp/nuonly-75194247.smt2
+Not checked HES path: /tmp/nuonly-220892720.smt2
+Not checked HES path (.hes): /tmp/nuonly-191363408.smt2
 [Solver:App:Exists-Encoded HES]
   Sentry =ν ∀m18.∀n19.m18 < 1 || n19 < 1 || Exists78 m18 n19
   Exists78 =ν λm18:int.λn19:int.m18 >= 0 && n19 >= 0 && (m18 > 0 && F n19 m18 || F2 n19 m18 && m18 <= 0 || m18 > 0 && F (-n19) m18 || F2 (-n19) m18 && m18 <= 0 || -m18 > 0 && F n19 (-m18) || F2 n19 (-m18) && -m18 <= 0 || -m18 > 0 && F (-n19) (-m18) || F2 (-n19) (-m18) && -m18 <= 0 || Exists78 (m18 - 1) n19 || Exists78 m18 (n19 - 1))
@@ -75,10 +75,10 @@ Not checked HES path (.hes): /tmp/nuonly-75194247.smt2
   F =ν λrecF8181:int.λx27:int.λy28:int.recF8181 > 0 && (A x27 y28 || B x27 y28 || x27 <= 0 && F (recF8181 - 1) (x27 + y28) y28 || x27 > 0 && F (recF8181 - 1) (x27 - y28) y28)
   B =ν λx29:int.λy30:int.x29 > 0 && B (x29 - y30) y30
   A =ν λx31:int.λy32:int.x31 <= 0 && A (x31 + y32) y32
-Not checked HES path: /tmp/nuonly-71678852.smt2
-Not checked HES path (.hes): /tmp/nuonly-5375054.smt2
+Not checked HES path: /tmp/nuonly-109764487.smt2
+Not checked HES path (.hes): /tmp/nuonly-191108645.smt2
 FIRST-ORDER
-HES PATH: /tmp/nuonly-156648661.smt2
+HES PATH: /tmp/nuonly-22760551.smt2
 Converted Hes: forall (m18: int). forall (n19: int). m18 < 1 \/ n19 < 1 \/ Exists78 m18 n19
 where
 Exists78 (m18: int) (n19: int): bool =nu m18 >= 0 /\ n19 >= 0 /\ (m18 > 0 /\ (forall (recF8181: int). recF8181 < 1 + 1 * m18 \/ recF8181 < 1 + -1 * m18 \/ recF8181 < 1 + 1 * n19 \/ recF8181 < 1 + -1 * n19 \/ recF8181 < 1 \/ F recF8181 n19 m18) \/ F2 n19 m18 /\ m18 <= 0 \/ m18 > 0 /\ (forall (recF8181: int). recF8181 < 1 + 1 * m18 \/ recF8181 < 1 + -1 * m18 \/ recF8181 < 1 + 1 * (0 - n19) \/ recF8181 < 1 + -1 * (0 - n19) \/ recF8181 < 1 \/ F recF8181 (0 - n19) m18) \/ F2 (0 - n19) m18 /\ m18 <= 0 \/ 0 - m18 > 0 /\ (forall (recF8181: int). recF8181 < 1 + 1 * (0 - m18) \/ recF8181 < 1 + -1 * (0 - m18) \/ recF8181 < 1 + 1 * n19 \/ recF8181 < 1 + -1 * n19 \/ recF8181 < 1 \/ F recF8181 n19 (0 - m18)) \/ F2 n19 (0 - m18) /\ 0 - m18 <= 0 \/ 0 - m18 > 0 /\ (forall (recF8181: int). recF8181 < 1 + 1 * (0 - m18) \/ recF8181 < 1 + -1 * (0 - m18) \/ recF8181 < 1 + 1 * (0 - n19) \/ recF8181 < 1 + -1 * (0 - n19) \/ recF8181 < 1 \/ F recF8181 (0 - n19) (0 - m18)) \/ F2 (0 - n19) (0 - m18) /\ 0 - m18 <= 0 \/ Exists78 (m18 - 1) n19 \/ Exists78 m18 (n19 - 1));
@@ -88,7 +88,7 @@ A2 (recA28080: int) (x25: int) (y26: int): bool =nu recA28080 > 0 /\ (x25 > 0 \/
 F (recF8181: int) (x27: int) (y28: int): bool =nu recF8181 > 0 /\ (A x27 y28 \/ B x27 y28 \/ x27 <= 0 /\ F (recF8181 - 1) (x27 + y28) y28 \/ x27 > 0 /\ F (recF8181 - 1) (x27 - y28) y28);
 B (x29: int) (y30: int): bool =nu x29 > 0 /\ B (x29 - y30) y30;
 A (x31: int) (y32: int): bool =nu x31 <= 0 /\ A (x31 + y32) y32;
-HES PATH 2: /tmp/nuonly-99001191.smt2
+HES PATH 2: /tmp/nuonly-114476813.smt2
 show_commands
 name: hoice
 arguments: --timeout,240
@@ -110,10 +110,10 @@ input: (set-logic HORN),(declare-fun Entry_ (Int Int) Bool),(declare-fun Exists7
   F =ν λx27:int.λy28:int.(∀recA134134.recA134134 < 8 + 1 * y28 || recA134134 < 8 + -1 * y28 || recA134134 < 8 + 1 * x27 || recA134134 < 8 + -1 * x27 || recA134134 < 8 || A recA134134 x27 y28) && (∀recB133133.recB133133 < 8 + 1 * y28 || recB133133 < 8 + -1 * y28 || recB133133 < 8 + 1 * x27 || recB133133 < 8 + -1 * x27 || recB133133 < 8 || B recB133133 x27 y28) && (x27 > 0 || F (x27 + y28) y28) && (x27 <= 0 || F (x27 - y28) y28)
   B =ν λrecB133133:int.λx29:int.λy30:int.recB133133 > 0 && (x29 <= 0 || B (recB133133 - 1) (x29 - y30) y30)
   A =ν λrecA134134:int.λx31:int.λy32:int.recA134134 > 0 && (x31 > 0 || A (recA134134 - 1) (x31 + y32) y32)
-Not checked HES path: /tmp/nuonly-225842160.smt2
-Not checked HES path (.hes): /tmp/nuonly-118184012.smt2
+Not checked HES path: /tmp/nuonly-169139131.smt2
+Not checked HES path (.hes): /tmp/nuonly-32602215.smt2
 FIRST-ORDER
-HES PATH: /tmp/nuonly-55853717.smt2
+HES PATH: /tmp/nuonly-76860406.smt2
 Converted Hes: forall (m18: int). forall (n19: int). (m18 <= 0 \/ F n19 m18) /\ ((forall (recF2132132: int). recF2132132 < 8 + 1 * m18 \/ recF2132132 < 8 + -1 * m18 \/ recF2132132 < 8 + 1 * n19 \/ recF2132132 < 8 + -1 * n19 \/ recF2132132 < 8 \/ F2 recF2132132 n19 m18) \/ m18 > 0)
 where
 F2 (recF2132132: int) (x21: int) (y22: int): bool =nu recF2132132 > 0 /\ (A2 x21 y22 \/ B2 x21 y22 \/ x21 <= 0 /\ F2 (recF2132132 - 1) (x21 + y22) y22 \/ x21 > 0 /\ F2 (recF2132132 - 1) (x21 - y22) y22);
@@ -122,7 +122,7 @@ A2 (x25: int) (y26: int): bool =nu x25 <= 0 /\ A2 (x25 + y26) y26;
 F (x27: int) (y28: int): bool =nu (forall (recA134134: int). recA134134 < 8 + 1 * y28 \/ recA134134 < 8 + -1 * y28 \/ recA134134 < 8 + 1 * x27 \/ recA134134 < 8 + -1 * x27 \/ recA134134 < 8 \/ A recA134134 x27 y28) /\ (forall (recB133133: int). recB133133 < 8 + 1 * y28 \/ recB133133 < 8 + -1 * y28 \/ recB133133 < 8 + 1 * x27 \/ recB133133 < 8 + -1 * x27 \/ recB133133 < 8 \/ B recB133133 x27 y28) /\ (x27 > 0 \/ F (x27 + y28) y28) /\ (x27 <= 0 \/ F (x27 - y28) y28);
 B (recB133133: int) (x29: int) (y30: int): bool =nu recB133133 > 0 /\ (x29 <= 0 \/ B (recB133133 - 1) (x29 - y30) y30);
 A (recA134134: int) (x31: int) (y32: int): bool =nu recA134134 > 0 /\ (x31 > 0 \/ A (recA134134 - 1) (x31 + y32) y32);
-HES PATH 2: /tmp/nuonly-122512334.smt2
+HES PATH 2: /tmp/nuonly-17038360.smt2
 show_commands
 name: hoice
 arguments: --timeout,240
@@ -131,4 +131,4 @@ input: (set-logic HORN),(declare-fun Entry_ (Int Int Int) Bool),(declare-fun F2 
 [[MAIN]] Verification Result:
   valid
 Profiling:
-  total: 1.803390 sec
+  total: 1.879795 sec

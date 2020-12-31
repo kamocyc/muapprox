@@ -192,7 +192,7 @@ let run_solver solve_options hes =
   let status = Solver.parse_results @@ Hflmc2_util.Fn.Command.run_command ~timeout:solve_options.timeout command in
   status, status *)
    
-let solve_onlynu_onlyforall solve_options rec_preds hes =
+let solve_onlynu_onlyforall solve_options hes =
   run_solver solve_options hes
 
 let flip_solver solver =
@@ -224,23 +224,23 @@ let fold_hflz folder phi init =
 
 let is_onlyforall_body formula =
   fold_hflz (fun b f -> match f with Hflz.Exists _ -> false | _ -> b) formula true
-let is_onlynu_onlyforall_rule rec_preds {Hflz.var; fix; body} =
-  (fix = Fixpoint.Greatest (*|| is_not_recursive rec_preds var*)) && is_onlyforall_body body
-let is_onlynu_onlyforall rec_preds =
-  List.for_all (is_onlynu_onlyforall_rule rec_preds)
+let is_onlynu_onlyforall_rule {Hflz.var; fix; body} =
+  (fix = Fixpoint.Greatest) && is_onlyforall_body body
+let is_onlynu_onlyforall =
+  List.for_all is_onlynu_onlyforall_rule
 
 let is_onlyexists_body formula =
   fold_hflz (fun b f -> match f with Hflz.Forall _ -> false | _ -> b) formula true
-let is_onlymu_onlyexists_rule rec_preds {Hflz.var; fix; body} =
-  (fix = Fixpoint.Least (*|| is_not_recursive rec_preds var*)) && is_onlyexists_body body
-let is_onlymu_onlyexists rec_preds =
-  List.for_all (is_onlymu_onlyexists_rule rec_preds)
+let is_onlymu_onlyexists_rule {Hflz.var; fix; body} =
+  (fix = Fixpoint.Least) && is_onlyexists_body body
+let is_onlymu_onlyexists =
+  List.for_all is_onlymu_onlyexists_rule
 
 let flip_status_pair (s1, s2) =
   (Status.flip s1, s2)
 
 (* TODO: forallを最外に移動？ => いらなそうか *)
-let elim_mu_exists coe1 coe2 rec_preds hes =
+let elim_mu_exists coe1 coe2 hes =
   (* 再帰参照していない述語はgreatestに置換 *)
   (* これをすると、fixpoint alternationが新たにできて、式が複雑になることがあるので、やめる *)
   (* let hes = to_greatest_from_not_recursive rec_preds hes in *)
@@ -253,17 +253,17 @@ let elim_mu_exists coe1 coe2 rec_preds hes =
   hes
   
 (* これ以降、本プログラム側での近似が入る *)
-let check_validity_full coe1 coe2 solve_options rec_preds hes = 
+let check_validity_full coe1 coe2 solve_options hes = 
   let rec go coe1 coe2 =
     (*  *)
-    let nu_only_hes = elim_mu_exists coe1 coe2 rec_preds hes in
-    let result, result' = solve_onlynu_onlyforall solve_options rec_preds nu_only_hes in
+    let nu_only_hes = elim_mu_exists coe1 coe2 hes in
+    let result, result' = solve_onlynu_onlyforall solve_options nu_only_hes in
     match result with
     | Status.Valid -> (Status.Valid, result')
     | _ -> begin
       let dual_hes = Hflz_mani.get_dual_hes hes in
-      let nu_only_dual_hes = elim_mu_exists coe1 coe2 rec_preds dual_hes in
-      let dual_result, dual_result' = solve_onlynu_onlyforall solve_options rec_preds nu_only_dual_hes in
+      let nu_only_dual_hes = elim_mu_exists coe1 coe2 dual_hes in
+      let dual_result, dual_result' = solve_onlynu_onlyforall solve_options nu_only_dual_hes in
       match dual_result with
       | Status.Valid -> (Status.Invalid, dual_result')
       | _ -> begin
@@ -281,17 +281,17 @@ let check_validity_full coe1 coe2 solve_options rec_preds hes =
 (* 「shadowingが無い」とする。 *)
 (* timeoutは個別のsolverのtimeout *)  
 let check_validity coe1 coe2 solve_options hes =
-  Log.app begin fun m -> m ~header:"check_validity (first)" "%a" Manipulate.Print_syntax.(MachineReadable.hflz_hes' simple_ty_ false) hes end;
-  let hes = Hflz_mani.decompose_lambdas_hes hes in
-  Log.app begin fun m -> m ~header:"Decompose lambdas" "%a" Manipulate.Print_syntax.(hflz_hes simple_ty_) hes end;
-  let rec_preds = Manipulate.Hflz_util.get_recurring_predicates hes in
-  print_endline "get_recurring_predicates";
-    List.iter (fun p -> print_string @@ Hflmc2_syntax.Id.to_string p ^ ", ") rec_preds; print_endline "";
-  if is_onlynu_onlyforall rec_preds hes then
-    solve_onlynu_onlyforall solve_options rec_preds hes
-  else if is_onlymu_onlyexists rec_preds hes then
-    flip_status_pair @@ solve_onlynu_onlyforall solve_options rec_preds @@ Hflz_mani.get_dual_hes hes
-  else check_validity_full coe1 coe2 solve_options rec_preds hes
+  (* Log.app begin fun m -> m ~header:"check_validity (first)" "%a" Manipulate.Print_syntax.(MachineReadable.hflz_hes' simple_ty_ false) hes end; *)
+  (* let hes = Hflz_mani.decompose_lambdas_hes hes in
+  Log.app begin fun m -> m ~header:"Decompose lambdas" "%a" Manipulate.Print_syntax.(hflz_hes simple_ty_) hes end; *)
+  (* let rec_preds = Manipulate.Hflz_util.get_recurring_predicates hes in *)
+  (* print_endline "get_recurring_predicates";
+    List.iter (fun p -> print_string @@ Hflmc2_syntax.Id.to_string p ^ ", ") rec_preds; print_endline ""; *)
+  if is_onlynu_onlyforall hes then
+    solve_onlynu_onlyforall solve_options hes
+  else if is_onlymu_onlyexists hes then
+    flip_status_pair @@ solve_onlynu_onlyforall solve_options @@ Hflz_mani.get_dual_hes hes
+  else check_validity_full coe1 coe2 solve_options hes
 
 (* 
 CheckValidity(Φ, main) { /* Φ: HES, main: Entry formula */

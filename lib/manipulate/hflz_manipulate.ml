@@ -7,24 +7,11 @@ open Hflz_typecheck
 open Hflz
 module Util = Hflmc2_util
 
-
 let show_hflz = Print.show_hflz
 let show_hflz_full = Print.show_hflz_full
 
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
-
-let%expect_test "desugar_formula" =
-  let open Type in
-  let sugar : simple_ty Hflz.Sugar.t =
-    (* true && (not (true && ∀x2. 1 >= x2 || ∃x3. not (true && x4 5))) *)
-    (* => *)
-    (* true && (false || ∃x2. 1 < x2 && ∀x3. true && x4 5) *)
-    And (Bool true, Not (And (Bool true, Forall (id_n 2 TyInt, Or (Pred (Ge, [Int 1; Var (id_n 2 `Int)]), Exists (id_n 3 TyInt, Not (And (Bool true, App (Var (id_n 4 (TyBool ())), Arith (Int 5)))))))))) in
-  let desugar = Hflz.desugar_formula sugar in
-  ignore [%expect.output];
-  print_endline @@ show_hflz desugar;
-  [%expect {| true && (false || (∃x_22.1 < x_22 && (∀x_33.true && (x_44 :bool) 5))) |}]
 
 (* Arrow type to list of types of the arguments conversion *)
 (* t1 -> t2 -> t3  ==> [t3; t2; t1]  *)
@@ -35,16 +22,6 @@ let to_args : Type.simple_ty -> Type.simple_ty Type.arg Id.t list =
     | Type.TyBool _ -> acc in
   go []
 
-let%expect_test "to_args" =
-  let open Type in
-  let res = to_args @@ TyArrow (id_n 1 TyInt, TyArrow (id_n 2 TyInt, TyArrow (id_n 3 (TySigma (TyBool ())), TyBool ()))) in
-  ignore [%expect.output];
-  Util.print_list (Id.show (fun fmt ty_ -> pp_simple_argty fmt ty_)) res;
-  [%expect {|
-    [ { Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) };
-    { Id.name = "x_2"; id = 2; ty = Type.TyInt };
-    { Id.name = "x_1"; id = 1; ty = Type.TyInt } ] |}]
-
 (* 引数のリストからabstractionに変換。IDは新規に生成する。 *)
 let to_abs : 'ty Type.arg Id.t list -> ('ty2 Hflz.t -> 'ty2 Hflz.t) = fun args ->
   let name_map = List.map (fun arg -> (arg.Id.name, Id.gen ~name:arg.Id.name arg.Id.ty)) args in
@@ -53,22 +30,6 @@ let to_abs : 'ty Type.arg Id.t list -> ('ty2 Hflz.t -> 'ty2 Hflz.t) = fun args -
       | [] -> body
       | arg::xs -> Abs (List.assoc arg.Id.name name_map, go xs) in
     go args
-
-let%expect_test "to_abs" =
-  let open Type in
-  let res = to_abs [
-    { Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) };
-    { Id.name = "x_2"; id = 2; ty = Type.TyInt };
-    { Id.name = "x_1"; id = 1; ty = Type.TyInt } ] (Bool true) in
-  ignore [%expect.output];
-  print_endline @@ show_hflz_full res;
-  [%expect {|
-    (Hflz.Abs ({ Id.name = "x_3"; id = 0; ty = (Type.TySigma (Type.TyBool ())) },
-       (Hflz.Abs ({ Id.name = "x_2"; id = 1; ty = Type.TyInt },
-          (Hflz.Abs ({ Id.name = "x_1"; id = 2; ty = Type.TyInt },
-             (Hflz.Bool true)))
-          ))
-       )) |}]
 
 (* Absの引数のIDを新規に生成しない版 *)
 (* [x1; x2] body  ->  \x1. \x2. body *)
@@ -79,43 +40,11 @@ let to_abs' : 'ty Type.arg Id.t list -> ('ty2 Hflz.t -> 'ty2 Hflz.t) =
       | arg::xs -> Abs(arg, go xs) in
     go args
 
-let%expect_test "to_abs'" =
-  let open Type in
-  let res = to_abs' [
-    { Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) };
-    { Id.name = "x_2"; id = 2; ty = Type.TyInt };
-    { Id.name = "x_1"; id = 1; ty = Type.TyInt } ] (Bool true) in
-  ignore [%expect.output];
-  print_endline @@ show_hflz_full res;
-  [%expect {|
-    (Hflz.Abs ({ Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) },
-       (Hflz.Abs ({ Id.name = "x_2"; id = 2; ty = Type.TyInt },
-          (Hflz.Abs ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
-             (Hflz.Bool true)))
-          ))
-       )) |}]
-    
 let to_forall args body =
   let rec go = function
     | [] -> body
     | arg::xs -> Forall(arg, go xs) in
   go args
-  
-let%expect_test "to_forall" =
-  let res = to_forall [
-    { Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) };
-    { Id.name = "x_2"; id = 2; ty = Type.TyInt };
-    { Id.name = "x_1"; id = 1; ty = Type.TyInt } ] (Bool true) in
-  ignore [%expect.output];
-  print_endline @@ show_hflz_full res;
-  [%expect {|
-    (Hflz.Forall (
-       { Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) },
-       (Hflz.Forall ({ Id.name = "x_2"; id = 2; ty = Type.TyInt },
-          (Hflz.Forall ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
-             (Hflz.Bool true)))
-          ))
-       )) |}]
 
 (* 変数の出現を置換 *)
 let replace_var_occurences : ('ty Id.t -> 'ty Hflz.t) -> 'ty Hflz.t -> 'ty Hflz.t =
@@ -150,48 +79,11 @@ let to_vars : 'ty Hflz.t -> ('ty Hflz.t -> 'ty Hflz.t) = fun hfl ->
       | _ -> body in
     go hfl
 
-let%expect_test "to_vars" =
-  let open Type in
-  let res =
-    to_vars
-      (Hflz.Abs ({ Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) },
-       (Hflz.Abs ({ Id.name = "x_2"; id = 2; ty = Type.TyInt },
-          (Hflz.Abs ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
-             (Hflz.Bool true)))
-          ))
-       )) (Bool false) in
-  ignore [%expect.output];
-  print_endline @@ show_hflz_full res;
-  [%expect {|
-    (Hflz.App (
-       (Hflz.App (
-          (Hflz.App ((Hflz.Bool false),
-             (Hflz.Arith (Arith.Var { Id.name = "x_1"; id = 1; ty = `Int })))),
-          (Hflz.Arith (Arith.Var { Id.name = "x_2"; id = 2; ty = `Int })))),
-       (Hflz.Var { Id.name = "x_3"; id = 3; ty = (Type.TyBool ()) }))) |}] 
-
 let to_app inner terms =
   let rec go terms = match terms with
     | t::ts -> App (go ts, t)
     | [] -> inner in
   go @@ List.rev terms
-
-let%expect_test "to_app" =
-  let open Type in
-  let seed = [1; 2; 3] in
-  let res =
-    to_app
-      (Bool false)
-      (List.map (fun i -> Arith(Var (id_n i `Int))) seed) in
-  ignore [%expect.output];
-  print_endline @@ show_hflz_full res;
-  [%expect {|
-    (Hflz.App (
-       (Hflz.App (
-          (Hflz.App ((Hflz.Bool false),
-             (Hflz.Arith (Arith.Var { Id.name = "x_1"; id = 1; ty = `Int })))),
-          (Hflz.Arith (Arith.Var { Id.name = "x_2"; id = 2; ty = `Int })))),
-       (Hflz.Var { Id.name = "x_3"; id = 3; ty = (Type.TyBool ()) }))) |}] 
 
 let argty_to_ty {Id.name; id; ty} =
   match ty with
@@ -208,40 +100,11 @@ let make_guessed_terms (coe1 : int) (coe2 : int) vars =
   | [] -> [Arith.Int coe2]
   | vars -> vars
 
-let%expect_test "make_guessed_terms" =
-  let res = make_guessed_terms 2 10 [id_n 1 `Int; id_n 2 `Int] in
-  ignore [%expect.output];
-  Util.print_list (fun r -> show_hflz (Arith r)) res;
-  [%expect {|
-    [ 2 * x_11 + 10;
-    -2 * x_11 + 10;
-    2 * x_22 + 10;
-    -2 * x_22 + 10 ] |}];
-  let res = make_guessed_terms 2 10 [] in
-  ignore [%expect.output];
-  Util.print_list (fun r -> show_hflz (Arith r)) res;
-  [%expect {|[ 10 ]|}]
-
 let make_guessed_terms_simple (coe1 : int) (coe2 : int) vars =
   let open Arith in
   (Int coe2)::(
     (List.map (fun v -> Op (Mult, [Int coe1; Var v])) vars)@
     (List.map (fun v -> Op (Mult, [Int (-coe1); Var v])) vars))
-
-let%expect_test "make_guessed_terms_simple" =
-  let res = make_guessed_terms_simple 2 10 [id_n 1 `Int; id_n 2 `Int] in
-  ignore [%expect.output];
-  Util.print_list (fun r -> show_hflz (Arith r)) res;
-  [%expect {|
-    [ 10;
-    2 * x_11;
-    2 * x_22;
-    -2 * x_11;
-    -2 * x_22 ] |}];
-  let res = make_guessed_terms_simple 2 10 [] in
-  ignore [%expect.output];
-  Util.print_list (fun r -> show_hflz (Arith r)) res;
-  [%expect {|[ 10 ]|}]
   
 let formula_fold func terms = match terms with
     | [] -> failwith "[formula_fold] Number of elements should not be zero."
@@ -271,25 +134,6 @@ let rev_abs hflz =
     | _ -> (hflz, acc) in
   let (body, vars) = get_abs [] hflz in
   to_abs' vars body
-
-let%expect_test "rev_abs" =
-  let res =
-    rev_abs
-      (Hflz.Abs ({ Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) },
-        (Hflz.Abs ({ Id.name = "x_2"; id = 2; ty = Type.TyInt },
-          (Hflz.Abs ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
-              (Hflz.Bool true)))
-          ))
-        )) in
-  print_endline @@ show_hflz_full res;
-  [%expect {|
-    (Hflz.Abs ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
-       (Hflz.Abs ({ Id.name = "x_2"; id = 2; ty = Type.TyInt },
-          (Hflz.Abs (
-             { Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) },
-             (Hflz.Bool true)))
-          ))
-       )) |}]
 
 let extract_head_abstracts : Type.simple_ty Hflz.t -> ((Type.simple_ty Hflz.t -> Type.simple_ty Hflz.t) * Type.simple_ty Hflz.t) = fun hfl -> 
   ((fun body ->     
@@ -325,18 +169,18 @@ let args_ids_to_apps (ids : 'ty Type.arg Id.t list) : ('ty Hflz.t -> 'ty Hflz.t)
 
 let extract_abstraction phi not_apply_vars new_rule_name_base =
   let xs, phi' = decompose_abs phi in
-  print_endline "extract_abstraction";
-  List.iter (fun x -> print_endline @@ Id.to_string x) xs;
+  (* print_endline "extract_abstraction";
+  List.iter (fun x -> print_endline @@ Id.to_string x) xs; *)
   (* 型情報も入っている。 *)
   (* arithの中のfvも見ている *)
   let free_vars =
     Hflz.fvs_with_type phi
     |> Id.remove_vars not_apply_vars in
   (* show *)
-  print_endline "not_apply";
+  (* print_endline "not_apply";
   List.iter (fun v -> print_string v.Id.name; print_int v.Id.id; print_string ";") not_apply_vars;
   print_endline "freevars";
-  List.iter (fun v -> print_string v.Id.name; print_int v.Id.id; print_string ";") free_vars;
+  List.iter (fun v -> print_string v.Id.name; print_int v.Id.id; print_string ";") free_vars; *)
   (* TODO: 順番正しい？ *)
   let arr_type = to_arrow_type (free_vars @ xs) in
   let new_rule_id = Id.gen ~name:(new_rule_name_base ^ "_sub" ^ string_of_int (Id.gen_id ())) arr_type in
@@ -344,28 +188,10 @@ let extract_abstraction phi not_apply_vars new_rule_name_base =
     var = new_rule_id;
     body = (to_abs' (free_vars @ xs) phi');
     fix = Fixpoint.Greatest } in
-  print_endline "NEW_RULE";  
-  print_endline @@ Util.fmt_string (Print_syntax.hflz_hes_rule Print_syntax.simple_ty_ ) new_rule;
+  (* print_endline "NEW_RULE";  
+  print_endline @@ Util.fmt_string (Print_syntax.hflz_hes_rule Print_syntax.simple_ty_ ) new_rule; *)
   let new_sub_formula = args_ids_to_apps free_vars @@ Var new_rule_id in
   (new_sub_formula, new_rule)
-
-let%expect_test "extract_abstraction" =
-  let open Type in
-  let open Arith in
-  let (f, rule) =
-    extract_abstraction
-      (Abs (id_n 1 (TyInt), Abs (id_n 2 (TySigma (TyBool ())),
-        App (Var (id_n 4 (TyArrow (id_n 5 TyInt, TyBool ()))), Arith (Op (Add, [Var (id_n 1 `Int); Op (Mult, [Var (id_n 2 `Int); Var (id_n 3 `Int)])])))
-      )))
-      [(id_n 4 (TyArrow (id_n 5 TyInt, TyBool ())))]
-      "a" in
-  ignore [%expect.output];
-  print_endline @@ show_hflz f;
-  print_endline @@ Util.fmt_string (Print_syntax.hflz_hes_rule Print_syntax.simple_ty_) rule;
-  [%expect {|
-    (a_sub67 :int -> int -> bool -> bool) x_33
-    a_sub67 : int -> int -> bool -> bool =ν
-      λx_33:int.λx_11:int.λx_22:bool.(x_44 :int -> bool) (x_11 + x_22 * x_33) |}]
 
 (* (∀x1. ∀x2. \y1. \y2. \phi)  ->  (\y1. \y2. ∀x1. ∀x2. \phi) *)
 let in_forall v =
@@ -379,25 +205,6 @@ let in_forall v =
   let avars, v = abs_vars v [] in
   to_abs' (List.rev avars) (to_forall (List.rev fvars) v)  
 
-let%expect_test "in_forall" =
-  let open Type in
-  let open Arith in
-  let v =
-    in_forall
-      (Forall (id_n 3 TyInt, Forall (id_n 4 (TySigma (TyBool ())), Abs (id_n 1 (TyInt), Abs (id_n 2 (TySigma (TyBool ())), Bool true))))) in
-  ignore [%expect.output];
-  print_endline @@ show_hflz_full v;
-  [%expect {|
-    (Hflz.Abs ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
-       (Hflz.Abs (
-          { Id.name = "x_2"; id = 2; ty = (Type.TySigma (Type.TyBool ())) },
-          (Hflz.Forall ({ Id.name = "x_3"; id = 3; ty = Type.TyInt },
-             (Hflz.Forall (
-                { Id.name = "x_4"; id = 4; ty = (Type.TySigma (Type.TyBool ())) },
-                (Hflz.Bool true)))
-             ))
-          ))
-       )) |}]
       
 type forall_or_exists =
   | FE_Forall of Type.simple_ty Type.arg Id.t
@@ -625,159 +432,10 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
               ) in
           (terms1 @ terms2) |> formula_fold (fun acc f -> Or (acc, f))
         )
-    }]    
-
-let%expect_test "encode_body_exists_formula_sub" =
-  let open Type in
-  let p = id_n 10 (TySigma (TyArrow (id_n 12 TyInt, (TyArrow (id_n 11 TyInt, TyBool ()))))) in
-  (* 高階変数の扱い *)
-  (* その時点で使える自由変数ということは、直前のラムダ抽象も含まれる？ => いや、そこは使わない。あくまで式の中の型を取得するだけなので、別。free var のみを使用 *)
-  (* ∃x_100.∃x_300.λx_1:int.λx_2:(int -> bool).(x_10 :int -> int -> bool) (x_1 + x_3) x_300 && (x_2:int -> bool) x_5 && (x_4:int -> bool) x_100 *)
-  (* other predicates = x10 : int -> bool *)
-  (* arguments in the term's type = x1 : int, x2 : int -> bool *)
-  (* free variables = x3 : int, x4 : int -> bool, x5 : int *)
-  let org_formula =
-    Exists (id_n 100 TyInt, Exists (id_n 300 TyInt, Abs (id_n 1 TyInt, Abs (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))),
-      And (
-        App (App (Var { p with ty = unsafe_unlift p.ty }, 
-          Arith (Op (Add, [Var (id_n 1 `Int); Var (id_n 3 `Int)]))), Arith (Var (id_n 300 `Int))),
-        And (App (Var (id_n 2 (TyArrow (id_n 31 TyInt, TyBool ()))), Arith (Var (id_n 5 `Int))),
-          App (Var (id_n 4 (TyArrow (id_n 32 TyInt, TyBool ()))), Arith (Var (id_n 100 `Int)))))
-      )))) in
-  print_endline @@ "original: " ^ show_hflz org_formula;
-  [%expect {|
-    original: ∃x_100100.
-     ∃x_300300.
-      λx_11:int.
-       λx_22:(int -> bool).
-        (x_1010 :int -> int -> bool) (x_11 + x_33) x_300300
-        && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100 |}];
-  let (replaced, rules) =
-    encode_body_exists_formula_sub
-      None
-      1
-      10
-      [p]
-      org_formula
-    in
-  ignore [%expect.output];
-  print_endline @@ string_of_int @@ List.length rules;
-  let rule = List.nth rules 0 in
-  print_endline @@ "replaced: " ^ show_hflz replaced;
-  [%expect {|
-    1
-    replaced: ∀x_100100.
-     ∀x_300300.
-      λx_11:int.
-       λx_22:(int -> bool).
-        x_100100 < 10 || x_100100 < 1 * x_33 || x_100100 < 1 * x_55
-        || x_100100 < -1 * x_33
-        || x_100100 < -1 * x_55
-        || x_300300 < 10 || x_300300 < 1 * x_33 || x_300300 < 1 * x_55
-           || x_300300 < -1 * x_33
-           || x_300300 < -1 * x_55
-        || (Exists8 :int ->
-                      (int -> bool) ->
-                       int -> int -> (int -> bool) -> int -> int -> bool)
-            x_33 (x_44 :int -> bool) x_55 x_11 (x_22 :int -> bool) x_100100
-            x_300300 |}];
-  print_endline @@ "fix: " ^ Fixpoint.show rule.fix;
-  print_endline @@ "var: " ^ Id.show pp_simple_ty rule.var;
-  print_endline @@ "rule: " ^ show_hflz rule.body;
-  [%expect {|
-    fix: Fixpoint.Greatest
-    var: { Id.name = "Exists8"; id = 8;
-      ty =
-      (Type.TyArrow ({ Id.name = "x_3"; id = 3; ty = Type.TyInt },
-         (Type.TyArrow (
-            { Id.name = "x_4"; id = 4;
-              ty =
-              (Type.TySigma
-                 (Type.TyArrow ({ Id.name = "x_32"; id = 32; ty = Type.TyInt },
-                    (Type.TyBool ()))))
-              },
-            (Type.TyArrow ({ Id.name = "x_5"; id = 5; ty = Type.TyInt },
-               (Type.TyArrow ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
-                  (Type.TyArrow (
-                     { Id.name = "x_2"; id = 2;
-                       ty =
-                       (Type.TySigma
-                          (Type.TyArrow (
-                             { Id.name = "x_31"; id = 31; ty = Type.TyInt },
-                             (Type.TyBool ()))))
-                       },
-                     (Type.TyArrow (
-                        { Id.name = "x_100"; id = 100; ty = Type.TyInt },
-                        (Type.TyArrow (
-                           { Id.name = "x_300"; id = 300; ty = Type.TyInt },
-                           (Type.TyBool ())))
-                        ))
-                     ))
-                  ))
-               ))
-            ))
-         ))
-      }
-    rule: λx_33:int.
-     λx_44:(int -> bool).
-      λx_55:int.
-       λx_11:int.
-        λx_22:(int -> bool).
-         λx_100100:int.
-          λx_300300:int.
-           x_100100 >= 0 && x_300300 >= 0
-           && ((λx_11:int.
-                 λx_22:(int -> bool).
-                  (x_1010 :int -> int -> bool) (x_11 + x_33) x_300300
-                  && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100)
-                x_11 (x_22 :int -> bool)
-               || (λx_11:int.
-                    λx_22:(int -> bool).
-                     (x_1010 :int -> int -> bool) (x_11 + x_33) (-x_300300)
-                     && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100)
-                   x_11 (x_22 :int -> bool)
-               || (λx_11:int.
-                    λx_22:(int -> bool).
-                     (x_1010 :int -> int -> bool) (x_11 + x_33) x_300300
-                     && (x_22 :int -> bool) x_55
-                        && (x_44 :int -> bool) (-x_100100))
-                   x_11 (x_22 :int -> bool)
-               || (λx_11:int.
-                    λx_22:(int -> bool).
-                     (x_1010 :int -> int -> bool) (x_11 + x_33) (-x_300300)
-                     && (x_22 :int -> bool) x_55
-                        && (x_44 :int -> bool) (-x_100100))
-                   x_11 (x_22 :int -> bool)
-               || (Exists8 :int ->
-                             (int -> bool) ->
-                              int -> int -> (int -> bool) -> int -> int -> bool)
-                   x_33 (x_44 :int -> bool) x_55 x_11 (x_22 :int -> bool)
-                   (x_100100 - 1) x_300300
-               || (Exists8 :int ->
-                             (int -> bool) ->
-                              int -> int -> (int -> bool) -> int -> int -> bool)
-                   x_33 (x_44 :int -> bool) x_55 x_11 (x_22 :int -> bool)
-                   x_100100 (x_300300 - 1)) |}];
-  (* check well-typedness *)
-  let hes = [
-    {
-      var = id_n 200 (TyArrow (id_n 3 TyInt, TyArrow (id_n 4 @@ TySigma (TyArrow (id_n 32 TyInt, TyBool ())),
-        TyArrow (id_n 5 TyInt, TyArrow (id_n 1 TyInt, (TyArrow (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))), TyBool ())))))));
-      fix = Fixpoint.Greatest;
-      body = Abs (id_n 3 TyInt, Abs (id_n 4 (TySigma (TyArrow (id_n 32 TyInt, TyBool ()))), Abs (id_n 5 TyInt, replaced))) };
-    {
-      var = { p with ty = unsafe_unlift p.ty};
-      body = Abs (id_n 12 TyInt, Abs (id_n 11 TyInt, Bool true));
-      fix = Fixpoint.Greatest };
-    rule ] in
-  let hes = decompose_lambdas_hes hes in
-  type_check hes;
-  ignore [%expect.output];
-  print_endline "OK";
-  [%expect {|OK|}]
+    }]
 
 let encode_body_exists_formula new_pred_name_cand coe1 coe2 hes_preds hfl =
-  Log.app begin fun m -> m ~header:"encode_body_exists_formula (ORIGINAL)" "%a" Print.(hflz simple_ty_) hfl end;
+  (* Log.app begin fun m -> m ~header:"encode_body_exists_formula (ORIGINAL)" "%a" Print.(hflz simple_ty_) hfl end; *)
   let new_rules = ref [] in
   let rec go hes_preds hfl = match hfl with
     | Var _ | Bool _ -> hfl
@@ -794,16 +452,16 @@ let encode_body_exists_formula new_pred_name_cand coe1 coe2 hes_preds hfl =
           go hes_preds f1
         | Some x -> failwith "quantifiers for higher-order variables are not implemented"
       ) else (
-        print_endline "encode_body_exists_formula";
+        (* print_endline "encode_body_exists_formula";
         print_endline @@ "var=" ^ v.name;
-        Print_syntax.print_arg_type v.ty;
+        Print_syntax.print_arg_type v.ty; *)
         (* let f1 = go ((v)::env) f1 in *)
         let hfl, rules = encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl in
         let new_rule_vars = List.map (fun rule -> { rule.var with ty = Type.TySigma rule.var.ty }) rules in
         let rules = List.map (fun rule -> { rule with body = go (new_rule_vars @ hes_preds) rule.body } ) rules in
-        print_endline "HFLLL";
+        (* print_endline "HFLLL";
         print_endline @@ Util.fmt_string (Print.hflz Print.simple_ty_) hfl;
-        Print_syntax.print_arg_type v.ty;
+        Print_syntax.print_arg_type v.ty; *)
         new_rules := rules @ !new_rules;
         hfl
       )
@@ -812,29 +470,31 @@ let encode_body_exists_formula new_pred_name_cand coe1 coe2 hes_preds hfl =
     | Arith t -> Arith t
     | Pred (p, t) -> Pred (p, t) in
   let hfl = go hes_preds hfl in
-  Log.app begin fun m -> m ~header:"encode_body_exists_formula" "%a" Print.(hflz simple_ty_) hfl end;
-  Log.app begin fun m -> m ~header:"!new_rules" "%a" Print.(hflz_hes simple_ty_) (!new_rules) end;
+  (* Log.app begin fun m -> m ~header:"encode_body_exists_formula" "%a" Print.(hflz simple_ty_) hfl end;
+  Log.app begin fun m -> m ~header:"!new_rules" "%a" Print.(hflz_hes simple_ty_) (!new_rules) end; *)
   hfl, !new_rules
 
 (* hesからexistentailを除去 *)
 let encode_body_exists coe1 coe2 (hes : Type.simple_ty Hflz.hes) =
   let env = List.map (fun {var; _} -> { var with ty=Type.TySigma var.ty }) hes in
-  hes |>
-  List.mapi
-    (fun i {var; fix; body} -> 
-      let new_pred_name_cand = if i = 0 then None else Some var.name in
-      let body, new_rules = encode_body_exists_formula new_pred_name_cand coe1 coe2 env body in
-      {var; fix; body}::new_rules
-    )
-  |> List.flatten
-  |> (fun hes -> 
-    let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
-    print_endline @@ "Not decomposed HES path (Exists): " ^ path; hes)
-  |> decompose_lambdas_hes
+  let hes =
+    hes |>
+    List.mapi
+      (fun i {var; fix; body} -> 
+        let new_pred_name_cand = if i = 0 then None else Some var.name in
+        let body, new_rules = encode_body_exists_formula new_pred_name_cand coe1 coe2 env body in
+        {var; fix; body}::new_rules
+      )
+    |> List.flatten in
+  (* let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
+  print_endline @@ "Not decomposed HES path (Exists): " ^ path
+  let hes = decompose_lambdas_hes in *)
+  Log.app begin fun m -> m ~header:"Exists-Encoded HES" "%a" Print.(hflz_hes simple_ty_) hes end;
+  hes
 
 
 
-let rec beta : 'a Hflz.t -> 'a Hflz.t = function
+let rec beta (phi : 'a Hflz.t) : 'a Hflz.t = match phi with
   | Or (phi1, phi2) -> Or (beta phi1, beta phi2)
   | And(phi1, phi2) -> And(beta phi1, beta phi2)
   | App(phi1, phi2) -> begin
@@ -847,7 +507,7 @@ let rec beta : 'a Hflz.t -> 'a Hflz.t = function
         let fvs = fvs_with_type phi2 in
         (* print_endline "fvs"; Util.print_list Id.to_string fvs;
         print_endline "acc"; Util.print_list Id.to_string acc; *)
-        if List.exists (fun a -> List.exists (fun v -> Id.eq a v) acc) fvs then failwith "a";
+        if List.exists (fun a -> List.exists (fun v -> Id.eq a v) acc) fvs then failwith "[beta] free variable collision";
         reduced := true;
         beta @@ Hflmc2_syntax.Trans.Subst.Hflz.hflz (Hflmc2_syntax.IdMap.of_list [x, phi2]) phi1
       end
@@ -860,8 +520,13 @@ let rec beta : 'a Hflz.t -> 'a Hflz.t = function
       App (phi1, phi2))
   end
   | Abs(x, phi) -> Abs(x, beta phi)
+  | Forall (x, phi) -> Forall (x, beta phi)
+  | Exists (x, phi) -> Exists (x, beta phi)
+  | Bool _ | Var _ | Arith _ | Pred _ -> phi
   
-  | phi -> phi
+
+(* let%expect_test "beta" =
+  App () *)
 
 let get_outer_mu_funcs (funcs : 'a hes) =
   let funcs_count = List.length funcs in
@@ -975,7 +640,6 @@ let replace_occurences coe1 coe2 (outer_mu_funcs : (unit Type.ty Id.t * unit Typ
   let rec go apps fml : 'a Hflz.t = 
     match fml with
     | Var pvar when is_pred pvar -> begin
-      print_endline @@ Id.to_string pvar;
       let arg_pvars = Env.lookup pvar outer_mu_funcs in
       let make_args env_guessed env =
         arg_pvars
@@ -1050,7 +714,7 @@ let elim_mu_with_rec hes coe1 coe2 =
       let scoped_rec_tvars =
         Env.create (List.map (fun pvar -> (pvar, (Env.lookup pvar rec_tvars))) outer_pvars) in
       let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars body in
-      Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end;
+      (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
       let formula_type_vars = Hflz.get_hflz_type body |> to_args |> List.rev in
       (* add rec > 0 if need *)
       (* if needというのは、mypvarをtopとするループがあるとき *)
@@ -1078,17 +742,17 @@ let elim_mu_with_rec hes coe1 coe2 =
       in
       (* boundsを追加 -> ここが若干面倒？といっても、前に高階部分を加えればいいのか *)
       let mypvar = {mypvar with ty=to_ty (List.map (fun pvar -> Env.lookup pvar rec_tvars) outer_pvars) mypvar.ty} in
-      Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end;
+      (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
       {fix=Greatest; var=mypvar; body=beta body}
     )
     hes
   in
-  let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
+  (* let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
   print_endline @@ "Not decomposed HES path: " ^ path;
-  let hes = decompose_lambdas_hes hes in
+  let hes = decompose_lambdas_hes hes in *)
   (* TODO: 場合によっては、TOP levelを上に持ってくることが必要になる？ *)
     (* |> move_first (fun {var; _} -> var.name = original_top_level_predicate.name) in *)
-  Log.app begin fun m -> m ~header:"FINAL" "%a" Print.(hflz_hes simple_ty_) hes end;
+  Log.app begin fun m -> m ~header:"Eliminate Mu" "%a" Print.(hflz_hes simple_ty_) hes end;
   type_check hes;
   hes
   (* failwith "end" *)
