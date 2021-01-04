@@ -80,9 +80,6 @@ module List = struct
       power f xs
       |> List.map (fun ys -> f x |> List.map (fun y -> y :: ys))
       |> List.concat
-
-  let zip_index l =
-    Core.List.zip_exn l (List.init (List.length l) id)
 end
 
 module LexingHelper = struct
@@ -131,18 +128,10 @@ end = struct
       (Printf.sprintf "bash -c '%s %s 2>&1'" name (String.concat " " arguments))
       (Unix.environment ())
 
-  let show_commands name arguments input =
-    print_endline "show_commands";
-    print_endline @@ "name: " ^ name;
-    print_endline @@ "arguments: " ^ (String.concat "," arguments);
-    print_endline @@ "input: " ^ (String.concat "," input);
-    print_endline "===="
-    
   let sync_command
       (name : string)
       (arguments : string list)
       (input : string list) : string list =
-    show_commands name arguments input;
     let (o, i, e) = async_command name arguments in
     output_lines input i;
     let out = input_lines o in

@@ -3,6 +3,7 @@
  (public_name muapprox.muapprox_prover)
  (libraries
    hflmc2_syntax
+   muapprox.fptprover
    muapprox.fptprover.ast
    muapprox.fptprover.hes
    muapprox.fptprover.rfunprover

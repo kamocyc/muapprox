@@ -157,9 +157,9 @@ module Typing = struct
         pp_info (get_info tv1)
         pp_hum_tyvar tv2
         pp_info (get_info tv2); *)
-      Print.pr "UNIFY %a -- %a@."
+      (* Print.pr "UNIFY %a -- %a@."
         pp_hum_tyvar tv1
-        pp_hum_tyvar tv2;
+        pp_hum_tyvar tv2; *)
       match tv1, tv2 with
       | TvInt _, TvInt _ -> ()
       | TvBool _, TvBool _ -> ()

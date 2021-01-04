@@ -1,9 +1,8 @@
 (library
-  (name algorithm)
-  (public_name muapprox.fptprover.algorithm)
+  (name dataStructure)
+  (public_name muapprox.fptprover.dataStructure)
   (modules
     unionFind
-    maxFlow
   )
   (libraries
     unix
@@ -18,5 +17,5 @@
     oUnit
     testutil
     util
-    algorithm
+    dataStructure
   ))

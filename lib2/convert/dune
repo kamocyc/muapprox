@@ -5,11 +5,11 @@
      desugar
      printer
      printerHum
-     printerHum2
      parser
      hesutil
      formulaConverter
-     simpleFormulaUtil
+     formulaOptimizer
+     hesOptimizer
    )
   (libraries
      num
@@ -19,6 +19,7 @@
      hes
      fptprover
      config
+     dataStructure
   )
   (synopsis "convertion of formulas"))
 

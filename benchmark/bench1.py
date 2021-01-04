@@ -28,7 +28,7 @@ nth_last_line = -1
 BENCH_SET = 6
 
 kill_process_names = []
-use_file_for_output = False
+use_file_for_output = True
 
 if BENCH_SET == 1:
     # rec-limit
@@ -67,10 +67,12 @@ if BENCH_SET == 5:
 if BENCH_SET == 6:
     lists_path = './list.txt'
     base_dir = '/opt/home2/git/muapprox/benchmark/hes/'
-    exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
+    # exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
+    exe_path = '/opt/home2/git/muapprox/benchmark/run_command2.sh'
+    add_args = []
     #add_args = ['--hes']
     #add_args = ['--hes', '--solver', 'iwayama']
-    add_args = ['--hes', '--first-order-solver']
+    # add_args = ['--hes', '--first-order-solver']
     kill_process_names = ["hflmc2", "main.exe", "z3"]
     nth_last_line = -3
 

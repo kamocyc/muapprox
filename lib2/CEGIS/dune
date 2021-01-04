@@ -29,7 +29,7 @@
   convert
   util
   smt
-  fptprover
+  muapprox.fptprover
   muapprox.fptprover.bes
   muapprox.fptprover.sygus
   muapprox.fptprover.zecchina

@@ -42,6 +42,14 @@ let rec go_ty (ty : unit ty) : L.Sort.t list =
   | TyArrow ({ty=TyInt; _}, rem) -> L.T_int.SInt :: (go_ty rem)
   | _ -> failwith "go_ty"
   
+  
+let log_src = Logs.Src.create "Main"
+module Log = (val Logs.src_log @@ log_src)
+
+let mk_var_app env (pname, pty, _, args) : L.Formula.t =
+  let args = List.map ~f:(go_args_arith env) args in
+  Atom (App (Var (Pvar (pname), go_ty pty), args, dm), dm)
+  
 let rec go env (f : Type.simple_ty Hflz.t) : L.Formula.t =
   match f with
   | Bool true  -> Atom (True dm, dm)
@@ -67,8 +75,7 @@ let rec go env (f : Type.simple_ty Hflz.t) : L.Formula.t =
       | Hflz.App (body, arg) -> go' (arg::acc) body
       | _ -> failwith "App go'" in
     let (pname, pty, pid, args) = go' [] f in
-    let args = List.map ~f:(go_args_arith env) args in
-    Atom (App (Var (Pvar (pname), go_ty pty), args, dm), dm)
+    mk_var_app env (pname, pty, pid, args)
   end
   | Forall ({ty=TyInt; id; _} as x, f) -> begin
     Bind (Forall, [(Tvar (x.name ^ string_of_int id), L.T_int.SInt)], go (x::env) f, dm)
@@ -76,7 +83,11 @@ let rec go env (f : Type.simple_ty Hflz.t) : L.Formula.t =
   | Exists ({ty=TyInt; id; _} as x, f) -> begin
     Bind (Exists, [(Tvar (x.name ^ string_of_int id), L.T_int.SInt)], go (x::env) f, dm)
   end
-  | _ -> failwith "go: illegal"
+  | Var v ->
+    mk_var_app env (v.name, v.ty, v.id, [])
+  | _ ->
+    Log.app begin fun m -> m ~header:"illegal" "%a" Manipulate.Print_syntax.(hflz simple_ty_) f end;
+    failwith "go: illegal"
 
 let of_fix fix =
   match fix with
@@ -93,7 +104,9 @@ let of_func env {Hflz.fix; body; var} =
   let args, body = go' [] body in
   ( of_fix fix, Ast.Ident.Pvar (var.name), args, go [] body)
 
+
 let of_hes hes =
+  Log.app begin fun m -> m ~header:"of_hes" "%a" Manipulate.Print_syntax.(hflz_hes simple_ty_) hes end;
   match hes with
   | [] -> failwith "of_hes"
   | frule::rem -> begin

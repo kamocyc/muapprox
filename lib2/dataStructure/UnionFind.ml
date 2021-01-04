@@ -53,16 +53,3 @@ let get_data node_id uf =
   let node_id = find node_id uf in
   match uf with UF (_, _, data, _) ->
     data.(node_id)
-
-let size uf =
-  match uf with UF (parent, _, _, _) -> Array.length parent
-
-let get_groups uf =
-  let n = size uf in
-  let res = Array.init n (fun _ -> []) in
-  List.iter
-    (fun i -> let gid = find i uf in res.(gid) <- i :: res.(gid))
-    (List.init n Util.id);
-  Array.to_list res
-  |> List.filter (fun lst -> lst != [])
-  |> List.map List.rev (* to be sorted *)

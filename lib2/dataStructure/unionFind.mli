@@ -14,5 +14,3 @@ val find: int -> 'a t -> int
 val is_united: int -> int -> 'a t -> bool
 
 val get_data: int -> 'a t -> 'a
-
-val get_groups: 'a t -> int list list

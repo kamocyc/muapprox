@@ -93,7 +93,7 @@ module ElimFuncall : sig
   val elim_funcall: FunDecl.t list -> Statement.t -> Statement.t
 end = struct
   let mk_labelname funname nxt_label_id =
-    Printf.sprintf "%s!%d" funname nxt_label_id,
+    Printf.sprintf "%s#%d" funname nxt_label_id,
     nxt_label_id + 1
 
   let subst_terms subst terms = List.map (Term.subst subst) terms
@@ -489,7 +489,7 @@ end = struct
       renamed_vars
     else if Statement.is_vardecl stmt then
       let varname, sort = Statement.let_vardecl stmt in
-      let new_varname = Printf.sprintf "%s!%d"
+      let new_varname = Printf.sprintf "%s#%d"
           varname
           (Core.Map.Poly.length renamed_vars)
       in

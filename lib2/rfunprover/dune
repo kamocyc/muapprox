@@ -8,6 +8,7 @@
   )
   (libraries
     core
+    async
     z3
     util
     ast
@@ -16,7 +17,6 @@
     hes
     convert
     fptprover
-    optimize
   )
   (synopsis "prover with ranking function"))
 

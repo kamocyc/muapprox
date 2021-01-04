@@ -9,6 +9,10 @@
       pos_lnum = pos.pos_lnum + 1;
       pos_bol = pos.pos_cnum;
     }
+    
+  let int_of_string' s =
+    Str.global_replace (Str.regexp "_") "" s
+    |> int_of_string
 }
 
 rule main = parse
@@ -50,15 +54,15 @@ rule main = parse
 | "(" { HesParsing.LPAREN }
 | ")" { HesParsing.RPAREN }
 
-| ['a'-'z''A'-'Z''#''!']['a'-'z''A'-'Z''0'-'9'''''_''#''!']*
+| ['a'-'z''A'-'Z''#']['a'-'z''A'-'Z''0'-'9'''''_''#']*
     {
       let str = Lexing.lexeme lexbuf in
       HesParsing.ID str
     }
-| ('0'|['1'-'9']['0'-'9']*)
+| ('0'|['1'-'9']['0'-'9''_']*)
     {
       let str = Lexing.lexeme lexbuf in
-      HesParsing.INTL (int_of_string str)
+      HesParsing.INTL (int_of_string' str)
     }
 
 | eof { HesParsing.EOF }

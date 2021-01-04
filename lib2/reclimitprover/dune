@@ -13,7 +13,6 @@
     hes
     rfunprover
     convert
-    optimize
     fptprover
     graph
   )

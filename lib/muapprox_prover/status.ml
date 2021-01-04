@@ -31,3 +31,5 @@ let of_string str =
   | "sat" -> Sat
   | "unsat" -> UnSat
   | _ -> failwith @@ "Illegal status string (" ^ str ^ ")"
+
+exception Timeout

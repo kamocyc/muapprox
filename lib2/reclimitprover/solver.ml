@@ -1,7 +1,6 @@
 open Ast
 open Logic
 open Convert
-open Optimize
 open Fptprover
 open Hes
 
@@ -20,49 +19,63 @@ open Hes
     else
       pvar1 :: intersect_pvars pvars1 pvars2 *)
 
-(* let output_text text file =
-  (* if !Global.config.convert then begin *)
-  if true then begin
-    let file =
-      match file with
-      | None -> begin
-        let org_fullpath = !Global.config.filename in
-        Filename.basename org_fullpath
-      end
-      | Some s -> s
-    in
-    let file = Filename.concat "./converted/" file in
-    let oc = open_out file in
-    output_string oc text;
-    close_out oc;
-    print_endline @@ "output_text: " ^ file
-  end *)
-  
-let rectvar_prefix = "rec!_"
+let rectvar_prefix = "#rec_"
 let rectvar_of_pvar pvar = Ident.Tvar (rectvar_prefix ^ (Ident.name_of_pvar pvar))
-(* let is_rectvar tvar =
-   let varname = Ident.name_of_tvar tvar in
-   String.length varname >= String.length rectvar_prefix
-   && String.sub varname 0 (String.length rectvar_prefix) = rectvar_prefix *)
+let is_rectvar tvar =
+  let varname = Ident.name_of_tvar tvar in
+  String.length varname >= String.length rectvar_prefix
+  && String.sub varname 0 (String.length rectvar_prefix) = rectvar_prefix
 
-(* [coe1 * x + coe2; - coe1 * x + coe2] *)
-let get_guessed_terms_rep coe1 coe2 arg_terms =
-  let const_term = T_int.mk_from_int coe2 Dummy in
-  List.fold_left
-    (fun res arg_term ->
-       let pterm = T_int.mk_add (T_int.mk_mult (T_int.mk_from_int coe1 Dummy) arg_term Dummy) const_term Dummy in
-       let nterm = T_int.mk_add (T_int.mk_mult (T_int.mk_from_int (-coe1) Dummy) arg_term Dummy) const_term Dummy in
-       pterm :: nterm :: res
-    )
-    []
-    arg_terms
+(* [-coe * a - coe * b + coe; -coe * a + coe * b + coe; coe * a - coe * b + coe; coe * a + coe * b + coe] *)
+let rec get_guessed_terms_rep coe arg_terms term res = match arg_terms with
+  | [] -> res
+  | arg_term :: tail ->
+      let pterm = T_int.mk_add term (T_int.mk_mult (T_int.mk_from_int coe Dummy) arg_term Dummy) Dummy in
+      let nterm = T_int.mk_add term (T_int.mk_mult (T_int.mk_from_int (-coe) Dummy) arg_term Dummy) Dummy in
+(*
+    let pterm = (T_int.mk_mult (T_int.mk_from_int coe Dummy) arg_term Dummy) in
+    let nterm = (T_int.mk_mult (T_int.mk_from_int (-coe) Dummy) arg_term Dummy) in
+ *)
+    if Term.is_var arg_term && (Term.let_var arg_term |> (fun (tvar, _, _) -> is_rectvar tvar)) then
+      get_guessed_terms_rep coe tail term res
+    else if T_int.is_int arg_term then
+      let arg_int = T_int.let_int arg_term in
+      if Bigint.(arg_int = zero) then
+        get_guessed_terms_rep coe tail term res
+      else
+         get_guessed_terms_rep coe tail term (pterm::nterm::res)
+    else
+         get_guessed_terms_rep coe tail term (pterm::nterm::res)
+(*    
+  | [] -> term :: res
+  | arg_term :: tail ->
+    let normal_case () =
+      let pterm = T_int.mk_add term (T_int.mk_mult (T_int.mk_from_int coe Dummy) arg_term Dummy) Dummy in
+      let nterm = T_int.mk_add term (T_int.mk_mult (T_int.mk_from_int (-coe) Dummy) arg_term Dummy) Dummy in
+      get_guessed_terms_rep coe tail pterm
+      @@ get_guessed_terms_rep coe tail nterm res
+    in
+    (* skip if arg_term = 0 *)
+    if Term.is_var arg_term && (Term.let_var arg_term |> (fun (tvar, _, _) -> is_rectvar tvar)) then
+      get_guessed_terms_rep coe tail term res
+    else if T_int.is_int arg_term then
+      let arg_int = T_int.let_int arg_term in
+      if Bigint.(arg_int = zero) then
+        get_guessed_terms_rep coe tail term res
+      else
+        normal_case ()
+    else
+      normal_case ()
+ *)
 
 let get_guessed_terms coe1 coe2 arg_terms =
-  let const_term = T_int.mk_from_int coe2 Dummy in
-  let res = get_guessed_terms_rep coe1 coe2 arg_terms in
+  let const_term = T_int.mk_int coe2 Dummy in
+  let res = get_guessed_terms_rep coe1 arg_terms const_term [const_term] in
+(*
   if res = [] then
     [const_term]
   else
+ *)
     res
 
 let replace_app coe1 coe2 outer_mu_funcs current_terms_of_pvars fml =
@@ -237,11 +250,12 @@ let elim_mu_with_rec hes coe1 coe2 =
     @@ HesLogic.get_entrypoint hes in
   HesLogic.mk_hes funcs entry
 
+(*  
 let flip_solver solver =
   fun timeout is_print_for_debug ->
   let status, original_status = solver timeout is_print_for_debug in
   Status.flip status, original_status
-
+  
 let rec run_solvers timeout is_print_chc = function
   | [] -> Status.Unknown
   | solvers ->
@@ -278,18 +292,19 @@ let rec run_solvers timeout is_print_chc = function
           rep ((solver, title, is_print) :: next_solvers) tail
     in
     rep [] solvers
+*)
 
 let get_mu_elimed_solver coe1 coe2 is_print_for_debug hes =
   if is_print_for_debug then
     (Debug.print @@ Printf.sprintf "vvvvvvvvvvvvvvvvvv Original Hes vvvvvvvvvvvvvvvvvv\n";
      Debug.print @@ Hesutil.str_of_hes hes;
      Debug.print "");
-  let hes = Hesutil.encode_body_exists ~range:coe2 @@ Hesutil.encode_top_exists ~range:coe2 hes in
+  let hes = Hesutil.encode_body_exists coe1 ~range:coe2 @@ Hesutil.encode_top_exists coe1 ~range:coe2 hes in
   if is_print_for_debug then
     (Debug.print @@ Printf.sprintf "vvvvvvvvvvvvvvvvvv Encoded Hes vvvvvvvvvvvvvvvvvv\n";
      Debug.print @@ Hesutil.str_of_hes hes;
      Debug.print "");
-  let hes = elim_mu_with_rec hes coe1 coe2 in
+  let hes = elim_mu_with_rec hes coe1 (Bigint.of_int coe2) in
   if is_print_for_debug then
     (Debug.print @@ Printf.sprintf "vvvvvvvvvvvvv Eliminate Mu (coe: %d, %d) vvvvvvvvvvvvv\n" coe1 coe2;
      Debug.print @@ Hesutil.str_of_hes hes;
@@ -305,8 +320,48 @@ let get_mu_elimed_solver coe1 coe2 is_print_for_debug hes =
     | Status.Valid -> Status.Valid, Status.Valid
     | status -> Status.Unknown, status
 
+(*
+let kill_child id =
+   print_string ("killing children of "^(Core.Pid.to_string id)^"\n");
+   let _ = Unix.system ("killpstree "^(Core.Pid.to_string id)) in ()
+ *)
+
+
+open Async;;
+
+let rec mu_elim_solver coe1 coe2 is_print_for_debug hes name =
+  if !Global.config.verbose then
+    print_string ("called "^name^" with coe1,coe2="^(string_of_int coe1)^","^(string_of_int coe2)^"\n");
+  if is_print_for_debug then
+    (Debug.print @@ Printf.sprintf "vvvvvvvvvvvvvvvvvv Original Hes (" ^ name ^ ") vvvvvvvvvvvvvvvvvv\n";
+     Debug.print @@ Hesutil.str_of_hes hes;
+     Debug.print "");
+  let hes' = Hesutil.encode_body_exists coe1 ~range:coe2 @@ Hesutil.encode_top_exists coe1 ~range:coe2 hes in
+  if is_print_for_debug then
+    (Debug.print @@ Printf.sprintf "vvvvvvvvvvvvvvvvvv Encoded Hes (" ^ name ^ ") vvvvvvvvvvvvvvvvvv\n";
+     Debug.print @@ Hesutil.str_of_hes hes';
+     Debug.print "");
+  let hes' = elim_mu_with_rec hes' coe1 (Bigint.of_int coe2) in
+  if is_print_for_debug then
+    (Debug.print @@ Printf.sprintf "vvvvvvvvvvvvv Eliminate Mu (coe: %d, %d) (%s) vvvvvvvvvvvvv\n" coe1 coe2 name;
+     Debug.print @@ Hesutil.str_of_hes hes';
+     Debug.print "");
+  let hes' = Hesutil.simplify hes' in
+  if is_print_for_debug then
+    (Debug.print @@ "vvvvvvvvvvvvvvv Simplify (" ^ name ^ ") vvvvvvvvvvvvvvv\n";
+     Debug.print @@ Hesutil.str_of_hes hes';
+     Debug.print "");
+  (Rfunprover.Solver.solve_onlynu_onlyforall_z3 false 0 is_print_for_debug hes')
+   >>=
+    (fun result ->
+      match result with
+    | Status.Valid -> return Status.Valid
+    | Status.Invalid -> let (coe1',coe2') = if (coe1,coe2)=(1,1) then (1,8) else (2*coe1,2*coe2)
+                in mu_elim_solver coe1' coe2' false hes name                  
+    | _ -> return Status.Unknown)
+
+                   
 let solve_onlyforall _ hes =
-  let hes = Hesutil.elim_fv_with_forall hes in
   let solvers = ref [] in
   if Hesutil.is_onlyforall hes then (
     let nu_relaxed_hes = Hesutil.get_greatest_approx_hes ~range:100 hes in
@@ -329,14 +384,19 @@ let solve_onlyforall _ hes =
     | Some coe -> coe
   in
   let hes_for_disprove = Hesutil.get_dual_hes hes in
-  Debug.print "======================================";
+  (* Debug.print "======================================";
   Debug.print "Generating mu-eliminated hes";
-  Debug.print "======================================";
-  ignore @@ get_mu_elimed_solver coe1 coe2 true hes;
+  Debug.print "======================================"; *)
+  ignore @@ get_mu_elimed_solver coe1 coe2 false hes;
   Debug.print "======================================";
   Debug.print "Generating hes for disproving";
   Debug.print "======================================";
-  ignore @@ flip_solver @@ get_mu_elimed_solver coe1 coe2 true hes_for_disprove;
+  let dresult = Deferred.any
+                  [mu_elim_solver coe1 coe2 true hes "prover";
+                   (mu_elim_solver coe1 coe2 true hes_for_disprove "disprover" >>| Status.flip)] in
+  dresult
+
+(*
   solvers := !solvers @ [
       (get_mu_elimed_solver coe1 coe2 false hes, Printf.sprintf "mu-eliminated hes with coe=%d,%d" coe1 coe2, true);
       (flip_solver @@ get_mu_elimed_solver coe1 coe2 false hes_for_disprove, Printf.sprintf "hes for disproving with coe=%d,%d" coe1 coe2, true);
@@ -349,41 +409,45 @@ let solve_onlyforall _ hes =
         (flip_solver @@ get_mu_elimed_solver 1 10 false hes_for_disprove,  "hes for disproving with coe=1,10", false);
       ];
   run_solvers 1 true !solvers
+ *)
+  
+(* let solve_onlyexists timeout hes cont =
+  solve_onlyforall timeout (Hesutil.get_dual_hes hes) (fun r -> cont (Status.flip r)) *)
 
-let solve_onlyexists timeout hes =
-  Status.flip @@ solve_onlyforall timeout @@ Hesutil.get_dual_hes hes
-
-let solve hes =
-  (* output_text (Hesutil.str_of_hes' hes) None; *)
-  (* failwith "a"
-  ; *)
+let solve hes cont =
   let timeout = 10 in
+(*  
   if Hesutil.is_onlyforall hes && HesLogic.is_onlynu (Hesutil.encode_body_exists hes) then
-    let result, _ = Rfunprover.Solver.solve_onlynu_onlyforall false timeout true hes in
-    result
-  else (
-    let h = Hesutil.get_dual_hes hes |> Hesutil.encode_body_exists in
-    (* output_text (Hesutil.str_of_hes' hes) (Some "dual2"); *)
-    if Hesutil.is_onlyexists hes && HesLogic.is_onlynu h then
-      let result, _ = Rfunprover.Solver.solve_onlymu_onlyexists false timeout true hes in
-      result
+ *)
+  let dresult = 
+    (if Hesutil.is_onlyforall hes && HesLogic.is_onlynu hes then
+      Rfunprover.Solver.solve_onlynu_onlyforall_par false timeout true hes
+  (*  
+    else if Hesutil.is_onlyexists hes && HesLogic.is_onlynu (Hesutil.get_dual_hes hes |> Hesutil.encode_body_exists) then
+  *)
+    else if Hesutil.is_onlyexists hes && HesLogic.is_onlynu (Hesutil.get_dual_hes hes) then
+      Rfunprover.Solver.solve_onlymu_onlyexists_par false timeout true hes
     else
-      solve_onlyforall timeout hes)
-
-let solve_hes hes =
+      solve_onlyforall timeout hes) in
+  upon dresult (fun result -> cont result; Rfunprover.Solver.kill_z3();
+                              (*kill_child(Unix.getpid());*) shutdown 0
+                              );
+  Core.never_returns(Scheduler.go())
+  
+let solve_hes hes cont =
   Debug.print @@ Printf.sprintf "Input Hes: %s" @@ Hesutil.str_of_hes hes;
   Debug.print "";
-  let hes = Hesutil.simplify hes in
+  (* let hes = Hesutil.simplify hes in
   let hes = HesOptimizer.optimize hes in
   Debug.print @@ Printf.sprintf "Simplified/Optimized Hes: %s" @@ Hesutil.str_of_hes hes;
-  Debug.print "";
-  solve hes
+  Debug.print ""; *)
+  solve hes cont
 
-let solve_formula fml =
+let solve_formula fml cont =
   Debug.print @@ Printf.sprintf "Input Formula: %s" @@ PrinterHum.str_of_formula fml;
   let fml = Ast.Logic.Formula.simplify @@ FormulaConverter.elim_fv_with_forall fml in
   Debug.print @@ Printf.sprintf "Simplified Formula: %s" @@ PrinterHum.str_of_formula fml;
   let hes = Hesutil.hes_of_formula fml in
   Debug.print @@ Printf.sprintf "Hes: %s" @@ Hesutil.str_of_hes hes;
   Debug.print "";
-  solve_hes hes
+  solve_hes hes cont

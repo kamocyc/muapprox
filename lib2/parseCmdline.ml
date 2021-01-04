@@ -6,7 +6,7 @@ let subcmds = [
   ("--algorithm <algorithm>", "-a", "specify algorithm [cegis/ranking-function/rec-limit/rec-limit-simple] (default: cegis)");
   ("--format <format>", "-f", "specify format of input file [raw/smt-lib2/sygus-inv/clp/hes/c-ctl/c-ltl] (default: raw)");
   ("--mode", "-m", "specify mode [prove/disprove] (default:prove)");
-  ("--problem", "-pr", "select a problem type [validity/psat/hes/dual-hes/optimized-hes/optimized-dual-hes] (default:validity)");
+  ("--problem", "-pr", "select a problem type [validity/psat/convert-to-hes] (default:validity)");
   ("--verbose", "-v", "enable verbose mode");
   ("--mkbenchinfo <outfile>", "-mbi", "save information of benchmark into <outfile>");
   ("--template-shape", "-ts", "choose the shape of predicate templates from [linear/dnf] (default:linear)");
@@ -98,10 +98,7 @@ let synthesizer_of_string = function
 let problem_of_string = function
   | "validity" -> Validity
   | "psat" -> PSAT
-  | "hes" -> ConvertToHes
-  | "dual-hes" -> ConvertToDualHes
-  | "optimized-hes" -> ConvertToOptimizedHes
-  | "optimized-dual-hes" -> ConvertToOptimizedDualHes
+  | "convert-to-hes" -> ConvertToHes
   | problem -> raise (Error (Printf.sprintf "invalid problem type: %s" problem))
 
 let coe_of_string coe_str =
@@ -139,6 +136,10 @@ let parse args =
     | "--verbose" :: args
     | "-v" :: args ->
       config |> update_verbose true |> aux args
+
+    | "--usehoice" :: args
+    | "-hoice" :: args ->
+      config |> update_hoice true |> aux args
 
     | "--algorithm" :: algorithm_name :: args
     | "-a" :: algorithm_name :: args ->

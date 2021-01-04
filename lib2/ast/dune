@@ -6,7 +6,6 @@
     hornClause
     ident
     logic
-    simpleFormula
     gather
     proplogic
     ehorn

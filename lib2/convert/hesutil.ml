@@ -26,7 +26,6 @@ let rec iter_app (f: Ident.pvar -> Term.t list -> unit) formula =
     assert false
 (* failwith @@ Printf.sprintf "Hesutil.iter_app: not implemented: %s" @@ Convert.PrinterHum.str_of_formula formula *)
 
-(* applicationを置換 *)
 let rec replace_app (replacer: Formula.t -> Formula.t) formula =
   if Formula.is_atom formula then
     let atom, info = Formula.let_atom formula in
@@ -49,7 +48,6 @@ let rec replace_app (replacer: Formula.t -> Formula.t) formula =
     Formula.mk_bind binder bounds (replace_app replacer body) info
   else assert false
 
-(* 出現するfunctionを取得 *)
 let get_next_funcs fml =
   let res = ref [] in
   let _ = replace_app (fun fml ->
@@ -62,7 +60,6 @@ let get_next_funcs fml =
   in
   List.sort_uniq Ident.pvar_compare !res
 
-(* applicationに引数を追加する *)
 let replace_app_add formula arg sort =
   replace_app (fun fml ->
       let atom, info = Formula.let_atom fml in
@@ -214,7 +211,7 @@ let str_of_hes hes =
              ^ (PrinterHum.str_of_formula body)
           ) funcs)
     ) *)
-  
+
 let move_quantifiers_to_front hes =
   let funcs, entry = HesLogic.let_hes hes in
   HesLogic.mk_hes
@@ -234,36 +231,17 @@ let simplify hes =
        funcs)
     (Formula.simplify entry)
 
-let output_text text file =
-  if !Global.config.convert then begin
-    let file =
-      match file with
-      | None -> begin
-        let org_fullpath = !Global.config.filename in
-        Filename.basename org_fullpath
-      end
-      | Some s -> s
-    in
-    let file = Filename.concat "./converted/" file in
-    print_endline @@ "output_text: " ^ file;
-    let oc = open_out file in
-    output_string oc text;
-    close_out oc
-  end
-  
 let get_dual_hes hes =
   let funcs, entry = HesLogic.let_hes hes in
   let pvars = List.map (fun (_, pvar, _, _) -> pvar) funcs in
   let subst formula = List.fold_left (fun fml pvar -> Formula.subst_neg pvar fml) formula pvars in
-  let hes = HesLogic.mk_hes
+  HesLogic.mk_hes
     (List.map
        (fun (fixpoint, pvar, args, formula) ->
           (Predicate.flip_fixpoint fixpoint,
            pvar, args, Formula.simplify_neg (subst formula)))
        funcs)
-    (Formula.simplify_neg (subst entry)) in
-  output_text (PrinterHum2.str_of_hes' hes) (Some "dual1");
-  hes
+    (Formula.simplify_neg (subst entry))
 
 let add_prefix_to_tvars prefix bounds fml =
   let subst, bounds_rev =
@@ -362,7 +340,7 @@ let mk_exists_funs_mus funname_cand bounds_for_fv pvars exists_formula =
   in
   mk_exists_funs bounds_for_fv bounds pvars
 
-let mk_exists_funs_nu range funname_cand bounds_for_fv pvars exists_formula =
+let mk_exists_funs_nu coeff range funname_cand bounds_for_fv pvars exists_formula =
   (* avoid dup *)
   let pvar = avoid_dup (Ident.Pvar funname_cand) pvars in
   (* make exists body *)
@@ -425,10 +403,27 @@ let mk_exists_funs_nu range funname_cand bounds_for_fv pvars exists_formula =
       (Formula.mk_imply
          (* x >= range *)
          (Formula.and_of
+            (List.fold_left
+               (fun conjuncts (tvar,sort) ->
+                 (Formula.mk_atom (T_int.mk_geq (Term.mk_var tvar sort Dummy) (T_int.mk_int range Dummy) Dummy) Dummy)::
+                   ((List.map
+                      (fun (bvar,sort')->
+                        Formula.mk_atom (T_int.mk_geq (Term.mk_var tvar sort Dummy)
+                                           (T_int.mk_mult (T_int.mk_from_int coeff Dummy)
+                                              (Term.mk_var bvar sort' Dummy) Dummy) Dummy) Dummy) bounds_for_fv)@
+                    (List.map
+                      (fun (bvar,sort')->
+                       Formula.mk_atom (T_int.mk_geq (Term.mk_var tvar sort Dummy)
+                                           (T_int.mk_mult (T_int.mk_from_int (-coeff) Dummy)
+                                              (Term.mk_var bvar sort' Dummy) Dummy) Dummy) Dummy) bounds_for_fv)@
+                      conjuncts))
+               [] bounds )
+(*            
             (List.map
                (fun (tvar, sort) ->
                   Formula.mk_atom (T_int.mk_geq (Term.mk_var tvar sort Dummy) (T_int.mk_int range Dummy) Dummy) Dummy
                ) bounds)
+ *)
             Dummy)
          (* Exists(x) *)
          (mk_app ())
@@ -437,13 +432,13 @@ let mk_exists_funs_nu range funname_cand bounds_for_fv pvars exists_formula =
   in
   [HesLogic.mk_func Predicate.Nu pvar (bounds_for_fv @ bounds) body], entry
 
-let mk_exists_funs ?(range=100) funname_cand bounds_for_fv pvars fml =
+let mk_exists_funs coeff ?(range=100) funname_cand bounds_for_fv pvars fml =
   let config = !Global.config in
   let dispatched =
     match config.encoding_mode with
     | Config.Mu -> mk_exists_funs_mu
     | Config.Mus -> mk_exists_funs_mus
-    | Config.Nu -> mk_exists_funs_nu (Bigint.of_int range)
+    | Config.Nu -> mk_exists_funs_nu coeff (Bigint.of_int range)
   in
   let rec add_pvars pvars = function
     | [] -> pvars
@@ -480,17 +475,17 @@ let mk_exists_funs ?(range=100) funname_cand bounds_for_fv pvars fml =
   let funcs, fml, _ = rep pvars bounds_for_fv fml in
   funcs, fml
 
-let encode_top_exists ?range hes =
+let encode_top_exists coeff ?range hes =
   let funcs, entry = HesLogic.let_hes hes in
   let pvars = List.map
       (fun func ->
          let _, pvar, _, _ = HesLogic.let_function func in pvar) funcs
   in
-  let funcs', caller = mk_exists_funs ?range "Exists" [] pvars entry in
+  let funcs', caller = mk_exists_funs coeff ?range "Exists" [] pvars entry in
   HesLogic.mk_hes (funcs' @ funcs) caller
 
 (* move_quantifiers_to_front must be called before this is called *)
-let encode_body_exists ?range hes =
+let encode_body_exists coeff ?range hes =
   let funcs, entry = HesLogic.let_hes hes in
   let pvars = List.map
       (fun func ->
@@ -500,7 +495,7 @@ let encode_body_exists ?range hes =
     (List.fold_left
        (fun (funcs, pvars) func ->
           let fix, pvar, bounds, body = HesLogic.let_function func in
-          let funcs', caller = mk_exists_funs ?range (Ident.name_of_pvar pvar ^ "!") bounds pvars body in
+          let funcs', caller = mk_exists_funs coeff ?range (Ident.name_of_pvar pvar ^ "'") bounds pvars body in
           let func = HesLogic.mk_func fix pvar bounds caller in
           funcs' @ func :: funcs, pvars
        ) ([], pvars) funcs)
@@ -550,14 +545,7 @@ let is_onlyforall hes =
 let is_noquantifier hes =
   is_onlyexists hes && is_onlyforall hes
 
-let get_greatest_approx_hes ?range hes =
-  let hes = encode_body_exists ?range hes |> encode_top_exists ?range in
+let get_greatest_approx_hes ?(coeff=0) ?range hes =
+  let hes = encode_body_exists coeff ?range hes |> encode_top_exists coeff ?range in
   let funcs, entry = HesLogic.let_hes hes in
   HesLogic.mk_hes (List.map (fun (_, pvar, args, formula) -> (Predicate.Nu, pvar, args, formula)) funcs) entry
-
-let elim_fv_with_forall hes =
-  let funcs, entry = HesLogic.let_hes hes in
-  let entry = FormulaConverter.elim_fv_with_forall entry in
-  HesLogic.mk_hes funcs entry
-
-let str_of_hes' = PrinterHum2.str_of_hes'

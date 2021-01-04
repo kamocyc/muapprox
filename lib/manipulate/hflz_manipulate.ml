@@ -355,7 +355,8 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
     let (bound_vars, hfl) = go [] hfl in
     (* ensure all variables are integer type (or not used) *)
     bound_vars |>
-    List.sort (fun a b -> Int.compare a.Id.id b.Id.id) |>
+    (* List.sort (fun a b -> Int.compare a.Id.id b.Id.id) |> *)
+    List.rev |>
     List.filter_map (fun var -> 
       match var.Id.ty with
       | TyInt ->
@@ -386,9 +387,9 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
     { Id.name = name; ty = ty; id = i } in
   let body =
     let guessed_terms = make_guessed_terms_simple coe1 coe2 (free_vars |> filter_int_variable) in
-    let approx_formulas = bound_vars |> List.map (fun bound_var -> make_approx_formula ({bound_var with ty=`Int}) guessed_terms) in
+    let approx_formulas = bound_vars |> List.rev |> List.map (fun bound_var -> make_approx_formula ({bound_var with ty=`Int}) guessed_terms) in
     to_tree
-      bound_vars
+      (bound_vars)
       (fun x rem -> Forall (x, rem)) @@
       rev_abs (
         (formula_type_vars |> List.rev |> to_abs') @@
@@ -403,10 +404,7 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
       body =
         (arg_vars |> to_abs') @@
         And (
-          bound_vars
-          |> List.map (fun var -> Pred (Ge, [Var {var with ty=`Int}; Int 0]))
-          |> formula_fold (fun acc f -> And (acc, f)),
-          (* substitute rec vars to negative *)
+          ((* substitute rec vars to negative *)
           (* NOTE: exponential grow-up *)
           let rec go acc vars = match vars with
             | [] -> acc
@@ -430,7 +428,10 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
                 (fun acc t -> App (acc, t))
                 (Var new_pvar)
               ) in
-          (terms1 @ terms2) |> formula_fold (fun acc f -> Or (acc, f))
+          (terms1 @ terms2) |> formula_fold (fun acc f -> Or (acc, f))),
+          bound_vars
+          |> List.map (fun var -> Pred (Ge, [Var {var with ty=`Int}; Int 0]))
+          |> formula_fold (fun acc f -> And (acc, f))
         )
     }]
 
@@ -489,7 +490,6 @@ let encode_body_exists coe1 coe2 (hes : Type.simple_ty Hflz.hes) =
   (* let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
   print_endline @@ "Not decomposed HES path (Exists): " ^ path
   let hes = decompose_lambdas_hes in *)
-  Log.app begin fun m -> m ~header:"Exists-Encoded HES" "%a" Print.(hflz_hes simple_ty_) hes end;
   hes
 
 
@@ -752,7 +752,6 @@ let elim_mu_with_rec hes coe1 coe2 =
   let hes = decompose_lambdas_hes hes in *)
   (* TODO: 場合によっては、TOP levelを上に持ってくることが必要になる？ *)
     (* |> move_first (fun {var; _} -> var.name = original_top_level_predicate.name) in *)
-  Log.app begin fun m -> m ~header:"Eliminate Mu" "%a" Print.(hflz_hes simple_ty_) hes end;
   type_check hes;
   hes
   (* failwith "end" *)

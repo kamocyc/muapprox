@@ -1,6 +1,7 @@
 module Util        = Hflmc2_util
 module Syntax      = Hflmc2_syntax
 module Options     = Hflmc2_options
+module Manipulate  = Manipulate
 
 open Util
 open Syntax
@@ -38,14 +39,14 @@ let report_times () =
 
 let show_result = Muapprox_prover.Status.string_of
 
-let parse file =
-  if !Options.hes then (
+let parse file is_hes =
+  if is_hes then (
     let psi =
-    match Hes.HesParser.from_file file with
-    | Ok hes -> Muapprox_prover.Hflz_convert.of_hes hes
-    | Error _ -> failwith "hes_parser" in
+      match Hes.HesParser.from_file file with
+      | Ok hes -> Muapprox_prover.Hflz_convert.of_hes hes
+      | Error _ -> failwith "hes_parser" in
     Log.app begin fun m -> m ~header:"hes Input" "%a" Print.(hflz_hes simple_ty_) psi end;
-    psi  
+    psi
   ) else (
     let psi, _ = Syntax.parse_file file in
     Log.app begin fun m -> m ~header:"Input" "%a" Print.(hflz_hes simple_ty_) psi end;
@@ -63,11 +64,12 @@ let get_solve_options () =
     solver = get_solver !Options.solver;
     first_order_solver = get_first_order_solver !Options.first_order_solver;
     coe = get_coe !Options.coe;
+    dry_run = !Options.dry_run;
   }
   
-let main file =
+let main file cont =
   let solve_options = get_solve_options () in
-  let psi = parse file in
+  let psi = parse file !Options.hes in
   (* coefficients's default values are 1, 1 (defined in solve_options.ml) *)
   let coe1, coe2 = solve_options.coe in
   let inlining = not @@ !Options.no_inlining in
@@ -78,8 +80,7 @@ let main file =
     psi
   ) else psi in
   (* TODO: *)
-  let s1, _ = Muapprox_prover.check_validity coe1 coe2 solve_options psi in
-  s1
+  Muapprox_prover.check_validity coe1 coe2 solve_options psi (fun s1 -> cont s1)
   (* TODO: topのpredicate variableの扱い？ *)
   (* let psi, top = Syntax.Trans.Preprocess.main psi in
   match top with
@@ -93,3 +94,6 @@ let main file =
   | None -> print_string "[Warn]input was empty\n";
       `Valid (* because the input is empty *)
  *)
+
+let assign_serial_to_vars_hes = Muapprox_prover.Check_formula_equality.assign_serial_to_vars_hes
+let check_equal_hes = Muapprox_prover.Check_formula_equality.check_equal_hes

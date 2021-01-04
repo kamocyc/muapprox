@@ -52,8 +52,6 @@ module rec Term : sig
   val extend_pred_params : Ident.pvar -> (Ident.tvar * Sort.t) list -> t -> t
 
   val str_of: t -> string
-
-  val simplify: t -> t
 end = struct
   type t =
     | Var of Ident.tvar * Sort.t * info
@@ -186,28 +184,6 @@ end = struct
     | Var (Ident.Tvar id, _, _) -> Printf.sprintf "Var (%s)" id
     | FunApp (fun_sym, terms, _) -> Printf.sprintf "FunApp (%s, %s)" (str_of_fun_sym fun_sym)
                                       (List.fold_left ~f:(fun acc term -> acc ^ ", " ^ (str_of term)) ~init:"" terms)
-
-  let rec simplify term =
-    match term with
-    | Var _ -> term
-    | FunApp (fun_sym, terms, info) ->
-      let terms = List.map ~f:simplify terms in
-      match terms with
-      | [FunApp (T_int.Int a, [], _)] ->
-        if fun_sym = T_int.UnaryNeg then
-          FunApp (T_int.Int (Bigint.neg a), [], info)
-        else
-          FunApp(fun_sym, terms, info)
-      | [FunApp (T_int.Int a, [], _); FunApp (T_int.Int b, [], _)] ->
-        (match fun_sym with
-         | T_int.Add | T_int.Sub | T_int.Mult | T_int.Mod ->
-           FunApp (T_int.Int ((T_int.binfun_of_fsym fun_sym) a b), [], info)
-         | _ ->
-           FunApp(fun_sym, terms, info)
-        )
-      | _ ->
-        FunApp(fun_sym, terms, info)
-
 end
 
 and Predicate : sig
@@ -415,7 +391,6 @@ and Atom : sig
   val mk_true: info -> t
   val mk_false: info -> t
   val mk_app: Predicate.t -> Term.t list -> info -> t
-  val mk_varapp: Ident.pvar -> Term.t list -> info -> t
 
   (** test *)
   val is_true: t -> bool
@@ -429,7 +404,6 @@ and Atom : sig
   val info_of_true: t -> info
   val info_of_false: t -> info
   val let_app: t -> Predicate.t * Term.t list * info
-  val let_varapp: t -> Ident.pvar * Term.t list * info
   val let_symapp: t -> pred_sym * Term.t list * info
 
   (** aux *)
@@ -472,9 +446,6 @@ end = struct
   let mk_true info = True info
   let mk_false info = False info
   let mk_app pred args info = App(pred, args, info)
-  let mk_varapp pvar args info =
-    let sorts = List.map ~f:(fun _ -> T_int.SInt) args in (* TODO *)
-    App(Predicate.mk_var pvar sorts, args, info)
 
   (** test *)
   let is_true = function True _ -> true | _ -> false
@@ -494,9 +465,6 @@ end = struct
   let let_app = function
     | App(pred, args, info) -> pred, args, info
     | _ -> assert false
-  let let_varapp = function
-    | App(Predicate.Var (pvar, _), args, info) -> pvar, args, info
-    | _ -> assert false
   let let_symapp = function
     | App(Predicate.Psym sym, args, info) -> sym, args, info
     | _ -> assert false
@@ -511,16 +479,7 @@ end = struct
   let simplify = function
     | True info -> True info
     | False info -> False info
-    | App(pred, terms, info) ->
-      let pred = Predicate.simplify pred in
-      let terms = List.map ~f:Term.simplify terms in
-      match pred, terms with
-      | (Predicate.Psym psym, [Term.FunApp (T_int.Int a, [], _); Term.FunApp (T_int.Int b, [], _)]) ->
-        if (T_int.binfun_of_psym psym) a b then
-          True info
-        else
-          False info
-      | _ -> App(pred, terms, info)
+    | App(pred, terms, info) -> App(Predicate.simplify pred, terms, info)
 
   let simplify_neg = function
     | True info -> False info
@@ -1477,9 +1436,6 @@ and T_int : sig
   val let_lt: Atom.t -> Term.t * Term.t * info
   val let_gt: Atom.t -> Term.t * Term.t * info
 
-  val binfun_of_fsym: fun_sym -> Bigint.t -> Bigint.t -> Bigint.t
-  val binfun_of_psym: pred_sym -> Bigint.t -> Bigint.t -> bool
-
 end = struct
   type fun_sym +=
     | Int of Bigint.t | Real of string
@@ -1567,23 +1523,6 @@ end = struct
     | _ -> assert false
   let let_gt = function
     | Atom.App(Predicate.Psym Gt, [t1; t2], info) -> t1, t2, info
-    | _ -> assert false
-
-  let binfun_of_psym = function
-    | Gt -> Bigint.(>)
-    | Lt -> Bigint.(<)
-    | Geq -> Bigint.(>=)
-    | Leq -> Bigint.(<=)
-    | T_bool.Eq -> Bigint.(=)
-    | T_bool.Neq -> Bigint.(<>)
-    | _ -> assert false
-
-  let binfun_of_fsym = function
-    | Add -> Bigint.(+)
-    | Sub -> Bigint.(-)
-    | Mult -> Bigint.( * )
-    | Div -> Bigint.(/)
-    | Mod -> Bigint.(%)
     | _ -> assert false
 end
 

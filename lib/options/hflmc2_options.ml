@@ -16,6 +16,7 @@ let no_separate_original_formula_in_exists = ref (Obj.magic())
 let solver = ref (Obj.magic())
 let first_order_solver = ref (Obj.magic())
 let coe = ref (Obj.magic())
+let dry_run = ref (Obj.magic())
 
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -56,6 +57,8 @@ type params =
   (** If true, use solver for solving first-order formulas. If empty (or default), always use solvers for higher-order formulas. **)
   
   ; coe : string [@default ""]
+  
+  ; dry_run : bool [@default false]
   }
   [@@deriving cmdliner,show]
 
@@ -71,6 +74,7 @@ let set_up_params params =
   set_ref solver                   params.solver;
   set_ref first_order_solver       params.first_order_solver;
   set_ref coe                      params.coe;
+  set_ref dry_run                  params.dry_run;
   params.input
 
 (******************************************************************************)

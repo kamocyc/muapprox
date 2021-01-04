@@ -29,9 +29,9 @@ let move_quantifiers_to_front fml =
       let binder, bounds, body, info = Formula.let_bind fml in
       let new_bounds = List.map
           (fun (tvar, sort) ->
-             let var_name = ref (Ident.name_of_tvar tvar ^ "!q") in
+             let var_name = ref (Ident.name_of_tvar tvar) in
              while Env.has !var_name used_names do
-               var_name := !var_name ^ "!"
+               var_name := !var_name ^ "'"
              done;
              Ident.Tvar !var_name, sort
           )
@@ -75,8 +75,8 @@ let move_quantifiers_to_front fml =
       assert false
   and rename fml =
     let fv = Formula.get_ftv fml |> Core.Set.Poly.to_list in
-    (* let fv_names = Env.update (List.map (fun tvar -> (Ident.name_of_tvar tvar, ())) fv) Env.empty in *)
-    let fml, _, _ = rename_in_formula Env.empty (Core.List.zip_exn fv fv) fml in
+    let fv_names = Env.update (List.map (fun tvar -> (Ident.name_of_tvar tvar, ())) fv) Env.empty in
+    let fml, _, _ = rename_in_formula fv_names (Core.List.zip_exn fv fv) fml in
     fml
   in
   let mk_bind binder bounds fml =

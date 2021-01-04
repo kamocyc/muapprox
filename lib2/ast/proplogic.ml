@@ -143,7 +143,7 @@ end = struct
         let phis, cls =
           List.partition_map
             (cls1 @ cls2)
-            ~f:(fun (ns, ps) -> `Snd(ns, ps))
+            ~f:(fun (ns, ps) -> `Fst(ns, ps))
         in
         if phis = [] then cls else ([], [])::cls
       | BinaryOp(Or, phi1, phi2, _) ->

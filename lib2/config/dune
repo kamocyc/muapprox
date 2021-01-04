@@ -3,6 +3,6 @@
   (name config)
   (public_name muapprox.fptprover.config)
   (libraries
-  )
+  unix)
   (synopsis "Config definitions"))
 

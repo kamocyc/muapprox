@@ -16,6 +16,7 @@
   (libraries
     core
     ast
+    str
   )
   (synopsis "definitions of hes"))
 

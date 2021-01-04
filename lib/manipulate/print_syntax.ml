@@ -212,10 +212,10 @@ module FptProverHes = struct
           (Fmt.list hflz_hes_rule') hes
       end
     
-  let save_hes_to_file hes =
+  let save_hes_to_file ?(file) hes =
     Random.self_init ();
     let r = Random.int 0x10000000 in
-    let file = Printf.sprintf "/tmp/%s-%d.smt2" "nuonly" r in
+    let file = match file with Some s -> s | None -> Printf.sprintf "/tmp/%s-%d.smt2" "nuonly" r in
     let oc = open_out file in
     let fmt = Format.formatter_of_out_channel oc in
     Format.pp_set_margin fmt 1000;
@@ -294,10 +294,10 @@ module MachineReadable = struct
       Fmt.pf ppf "@[<v>%a@]"
         (Fmt.list (hflz_hes_rule' format_ty_ show_forall)) hes
     
-  let save_hes_to_file show_forall hes =
+  let save_hes_to_file ?(file) show_forall hes =
     Random.self_init ();
     let r = Random.int 0x10000000 in
-    let file = Printf.sprintf "/tmp/%s-%d.smt2" "nuonly" r in
+    let file = match file with Some s -> s | None -> Printf.sprintf "/tmp/%s-%d.smt2" "nuonly" r in
     let oc = open_out file in
     let fmt = Format.formatter_of_out_channel oc in
     Format.pp_set_margin fmt 1000;

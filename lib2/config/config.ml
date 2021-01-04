@@ -34,9 +34,6 @@ type problem =
   | PSAT
   | Validity
   | ConvertToHes
-  | ConvertToDualHes
-  | ConvertToOptimizedHes
-  | ConvertToOptimizedDualHes
 
 type mode =
   | Prove
@@ -58,10 +55,11 @@ type encoding_mode =
 
 type t = {
   timeout : timeout;
-  convert: bool;
   filename: string;
   fmt: format;
   verbose: bool;
+  pid: int;
+  usehoice: bool;
   algorithm: algorithm;
   mode: mode;
   mk_bench_info: string option;
@@ -93,17 +91,18 @@ type t = {
 }
 
 let filename_unspecified = "<unspecified>"
-  
+
 let make_default () =
   {
     timeout = {
       z3 = 114514
     };
-    convert = false;
     filename = filename_unspecified;
-    algorithm = CEGIS;
-    fmt = Raw;
+    pid = Unix.getpid();
+    algorithm = RecLimit;
+    fmt = Hes;
     verbose = false;
+    usehoice = false;
     mode = Prove;
     mk_bench_info = None;
     template_shape = LinearTemplate;
@@ -112,7 +111,7 @@ let make_default () =
     number_of_disj = 1;
     synthesizer = TBSynth;
     coe = None;
-    encoding_mode = Mu;
+    encoding_mode = Nu;
     free_variable_elimination = true;
     undecided_bool_expansion = false;
     smart_model = false;
@@ -146,6 +145,11 @@ let update_format fmt config =
 let update_verbose v config =
   { config with
     verbose = v
+  }
+
+let update_hoice v config =
+  { config with
+    usehoice = v
   }
 
 let update_algorithm algorithm config =
