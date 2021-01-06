@@ -1,17 +1,30 @@
+open Core
 
-let () = 
-  let is_option text = text = "--from-hes" || text = "--from-in" in
-  let argv = Array.to_list Sys.argv in
-  if List.length argv <> 3 || List.nth argv 1 |> is_option |> not then failwith "Usage: PROGRAM.exe (--from-hes | --from-in) file_path";
-  match argv with
-  | [_ ; "--from-hes"; path1] -> begin
-    let phi1 = Muapprox.parse path1 true in
-    let path2 = Filename.remove_extension path1 ^ ".in" in
-    ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 false phi1
-  end
-  | [_; "--from-in"; path1] -> begin
-    let phi1 = Muapprox.parse path1 false in
-    let path2 = Filename.remove_extension path1 ^ ".hes" in
-    ignore @@ Muapprox.Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:path2 phi1
-  end
-  | _ -> assert false
+let main path1 from show_forall =
+  let path2 =
+    match from with
+    | "hes" ->
+      let phi1 = Muapprox.parse path1 true in
+      let path2 = Stdlib.Filename.remove_extension path1 ^ ".in" in
+      Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 show_forall phi1
+    | "in" ->
+      let phi1 = Muapprox.parse path1 false in
+      let path2 = Stdlib.Filename.remove_extension path1 ^ ".hes" in
+      Muapprox.Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:path2 phi1
+    | _ -> failwith "format should be \"hes\" or \"in\""
+  in
+  print_endline @@ "Converted to " ^ path2
+
+let command =
+  Command.basic
+    ~summary:"Convert between HES formats"
+    Command.Let_syntax.(
+      let%map_open
+          from = flag "--from" (required string) ~doc:"source file's format"
+      and filepath = anon ("filepath" %: string)
+      and show_forall = flag "--show-forall" no_arg ~doc:"include forall binding when convert to HES"
+      in
+      (fun () -> main filepath from show_forall)
+    )
+
+let () = Command.run command

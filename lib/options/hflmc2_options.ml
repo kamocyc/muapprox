@@ -17,7 +17,7 @@ let solver = ref (Obj.magic())
 let first_order_solver = ref (Obj.magic())
 let coe = ref (Obj.magic())
 let dry_run = ref (Obj.magic())
-
+let no_simplify = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -59,6 +59,8 @@ type params =
   ; coe : string [@default ""]
   
   ; dry_run : bool [@default false]
+  
+  ; no_simplify : bool [@default false]
   }
   [@@deriving cmdliner,show]
 
@@ -75,6 +77,7 @@ let set_up_params params =
   set_ref first_order_solver       params.first_order_solver;
   set_ref coe                      params.coe;
   set_ref dry_run                  params.dry_run;
+  set_ref no_simplify              params.no_simplify;
   params.input
 
 (******************************************************************************)

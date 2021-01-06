@@ -3,7 +3,10 @@ import os
 import subprocess
 import signal   
 import time
+import re
 
+if os.path.isdir('benchmark'):
+    os.chdir('benchmark')
 os.chdir("output")
 
 OUTPUT_FILE_NAME = "bench_out_append.txt"
@@ -22,7 +25,7 @@ def append(text):
 # not used
 RETRY_COOLDOWN = 10
 
-timeout = 90
+timeout = 45
 
 nth_last_line = -1
 BENCH_SET = 6
@@ -31,7 +34,7 @@ kill_process_names = []
 use_file_for_output = True
 
 if BENCH_SET == 1:
-    # rec-limit
+    # rec-limit (koba-test)
     lists_path = './list.txt'
     base_dir = '/opt/home2/git/fptprove_muarith/benchmarks/hes/'
     exe_path = '/opt/home2/git/muapprox/benchmark/run_command.sh'
@@ -73,7 +76,7 @@ if BENCH_SET == 6:
     #add_args = ['--hes']
     #add_args = ['--hes', '--solver', 'iwayama']
     # add_args = ['--hes', '--first-order-solver']
-    kill_process_names = ["hflmc2", "main.exe", "z3"]
+    kill_process_names = ["hflmc2", "main.exe", "z3", "hoice"]
     nth_last_line = -3
 
 def get_lines(text):
@@ -81,9 +84,32 @@ def get_lines(text):
     
 def get_last_line(text, nth = nth_last_line):
     try:
-        return get_lines(text)[nth]
+        if BENCH_SET == 6:
+            m = re.search(r'\n\[\[MAIN]] Verification Result:\n\s*(\w+)\n', text)
+            if m == None:
+                return ('other', '')
+            status = m.group(1)
+            
+            m = re.search(r'\n(\(mode=.+\))\n', text)
+            if m == None:
+                return ('other', '')
+            info = m.group(1)
+            return (status, info)
+        else:
+            stdout = get_lines(text)[nth]
+            if 'invalid' in stdout:
+                return ('invalid', '')
+            elif 'valid' in stdout:
+                return ('valid', '')
+            elif 'unknown' in stdout:
+                return ('unknown', '')
+            elif 'fail' in stdout:
+                return ('fail', '')
+            else:
+                return ('other', '')
+            # "[[MAIN]] Verification Result:\n  invalid\nProfiling:\n  total: 5.166029 sec\n(mode=disprover, iter_count=1, coe1=1, coe2=1)"
     except IndexError:
-        return text.strip(' \n\r')
+        return ('other', 'info')
     
 def preexec_fn():
     os.chdir('./')
@@ -140,6 +166,13 @@ def parse_stdout(full_stdout, stderr):
     # append({'full': full_stdout})
     result_data = dict()
     
+    if stderr is None:
+        stderr = ''
+    
+    result_data['stderr'] = stderr
+    
+    result_data['info'] = ''
+    
     if isinstance(nth_last_line, list):
         # fptproverのとき
         lines = get_lines(full_stdout)
@@ -154,25 +187,10 @@ def parse_stdout(full_stdout, stderr):
                 stderr = ''
             result_data['result'] = 'other'
             result_data['stdout'] = full_stdout
-            result_data['stderr'] = stderr
     else:
-        stdout = get_last_line(full_stdout)
-        append({'stdout': stdout})
-        
-        if 'invalid' in stdout:
-            result_data['result'] = 'invalid'
-        elif 'valid' in stdout:
-            result_data['result'] = 'valid'
-        elif 'unknown' in stdout:
-            result_data['result'] = 'unknown'
-        elif 'fail' in stdout:
-            result_data['result'] = 'fail'
-        else:
-            if stderr is None:
-                stderr = ''
-            result_data['result'] = 'other'
+        result_data['result'], result_data['info'] = get_last_line(full_stdout)
+        if result_data['result'] == 'other':
             result_data['stdout'] = full_stdout
-            result_data['stderr'] = stderr
         
     # append(result_data['result'])
     # append(stdout)
@@ -223,6 +241,11 @@ def handle(exe_path, file, parser, callback, retry=0):
     callback(file, result)
     results.append(result)
 
+def get(r, key):
+    if key in r:
+        return r[key]
+    return ''
+    
 def main():
     print("START")
     pprint({
@@ -241,8 +264,8 @@ def main():
     for file in files:
         handle(exe_path, os.path.join(base_dir, file), parse_stdout, callback=callback)
 
-    with open('bench_out_summary.txt', 'w') as f:    
-        f.write(str([{'file': r['file'], 'result': r['result'], 'time': r['time']} for r in results]))
+    with open('bench_out_summary.txt', 'w') as f:            
+        f.write(str([{'file': r['file'], 'info': get(r, 'info'), 'result': r['result'], 'time': r['time']} for r in results]))
     
     with open('bench_out_full.txt', 'w') as f:    
         f.write(str(results))

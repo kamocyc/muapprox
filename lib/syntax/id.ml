@@ -13,9 +13,9 @@ let eq x y = String.equal x.name y.name && x.id = y.id
 let counter = new Fn.counter
 let gen_id () = counter#tick
 
-let to_string id =
+let to_string ?(without_id=false) id =
   let c = String.get id.name 0 in
-  if c = Char.uppercase c
+  if c = Char.uppercase c || without_id
   then id.name
   else id.name ^ string_of_int id.id (* also show id if the id is for a variable *)
 

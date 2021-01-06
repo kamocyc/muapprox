@@ -337,12 +337,9 @@ let rec to_tree seq f b = match seq with
   | [] -> b
   | x::xs -> f x (to_tree xs f b)
   
-(* 高階だからちょっと変わる *)
 let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl = 
   let open Type in
-  (* let formula_type_abs = formula_type |> to_args |> to_abs in *)
   let formula_type_vars = Hflz.get_hflz_type hfl |> to_args |> List.rev in
-  (* print_endline @@ Util.fmt_string Print.simple_ty formula_type; *)
   (* get free variables *)
   let free_vars =
     Hflz.fvs_with_type hfl
@@ -355,12 +352,10 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
     let (bound_vars, hfl) = go [] hfl in
     (* ensure all variables are integer type (or not used) *)
     bound_vars |>
-    (* List.sort (fun a b -> Int.compare a.Id.id b.Id.id) |> *)
     List.rev |>
     List.filter_map (fun var -> 
       match var.Id.ty with
       | TyInt ->
-        (* Some (Id.gen ~name:("exi_" ^ var.name) TyInt) *)
         Some var
       | TySigma _ -> begin
         if (Hflz.fvs_with_type hfl
@@ -371,7 +366,6 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
       end
     ), hfl in
   let arg_vars = free_vars @ formula_type_vars @ bound_vars  in
-  (* let bound_vars_argty = bound_vars |> List.map (fun v -> { v with Id.ty=TyInt}) in *)
   let new_pvar =
     let i = Id.gen_id() in
     let name =
@@ -436,7 +430,6 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
     }]
 
 let encode_body_exists_formula new_pred_name_cand coe1 coe2 hes_preds hfl =
-  (* Log.app begin fun m -> m ~header:"encode_body_exists_formula (ORIGINAL)" "%a" Print.(hflz simple_ty_) hfl end; *)
   let new_rules = ref [] in
   let rec go hes_preds hfl = match hfl with
     | Var _ | Bool _ -> hfl
@@ -453,16 +446,9 @@ let encode_body_exists_formula new_pred_name_cand coe1 coe2 hes_preds hfl =
           go hes_preds f1
         | Some x -> failwith "quantifiers for higher-order variables are not implemented"
       ) else (
-        (* print_endline "encode_body_exists_formula";
-        print_endline @@ "var=" ^ v.name;
-        Print_syntax.print_arg_type v.ty; *)
-        (* let f1 = go ((v)::env) f1 in *)
         let hfl, rules = encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl in
         let new_rule_vars = List.map (fun rule -> { rule.var with ty = Type.TySigma rule.var.ty }) rules in
         let rules = List.map (fun rule -> { rule with body = go (new_rule_vars @ hes_preds) rule.body } ) rules in
-        (* print_endline "HFLLL";
-        print_endline @@ Util.fmt_string (Print.hflz Print.simple_ty_) hfl;
-        Print_syntax.print_arg_type v.ty; *)
         new_rules := rules @ !new_rules;
         hfl
       )
@@ -471,8 +457,6 @@ let encode_body_exists_formula new_pred_name_cand coe1 coe2 hes_preds hfl =
     | Arith t -> Arith t
     | Pred (p, t) -> Pred (p, t) in
   let hfl = go hes_preds hfl in
-  (* Log.app begin fun m -> m ~header:"encode_body_exists_formula" "%a" Print.(hflz simple_ty_) hfl end;
-  Log.app begin fun m -> m ~header:"!new_rules" "%a" Print.(hflz_hes simple_ty_) (!new_rules) end; *)
   hfl, !new_rules
 
 (* hesからexistentailを除去 *)
@@ -487,12 +471,7 @@ let encode_body_exists coe1 coe2 (hes : Type.simple_ty Hflz.hes) =
         {var; fix; body}::new_rules
       )
     |> List.flatten in
-  (* let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
-  print_endline @@ "Not decomposed HES path (Exists): " ^ path
-  let hes = decompose_lambdas_hes in *)
   hes
-
-
 
 let rec beta (phi : 'a Hflz.t) : 'a Hflz.t = match phi with
   | Or (phi1, phi2) -> Or (beta phi1, beta phi2)
@@ -755,3 +734,136 @@ let elim_mu_with_rec hes coe1 coe2 =
   type_check hes;
   hes
   (* failwith "end" *)
+
+
+let encode_body_forall_formula_sub new_pred_name_cand hes_preds hfl = 
+  let open Type in
+  let formula_type_vars = Hflz.get_hflz_type hfl |> to_args |> List.rev in
+  (* get free variables *)
+  let free_vars =
+    Hflz.fvs_with_type hfl
+    |> Id.remove_vars hes_preds in
+  let bound_vars, hfl =
+      (* sequence of universally bound variables *)
+    let rec go acc hfl = match hfl with
+      | Forall (x, hfl) -> go (x::acc) hfl
+      | _ -> (acc, hfl) in
+    let (bound_vars, hfl) = go [] hfl in
+    (* ensure all variables are integer type (or not used) *)
+    bound_vars |>
+    List.rev |>
+    List.filter_map (fun var -> 
+      match var.Id.ty with
+      | TyInt ->
+        Some var
+      | TySigma _ -> begin
+        if (Hflz.fvs_with_type hfl
+          |> List.exists (fun fv -> Id.eq fv var))
+          then failwith "encode_body_forall_formula_sub: higher-order bound variable is not supported";
+        (* when variable is not used *)
+        None
+      end
+    ), hfl in
+  let arg_vars = free_vars @ formula_type_vars @ bound_vars  in
+  let new_pvar =
+    let i = Id.gen_id() in
+    let name =
+      match new_pred_name_cand with
+      | None -> "Forall" ^ string_of_int i
+      | Some p -> p ^ "_a" ^ string_of_int i in
+    let ty =
+      (* TODO: higher-order vars *)
+      to_tree
+        arg_vars
+        (fun x rem -> TyArrow (x, rem))
+        (TyBool ())  in
+    { Id.name = name; ty = ty; id = i } in
+  let body =
+    to_tree
+      (bound_vars)
+      (fun x rem -> Forall (x, rem)) @@
+      rev_abs (
+        (formula_type_vars |> List.rev |> to_abs') @@
+          (args_ids_to_apps arg_vars @@ (Var new_pvar))
+          ) in
+    body,
+    [{ 
+      Hflz.var = new_pvar;
+      fix = Fixpoint.Greatest;
+      body =
+        (arg_vars |> to_abs') @@
+        And (
+          ((* substitute rec vars to negative *)
+          (* NOTE: exponential grow-up *)
+          let rec go acc vars = match vars with
+            | [] -> acc
+            | x::xs ->
+              go (acc |>
+                  List.map (fun hfl -> 
+                    hfl::[
+                      subst_arith_var
+                        (fun vid -> if Id.eq vid x then (Arith.Op (Sub, [Int 0; Var {x with ty=`Int}])) else Var vid) hfl]) |>
+                  List.flatten)
+                  xs in
+          let terms1 =
+            (go [hfl] bound_vars)
+            |> List.map (fun f -> args_ids_to_apps formula_type_vars f) in
+          let terms2 = 
+            bound_vars |>
+            List.map (fun var ->
+              arg_vars
+              |> List.map (fun v -> if Id.eq v var then Arith (Op (Sub, [Var {v with ty=`Int}; Int 1])) else arg_id_to_var v)
+              |> List.fold_left
+                (fun acc t -> App (acc, t))
+                (Var new_pvar)
+              ) in
+          (terms1 @ terms2) |> formula_fold (fun acc f -> Or (acc, f))),
+          bound_vars
+          |> List.map (fun var -> Pred (Ge, [Var {var with ty=`Int}; Int 0]))
+          |> formula_fold (fun acc f -> And (acc, f))
+        )
+    }]
+
+let encode_body_forall_formula new_pred_name_cand hes_preds hfl =
+  let new_rules = ref [] in
+  let rec go hes_preds hfl = match hfl with
+    | Var _ | Bool _ -> hfl
+    | Or (f1, f2)  -> Or  (go hes_preds f1, go hes_preds f2)
+    | And (f1, f2) -> And (go hes_preds f1, go hes_preds f2)
+    | Abs (v, f1)  -> Abs (v, go hes_preds f1)
+    | Forall (v, f1) -> Forall (v, go hes_preds f1)
+    | Exists (v, f1) -> begin
+      if v.ty <> Type.TyInt then (
+        (* boundされている変数の型が整数以外 *)
+        match IdSet.find (fvs f1) ~f:(fun i -> Id.eq i v) with
+        | None ->
+          (* boundされている変数が使用されない、つまり無駄なboundなので無視 *)
+          go hes_preds f1
+        | Some x -> failwith "quantifiers for higher-order variables are not implemented"
+      ) else (
+        let hfl, rules = encode_body_forall_formula_sub new_pred_name_cand hes_preds hfl in
+        let new_rule_vars = List.map (fun rule -> { rule.var with ty = Type.TySigma rule.var.ty }) rules in
+        let rules = List.map (fun rule -> { rule with body = go (new_rule_vars @ hes_preds) rule.body } ) rules in
+        new_rules := rules @ !new_rules;
+        hfl
+      )
+    end
+    | App (f1, f2) -> App (go hes_preds f1, go hes_preds f2)
+    | Arith t -> Arith t
+    | Pred (p, t) -> Pred (p, t) in
+  let hfl = go hes_preds hfl in
+  hfl, !new_rules
+
+(* hesからforallを除去 *)
+let encode_body_forall (hes : Type.simple_ty Hflz.hes) =
+  let env = List.map (fun {var; _} -> { var with ty=Type.TySigma var.ty }) hes in
+  let hes =
+    hes |>
+    List.mapi
+      (fun i {var; fix; body} -> 
+        let new_pred_name_cand = if i = 0 then None else Some var.name in
+        let body, new_rules = encode_body_forall_formula new_pred_name_cand env body in
+        {var; fix; body}::new_rules
+      )
+    |> List.flatten in
+  hes

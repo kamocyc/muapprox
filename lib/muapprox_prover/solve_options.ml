@@ -12,6 +12,7 @@ type options =
     first_order_solver: first_order_solver_type option;
     coe : int * int;
     dry_run : bool;
+    no_simplify: bool;
   }
 
 let get_solver solver_name = 

@@ -87,13 +87,19 @@ module PrintUtil = struct
   
   let id_' = fun prec ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string x)
   
+  let id__' : bool -> 'ty Id.t t =
+    fun without_id ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string ~without_id:without_id x)
+    
+  let id___' =
+    fun without_id prec ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string ~without_id:without_id x)
+    
   let arith_  =
-    fun prec ppf a -> gen_arith_ id_' prec ppf a
+    fun without_id prec ppf a -> gen_arith_ (id___' without_id) prec ppf a
   
-  let formula_ : Formula.t t_with_prec =
-    gen_formula_ void_ id_'
-  let formula : Formula.t Fmt.t =
-    formula_ Prec.zero
+  let formula_ : bool -> Formula.t t_with_prec = fun without_id ->
+    gen_formula_ void_ (id___' without_id)
+  let formula : bool -> Formula.t Fmt.t = fun without_id ->
+    formula_ without_id Prec.zero
     
   let fprint_space f () = fprintf f " "
 end
@@ -170,7 +176,7 @@ module FptProverHes = struct
             (go_ Prec.app) psi1
             (go_ Prec.(succ app)) psi2
       | Arith a ->
-          arith_ prec ppf a
+          (arith_ false) prec ppf a
       | Pred (pred, as') ->
           show_paren (prec > Prec.eq) ppf "%a"
             formula (Formula.Pred(pred, as'))
@@ -229,11 +235,11 @@ end
 module MachineReadable = struct
   open PrintUtil
   
-  let hflz_' (format_ty_ : Prec.t -> 'ty Fmt.t) (show_forall : bool)  =
+  let hflz_' (format_ty_ : Prec.t -> 'ty Fmt.t) (show_forall : bool) (without_id : bool) =
     let rec go_ (prec : Prec.t) (ppf : formatter) (phi : 'ty Hflz.t) = match phi with
       | Bool true -> Fmt.string ppf "true"
       | Bool false -> Fmt.string ppf "false"
-      | Var x -> id' ppf x
+      | Var x -> id__' without_id ppf x
       | Or(phi1,phi2)  ->
           show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ || %a@]"
             (go_ Prec.or_) phi1
@@ -244,7 +250,7 @@ module MachineReadable = struct
             (go_ Prec.and_) phi2
       | Abs (x, psi) -> begin
         show_paren (prec > Prec.abs) ppf "@[<1>\\%a.@,%a@]"
-            id' x
+            (id__' without_id) x
             (* (argty (Prec.(succ arrow))) x.ty *)
             (go_ Prec.abs) psi
       end 
@@ -253,7 +259,7 @@ module MachineReadable = struct
           (* TODO: ∀は出力したほうがいい？ => 付けるべき。付けないとなぜか\がつくことがある *)
           if show_forall then (
             show_paren (prec > Prec.abs) ppf "@[<1>∀%a.@,%a@]"
-              id' x
+              (id__' without_id) x
               (* (argty (Prec.(succ arrow))) x.ty *)
               (go_ Prec.abs) psi
           ) else (
@@ -261,7 +267,7 @@ module MachineReadable = struct
           )
       | Exists (x, psi) -> 
         show_paren (prec > Prec.abs) ppf "@[<1>∃%a.@,%a@]"
-            id' x
+            (id__' without_id) x
             (* (argty (Prec.(succ arrow))) x.ty *)
             (go_ Prec.abs) psi
       | App (psi1, psi2) ->
@@ -269,32 +275,32 @@ module MachineReadable = struct
             (go_ Prec.app) psi1
             (go_ Prec.(succ app)) psi2
       | Arith a ->
-          arith_ prec ppf a
+          arith_ without_id prec ppf a
       | Pred (pred, as') ->
           show_paren (prec > Prec.eq) ppf "%a"
-            formula (Formula.Pred(pred, as'))
+            (formula without_id) (Formula.Pred(pred, as'))
     in go_
 
-  let hflz' : (Prec.t -> 'ty Fmt.t) -> bool -> 'ty Hflz.t Fmt.t =
-    fun format_ty_ show_forall -> hflz_' format_ty_ show_forall Prec.zero
+  let hflz' : (Prec.t -> 'ty Fmt.t) -> bool -> bool -> 'ty Hflz.t Fmt.t =
+    fun format_ty_ show_forall without_id -> hflz_' format_ty_ show_forall without_id Prec.zero
   
-  let hflz_hes_rule' : (Prec.t -> 'ty Fmt.t) -> bool -> 'ty Hflz.hes_rule Fmt.t =
-    fun format_ty_ show_forall ppf rule ->
+  let hflz_hes_rule' : (Prec.t -> 'ty Fmt.t) -> bool -> bool -> 'ty Hflz.hes_rule Fmt.t =
+    fun format_ty_ show_forall without_id ppf rule ->
       let args, phi = Hflz.decompose_abs rule.body in
       (* 'ty Type.arg Id.t を表示したい *)
       Fmt.pf ppf "@[<2>%s %a =%a@ %a.@]"
-        (replace_apos @@ Id.to_string rule.var)
-        (pp_print_list ~pp_sep:fprint_space id') args
+        (replace_apos @@ Id.to_string ~without_id:without_id rule.var)
+        (pp_print_list ~pp_sep:fprint_space (id__' without_id)) args
         (* (format_ty_ Prec.zero) rule.var.ty *)
         fixpoint rule.fix
-        (hflz' format_ty_ show_forall) phi
+        (hflz' format_ty_ show_forall without_id) phi
   
-  let hflz_hes' : (Prec.t -> 'ty Fmt.t) -> bool -> 'ty Hflz.hes Fmt.t =
-    fun format_ty_ show_forall ppf hes ->
+  let hflz_hes' : (Prec.t -> 'ty Fmt.t) -> bool -> bool -> 'ty Hflz.hes Fmt.t =
+    fun format_ty_ show_forall without_id ppf hes ->
       Fmt.pf ppf "@[<v>%a@]"
-        (Fmt.list (hflz_hes_rule' format_ty_ show_forall)) hes
+        (Fmt.list (hflz_hes_rule' format_ty_ show_forall without_id)) hes
     
-  let save_hes_to_file ?(file) show_forall hes =
+  let save_hes_to_file ?(file) ?(without_id=false) show_forall hes =
     Random.self_init ();
     let r = Random.int 0x10000000 in
     let file = match file with Some s -> s | None -> Printf.sprintf "/tmp/%s-%d.smt2" "nuonly" r in
@@ -302,7 +308,7 @@ module MachineReadable = struct
     let fmt = Format.formatter_of_out_channel oc in
     Format.pp_set_margin fmt 1000;
     Printf.fprintf oc "%%HES\n" ;
-    hflz_hes' Hflmc2_syntax.Print.simple_ty_ show_forall fmt hes;
+    hflz_hes' Hflmc2_syntax.Print.simple_ty_ show_forall without_id fmt hes;
     Format.pp_print_flush fmt ();
     close_out oc;
     file

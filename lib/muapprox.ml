@@ -65,6 +65,7 @@ let get_solve_options () =
     first_order_solver = get_first_order_solver !Options.first_order_solver;
     coe = get_coe !Options.coe;
     dry_run = !Options.dry_run;
+    no_simplify = !Options.no_simplify;
   }
   
 let main file cont =
@@ -80,7 +81,7 @@ let main file cont =
     psi
   ) else psi in
   (* TODO: *)
-  Muapprox_prover.check_validity coe1 coe2 solve_options psi (fun s1 -> cont s1)
+  Muapprox_prover.check_validity coe1 coe2 solve_options psi (fun (s1, info) -> cont (s1, info))
   (* TODO: topのpredicate variableの扱い？ *)
   (* let psi, top = Syntax.Trans.Preprocess.main psi in
   match top with
@@ -97,3 +98,6 @@ let main file cont =
 
 let assign_serial_to_vars_hes = Muapprox_prover.Check_formula_equality.assign_serial_to_vars_hes
 let check_equal_hes = Muapprox_prover.Check_formula_equality.check_equal_hes
+let show_debug_context = Muapprox_prover.show_debug_context
+
+let abbrev_variable_numbers_hes = Muapprox_prover.Abbrev_variable_numbers.abbrev_variable_numbers_hes

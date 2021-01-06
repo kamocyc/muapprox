@@ -11,12 +11,14 @@ let () =
         tmp_file
     | None -> exit 1
   in
-    Muapprox.main file (fun s -> 
+    Muapprox.main file (fun (s, i) -> 
       match s with
       | r ->
           Fmt.pr "@[<v 2>[[MAIN]] Verification Result:@,%s@]@." @@ Muapprox.show_result r;
-          if Logs.Src.level Muapprox.log_src <> None
-            then Muapprox.report_times()
+          if Logs.Src.level Muapprox.log_src <> None then begin
+            Muapprox.report_times ();
+            print_endline @@ Muapprox.show_debug_context i
+          end
       | exception
           ( Muapprox.Util.Fn.Fatal e
           | Muapprox.Syntax.ParseError e

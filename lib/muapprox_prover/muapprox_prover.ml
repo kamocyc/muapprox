@@ -6,6 +6,7 @@ module Hflz_mani = Manipulate.Hflz_manipulate
 module Hflz_convert = Hflz_convert
 module Hflz_convert_rev = Hflz_convert_rev
 module Check_formula_equality = Check_formula_equality
+module Abbrev_variable_numbers = Abbrev_variable_numbers
 
 let read_strings file =
   let fp = open_in file in
@@ -36,13 +37,14 @@ module Log = (val Logs.src_log @@ log_src)
 type debug_context = {
   coe1: int;
   coe2: int;
+  iter_count: int;
   mode: string
 }
 
 let show_debug_context debug =
   match debug with
   | None -> ""
-  | Some debug -> "(" ^ debug.mode ^ " / coe1=" ^ (string_of_int debug.coe1) ^ ", coe2=" ^ (string_of_int debug.coe2) ^ ")"
+  | Some debug -> "(mode=" ^ debug.mode ^ ", iter_count=" ^ string_of_int debug.iter_count ^ ", coe1=" ^ (string_of_int debug.coe1) ^ ", coe2=" ^ (string_of_int debug.coe2) ^ ")"
 
 module type BackendSolver = sig
   (* val save_hes_to_file : Manipulate.Type.simple_ty Hflz.hes -> string
@@ -93,11 +95,11 @@ module KatsuraSolver : BackendSolver = struct
   let save_hes_to_file hes debug_context =
     (* debug *)
     (* let hes = Hflmc2_syntax.Trans.Simplify.hflz_hes hes true in *)
-    let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file true hes in
-    print_endline @@ "HES for backend " ^ (show_debug_context debug_context);
+    let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
+    print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path';
     
-    Manipulate.Print_syntax.MachineReadable.save_hes_to_file true hes
+    Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes
     
   let solver_command hes_path no_backend_inlining =
     if no_backend_inlining
@@ -140,11 +142,14 @@ module IwayamaSolver : BackendSolver = struct
   
   let save_hes_to_file hes debug_context =
     (* let hes = Hflmc2_syntax.Trans.Simplify.hflz_hes hes true in *)
-    let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file true hes in
-    print_endline @@ "HES for backend " ^ (show_debug_context debug_context);
+    let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
+    print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path';
     
-    Manipulate.Print_syntax.MachineReadable.save_hes_to_file false hes
+    let path2 = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes in
+    print_string @@ "HES for backend (no forall) " ^ (show_debug_context debug_context) ^ ": ";
+    print_endline path2;
+    path2
     
   let solver_command hes_path no_backend_inlining =
     if no_backend_inlining
@@ -192,6 +197,9 @@ let is_first_order_hes hes =
   |> List.for_all (fun { Hflz.var; _} -> is_first_order_function_type var.ty)
   
 let solve_onlynu_onlyforall solve_options debug_context hes with_par =
+  (* let hes =
+    if solve_options.no_simplify then hes else Manipulate.Hes_optimizer.simplify hes in
+  let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in *)
   let run =
     if is_first_order_hes hes && solve_options.first_order_solver = Some FptProverRecLimit then (
       FptProverRecLimitSolver.run
@@ -202,7 +210,7 @@ let solve_onlynu_onlyforall solve_options debug_context hes with_par =
     ) in
   run solve_options debug_context hes with_par
 
-(*     
+(*  no_simplify
   let (module Solver : BackendSolver) = (
     if is_first_order_hes hes && solve_options.first_order_solver = Some FptProverRecLimit then (
       (module FptProverRecLimitSolver)
@@ -278,10 +286,11 @@ let elim_mu_exists coe1 coe2 debug_output hes name =
   hes
 
 (* これ以降、本プログラム側での近似が入る *)
-let rec mu_elim_solver coe1 coe2 solve_options debug_output hes mode_name = 
+let rec mu_elim_solver coe1 coe2 iter_count solve_options debug_output hes mode_name = 
   let nu_only_hes = elim_mu_exists coe1 coe2 debug_output hes mode_name in
   let debug_context = Some {
     mode = mode_name;
+    iter_count = iter_count;
     coe1 = coe1;
     coe2 = coe2;
   } in
@@ -289,11 +298,12 @@ let rec mu_elim_solver coe1 coe2 solve_options debug_output hes mode_name =
     (solve_onlynu_onlyforall solve_options debug_context nu_only_hes false)
     >>= (fun result ->
         match result with
-      | Status.Valid -> return Status.Valid
-      | Status.Invalid -> let (coe1',coe2') = if (coe1,coe2)=(1,1) then (1,8) else (2*coe1,2*coe2)
-        in mu_elim_solver coe1' coe2' solve_options false hes mode_name                  
-      | _ -> return Status.Unknown)
-  ) else (print_endline "DRY RUN"; Unix.system "echo" >>| (fun _ -> Status.Unknown))
+        | Status.Valid -> return (Status.Valid, debug_context)
+        | Status.Invalid ->
+          let (coe1',coe2') = if (coe1,coe2)=(1,1) then (1,8) else (2*coe1, 2*coe2) in
+          mu_elim_solver coe1' coe2' (iter_count + 1) solve_options false hes mode_name                  
+        | _ -> return (Status.Unknown, debug_context))
+  ) else (print_endline "DRY RUN"; Unix.system "echo" >>| (fun _ -> Status.Unknown, None))
   (* solve_onlynu_onlyforall solve_options nu_only_hes (fun (result, result') -> 
     match result with
     | Status.Valid -> cont (Status.Valid, result')
@@ -320,31 +330,20 @@ let rec mu_elim_solver coe1 coe2 solve_options debug_output hes mode_name =
   List.map (fun rule -> { rule with Hflz.fix = Fixpoint.Greatest }) hes 
    *)
 let check_validity_full coe1 coe2 solve_options hes cont =
-  let solvers = ref [] in
-  (* if is_only_forall hes then ( (* forall + nu + mu *)
-    let nu_relaxed_hes = get_greatest_approx_hes hes in
-    Log.app begin fun m -> m ~header:"nu_relaxed_hes" "%a" Manipulate.Print_syntax.(MachineReadable.hflz_hes' simple_ty_ false) hes end;
-    let nu_relax_solver = fun timeout is_print_for_debug ->
-      let result, _ = Rfunprover.Solver.solve_onlynu_onlyforall false timeout is_print_for_debug nu_relaxed_hes in
-      match result with
-      | Status.Invalid -> Status.Invalid, Status.Invalid
-      | status -> Status.Unknown, status
-    in
-    solvers := !solvers @ [nu_relax_solver, "nu-relaxed hes", true]
-  ) *)
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in
   let dresult = Deferred.any
-                  [mu_elim_solver coe1 coe2 solve_options solve_options.print_for_debug hes "prover";
-                   (mu_elim_solver coe1 coe2 solve_options solve_options.print_for_debug hes_for_disprove "disprover" >>| Status.flip)]
-  in
-  upon dresult (fun result -> cont result; Rfunprover.Solver.kill_z3();
-                              (*kill_child(Unix.getpid());*) shutdown 0
-                              );
+                  [mu_elim_solver coe1 coe2 1 solve_options solve_options.print_for_debug hes "prover";
+                   (mu_elim_solver coe1 coe2 1 solve_options solve_options.print_for_debug hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
+  upon dresult (
+    fun (result, info) ->
+      cont (result, info);
+      Rfunprover.Solver.kill_z3();
+      shutdown 0);
   Core.never_returns(Scheduler.go())
 
 let solve_onlynu_onlyforall_with_schedule solve_options nu_only_hes cont =
   let dresult = Deferred.any [solve_onlynu_onlyforall solve_options None nu_only_hes true] in
-  upon dresult (fun result -> cont result; Rfunprover.Solver.kill_z3(); shutdown 0);
+  upon dresult (fun result -> cont (result, None); Rfunprover.Solver.kill_z3(); shutdown 0);
   Core.never_returns(Scheduler.go())
   
 (* 「shadowingが無い」とする。 *)
@@ -359,7 +358,7 @@ let check_validity coe1 coe2 solve_options hes cont =
   if is_onlynu_onlyforall hes then
     solve_onlynu_onlyforall_with_schedule solve_options hes cont
   else if is_onlymu_onlyexists hes then
-    solve_onlynu_onlyforall_with_schedule solve_options (Hflz_mani.get_dual_hes hes) (fun status_pair -> cont @@ Status.flip status_pair)
+    solve_onlynu_onlyforall_with_schedule solve_options (Hflz_mani.get_dual_hes hes) (fun (status_pair, i) -> cont (Status.flip status_pair, i))
   else check_validity_full coe1 coe2 solve_options hes cont
 
 (* 

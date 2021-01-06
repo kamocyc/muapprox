@@ -1,7 +1,9 @@
 (executables
- (names check_formula_equality converter)
- (libraries muapprox)
- (flags (-cclib -lstdc++))
- (link_flags (-linkall)))
+ (names check_formula_equality converter simplify abbrev)
+ (libraries muapprox core)
+ (preprocess (pps ppx_jane))
+ ; (flags (-cclib -lstdc++))
+ ; (link_flags (-linkall))
+ )
 
 (env (dev (flags (:standard -warn-error -A))))

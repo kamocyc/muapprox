@@ -18,9 +18,9 @@ let get_pvar_called_counts hes =
   if a predicate P1 is called from only one predicate P2
   and depth(P1) > depth(P2)
   then P1 is eliminated by inline expansion
-  (the reason of this is trivial when you think the hes as hflz)
+  (the reason of this is trivial when you think the hes as a plain HFLz formula)
 *)
-module InlineExpansition : sig
+module InlineExpansion : sig
   val optimize: 'a Hflz.hes -> 'a Hflz.hes
 end = struct
   let optimize (hes_list : 'a Hflz.hes) =
@@ -53,6 +53,67 @@ end = struct
     |> List.map (fun (_, r) -> r)
 end
 
+let simple_partial_evaluate_hfl phi =
+  let rec go phi = match phi with
+    | Hflz.Arith a -> Hflz.Arith (Arith.simple_partial_evaluate a)
+    | Pred (p, xs) -> Pred (p, List.map Arith.simple_partial_evaluate xs)
+    | Var _ | Bool _ -> phi
+    | Or (p1, p2) -> Or (go p1, go p2)
+    | And(p1, p2) -> And(go p1, go p2)
+    | Abs(x, p) -> Abs(x, go p)
+    | Forall(x, p) -> Forall(x, go p)
+    | Exists(x, p) -> Exists(x, go p)
+    | App(p1, p2) -> App(go p1, go p2)
+  in
+  go phi
+
+let simple_partial_evaluate_hes =
+  List.map (fun rule -> { rule with Hflz.body = simple_partial_evaluate_hfl rule.Hflz.body })
+
+let evaluate_trivial_boolean phi =
+  let rec go phi = match phi with
+    | Hflz.Pred (p, xs) -> begin
+      match Formula.simplify_pred p xs with
+      | Some b -> Hflz.Bool b
+      | None -> phi
+    end
+    | And (p1, p2) -> begin
+      match go p1, go p2 with
+      | Bool true , Bool true -> Bool true
+      | Bool false, _ -> Bool false
+      | _, Bool false -> Bool false
+      | Bool true, p -> p
+      | p, Bool true -> p
+      | p1, p2 -> And (p1, p2)
+    end
+    | Or (p1, p2) -> begin
+      match go p1, go p2 with
+      | Bool false, Bool false -> Bool false
+      | Bool true , _ -> Bool true
+      | _ , Bool true -> Bool true
+      | Bool false , p -> p
+      | p , Bool false -> p
+      | p1, p2 -> Or (p1, p2)
+    end
+    | Forall (x, p) -> Forall (x, go p)
+    | Exists (x, p) -> Exists(x, go p)
+    | Abs (x, p) -> Abs( x, go p)
+    | App (p1, p2) -> App (go p1, go p2)
+    | Arith _ -> phi
+    | Bool _ -> phi
+    | Var _ -> phi in
+  go phi
+
+let evaluate_trivial_boolean =
+  List.map (fun rule -> { rule with Hflz.body = evaluate_trivial_boolean rule.Hflz.body })
+  
+let simplify (hes : Type.simple_ty Hflz.hes)=
+  let hes = InlineExpansion.optimize hes in
+  let hes = simple_partial_evaluate_hes hes in
+  let hes = evaluate_trivial_boolean hes in
+  (* let hes = Trans.Simplify.hflz_hes hes false in *)
+  hes
+  
 (* 2つ、1つで下、1つで上、1つで中、betaされる *)
 (* 1つの述語の中で2回参照される *)
 let%expect_test "InlineExpansition.optimize" =
@@ -152,7 +213,7 @@ let%expect_test "InlineExpansition.optimize" =
          (Type.TyBool ())))
       }
     body: λx_401401:int.x_401401 = 5 && (x_300300 :int -> bool) 6} |}];
-  let hes = InlineExpansition.optimize org in
+  let hes = InlineExpansion.optimize org in
   ignore [%expect.output];
   (* ignore [%expect.output]; *)
   Hflz_typecheck.type_check org;
