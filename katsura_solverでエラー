@@ -1,7 +1,0 @@
-%HES
-S x4 =ν ∀recF13838.recF13838 < 1 + 1 * 10 || recF13838 < 1 + -1 * 10 || recF13838 < 1 || F1 recF13838 10 (S_sub41 x4).
-S_sub41 x4 y23 =ν ∀recF23939.∀recF13838.recF23939 < 1 + 1 * (x4 + 1) || recF23939 < 1 + -1 * (x4 + 1) || recF23939 < 1 || recF13838 < 1 + 1 * (x4 + 1) || recF13838 < 1 + -1 * (x4 + 1) || recF13838 < 1 || F2 recF23939 recF13838 (x4 + 1) y23.
-F1 recF13838 x5 k6 =ν recF13838 > 0 && F3 recF13838 k6.
-F2 recF23939 recF13838 x7 y8 =ν recF23939 > 0 && x7 > 20 && y8 > 30 && F1 (recF13838 - 1) (x7 + y8) (F2 (recF23939 - 1) recF13838 (x7 + 1)).
-F3 recF13838 f9 =ν f9 20 && F1 (recF13838 - 1) 30 (F3_sub43 recF13838).
-F3_sub43 recF13838 y23 =ν ∀recF23939.recF23939 < 1 + 1 * 1 || recF23939 < 1 + -1 * 1 || recF23939 < 1 || F2 recF23939 recF13838 1 y23.
