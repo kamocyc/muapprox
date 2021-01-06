@@ -25,7 +25,7 @@ def append(text):
 # not used
 RETRY_COOLDOWN = 10
 
-timeout = 45
+timeout = 60
 
 nth_last_line = -1
 BENCH_SET = 6
@@ -68,7 +68,9 @@ if BENCH_SET == 5:
     nth_last_line = -3
 
 if BENCH_SET == 6:
+    # memory_watchdog.py を実行するしておくこと！
     lists_path = './list.txt'
+    # lists_path = './list_timeout.txt'
     base_dir = '/opt/home2/git/muapprox/benchmark/hes/'
     # exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
     exe_path = '/opt/home2/git/muapprox/benchmark/run_command2.sh'

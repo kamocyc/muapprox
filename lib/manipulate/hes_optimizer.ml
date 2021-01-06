@@ -182,9 +182,7 @@ let%expect_test "InlineExpansition.optimize" =
       (Type.TyArrow ({ Id.name = "x_101"; id = 101; ty = Type.TyInt },
          (Type.TyBool ())))
       }
-    body: λx_101101:int.
-     (x_200200 :(int -> bool) -> bool) (x_100100 :int -> bool)
-     || (x_200200 :(int -> bool) -> bool) (x_100100 :int -> bool)}
+    body: λx_101101:int.x_200200 x_100100 || x_200200 x_100100}
     {fix: Fixpoint.Greatest
     var: { Id.name = "x_200"; id = 200;
       ty =
@@ -197,22 +195,21 @@ let%expect_test "InlineExpansition.optimize" =
            },
          (Type.TyBool ())))
       }
-    body: λx_201201:(int -> bool).
-     (x_201201 :int -> bool) 2 && (x_400400 :int -> bool) 3}
+    body: λx_201201:(int -> bool).x_201201 2 && x_400400 3}
     {fix: Fixpoint.Greatest
     var: { Id.name = "x_300"; id = 300;
       ty =
       (Type.TyArrow ({ Id.name = "x_301"; id = 301; ty = Type.TyInt },
          (Type.TyBool ())))
       }
-    body: λx_301301:int.(x_400400 :int -> bool) x_301301}
+    body: λx_301301:int.x_400400 x_301301}
     {fix: Fixpoint.Greatest
     var: { Id.name = "x_400"; id = 400;
       ty =
       (Type.TyArrow ({ Id.name = "x_401"; id = 401; ty = Type.TyInt },
          (Type.TyBool ())))
       }
-    body: λx_401401:int.x_401401 = 5 && (x_300300 :int -> bool) 6} |}];
+    body: λx_401401:int.x_401401 = 5 && x_300300 6} |}];
   let hes = InlineExpansion.optimize org in
   ignore [%expect.output];
   (* ignore [%expect.output]; *)
@@ -230,20 +227,18 @@ let%expect_test "InlineExpansition.optimize" =
       (Type.TyArrow ({ Id.name = "x_101"; id = 101; ty = Type.TyInt },
          (Type.TyBool ())))
       }
-    body: λx_101101:int.
-     (x_100100 :int -> bool) 2 && (x_400400 :int -> bool) 3
-     || (x_100100 :int -> bool) 2 && (x_400400 :int -> bool) 3}
+    body: λx_101101:int.x_100100 2 && x_400400 3 || x_100100 2 && x_400400 3}
     {fix: Fixpoint.Greatest
     var: { Id.name = "x_300"; id = 300;
       ty =
       (Type.TyArrow ({ Id.name = "x_301"; id = 301; ty = Type.TyInt },
          (Type.TyBool ())))
       }
-    body: λx_301301:int.(x_400400 :int -> bool) x_301301}
+    body: λx_301301:int.x_400400 x_301301}
     {fix: Fixpoint.Greatest
     var: { Id.name = "x_400"; id = 400;
       ty =
       (Type.TyArrow ({ Id.name = "x_401"; id = 401; ty = Type.TyInt },
          (Type.TyBool ())))
       }
-    body: λx_401401:int.x_401401 = 5 && (x_300300 :int -> bool) 6} |}]
+    body: λx_401401:int.x_401401 = 5 && x_300300 6} |}]

@@ -10,3 +10,6 @@ converted/
 output/
 a.out
 submit/
+_result.txt
+_stderr.txt
+_stdout.txt

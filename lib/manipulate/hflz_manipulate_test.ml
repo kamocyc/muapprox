@@ -13,7 +13,7 @@ let%expect_test "desugar_formula" =
   let desugar = Hflz.desugar_formula sugar in
   ignore [%expect.output];
   print_endline @@ show_hflz desugar;
-  [%expect {| true && (false || (∃x_22.1 < x_22 && (∀x_33.true && (x_44 :bool) 5))) |}]
+  [%expect {| true && (false || (∃x_22.1 < x_22 && (∀x_33.true && x_44 5))) |}]
 
 
 let%expect_test "to_args" =
@@ -36,9 +36,9 @@ let%expect_test "to_abs" =
   ignore [%expect.output];
   print_endline @@ show_hflz_full res;
   [%expect {|
-    (Hflz.Abs ({ Id.name = "x_3"; id = 0; ty = (Type.TySigma (Type.TyBool ())) },
-       (Hflz.Abs ({ Id.name = "x_2"; id = 1; ty = Type.TyInt },
-          (Hflz.Abs ({ Id.name = "x_1"; id = 2; ty = Type.TyInt },
+    (Hflz.Abs ({ Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) },
+       (Hflz.Abs ({ Id.name = "x_2"; id = 4; ty = Type.TyInt },
+          (Hflz.Abs ({ Id.name = "x_1"; id = 5; ty = Type.TyInt },
              (Hflz.Bool true)))
           ))
        )) |}]
@@ -111,7 +111,7 @@ let%expect_test "to_app" =
           (Hflz.App ((Hflz.Bool false),
              (Hflz.Arith (Arith.Var { Id.name = "x_1"; id = 1; ty = `Int })))),
           (Hflz.Arith (Arith.Var { Id.name = "x_2"; id = 2; ty = `Int })))),
-       (Hflz.Var { Id.name = "x_3"; id = 3; ty = (Type.TyBool ()) }))) |}] 
+       (Hflz.Arith (Arith.Var { Id.name = "x_3"; id = 3; ty = `Int })))) |}] 
 
 let%expect_test "make_guessed_terms" =
   let res = make_guessed_terms 2 10 [id_n 1 `Int; id_n 2 `Int] in
@@ -176,9 +176,8 @@ let%expect_test "extract_abstraction" =
   print_endline @@ show_hflz f;
   print_endline @@ Util.fmt_string (Print_syntax.hflz_hes_rule Print_syntax.simple_ty_) rule;
   [%expect {|
-    (a_sub67 :int -> int -> bool -> bool) x_33
-    a_sub67 : int -> int -> bool -> bool =ν
-      λx_33:int.λx_11:int.λx_22:bool.(x_44 :int -> bool) (x_11 + x_22 * x_33) |}]
+    a_sub67 x_33
+    a_sub67 =ν λx_33:int.λx_11:int.λx_22:bool.x_44 (x_11 + x_22 * x_33) |}]
 
 
 let%expect_test "in_forall" =
@@ -225,8 +224,7 @@ let%expect_test "encode_body_exists_formula_sub" =
      ∃x_300300.
       λx_11:int.
        λx_22:(int -> bool).
-        (x_1010 :int -> int -> bool) (x_11 + x_33) x_300300
-        && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100 |}];
+        x_1010 (x_11 + x_33) x_300300 && x_22 x_55 && x_44 x_100100 |}];
   let (replaced, rules) =
     encode_body_exists_formula_sub
       None
@@ -251,10 +249,8 @@ let%expect_test "encode_body_exists_formula_sub" =
         || x_300300 < 10 || x_300300 < 1 * x_33 || x_300300 < 1 * x_55
            || x_300300 < -1 * x_33
            || x_300300 < -1 * x_55
-        || (Exists8 :int ->
-                      (int -> bool) ->
-                       int -> int -> (int -> bool) -> int -> int -> bool)
-            x_33 (x_44 :int -> bool) x_55 x_11 (x_22 :int -> bool) x_100100
+        || Exists8
+            x_33 x_44 x_55 x_11 x_22 x_100100
             x_300300 |}];
   print_endline @@ "fix: " ^ Fixpoint.show rule.fix;
   print_endline @@ "var: " ^ Id.show pp_simple_ty rule.var;
@@ -350,3 +346,5 @@ let%expect_test "encode_body_exists_formula_sub" =
   ignore [%expect.output];
   print_endline "OK";
   [%expect {|OK|}]
+
+

@@ -13,6 +13,7 @@ type options =
     coe : int * int;
     dry_run : bool;
     no_simplify: bool;
+    ignore_unknown: bool;
   }
 
 let get_solver solver_name = 

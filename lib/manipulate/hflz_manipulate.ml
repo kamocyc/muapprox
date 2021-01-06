@@ -167,6 +167,12 @@ let args_ids_to_apps (ids : 'ty Type.arg Id.t list) : ('ty Hflz.t -> 'ty Hflz.t)
     | [] -> body in
   go @@ List.rev ids
 
+let args_hfl_to_apps (phis : 'ty Hflz.t list) : ('ty Hflz.t -> 'ty Hflz.t) = fun body ->
+  let rec go phis = match phis with
+    | x::xs -> App (go xs, x)
+    | [] -> body in
+  go @@ List.rev phis
+  
 let extract_abstraction phi not_apply_vars new_rule_name_base =
   let xs, phi' = decompose_abs phi in
   (* print_endline "extract_abstraction";
@@ -764,7 +770,7 @@ let encode_body_forall_formula_sub new_pred_name_cand hes_preds hfl =
         None
       end
     ), hfl in
-  let arg_vars = free_vars @ formula_type_vars @ bound_vars  in
+  let arg_vars' = free_vars @ formula_type_vars in
   let new_pvar =
     let i = Id.gen_id() in
     let name =
@@ -774,55 +780,38 @@ let encode_body_forall_formula_sub new_pred_name_cand hes_preds hfl =
     let ty =
       (* TODO: higher-order vars *)
       to_tree
-        arg_vars
+        (arg_vars' @ bound_vars)
         (fun x rem -> TyArrow (x, rem))
         (TyBool ())  in
     { Id.name = name; ty = ty; id = i } in
   let body =
-    to_tree
-      (bound_vars)
-      (fun x rem -> Forall (x, rem)) @@
-      rev_abs (
-        (formula_type_vars |> List.rev |> to_abs') @@
-          (args_ids_to_apps arg_vars @@ (Var new_pvar))
-          ) in
-    body,
-    [{ 
-      Hflz.var = new_pvar;
-      fix = Fixpoint.Greatest;
-      body =
-        (arg_vars |> to_abs') @@
-        And (
-          ((* substitute rec vars to negative *)
-          (* NOTE: exponential grow-up *)
-          let rec go acc vars = match vars with
-            | [] -> acc
-            | x::xs ->
-              go (acc |>
-                  List.map (fun hfl -> 
-                    hfl::[
-                      subst_arith_var
-                        (fun vid -> if Id.eq vid x then (Arith.Op (Sub, [Int 0; Var {x with ty=`Int}])) else Var vid) hfl]) |>
-                  List.flatten)
-                  xs in
-          let terms1 =
-            (go [hfl] bound_vars)
-            |> List.map (fun f -> args_ids_to_apps formula_type_vars f) in
-          let terms2 = 
-            bound_vars |>
-            List.map (fun var ->
-              arg_vars
-              |> List.map (fun v -> if Id.eq v var then Arith (Op (Sub, [Var {v with ty=`Int}; Int 1])) else arg_id_to_var v)
-              |> List.fold_left
-                (fun acc t -> App (acc, t))
-                (Var new_pvar)
-              ) in
-          (terms1 @ terms2) |> formula_fold (fun acc f -> Or (acc, f))),
-          bound_vars
-          |> List.map (fun var -> Pred (Ge, [Var {var with ty=`Int}; Int 0]))
-          |> formula_fold (fun acc f -> And (acc, f))
-        )
-    }]
+    rev_abs (
+      (formula_type_vars |> List.rev |> to_abs') @@
+        ((args_hfl_to_apps ((List.map arg_id_to_var arg_vars') @ List.map (fun _ -> Arith (Int 0)) bound_vars)) @@ (Var new_pvar))
+        ) in
+  body,
+  [{ 
+    Hflz.var = new_pvar;
+    fix = Fixpoint.Greatest;
+    body =
+      ((arg_vars' @ bound_vars) |> to_abs') @@
+      And (
+        args_ids_to_apps formula_type_vars hfl,
+        let inc_var var bound_vars is_minus =
+          List.map (fun v -> if Id.eq v var then (Arith (Op ((if is_minus then Sub else Add), [Var {v with ty=`Int}; Int 1]))) else Arith (Var {v with ty=`Int})) bound_vars in
+        bound_vars |>
+        List.map (fun var ->
+          let rec_pred is_minus =
+            (List.map arg_id_to_var arg_vars') @ (inc_var var bound_vars is_minus) |>
+            List.fold_left
+              (fun acc t -> App (acc, t))
+              (Var new_pvar) in
+          And (rec_pred false, rec_pred true)
+        ) |>
+        formula_fold (fun acc t -> And (acc, t))
+      )
+  }]
+
 
 let encode_body_forall_formula new_pred_name_cand hes_preds hfl =
   let new_rules = ref [] in
@@ -831,8 +820,7 @@ let encode_body_forall_formula new_pred_name_cand hes_preds hfl =
     | Or (f1, f2)  -> Or  (go hes_preds f1, go hes_preds f2)
     | And (f1, f2) -> And (go hes_preds f1, go hes_preds f2)
     | Abs (v, f1)  -> Abs (v, go hes_preds f1)
-    | Forall (v, f1) -> Forall (v, go hes_preds f1)
-    | Exists (v, f1) -> begin
+    | Forall (v, f1) -> begin
       if v.ty <> Type.TyInt then (
         (* boundされている変数の型が整数以外 *)
         match IdSet.find (fvs f1) ~f:(fun i -> Id.eq i v) with
@@ -848,6 +836,7 @@ let encode_body_forall_formula new_pred_name_cand hes_preds hfl =
         hfl
       )
     end
+    | Exists (v, f1) -> Exists (v, go hes_preds f1)
     | App (f1, f2) -> App (go hes_preds f1, go hes_preds f2)
     | Arith t -> Arith t
     | Pred (p, t) -> Pred (p, t) in
@@ -855,15 +844,127 @@ let encode_body_forall_formula new_pred_name_cand hes_preds hfl =
   hfl, !new_rules
 
 (* hesからforallを除去 *)
-let encode_body_forall (hes : Type.simple_ty Hflz.hes) =
+let encode_body_forall_except_top (hes : Type.simple_ty Hflz.hes) =
   let env = List.map (fun {var; _} -> { var with ty=Type.TySigma var.ty }) hes in
   let hes =
     hes |>
     List.mapi
       (fun i {var; fix; body} -> 
-        let new_pred_name_cand = if i = 0 then None else Some var.name in
-        let body, new_rules = encode_body_forall_formula new_pred_name_cand env body in
-        {var; fix; body}::new_rules
+        if i <> 0 then
+          let new_pred_name_cand = if i = 0 then None else Some var.name in
+          let body, new_rules = encode_body_forall_formula new_pred_name_cand env body in
+          {var; fix; body}::new_rules
+        else
+          [{var; fix; body}]
       )
     |> List.flatten in
   hes
+
+
+
+let%expect_test "encode_body_forall_formula_sub" =
+  let open Type in
+  let p = id_n 10 (TySigma (TyArrow (id_n 12 TyInt, (TyArrow (id_n 11 TyInt, TyBool ()))))) in
+  (* 高階変数の扱い *)
+  (* その時点で使える自由変数ということは、直前のラムダ抽象も含まれる？ => いや、そこは使わない。あくまで式の中の型を取得するだけなので、別。free var のみを使用 *)
+  (* ∃x_100.∃x_300.λx_1:int.λx_2:(int -> bool).(x_10 :int -> int -> bool) (x_1 + x_3) x_300 && (x_2:int -> bool) x_5 && (x_4:int -> bool) x_100 *)
+  (* other predicates = x10 : int -> bool *)
+  (* arguments in the term's type = x1 : int, x2 : int -> bool *)
+  (* free variables = x3 : int, x4 : int -> bool, x5 : int *)
+  let org_formula =
+    Forall (id_n 100 TyInt, Forall (id_n 300 TyInt, Abs (id_n 1 TyInt, Abs (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))),
+      And (
+        App (App (Var { p with ty = unsafe_unlift p.ty }, 
+          Arith (Op (Add, [Var (id_n 1 `Int); Var (id_n 3 `Int)]))), Arith (Var (id_n 300 `Int))),
+        And (App (Var (id_n 2 (TyArrow (id_n 31 TyInt, TyBool ()))), Arith (Var (id_n 5 `Int))),
+          App (Var (id_n 4 (TyArrow (id_n 32 TyInt, TyBool ()))), Arith (Var (id_n 100 `Int)))))
+      )))) in
+  print_endline @@ "original: " ^ show_hflz org_formula;
+  [%expect {|
+    original: ∀x_100100.
+     ∀x_300300.
+      λx_11:int.
+       λx_22:(int -> bool).
+        x_1010 (x_11 + x_33) x_300300 && x_22 x_55 && x_44 x_100100 |}];
+  let (replaced, rules) =
+    encode_body_forall_formula_sub
+      None
+      [p]
+      org_formula
+    in
+  ignore [%expect.output];
+  print_endline @@ string_of_int @@ List.length rules;
+  let rule = List.nth rules 0 in
+  print_endline @@ "replaced: " ^ show_hflz replaced;
+  [%expect {|
+    1
+    replaced: λx_11:int.λx_22:(int -> bool).Forall0 x_33 x_44 x_55 x_11 x_22 0 0  |}];
+  print_endline @@ "fix: " ^ Fixpoint.show rule.fix;
+  print_endline @@ "var: " ^ Id.show pp_simple_ty rule.var;
+  print_endline @@ "rule: " ^ show_hflz rule.body;
+  [%expect {|
+    fix: Fixpoint.Greatest
+    var: { Id.name = "Forall0"; id = 0;
+      ty =
+      (Type.TyArrow ({ Id.name = "x_3"; id = 3; ty = Type.TyInt },
+         (Type.TyArrow (
+            { Id.name = "x_4"; id = 4;
+              ty =
+              (Type.TySigma
+                 (Type.TyArrow ({ Id.name = "x_32"; id = 32; ty = Type.TyInt },
+                    (Type.TyBool ()))))
+              },
+            (Type.TyArrow ({ Id.name = "x_5"; id = 5; ty = Type.TyInt },
+               (Type.TyArrow ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
+                  (Type.TyArrow (
+                     { Id.name = "x_2"; id = 2;
+                       ty =
+                       (Type.TySigma
+                          (Type.TyArrow (
+                             { Id.name = "x_31"; id = 31; ty = Type.TyInt },
+                             (Type.TyBool ()))))
+                       },
+                     (Type.TyArrow (
+                        { Id.name = "x_100"; id = 100; ty = Type.TyInt },
+                        (Type.TyArrow (
+                           { Id.name = "x_300"; id = 300; ty = Type.TyInt },
+                           (Type.TyBool ())))
+                        ))
+                     ))
+                  ))
+               ))
+            ))
+         ))
+      }
+    rule: λx_33:int.
+     λx_44:(int -> bool).
+      λx_55:int.
+       λx_11:int.
+        λx_22:(int -> bool).
+         λx_100100:int.
+          λx_300300:int.
+           (λx_11:int.
+             λx_22:(int -> bool).
+              x_1010 (x_11 + x_33) x_300300 && x_22 x_55 && x_44 x_100100)
+            x_11 x_22
+           && Forall0 x_33 x_44 x_55 x_11 x_22 (x_100100 + 1) x_300300
+              && Forall0 x_33 x_44 x_55 x_11 x_22 (x_100100 - 1) x_300300
+              && Forall0 x_33 x_44 x_55 x_11 x_22 x_100100 (x_300300 + 1)
+                 && Forall0 x_33 x_44 x_55 x_11 x_22 x_100100 (x_300300 - 1)|}];
+  (* check well-typedness *)
+  let hes = [
+    {
+      var = id_n 200 (TyArrow (id_n 3 TyInt, TyArrow (id_n 4 @@ TySigma (TyArrow (id_n 32 TyInt, TyBool ())),
+        TyArrow (id_n 5 TyInt, TyArrow (id_n 1 TyInt, (TyArrow (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))), TyBool ())))))));
+      fix = Fixpoint.Greatest;
+      body = Abs (id_n 3 TyInt, Abs (id_n 4 (TySigma (TyArrow (id_n 32 TyInt, TyBool ()))), Abs (id_n 5 TyInt, replaced))) };
+    {
+      var = { p with ty = unsafe_unlift p.ty};
+      body = Abs (id_n 12 TyInt, Abs (id_n 11 TyInt, Bool true));
+      fix = Fixpoint.Greatest };
+    rule ] in
+  let hes = decompose_lambdas_hes hes in
+  type_check hes;
+  ignore [%expect.output];
+  print_endline "OK";
+  [%expect {|OK|}]

@@ -66,6 +66,7 @@ let get_solve_options () =
     coe = get_coe !Options.coe;
     dry_run = !Options.dry_run;
     no_simplify = !Options.no_simplify;
+    ignore_unknown = !Options.ignore_unknown;
   }
   
 let main file cont =

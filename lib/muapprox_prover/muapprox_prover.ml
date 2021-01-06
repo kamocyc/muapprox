@@ -120,6 +120,9 @@ module KatsuraSolver : BackendSolver = struct
         | Not_found -> failwith @@ "not matched"
         | Invalid_argument s -> failwith @@ "Invalid_argument: " ^ s
       end
+    | Error (`Exit_non_zero 143) ->
+      print_endline @@ "terminated " ^ (show_debug_context debug_context);
+      Status.Unknown
     | _ -> 
       (print_endline "error status"; Status.Unknown)
     
@@ -142,10 +145,11 @@ module IwayamaSolver : BackendSolver = struct
   
   let save_hes_to_file hes debug_context =
     (* let hes = Hflmc2_syntax.Trans.Simplify.hflz_hes hes true in *)
-    let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
+    (* let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
     print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
-    print_endline path';
+    print_endline path'; *)
     
+    let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
     let path2 = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes in
     print_string @@ "HES for backend (no forall) " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path2;
@@ -171,7 +175,11 @@ module IwayamaSolver : BackendSolver = struct
         | Not_found -> failwith @@ "not matched"
         | Invalid_argument s -> failwith @@ "Invalid_argument: " ^ s
       end
-    | _ -> Status.Unknown
+    | Error (`Exit_non_zero 143) ->
+      print_endline @@ "terminated " ^ (show_debug_context debug_context);
+      Status.Unknown
+    | _ -> 
+      (print_endline "error status"; Status.Unknown)
   
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
@@ -301,7 +309,12 @@ let rec mu_elim_solver coe1 coe2 iter_count solve_options debug_output hes mode_
         | Status.Valid -> return (Status.Valid, debug_context)
         | Status.Invalid ->
           let (coe1',coe2') = if (coe1,coe2)=(1,1) then (1,8) else (2*coe1, 2*coe2) in
-          mu_elim_solver coe1' coe2' (iter_count + 1) solve_options false hes mode_name                  
+          mu_elim_solver coe1' coe2' (iter_count + 1) solve_options false hes mode_name
+        | Status.Unknown -> 
+          if solve_options.ignore_unknown then (
+            let (coe1',coe2') = if (coe1,coe2)=(1,1) then (1,8) else (2*coe1, 2*coe2) in
+            mu_elim_solver coe1' coe2' (iter_count + 1) solve_options false hes mode_name
+          ) else return (Status.Unknown, debug_context)
         | _ -> return (Status.Unknown, debug_context))
   ) else (print_endline "DRY RUN"; Unix.system "echo" >>| (fun _ -> Status.Unknown, None))
   (* solve_onlynu_onlyforall solve_options nu_only_hes (fun (result, result') -> 
