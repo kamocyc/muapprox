@@ -2,7 +2,7 @@ import os
 import time
 
 PROCESS_NAME = 'main.exe'
-THRESHOLD = 40.0
+THRESHOLD = 25.0
 
 def get_memory_usage(process_name):
     command = "top -b -n 1 -o \"%MEM\" | grep " + process_name + " | head -n 1 | awk '{print $1, $10}' > _result.txt"

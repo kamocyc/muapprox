@@ -78,7 +78,7 @@ if BENCH_SET == 6:
     #add_args = ['--hes']
     #add_args = ['--hes', '--solver', 'iwayama']
     # add_args = ['--hes', '--first-order-solver']
-    kill_process_names = ["hflmc2", "main.exe", "z3", "hoice"]
+    kill_process_names = ["hflmc2", "main.exe", "z3", "hoice", "eld"]
     nth_last_line = -3
 
 def get_lines(text):

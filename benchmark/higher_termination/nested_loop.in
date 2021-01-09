@@ -1,0 +1,6 @@
+%HES
+
+Sentry =v ∀n. Loop2 n (\r. true).
+Loop2 n2 k =u (n2 > 0 => Loop1 n2 (\r1. Loop2 (n2 - 1) (\r2. k (r1 + r2)))) /\ (n2 <= 0 => k 0).
+Loop1 n1 k =u (n1 > 0 => Loop1 (n1 - 1) k) /\ (n1 <= 0 => k 0).
+
