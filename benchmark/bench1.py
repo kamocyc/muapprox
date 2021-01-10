@@ -25,7 +25,7 @@ def append(text):
 # not used
 RETRY_COOLDOWN = 10
 
-timeout = 60
+timeout = 180
 
 nth_last_line = -1
 BENCH_SET = 6
@@ -214,10 +214,15 @@ def gen_cmd(exe_path, file):
     cmd_template.append(file)
     return cmd_template
 
+def log_file(file):
+    with open('current.txt', 'w') as f:
+        f.write(file)
+    
 results = []
 def handle(exe_path, file, parser, callback, retry=0):
     print("file: " + file)
     append({'file': file})
+    log_file(file)
     
     cmd = gen_cmd(exe_path, file)
     try:
