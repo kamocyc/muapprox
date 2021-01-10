@@ -26,7 +26,7 @@ let get_status_from_z3_output result =
   
 let read_command_outputs () =
   let unlines lines = String.concat "\n" lines in
-  (read_strings "_stdout.txt" |> unlines, read_strings "_stderr.txt" |> unlines)
+  (read_strings "_stdout.tmp" |> unlines, read_strings "_stderr.tmp" |> unlines)
 
 open Async
 open Solve_options
@@ -46,6 +46,21 @@ let show_debug_context debug =
   | None -> ""
   | Some debug -> "(mode=" ^ debug.mode ^ ", iter_count=" ^ string_of_int debug.iter_count ^ ", coe1=" ^ (string_of_int debug.coe1) ^ ", coe2=" ^ (string_of_int debug.coe2) ^ ")"
 
+
+let save_string_to_file path buf =
+  let oc = Stdlib.open_out path in
+  Stdlib.output_string oc buf;
+  Stdlib.close_out oc
+      
+let output_debug (dbg : debug_context option) =
+  let tos = string_of_int in
+  match dbg with
+  | Some dbg -> begin
+    save_string_to_file (dbg.mode ^ ".tmp") (tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2)
+  end
+  | None -> ()
+  
+
 module type BackendSolver = sig
   (* val save_hes_to_file : Manipulate.Type.simple_ty Hflz.hes -> string
   
@@ -58,7 +73,7 @@ end
 
 (* TODO: 引用符で囲むなどの変換する？ *)
 let unix_system commands =
-  let commands = Array.concat [commands; [|">"; "_stdout.txt"; "2>"; "_stderr.txt"|]] in
+  let commands = Array.concat [commands; [|">"; "_stdout.tmp"; "2>"; "_stderr.tmp"|]] in
   Unix.system ((String.concat " " (Array.to_list commands)))
 
 module FptProverRecLimitSolver : BackendSolver = struct
@@ -79,6 +94,7 @@ module FptProverRecLimitSolver : BackendSolver = struct
     let hes' = Hflz_convert.of_hes hes in
     let path_ = Manipulate.Print_syntax.FptProverHes.save_hes_to_file hes' in
     print_endline @@ "HES PATH 2: " ^ path_;
+    output_debug debug_context;
     (* Global.config := Config.update_hoice true Global.config; *)
     (* 1, 2番目の引数は使われていない *)
     if with_par then
@@ -98,6 +114,7 @@ module KatsuraSolver : BackendSolver = struct
     let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
     print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path';
+    output_debug debug_context;
     
     Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes
     
@@ -148,6 +165,8 @@ module IwayamaSolver : BackendSolver = struct
     (* let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
     print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path'; *)
+    
+    output_debug debug_context;
     
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
     let path2 = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes in

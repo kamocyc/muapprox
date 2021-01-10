@@ -1,6 +1,5 @@
 _build
 **/.merlin
-**/*.json
 **/*.horsat_out
 **/*.hors
 **/*.annot
@@ -10,6 +9,5 @@ converted/
 output/
 a.out
 submit/
-_result.txt
-_stderr.txt
-_stdout.txt
+**/*.tmp
+benchmark/ml/**/*.json

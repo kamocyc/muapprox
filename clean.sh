@@ -4,3 +4,5 @@ rm -f pname
 rm -f benchmark/output/{z3,hoice}*_*{in,out}.{txt,smt2}
 rm -f benchmark/output/pname
 rm -f benchmark/output/{muapprox,sas}_*.txt
+rm -f ./*.tmp
+rm -f ./benchmark/*.tmp

@@ -1,0 +1,6 @@
+{
+  "ocaml.sandbox": {
+    "kind": "opam",
+    "switch": "latest_dune_4_08_1"
+  }
+}
