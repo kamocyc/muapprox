@@ -26,7 +26,7 @@ let get_status_from_z3_output result =
   
 let read_command_outputs () =
   let unlines lines = String.concat "\n" lines in
-  (read_strings "_stdout.txt" |> unlines, read_strings "_stderr.txt" |> unlines)
+  (read_strings "_stdout.tmp" |> unlines, read_strings "_stderr.tmp" |> unlines)
 
 open Async
 open Solve_options
@@ -56,7 +56,7 @@ let output_debug (dbg : debug_context option) =
   let tos = string_of_int in
   match dbg with
   | Some dbg -> begin
-    save_string_to_file dbg.mode (tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2)
+    save_string_to_file (dbg.mode ^ ".tmp") (tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2)
   end
   | None -> ()
   
@@ -73,7 +73,7 @@ end
 
 (* TODO: 引用符で囲むなどの変換する？ *)
 let unix_system commands =
-  let commands = Array.concat [commands; [|">"; "_stdout.txt"; "2>"; "_stderr.txt"|]] in
+  let commands = Array.concat [commands; [|">"; "_stdout.tmp"; "2>"; "_stderr.tmp"|]] in
   Unix.system ((String.concat " " (Array.to_list commands)))
 
 module FptProverRecLimitSolver : BackendSolver = struct

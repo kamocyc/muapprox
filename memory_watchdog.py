@@ -5,9 +5,9 @@ PROCESS_NAME = 'main.exe'
 THRESHOLD = 25.0
 
 def get_memory_usage(process_name):
-    command = "top -b -n 1 -o \"%MEM\" | grep " + process_name + " | head -n 1 | awk '{print $1, $10}' > _result.txt"
+    command = "top -b -n 1 -o \"%MEM\" | grep " + process_name + " | head -n 1 | awk '{print $1, $10}' > _result.tmp"
     os.system(command)
-    with open('_result.txt', 'r') as f:
+    with open('_result.tmp', 'r') as f:
         text = f.read()
     
     data = text.split(' ')

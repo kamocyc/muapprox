@@ -22,7 +22,7 @@ cd git
 git clone git@github.com:kamocyc/hflmc2.git hflmc2_mora
 cd hflmc2_mora
 
-opam install dune.1.11.4 cmdliner.1.0.4 core.v0.13.0 menhir.20190924 ppx_deriving_cmdliner.0.4.1 fmt logs lwt ppx_compare ppx_deriving.4.5 ppx_deriving_cmdliner ppx_let ppx_sexp_conv merlin
+opam install dune.1.11.4 cmdliner.1.0.4 core.v0.13.0 menhir.20190924 ppx_deriving_cmdliner.0.4.1 fmt logs lwt ppx_compare ppx_deriving.4.5 ppx_deriving_cmdliner ppx_let ppx_sexp_conv
 dune build -y
 
 cd ..
@@ -62,4 +62,7 @@ sudo ln -s ~/eldarica/eld /bin/eld
 # Java (for Eldarica)
 sudo apt install -y default-jre
 
-
+# OCamlPlatform
+# OCamlLSP needs latest opam packages. So, we need a seperate switch.
+opam switch create latest_dune_4_08_1 ocaml-base-compiler.4.08.1
+opam install ocaml-lsp-server -y
