@@ -38,7 +38,8 @@ type debug_context = {
   coe1: int;
   coe2: int;
   iter_count: int;
-  mode: string
+  mode: string;
+  pid: int;
 }
 
 let show_debug_context debug =
@@ -52,11 +53,11 @@ let save_string_to_file path buf =
   Stdlib.output_string oc buf;
   Stdlib.close_out oc
       
-let output_debug (dbg : debug_context option) =
+let output_debug (dbg : debug_context option) path =
   let tos = string_of_int in
   match dbg with
   | Some dbg -> begin
-    save_string_to_file (dbg.mode ^ ".tmp") (tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2)
+    save_string_to_file (dbg.mode ^ ".tmp") (dbg.mode ^ "," ^ tos dbg.pid ^ "," ^ tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2 ^ "," ^ path)
   end
   | None -> ()
   
@@ -94,7 +95,7 @@ module FptProverRecLimitSolver : BackendSolver = struct
     let hes' = Hflz_convert.of_hes hes in
     let path_ = Manipulate.Print_syntax.FptProverHes.save_hes_to_file hes' in
     print_endline @@ "HES PATH 2: " ^ path_;
-    output_debug debug_context;
+    output_debug debug_context path_;
     (* Global.config := Config.update_hoice true Global.config; *)
     (* 1, 2番目の引数は使われていない *)
     if with_par then
@@ -114,7 +115,7 @@ module KatsuraSolver : BackendSolver = struct
     let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
     print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path';
-    output_debug debug_context;
+    output_debug debug_context path';
     
     Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes
     
@@ -166,12 +167,11 @@ module IwayamaSolver : BackendSolver = struct
     print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path'; *)
     
-    output_debug debug_context;
-    
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
     let path2 = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes in
     print_string @@ "HES for backend (no forall) " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path2;
+    output_debug debug_context path2;
     path2
     
   let solver_command hes_path no_backend_inlining =
@@ -313,13 +313,14 @@ let elim_mu_exists coe1 coe2 debug_output hes name =
   hes
 
 (* これ以降、本プログラム側での近似が入る *)
-let rec mu_elim_solver coe1 coe2 iter_count solve_options debug_output hes mode_name = 
+let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.options) debug_output hes mode_name = 
   let nu_only_hes = elim_mu_exists coe1 coe2 debug_output hes mode_name in
   let debug_context = Some {
     mode = mode_name;
     iter_count = iter_count;
     coe1 = coe1;
     coe2 = coe2;
+    pid = solve_options.pid;
   } in
   if not solve_options.dry_run then (
     (solve_onlynu_onlyforall solve_options debug_context nu_only_hes false)
@@ -331,6 +332,7 @@ let rec mu_elim_solver coe1 coe2 iter_count solve_options debug_output hes mode_
           mu_elim_solver coe1' coe2' (iter_count + 1) solve_options false hes mode_name
         | Status.Unknown -> 
           if solve_options.ignore_unknown then (
+            print_endline @@ "return Unknown (" ^ show_debug_context debug_context ^ ")";
             let (coe1',coe2') = if (coe1,coe2)=(1,1) then (1,8) else (2*coe1, 2*coe2) in
             mu_elim_solver coe1' coe2' (iter_count + 1) solve_options false hes mode_name
           ) else return (Status.Unknown, debug_context)

@@ -14,6 +14,7 @@ type options =
     dry_run : bool;
     no_simplify: bool;
     ignore_unknown: bool;
+    pid: int;
   }
 
 let get_solver solver_name = 

@@ -1,9 +1,12 @@
 from pprint import pprint
+import json
 import os
 import subprocess
-import signal   
+# import signal   
 import time
 import re
+# import sys
+import argparse
 
 if os.path.isdir('benchmark'):
     os.chdir('benchmark')
@@ -25,23 +28,41 @@ def append(text):
 # not used
 RETRY_COOLDOWN = 10
 
-timeout = 180
-
+bench_set_candidate = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama']
 nth_last_line = -1
-BENCH_SET = 6
+# if len(sys.argv) != 2:
+#     raise(ValueError("specify bench_set name (one of " + str(bench_set_candidate) + ")"))
+# elif not sys.argv[1] in bench_set_candidate: 
+#     raise(ValueError("illegal bench_set name (one of " + str(bench_set_candidate) + ")"))
 
-kill_process_names = []
+
+parser = argparse.ArgumentParser(description='benchmarker.')
+parser.add_argument('bench_set', metavar='bench_set', type=str, 
+                    choices=bench_set_candidate,
+                    help='bench set name')
+parser.add_argument('--timeout', dest='timeout', action='store', type=int, default=60,
+                    help='timeout')
+
+args = parser.parse_args()
+bench_set_name = args.bench_set
+timeout = args.timeout
+
+kill_process_names = ["hflmc2", "main.exe", "z3", "hoice", "eld", "java"]
 use_file_for_output = True
+lists_path = './list.txt'
+base_dir = '/opt/home2/git/muapprox/benchmark/hes/'
+add_args = []
 
-if BENCH_SET == 1:
+if bench_set_name == 'sas19':
     # rec-limit (koba-test)
-    lists_path = './list.txt'
-    base_dir = '/opt/home2/git/fptprove_muarith/benchmarks/hes/'
-    exe_path = '/opt/home2/git/muapprox/benchmark/run_command.sh'
-    add_args = []
+    exe_path = '/opt/home2/git/muapprox/benchmark/run_sas19.sh'
     nth_last_line = [-1]    # 出力の最後から1行目と2行目のいずれかを結果と解釈
-    kill_process_names = ["z3", "main.exe"]
-    use_file_for_output = True
+    BENCH_SET = 1
+else:
+    # memory_watchdog.py を実行するしておくこと！
+    exe_path = '/opt/home2/git/muapprox/benchmark/run_' + bench_set_name + '.sh'
+    nth_last_line = -3
+    BENCH_SET = 6
 
 # if BENCH_SET == 2:
 #     # under development
@@ -50,36 +71,20 @@ if BENCH_SET == 1:
 #     exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
 #     add_args = []
 #     nth_last_line = -3
-
-# higher
-if BENCH_SET == 4:
-    # mora
-    lists_path = './list2.txt'
-    base_dir = '/opt/home2/git/hflmc2_mora/benchmark/inputs/higher_nonterminating/'
-    exe_path = '/opt/home2/git/hflmc2_mora/_build/default/bin/main.exe'
-    add_args = []
-    nth_last_line = -3
-    
-if BENCH_SET == 5:
-    lists_path = './list2.txt'
-    base_dir = '/opt/home2/git/muapprox/benchmark/inputs/higher_nonterminating/'
-    exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
-    add_args = []
-    nth_last_line = -3
-
-if BENCH_SET == 6:
-    # memory_watchdog.py を実行するしておくこと！
-    lists_path = './list.txt'
-    # lists_path = './list_timeout.txt'
-    base_dir = '/opt/home2/git/muapprox/benchmark/hes/'
-    # exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
-    exe_path = '/opt/home2/git/muapprox/benchmark/run_command2.sh'
-    add_args = []
-    #add_args = ['--hes']
-    #add_args = ['--hes', '--solver', 'iwayama']
-    # add_args = ['--hes', '--first-order-solver']
-    kill_process_names = ["hflmc2", "main.exe", "z3", "hoice", "eld"]
-    nth_last_line = -3
+# # higher
+# if BENCH_SET == 4:
+#     # mora
+#     lists_path = './list2.txt'
+#     base_dir = '/opt/home2/git/hflmc2_mora/benchmark/inputs/higher_nonterminating/'
+#     exe_path = '/opt/home2/git/hflmc2_mora/_build/default/bin/main.exe'
+#     add_args = []
+#     nth_last_line = -3
+# if BENCH_SET == 5:
+#     lists_path = './list2.txt'
+#     base_dir = '/opt/home2/git/muapprox/benchmark/inputs/higher_nonterminating/'
+#     exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
+#     add_args = []
+#     nth_last_line = -3
 
 def get_lines(text):
     return text.strip(' \n\r').split("\n")
@@ -94,7 +99,7 @@ def get_last_line(text, nth = nth_last_line):
             
             m = re.search(r'\n(\(mode=.+\))\n', text)
             if m == None:
-                return ('other', '')
+                return (status, '')
             info = m.group(1)
             return (status, info)
         else:
@@ -109,7 +114,6 @@ def get_last_line(text, nth = nth_last_line):
                 return ('fail', '')
             else:
                 return ('other', '')
-            # "[[MAIN]] Verification Result:\n  invalid\nProfiling:\n  total: 5.166029 sec\n(mode=disprover, iter_count=1, coe1=1, coe2=1)"
     except IndexError:
         return ('other', 'info')
     
@@ -122,6 +126,8 @@ def readfile(path):
         return f.read()
     
 def run(cmd):
+    time.sleep(3.0)
+    
     st = time.perf_counter()
     try:
         r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=preexec_fn,encoding='utf8', timeout=timeout)
@@ -133,6 +139,9 @@ def run(cmd):
         else:
             stdout = r.stdout
             stderr = r.stderr
+        
+        for name in kill_process_names:
+            os.system('pkill ' + name)
             
         return stdout, elapsed, stderr
     except subprocess.TimeoutExpired as e:
@@ -148,7 +157,6 @@ def run(cmd):
             if stderr is None:
                 stderr = ""
         
-        # これが無いと、プロセスが残る
         os.system('pkill ' + os.path.basename(exe_path))
         for name in kill_process_names:
             os.system('pkill ' + name)
@@ -162,10 +170,26 @@ def search_status_from_last(lines, max_lines = 10):
             return lines[i]
     
     return 'other'
+
+def get_data():
+    def get_(mode):
+        with open(mode + '.tmp', 'r') as f:
+            [_, pid, iter_count, coe1, coe2, path] = f.read().split(',')
+            return {
+                "pid": int(pid),
+                "iter_count": int(iter_count),
+                "coe1": int(coe1),
+                "coe2": int(coe2),
+                "path": path,
+            }
+            
+    data = {}
+    data['prover'] = get_('prover')
+    data['disprover'] = get_('disprover')
+    
+    return data
         
 def parse_stdout(full_stdout, stderr):
-    # ?
-    # append({'full': full_stdout})
     result_data = dict()
     
     if stderr is None:
@@ -193,9 +217,9 @@ def parse_stdout(full_stdout, stderr):
         result_data['result'], result_data['info'] = get_last_line(full_stdout)
         if result_data['result'] == 'other':
             result_data['stdout'] = full_stdout
-        
-    # append(result_data['result'])
-    # append(stdout)
+    
+    if BENCH_SET == 6:
+        result_data['data'] = get_data()
     return result_data
     
 def callback(file, result):
@@ -235,15 +259,9 @@ def handle(exe_path, file, parser, callback, retry=0):
         result['stdout'] = e.args[0]['stdout']
         result['stderr'] = e.args[0]['stderr']
         result['time'] = e.args[0]['timeout']
-    
+        
     append({'result': result})
     
-    # if 'result' not in result:
-    #     result['result'] = 'fail'
-    # if result['result'] == 'fail' and retry > 0:
-    #     time.sleep(RETRY_COOLDOWN)
-    #     handle(file, parser, callback, retry - 1)
-    # else:
     result['file'] = file
     callback(file, result)
     results.append(result)
@@ -252,10 +270,27 @@ def get(r, key):
     if key in r:
         return r[key]
     return ''
+
+def copy_without(dic, excludes):
+    dic_ = {}
+    for k, i in dic.items():
+        if not k in excludes:
+            dic_[k] = i
+    
+    return dic_
+
+def to_table(data):
+    lines = []
+    for i, row in enumerate(data):
+        lines.append(row['result'] + '\t' + str(row['time']) + '\n')
+    
+    return lines
     
 def main():
     print("START")
     pprint({
+        "bench_set_name": bench_set_name,
+        "timeout": timeout,
         "lists_path": lists_path,
         "base_dir": base_dir,
         "exe_path": exe_path,
@@ -270,13 +305,15 @@ def main():
     
     for file in files:
         handle(exe_path, os.path.join(base_dir, file), parse_stdout, callback=callback)
+        
+        with open('bench_out_full.txt', 'w') as f:    
+            f.write(json.dumps(results, indent=2))
+        
+        with open('bench_out_summary.txt', 'w') as f:
+            f.write(json.dumps([copy_without(r, ['stdout']) for r in results], indent=2))
 
-    with open('bench_out_summary.txt', 'w') as f:            
-        f.write(str([{'file': r['file'], 'info': get(r, 'info'), 'result': r['result'], 'time': r['time']} for r in results]))
-    
-    with open('bench_out_full.txt', 'w') as f:    
-        f.write(str(results))
-    
+        with open(OUTPUT_FILE_NAME + '_table.txt', 'w') as f:
+            f.writelines(to_table(results))
     print("FINISHED")
     
 main()

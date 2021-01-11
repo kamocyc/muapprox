@@ -67,6 +67,7 @@ let get_solve_options () =
     dry_run = !Options.dry_run;
     no_simplify = !Options.no_simplify;
     ignore_unknown = !Options.ignore_unknown;
+    pid = Unix.getpid();
   }
   
 let main file cont =
