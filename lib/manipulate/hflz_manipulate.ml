@@ -199,7 +199,7 @@ let extract_abstraction phi not_apply_vars new_rule_name_base =
   let new_sub_formula = args_ids_to_apps free_vars @@ Var new_rule_id in
   (new_sub_formula, new_rule)
 
-(* (∀x1. ∀x2. \y1. \y2. \phi)  ->  (\y1. \y2. ∀x1. ∀x2. \phi) *)
+(* (∀x1. ∀x2. \y1. \y2. phi)  ->  (\y1. \y2. ∀x1. ∀x2. phi) *)
 let in_forall v =
   let rec forall_vars phi acc = match phi with
     | Forall (x, phi') -> forall_vars phi' (x::acc)
@@ -307,9 +307,9 @@ let get_top_rule hes =
       let fvs = Hflz.fvs_with_type body in
       match List.find_opt (fun fv -> Id.eq fv var) fvs with
       | None -> x, xs
-      | Some _ -> failwith "not implemented"
+      | Some _ -> failwith "(get_top_rule 1) not implemented"
     end
-    | _ -> failwith "not implemented"
+    | _ -> failwith "(get_top_rule 2) not implemented"
   end
 
 let get_dual_hes (hes : Type.simple_ty hes) = 
@@ -388,15 +388,15 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
   let body =
     let guessed_terms = make_guessed_terms_simple coe1 coe2 (free_vars |> filter_int_variable) in
     let approx_formulas = bound_vars |> List.rev |> List.map (fun bound_var -> make_approx_formula ({bound_var with ty=`Int}) guessed_terms) in
-    to_tree
-      (bound_vars)
-      (fun x rem -> Forall (x, rem)) @@
-      rev_abs (
-        (formula_type_vars |> List.rev |> to_abs') @@
-        Or (
-          formula_fold (fun acc f -> Or(acc, f)) approx_formulas,
-          args_ids_to_apps arg_vars @@ (Var new_pvar)
-          )) in
+    rev_abs (
+      (formula_type_vars |> List.rev |> to_abs') @@
+        to_tree
+        (bound_vars)
+        (fun x rem -> Forall (x, rem)) @@
+          Or (
+            formula_fold (fun acc f -> Or(acc, f)) approx_formulas,
+            args_ids_to_apps arg_vars @@ (Var new_pvar)
+            )) in
     body,
     [{ 
       Hflz.var = new_pvar;
@@ -657,16 +657,18 @@ let replace_occurences coe1 coe2 (outer_mu_funcs : (unit Type.ty Id.t * unit Typ
           |> List.map (fun (t1, t2) -> Pred (Lt, [t1; t2]))
           |> formula_fold (fun acc t -> Or (acc, t)) in
         let formula_type_vars = pvar.ty |> to_args |> List.rev in
-        to_forall
-          new_tvars
           (to_abs'
             formula_type_vars
-            (Or (
-              havocs,
-              to_app
-                new_fml
-                (make_args (Env.create (Core.List.zip_exn new_pvars new_tvars)) scoped_rec_tvars @ (List.map argty_to_ty formula_type_vars))
-            )))
+            (to_forall
+              new_tvars
+                (Or (
+                havocs,
+                to_app
+                  new_fml
+                  (make_args (Env.create (Core.List.zip_exn new_pvars new_tvars)) scoped_rec_tvars @ (List.map argty_to_ty formula_type_vars))
+              ))
+            )
+          )
       end
     end
     | App (f1,f2) ->  App (go (f2::apps) f1, go [] f2)
