@@ -31,38 +31,37 @@ def append(text):
 # not used
 RETRY_COOLDOWN = 10
 
-bench_set_candidate = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama']
+backend_solver_candidate = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama']
 nth_last_line = -1
-# if len(sys.argv) != 2:
-#     raise(ValueError("specify bench_set name (one of " + str(bench_set_candidate) + ")"))
-# elif not sys.argv[1] in bench_set_candidate: 
-#     raise(ValueError("illegal bench_set name (one of " + str(bench_set_candidate) + ")"))
-
 
 parser = argparse.ArgumentParser(description='benchmarker.')
-parser.add_argument('bench_set', metavar='bench_set', type=str, 
-                    choices=bench_set_candidate,
-                    help='bench set name')
+parser.add_argument('backend_solver', metavar='backend_solver', type=str, 
+                    choices=backend_solver_candidate,
+                    help='backend solver name')
 parser.add_argument('--timeout', dest='timeout', action='store', type=int, default=60,
                     help='timeout')
+parser.add_argument('--benchmark', dest='benchmark', action='store', type=str, default='first_order',
+                    choices=['first_order', 'higher_nontermination', 'higher_termination'],
+                    help='benchmark set')
 
 args = parser.parse_args()
-bench_set_name = args.bench_set
+backend_solver_name = args.backend_solver
 timeout = float(args.timeout)
+benchmark = args.benchmark
 
 kill_process_names = ["hflmc2", "main.exe", "z3", "hoice", "eld", "java"]
-lists_path = './list2.txt'
-base_dir = '/opt/home2/git/muapprox/benchmark/hes/'
+lists_path = '../list_' + benchmark + '.txt'
+base_dir = '/opt/home2/git/muapprox/benchmark/' + benchmark
 add_args = []
 
-if bench_set_name == 'sas19':
+if backend_solver_name == 'sas19':
     # rec-limit (koba-test)
     exe_path = '/opt/home2/git/muapprox/benchmark/run_sas19.sh'
     nth_last_line = [-1]    # 出力の最後から1行目と2行目のいずれかを結果と解釈
     BENCH_SET = 1
 else:
     # memory_watchdog.py を実行するしておくこと！
-    exe_path = '/opt/home2/git/muapprox/benchmark/run_' + bench_set_name + '.sh'
+    exe_path = '/opt/home2/git/muapprox/benchmark/run_' + backend_solver_name + '.sh'
     nth_last_line = -3
     BENCH_SET = 6
 
@@ -158,14 +157,19 @@ def search_status_from_last(lines, max_lines = 10):
 
 def get_data():
     def get_(mode):
-        with open(mode + '.tmp', 'r') as f:
-            [_, pid, iter_count, coe1, coe2, path] = f.read().split(',')
+        try:
+            with open(mode + '.tmp', 'r') as f:
+                [_, pid, iter_count, coe1, coe2, path] = f.read().split(',')
+                return {
+                    "pid": int(pid),
+                    "iter_count": int(iter_count),
+                    "coe1": int(coe1),
+                    "coe2": int(coe2),
+                    "path": path,
+                }
+        except:
             return {
-                "pid": int(pid),
-                "iter_count": int(iter_count),
-                "coe1": int(coe1),
-                "coe2": int(coe2),
-                "path": path,
+                "no_tmp_file": True
             }
             
     data = {}
@@ -261,7 +265,7 @@ def to_table(data):
 def main():
     print("START")
     pprint({
-        "bench_set_name": bench_set_name,
+        "backend_solver_name": backend_solver_name,
         "timeout": timeout,
         "lists_path": lists_path,
         "base_dir": base_dir,

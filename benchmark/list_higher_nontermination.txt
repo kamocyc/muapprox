@@ -1,0 +1,10 @@
+alternate.in
+fib_CPS_nonterm.in
+inf_closure.in
+indirectHO_e.in
+foldr_nonterm.in
+fixpoint_nonterm.in
+indirect_e.in
+loopHO.in
+passing_cond.in
+unfoldr_nonterm.in
