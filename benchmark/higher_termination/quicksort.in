@@ -1,0 +1,5 @@
+%HES
+Sentry =v ∀n. Qs n (\r. true).
+Qs n k =u (n <= 0 => k 0) /\ (n > 0 => ∀m. Par m 0 0 (n - 1) k).
+Par x l r xs k =u (xs <= 0 => Qs l (\r'. Qs r (\r''. k (r' + 1 + r'')))) /\
+  (xs > 0 => ∀m. ((m >= x => Par x (1 + l) r (xs - 1) k) /\ (not (m >= x) => Par x l (1 + r) (xs - 1) k))).

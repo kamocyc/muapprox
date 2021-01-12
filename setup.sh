@@ -13,6 +13,7 @@ opam init -y
 opam switch create 4.08.1
 
 # GitHubにSSH鍵を登録
+# FPTProverの権限
 
 sudo mkdir /opt/home2
 cd /opt/home2
@@ -23,7 +24,7 @@ git clone git@github.com:kamocyc/hflmc2.git hflmc2_mora
 cd hflmc2_mora
 
 opam install dune.1.11.4 cmdliner.1.0.4 core.v0.13.0 menhir.20190924 ppx_deriving_cmdliner.0.4.1 fmt logs lwt ppx_compare ppx_deriving.4.5 ppx_deriving_cmdliner ppx_let ppx_sexp_conv
-dune build -y
+dune build
 
 cd ..
 git clone git@github.com:kamocyc/muapprox.git
@@ -66,6 +67,42 @@ sudo apt install -y default-jre
 # OCamlLSP needs latest opam packages. So, we need a seperate switch.
 opam switch create latest_dune_4_08_1 ocaml-base-compiler.4.08.1
 opam install ocaml-lsp-server -y
+opam switch 4.08.1
+
+
+# fptprover
+cd /opt/home2/git
+# ! パスワード入力が必要
+git clone -b develop --depth 1 git@bitbucket.org:ketanahashi/fptprove.git
+cd fptprove
+opam switch latest_dune_4_08_1
+sudo apt install -y libblas-dev liblapack-dev pkg-config libffi-dev
+opam install libsvm lp lp-glpk lp-gurobi minisat ocamlgraph ppx_deriving_yojson -y
+eval $(opam env)
+opam install async core num z3 zarith -y
+dune build
+opam switch 4.08.1
+echo "export fptprove=/opt/home2/git/fptprove" >>  ~/.profile
+. ~/.profile
+
+# docker
+sudo apt-get remove docker docker-engine docker.io containerd runc
+sudo apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    # software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+sudo service docker start
+
 
 # SAS19 (koba-test)
 cd /opt/home2/git

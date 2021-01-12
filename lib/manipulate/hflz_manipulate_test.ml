@@ -239,19 +239,17 @@ let%expect_test "encode_body_exists_formula_sub" =
   print_endline @@ "replaced: " ^ show_hflz replaced;
   [%expect {|
     1
-    replaced: ∀x_100100.
-     ∀x_300300.
-      λx_11:int.
-       λx_22:(int -> bool).
-        x_100100 < 10 || x_100100 < 1 * x_33 || x_100100 < 1 * x_55
-        || x_100100 < -1 * x_33
-        || x_100100 < -1 * x_55
-        || x_300300 < 10 || x_300300 < 1 * x_33 || x_300300 < 1 * x_55
-           || x_300300 < -1 * x_33
-           || x_300300 < -1 * x_55
-        || Exists8
-            x_33 x_44 x_55 x_11 x_22 x_100100
-            x_300300 |}];
+    replaced: λx_11:int.
+     λx_22:(int -> bool).
+      ∀x_100100.
+       ∀x_300300.
+        x_300300 < 10 || x_300300 < 1 * x_33 || x_300300 < 1 * x_55
+        || x_300300 < -1 * x_33
+        || x_300300 < -1 * x_55
+        || x_100100 < 10 || x_100100 < 1 * x_33 || x_100100 < 1 * x_55
+           || x_100100 < -1 * x_33
+           || x_100100 < -1 * x_55
+        || Exists8 x_33 x_44 x_55 x_11 x_22 x_100100 x_300300 |}];
   print_endline @@ "fix: " ^ Fixpoint.show rule.fix;
   print_endline @@ "var: " ^ Id.show pp_simple_ty rule.var;
   print_endline @@ "rule: " ^ show_hflz rule.body;
@@ -296,39 +294,26 @@ let%expect_test "encode_body_exists_formula_sub" =
         λx_22:(int -> bool).
          λx_100100:int.
           λx_300300:int.
-           x_100100 >= 0 && x_300300 >= 0
-           && ((λx_11:int.
+           ((λx_11:int.
+              λx_22:(int -> bool).
+               x_1010 (x_11 + x_33) x_300300 && x_22 x_55 && x_44 x_100100)
+             x_11 x_22
+            || (λx_11:int.
                  λx_22:(int -> bool).
-                  (x_1010 :int -> int -> bool) (x_11 + x_33) x_300300
-                  && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100)
-                x_11 (x_22 :int -> bool)
-               || (λx_11:int.
-                    λx_22:(int -> bool).
-                     (x_1010 :int -> int -> bool) (x_11 + x_33) (-x_300300)
-                     && (x_22 :int -> bool) x_55 && (x_44 :int -> bool) x_100100)
-                   x_11 (x_22 :int -> bool)
-               || (λx_11:int.
-                    λx_22:(int -> bool).
-                     (x_1010 :int -> int -> bool) (x_11 + x_33) x_300300
-                     && (x_22 :int -> bool) x_55
-                        && (x_44 :int -> bool) (-x_100100))
-                   x_11 (x_22 :int -> bool)
-               || (λx_11:int.
-                    λx_22:(int -> bool).
-                     (x_1010 :int -> int -> bool) (x_11 + x_33) (-x_300300)
-                     && (x_22 :int -> bool) x_55
-                        && (x_44 :int -> bool) (-x_100100))
-                   x_11 (x_22 :int -> bool)
-               || (Exists8 :int ->
-                             (int -> bool) ->
-                              int -> int -> (int -> bool) -> int -> int -> bool)
-                   x_33 (x_44 :int -> bool) x_55 x_11 (x_22 :int -> bool)
-                   (x_100100 - 1) x_300300
-               || (Exists8 :int ->
-                             (int -> bool) ->
-                              int -> int -> (int -> bool) -> int -> int -> bool)
-                   x_33 (x_44 :int -> bool) x_55 x_11 (x_22 :int -> bool)
-                   x_100100 (x_300300 - 1)) |}];
+                  x_1010 (x_11 + x_33) (-x_300300) && x_22 x_55 && x_44 x_100100)
+                x_11 x_22
+            || (λx_11:int.
+                 λx_22:(int -> bool).
+                  x_1010 (x_11 + x_33) x_300300 && x_22 x_55 && x_44 (-x_100100))
+                x_11 x_22
+            || (λx_11:int.
+                 λx_22:(int -> bool).
+                  x_1010 (x_11 + x_33) (-x_300300)
+                  && x_22 x_55 && x_44 (-x_100100))
+                x_11 x_22
+            || Exists8 x_33 x_44 x_55 x_11 x_22 (x_100100 - 1) x_300300
+            || Exists8 x_33 x_44 x_55 x_11 x_22 x_100100 (x_300300 - 1))
+           && x_100100 >= 0 && x_300300 >= 0 |}];
   (* check well-typedness *)
   let hes = [
     {
