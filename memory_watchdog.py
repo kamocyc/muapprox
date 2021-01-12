@@ -11,8 +11,11 @@ THRESHOLD = 1.5 / get_physical_memory_size_in_gib() * 100
 def get_memory_usage(process_name):
     command = "top -b -n 1 -o \"%MEM\" -w | grep " + process_name + " | head -n 1 | awk '{print $1, $10}' > _result.tmp"
     os.system(command)
-    with open('_result.tmp', 'r') as f:
-        text = f.read()
+    try:
+        with open('_result.tmp', 'r') as f:
+            text = f.read()
+    except:
+        return get_memory_usage(process_name)
     
     data = text.split(' ')
     if len(data) < 2:

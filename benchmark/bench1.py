@@ -8,14 +8,17 @@ import re
 # import sys
 import argparse
 
-if os.path.isdir('benchmark'):
-    os.chdir('benchmark')
-os.chdir("output")
+if os.path.basename(os.getcwd()) == 'benchmark':
+    os.chdir('..')
+
+os.system('./clean.sh')
+
+os.chdir("benchmark/output")
 
 OUTPUT_FILE_NAME = "bench_out_append.txt"
 
-class MyTimeout(Exception):
-    pass
+# class MyTimeout(Exception):
+#     pass
 
 with open(OUTPUT_FILE_NAME, 'w') as f:
     pass
@@ -45,11 +48,10 @@ parser.add_argument('--timeout', dest='timeout', action='store', type=int, defau
 
 args = parser.parse_args()
 bench_set_name = args.bench_set
-timeout = args.timeout
+timeout = float(args.timeout)
 
 kill_process_names = ["hflmc2", "main.exe", "z3", "hoice", "eld", "java"]
-use_file_for_output = True
-lists_path = './list.txt'
+lists_path = './list2.txt'
 base_dir = '/opt/home2/git/muapprox/benchmark/hes/'
 add_args = []
 
@@ -129,39 +131,22 @@ def run(cmd):
     time.sleep(3.0)
     
     st = time.perf_counter()
+    elapsed = timeout
+    timed_out = False
     try:
-        r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=preexec_fn,encoding='utf8', timeout=timeout)
+        _ = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=preexec_fn,encoding='utf8', timeout=timeout)
         ed = time.perf_counter()
         elapsed = ed - st
-        if use_file_for_output:
-            stdout = readfile("/tmp/stdout_1.txt")
-            stderr = readfile("/tmp/stderr_1.txt")
-        else:
-            stdout = r.stdout
-            stderr = r.stderr
+    except subprocess.TimeoutExpired:
+        timed_out = True
+
+    stdout = readfile("/tmp/stdout_1.txt")
+    stderr = readfile("/tmp/stderr_1.txt")
+    
+    for name in kill_process_names:
+        os.system('pkill ' + name)
         
-        for name in kill_process_names:
-            os.system('pkill ' + name)
-            
-        return stdout, elapsed, stderr
-    except subprocess.TimeoutExpired as e:
-        if use_file_for_output:
-            stdout = readfile("/tmp/stdout_1.txt")
-            stderr = readfile("/tmp/stderr_1.txt")
-        else:
-            stdout = e.stdout
-            if stdout is None:
-                stdout = ""
-            
-            stderr = e.stderr
-            if stderr is None:
-                stderr = ""
-        
-        os.system('pkill ' + os.path.basename(exe_path))
-        for name in kill_process_names:
-            os.system('pkill ' + name)
-        
-        raise MyTimeout({'stdout': stdout, 'timeout': timeout, 'stderr': stderr})
+    return stdout, elapsed, stderr, timed_out
 
 def search_status_from_last(lines, max_lines = 10):
     for i_ in range(1, max_lines + 1):
@@ -188,44 +173,26 @@ def get_data():
     data['disprover'] = get_('disprover')
     
     return data
-        
+
+# stderr, stdout, result, info
 def parse_stdout(full_stdout, stderr):
-    result_data = dict()
+    result_data = {}
     
     if stderr is None:
         stderr = ''
-    
     result_data['stderr'] = stderr
-    
-    result_data['info'] = ''
     
     if isinstance(nth_last_line, list):
         # fptproverのとき
-        lines = get_lines(full_stdout)
-        stdout = search_status_from_last(lines)
-        
-        append({'stdout': stdout})
-        
-        if stdout != 'other':
-            result_data['result'] = stdout
-        else:
-            if stderr is None:
-                stderr = ''
-            result_data['result'] = 'other'
-            result_data['stdout'] = full_stdout
+        result_data['result'], result_data['info'] = search_status_from_last(get_lines(full_stdout)), ''
     else:
         result_data['result'], result_data['info'] = get_last_line(full_stdout)
-        if result_data['result'] == 'other':
-            result_data['stdout'] = full_stdout
     
-    if BENCH_SET == 6:
-        result_data['data'] = get_data()
+    if result_data['result'] == 'other':
+        result_data['stdout'] = full_stdout
+        
     return result_data
     
-def callback(file, result):
-    # append(file)
-    pass
-
 def gen_cmd(exe_path, file):
     cmd_template = [exe_path]  # <option> <filename>
     
@@ -240,30 +207,35 @@ def gen_cmd(exe_path, file):
 
 def log_file(file):
     with open('current.txt', 'w') as f:
-        f.write(file)
+        f.write(    file)
     
 results = []
-def handle(exe_path, file, parser, callback, retry=0):
+def handle(exe_path, file):
     print("file: " + file)
     append({'file': file})
     log_file(file)
     
     cmd = gen_cmd(exe_path, file)
-    try:
-        stdout, t, stderr = run(cmd)
-        result = parser(stdout, stderr)
-        result['time'] = t
-    except MyTimeout as e:
-        result = {}
-        result['result'] = 'timeout'
-        result['stdout'] = e.args[0]['stdout']
-        result['stderr'] = e.args[0]['stderr']
-        result['time'] = e.args[0]['timeout']
+    stdout, t, stderr, timed_out = run(cmd)
+    if not timed_out:
+        result = parse_stdout(stdout, stderr)
+    else:
+        if 1 == 0:  # trick for the type-checker
+            stdout = 1
+        result = {
+            "result": "timeout",
+            "info": '',
+            "stdout": stdout,
+            "stderr": stderr,
+        }
+        
+    result['time'] = t
+    if BENCH_SET == 6:
+        result['data'] = get_data()
         
     append({'result': result})
     
     result['file'] = file
-    callback(file, result)
     results.append(result)
 
 def get(r, key):
@@ -297,14 +269,13 @@ def main():
         "add_args": add_args,
         "nth_last_line": nth_last_line,
         "kill_process_names": kill_process_names,
-        "use_file_for_output": use_file_for_output
     })
     
     with open(lists_path) as f:
         files = f.read().strip('\n').split('\n')
     
     for file in files:
-        handle(exe_path, os.path.join(base_dir, file), parse_stdout, callback=callback)
+        handle(exe_path, os.path.join(base_dir, file))
         
         with open('bench_out_full.txt', 'w') as f:    
             f.write(json.dumps(results, indent=2))
