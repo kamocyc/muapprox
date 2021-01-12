@@ -1,18 +1,14 @@
 %HES
-Main =v
-  Rand_int (\r. Fix To_zero r (\_. false)).
+Main =v ∃r. Fix To_zero r (\_. false).
 
-Rand_int k =v
-  k (-3) \/
-  k 0 \/
-  k 1.
 Fix f n k =v
   f n (\n2.
-        (n2 != n \/ k n) /\
-        (n2 =  n \/ Fix f n2 k)).
+        (n2 = n  => k n) /\
+        (n2 != n => Fix f n2 k)).
 To_zero n k =v
-  (n != 0 \/ k 0) /\
-  (n =  0 \/ k (n - 1)).
+  (n =  0 => k 0) /\
+  (n != 0 => k (n - 1)).
+  
 
 /*
   Fix : f34:(t31:int ->

@@ -1,13 +1,5 @@
 %HES
-Main =v Rand_int (\r.
-    Unfoldr_sum Pred1 Pred2 Pred3 r (\_. false)).
-Rand_int k =v
-  k (-3) \/
-  k 0 \/
-  k 1 \/
-  k 3 \/
-  k 10
-  .
+Main =v ∃r. Unfoldr_sum Pred1 Pred2 Pred3 r (\_. false).
 Unfoldr_sum f1 f2 f3 seed k =v
   f1 seed (\isEnd.
   f2 seed (\elem.

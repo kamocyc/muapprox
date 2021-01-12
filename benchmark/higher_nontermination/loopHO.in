@@ -1,0 +1,8 @@
+%HES
+Main =v ∃r. Loop App r.
+Loop h n =v
+  (n > 0  => ∃d. h (n + d) (Loop h)) /\
+  (n <= 0 => false).
+App n k =v k n.
+
+

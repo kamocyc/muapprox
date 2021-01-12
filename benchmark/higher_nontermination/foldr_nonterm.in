@@ -1,0 +1,8 @@
+%HES
+Main =v ∃xs. (xs > 0 => Foldr Sum_may_nonterm 0 xs (\_. false)) /\ (xs <= 0 => false).
+Foldr f acc xs k =v
+  (xs =  0 => k acc) /\
+  (xs != 0 => ∃elem. Foldr f acc (xs - 1) (\v. f elem v k)).
+Loop u =v Loop u.
+Sum_may_nonterm x y k =v ∃isTerminate. (isTerminate > 0 => k (x+y)) /\ (isTerminate <= 0 => Loop true).
+

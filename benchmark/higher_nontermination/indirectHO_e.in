@@ -1,0 +1,7 @@
+%HES
+Main =v ∃r. G r false (\f. f false).
+App h v k =v h false k.
+Id u =v u.
+G x u k =v
+  (x =  0 => k Id) /\
+  (x != 0 => App (G (x-1)) false k).
