@@ -1,0 +1,5 @@
+%HES
+Sentry =v Main (\r. true).
+Main k =u ∀l. (l >= 0 => ∀m. Foldr Sum m l k) /\ k 0.
+Sum m n k =u k (m + n).
+Foldr h e l k =u (l = 0 => k e) /\ (l != 0 => ∀m. Foldr h e (l-1) (\r. h m r k)).

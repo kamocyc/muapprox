@@ -1,0 +1,6 @@
+%HES
+Main =v Succ Zero Id true.
+Succ m s z =u m s (s z).
+Id x =u x.
+Two f z b =u f (f z) b.
+Zero f z =u z.

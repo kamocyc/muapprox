@@ -1,0 +1,6 @@
+%HES
+Sentry =v F (App (F (App Id) (App Omega))) (App Id) false (\r. true).
+App h x k =u h x k.
+F x y z k =u y z k.
+Omega x k =u Omega x k.
+Id x k =u k x.
