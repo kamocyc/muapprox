@@ -53,7 +53,7 @@ let parse file is_hes =
     psi
   )
 
-let get_solve_options () =
+let get_solve_options file =
   let open Muapprox_prover.Solve_options in
   {
     no_backend_inlining = !Options.no_backend_inlining;
@@ -68,10 +68,11 @@ let get_solve_options () =
     no_simplify = !Options.no_simplify;
     ignore_unknown = !Options.ignore_unknown;
     pid = Unix.getpid();
+    file = file;
   }
   
 let main file cont =
-  let solve_options = get_solve_options () in
+  let solve_options = get_solve_options file in
   let psi = parse file !Options.hes in
   (* coefficients's default values are 1, 1 (defined in solve_options.ml) *)
   let coe1, coe2 = solve_options.coe in

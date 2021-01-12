@@ -40,6 +40,7 @@ type debug_context = {
   iter_count: int;
   mode: string;
   pid: int;
+  file: string;
 }
 
 let show_debug_context debug =
@@ -112,7 +113,13 @@ module KatsuraSolver : BackendSolver = struct
   let save_hes_to_file hes debug_context =
     (* debug *)
     (* let hes = Hflmc2_syntax.Trans.Simplify.hflz_hes hes true in *)
-    let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
+    let path' = 
+      match debug_context with 
+      | Some debug_context ->
+        let file = Filename.basename debug_context.file ^ "__" ^ debug_context.mode ^ "__" ^ string_of_int debug_context.iter_count ^ ".in" in
+        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:true true hes 
+      | None ->
+        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
     print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path';
     output_debug debug_context path';
@@ -321,6 +328,7 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
     coe1 = coe1;
     coe2 = coe2;
     pid = solve_options.pid;
+    file = solve_options.file;
   } in
   if not solve_options.dry_run then (
     (solve_onlynu_onlyforall solve_options debug_context nu_only_hes false)
