@@ -15,6 +15,7 @@ type options =
     no_simplify: bool;
     ignore_unknown: bool;
     pid: int;
+    file: string;
   }
 
 let get_solver solver_name = 
