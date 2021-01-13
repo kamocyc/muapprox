@@ -152,11 +152,11 @@ module Typing = struct
         pp_hum_tyvar tv1
         pp_hum_tyvar tv2
       end; *)
-      Print.pr "UNIFY %a (%a) -- %a (%a)@."
+      (* Print.pr "UNIFY %a (%a) -- %a (%a)@."
         pp_hum_tyvar tv1
         pp_info (get_info tv1)
         pp_hum_tyvar tv2
-        pp_info (get_info tv2);
+        pp_info (get_info tv2); *)
       (* Print.pr "UNIFY %a -- %a@."
         pp_hum_tyvar tv1
         pp_hum_tyvar tv2; *)

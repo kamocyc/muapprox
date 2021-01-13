@@ -155,26 +155,48 @@ def search_status_from_last(lines, max_lines = 10):
     
     return 'other'
 
-def get_data():
-    def get_(mode):
+def get_data(file):
+    def get_1(mode):
         try:
             with open(mode + '.tmp', 'r') as f:
-                [_, pid, iter_count, coe1, coe2, path] = f.read().split(',')
-                return {
-                    "pid": int(pid),
-                    "iter_count": int(iter_count),
-                    "coe1": int(coe1),
-                    "coe2": int(coe2),
-                    "path": path,
-                }
+                [_, pid, iter_count, coe1, coe2, path, file_] = f.read().split(',')
+                if os.path.basename(file) == os.path.basename(file_):
+                    return {
+                        "pid": int(pid),
+                        "iter_count": int(iter_count),
+                        "coe1": int(coe1),
+                        "coe2": int(coe2),
+                        "path": path,
+                    }
+                else:
+                    return {}
         except:
-            return {
-                "no_tmp_file": True
-            }
+            print("get_1")
+            return {}
             
+    def get_2(mode):
+        try:
+            fn = 'post_' + mode + ".tmp"
+            with open(fn, 'rb') as f:
+                json_str = subprocess.Popen(["jq", "-cs", "."], stdout=subprocess.PIPE, stdin=subprocess.PIPE).communicate(f.read())[0]
+                data = json.loads(json_str.decode('utf-8'))
+                if os.path.basename(file) != os.path.basename(data[0]["file"]):
+                    data = {}
+            
+            os.remove(fn)
+            
+            return data
+        except:
+            print("get_2")
+            return []
+    
     data = {}
-    data['prover'] = get_('prover')
-    data['disprover'] = get_('disprover')
+    data['prover'] = get_1('prover')
+    data['disprover'] = get_1('disprover')
+    
+    data['prover_post'] = get_2('prover')
+    data['disprover_post'] = get_2('disprover')
+    
     
     return data
 
@@ -235,7 +257,7 @@ def handle(exe_path, file):
         
     result['time'] = t
     if BENCH_SET == 6:
-        result['data'] = get_data()
+        result['data'] = get_data(file)
         
     append({'result': result})
     
@@ -284,8 +306,8 @@ def main():
         with open('bench_out_full.txt', 'w') as f:    
             f.write(json.dumps(results, indent=2))
         
-        with open('bench_out_summary.txt', 'w') as f:
-            f.write(json.dumps([copy_without(r, ['stdout']) for r in results], indent=2))
+        # with open('bench_out_summary.txt', 'w') as f:
+        #     f.write(json.dumps([copy_without(r, ['stdout', 'prover_post', 'disprover_post']) for r in results], indent=2))
 
         with open(OUTPUT_FILE_NAME + '_table.txt', 'w') as f:
             f.writelines(to_table(results))

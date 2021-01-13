@@ -5,7 +5,7 @@ open Hflmc2_util
 (* Options                                                                    *)
 (******************************************************************************)
 
-let hes = ref (Obj.magic())
+let format = ref (Obj.magic())
 let no_inlining = ref (Obj.magic())
 let oneshot = ref (Obj.magic())
 let no_approx_mu = ref (Obj.magic())
@@ -26,10 +26,12 @@ let ignore_unknown = ref (Obj.magic())
 let set_ref ref x = ref := x
 
 type params =
-  { input : string list [@pos 0] [@docv "FILE"]
+  {
+  input : string list [@pos 0] [@docv "FILE"]
+  (** input file path **)
   
-  ; hes : bool [@default false]
-  (** Read hes file format **)
+  ; format : string [@default "auto"]
+  (** input file format ("auto" / "hes" / "in". Default is "auto") **)
 
   (* Preprocess *)
   ; no_inlining : bool [@default false]
@@ -39,6 +41,7 @@ type params =
   (** Disable inlining in a backend solver*)
   
   ; oneshot : bool [@default false]
+  (** Not used **)
   
   ; no_approx_mu : bool [@default false]
   (** Do not perform approximation of mu and exists. This may cause wrong verification result **)
@@ -47,6 +50,7 @@ type params =
   (** Timeout for a backend solver **)
   
   ; print_for_debug : bool [@default true]
+  (** print for debug **)
   
   ; no_separate_original_formula_in_exists : bool [@default true]
   (** If specified, when approximating exists do not create new predicate that reduces the formula size **)
@@ -58,11 +62,15 @@ type params =
   (** If true, use solver for solving first-order formulas. If empty (or default), always use solvers for higher-order formulas. **)
   
   ; coe : string [@default ""]
+  (** Initial coefficients. Speficfy such as "1,8" (default is "1,1") **)
   
   ; dry_run : bool [@default false]
+  (** Do not solve **)
   
   ; no_simplify : bool [@default false]
+  
   ; ignore_unknown : bool [@default false]
+  
   }
   [@@deriving cmdliner,show]
 
@@ -70,7 +78,7 @@ let set_up_params params =
   set_ref no_inlining              params.no_inlining;
   set_ref no_approx_mu             params.no_approx_mu;
   set_ref oneshot                  params.oneshot;
-  set_ref hes                      params.hes;
+  set_ref format                   params.format;
   set_ref timeout                  params.timeout;
   set_ref print_for_debug          params.print_for_debug;
   set_ref no_separate_original_formula_in_exists params.no_separate_original_formula_in_exists;

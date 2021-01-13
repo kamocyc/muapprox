@@ -70,10 +70,37 @@ let get_solve_options file =
     pid = Unix.getpid();
     file = file;
   }
-  
+
+let check_format file format_type =
+  (* TODO: not use boolean to add more formats *)
+  match format_type with 
+  | "hes" -> true
+  | "in"  -> false
+  | "auto" -> begin
+    (* TODO: improve *)
+    let in_channel = open_in file in
+    let is_hes = ref true in
+    (try
+      while true do
+        let line = input_line in_channel in
+        if Stdlib.String.trim line = "%HES" then (
+          is_hes := false;
+          raise End_of_file
+        ) else if Stdlib.String.trim line = "s.t." || Stdlib.String.trim line = "where" then (
+          is_hes := true;
+          raise End_of_file
+        )
+      done
+    with End_of_file ->
+      close_in in_channel);
+    !is_hes
+  end
+  | _ -> failwith "format should be \"hes\", \"in\" or \"auto\""
+
 let main file cont =
   let solve_options = get_solve_options file in
-  let psi = parse file !Options.hes in
+  let is_hes = check_format file !Options.format in
+  let psi = parse file is_hes in
   (* coefficients's default values are 1, 1 (defined in solve_options.ml) *)
   let coe1, coe2 = solve_options.coe in
   let inlining = not @@ !Options.no_inlining in
