@@ -13,9 +13,9 @@ let read_strings file =
   let rec loop() =
     try
       let s = input_line fp in (s::loop())
-    with _ -> []
+    with _ -> close_in fp; []
   in loop()
-  
+(*   
 let get_status_from_z3_output result =
   match result with
   | [] -> failwith "no result"
@@ -23,7 +23,7 @@ let get_status_from_z3_output result =
   | "unsat" :: _ -> Status.Invalid
   | "timeout" :: _ -> raise Status.Timeout
   | _ -> Status.Unknown
-  
+   *)
 let read_command_outputs () =
   let unlines lines = String.concat "\n" lines in
   (read_strings "_stdout.tmp" |> unlines, read_strings "_stderr.tmp" |> unlines)
@@ -58,25 +58,24 @@ let output_debug (dbg : debug_context option) path =
   let tos = string_of_int in
   match dbg with
   | Some dbg -> begin
-    save_string_to_file (dbg.mode ^ ".tmp") (dbg.mode ^ "," ^ tos dbg.pid ^ "," ^ tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2 ^ "," ^ path)
+    save_string_to_file (dbg.mode ^ ".tmp") (dbg.mode ^ "," ^ tos dbg.pid ^ "," ^ tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2 ^ "," ^ path ^ "," ^ dbg.file)
   end
   | None -> ()
   
 
 module type BackendSolver = sig
-  (* val save_hes_to_file : Manipulate.Type.simple_ty Hflz.hes -> string
-  
-  val solver_command : string -> bool -> string array
-
-  val parse_results : (unit, 'a) result * string * 'b -> Status.t *)
-  
   val run : options -> debug_context option -> Hflmc2_syntax.Type.simple_ty Hflz.hes_rule list -> bool -> Status.t Deferred.t
 end
 
 (* TODO: 引用符で囲むなどの変換する？ *)
 let unix_system commands =
   let commands = Array.concat [commands; [|">"; "_stdout.tmp"; "2>"; "_stderr.tmp"|]] in
+  let start_time = Stdlib.Sys.time () in
   Unix.system ((String.concat " " (Array.to_list commands)))
+    >>| (fun code ->
+      let elapsed = Stdlib.Sys.time () -. start_time in
+      code, elapsed
+    )
 
 module FptProverRecLimitSolver : BackendSolver = struct
   let convert_status (s : Fptprover.Status.t) : Status.t =
@@ -107,12 +106,8 @@ module FptProverRecLimitSolver : BackendSolver = struct
         >>| (fun status -> convert_status status)
 end
 
-module KatsuraSolver : BackendSolver = struct
-  let solver_path = "/opt/home2/git/hflmc2_mora/_build/default/bin/main.exe"
-  
-  let save_hes_to_file hes debug_context =
-    (* debug *)
-    (* let hes = Hflmc2_syntax.Trans.Simplify.hflz_hes hes true in *)
+module SolverCommon = struct
+  let output_pre_debug_info hes debug_context =
     let path' = 
       match debug_context with 
       | Some debug_context ->
@@ -122,102 +117,148 @@ module KatsuraSolver : BackendSolver = struct
         Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
     print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path';
-    output_debug debug_context path';
+    output_debug debug_context path'
+  
+  type temp_result_type =
+    | TValid
+    | TInvalid
+    | TUnknown
+    | TTerminated
+    | TError
+  
+  let to_string_result = function
+    | TValid -> "valid"
+    | TInvalid -> "invalid"
+    | TUnknown -> "unknown"
+    | TTerminated -> "terminated"
+    | TError -> "error"
     
+  let output_post_debug_info tmp_res elapsed stdout stderr debug_context =
+    let open Yojson in
+    let data = 
+      `Assoc (List.concat [[
+        ("result", `String (to_string_result tmp_res));
+        ("time", `Float elapsed);
+        ("stdout", `String stdout);
+        ("stderr", `String stderr);];
+        match debug_context with
+        | None -> []
+        | Some debug_context ->
+          [("file", `String debug_context.file);
+          ("mode", `String debug_context.mode);
+          ("iter_count", `Int debug_context.iter_count);
+          ("coe1", `Int debug_context.coe1);
+          ("coe2", `Int debug_context.coe2);
+          ("pid", `Int debug_context.pid)]
+        ]) in
+    let mode_string = match debug_context with | None -> "none" | Some d -> d.mode in
+    let oc = Stdio.Out_channel.create ~append:true ("post_" ^ mode_string ^ ".tmp") in
+    Basic.pretty_to_channel oc data;
+    Stdio.Out_channel.close oc
+    
+  let parse_results_inner (exit_status, stdout, stderr) debug_context elapsed status_parser =
+    let res, tmp_res = 
+      match exit_status with 
+      | Ok () -> begin
+        let status = status_parser stdout in
+        print_endline @@ "Parsed status: " ^ Status.string_of status ^ " " ^ (show_debug_context debug_context);
+        status, (
+        match status with
+        | Valid -> TValid
+        | Invalid -> TInvalid
+        | _ -> TUnknown)
+      end
+      | Error (`Exit_non_zero 143) -> begin
+        print_endline @@ "Terminated " ^ (show_debug_context debug_context);
+        Status.Unknown, TTerminated
+      end
+      | _ -> begin
+        print_endline "error status";
+        Status.Unknown, TError
+      end in
+    output_post_debug_info tmp_res elapsed stdout stderr debug_context;
+    print_endline @@ Status.string_of res;
+    res
+end
+
+module KatsuraSolver : BackendSolver = struct
+  include SolverCommon
+  
+  let get_solver_path () =
+    match Stdlib.Sys.getenv_opt "katsura_solver_path" with
+    | None -> failwith "Please set environment variable `katsura_solver_path`"
+    | Some s -> s
+  
+  let save_hes_to_file hes debug_context =
+    output_pre_debug_info hes debug_context;
     Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes
     
   let solver_command hes_path no_backend_inlining =
+    let solver_path = get_solver_path () in
     if no_backend_inlining
-    then [|solver_path; "--no-inlining"; hes_path;|]
-    else [|solver_path; hes_path;|]
+    then [|solver_path; "--no-disprove"; "--no-inlining"; hes_path;|]
+    else [|solver_path; "--no-disprove"; hes_path;|]
 
-  let parse_results (exit_status, stdout, stderr) debug_context =
-    match exit_status with 
-    | Ok () -> begin
-      (* Verification Result: の行を探す。 *)
+  let parse_results result debug_context elapsed =
+    parse_results_inner result debug_context elapsed (fun stdout -> 
       let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nProfiling:$" in
       try
         ignore @@ Str.search_forward reg stdout 0;
-        let status = Status.of_string @@ Str.matched_group 2 stdout in
-        print_endline @@ "Parsed status: " ^ Status.string_of status ^ " " ^ (show_debug_context debug_context);
-        status
+        Status.of_string @@ Str.matched_group 2 stdout
       with
         | Not_found -> failwith @@ "not matched"
-        | Invalid_argument s -> failwith @@ "Invalid_argument: " ^ s
-      end
-    | Error (`Exit_non_zero 143) ->
-      print_endline @@ "terminated " ^ (show_debug_context debug_context);
-      Status.Unknown
-    | _ -> 
-      (print_endline "error status"; Status.Unknown)
+    )
     
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
     let command = solver_command path solve_options.no_backend_inlining in
-    unix_system command
-    >>| (fun status_code ->
-          try
-            let stdout, stderr = read_command_outputs () in
-            parse_results (status_code, stdout, stderr) debug_context
-          with _ -> Status.Unknown)
-        
-    (* let status = parse_results @@ Hflmc2_util.Fn.Command.run_command ~timeout:solve_options.timeout command in
-    cont (status, status) *)
+    unix_system command >>|
+      (fun (status_code, elapsed) ->
+        try
+          let stdout, stderr = read_command_outputs () in
+          parse_results (status_code, stdout, stderr) debug_context elapsed
+        with _ -> Status.Unknown)
 end
 
 module IwayamaSolver : BackendSolver = struct
-  let solver_path = "hflmc2"
+  include SolverCommon
+  
+  let get_solver_path () =
+    match Stdlib.Sys.getenv_opt "iwayama_solver_path" with
+    | None -> failwith "Please set environment variable `iwayama_solver_path`"
+    | Some s -> s
   
   let save_hes_to_file hes debug_context =
-    (* let hes = Hflmc2_syntax.Trans.Simplify.hflz_hes hes true in *)
-    (* let path' = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
-    print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
-    print_endline path'; *)
-    
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
-    let path2 = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes in
-    print_string @@ "HES for backend (no forall) " ^ (show_debug_context debug_context) ^ ": ";
-    print_endline path2;
-    output_debug debug_context path2;
-    path2
+    output_pre_debug_info hes debug_context;
+    Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes
     
   let solver_command hes_path no_backend_inlining =
+    let solver_path = get_solver_path () in
     if no_backend_inlining
     then [|solver_path; "--no-inlining"; hes_path;|]
     else [|solver_path; hes_path;|]
 
-  let parse_results (exit_status, stdout, stderr) debug_context =
-    match exit_status with 
-    | Ok () -> begin
+  let parse_results result debug_context elapsed =
+    parse_results_inner result debug_context elapsed (fun stdout -> 
       (* Verification Result: の行を探す。 *)
-      let regp = "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nLoop Count:$" in
-      let reg = Str.regexp regp in
+      let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nLoop Count:$" in
       try
         ignore @@ Str.search_forward reg stdout 0;
-        let status = Status.of_string @@ Str.matched_group 2 stdout in
-        print_endline @@ "PARSED STATUS: " ^ Status.string_of status ^ " " ^ (show_debug_context debug_context);
-        status
+        Status.of_string @@ Str.matched_group 2 stdout
       with
         | Not_found -> failwith @@ "not matched"
-        | Invalid_argument s -> failwith @@ "Invalid_argument: " ^ s
-      end
-    | Error (`Exit_non_zero 143) ->
-      print_endline @@ "terminated " ^ (show_debug_context debug_context);
-      Status.Unknown
-    | _ -> 
-      (print_endline "error status"; Status.Unknown)
+    )
   
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
     let command = solver_command path solve_options.no_backend_inlining in
     unix_system command
-    >>| (fun status_code ->
+    >>| (fun (status_code, elapsed) ->
         try
           let stdout, stderr = read_command_outputs () in
-          parse_results (status_code, stdout, stderr) debug_context
+          parse_results (status_code, stdout, stderr) debug_context elapsed
           with _ -> Status.Unknown)
-    (* let status = parse_results @@ Hflmc2_util.Fn.Command.run_command ~timeout:solve_options.timeout command in
-    cont (status, status) *)
 end
 
 let rec is_first_order_function_type (ty : Hflmc2_syntax.Type.simple_ty) =
@@ -311,11 +352,11 @@ let elim_mu_exists coe1 coe2 debug_output hes name =
   (* forall, nu, mu *)
   let hes = Hflz_mani.encode_body_exists coe1 coe2 hes in
   if debug_output then Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-  if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes;
+  (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes; *)
   let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 in
   if debug_output then Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
   if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
-  if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes;
+  (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes; *)
   (* forall, nu *)
   hes
 

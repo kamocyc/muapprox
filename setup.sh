@@ -1,10 +1,9 @@
-#!/bin/bash
-
-## ここから実行したコマンド
+#!/bin/bash -eu
 
 sudo apt update
 sudo apt install -y build-essential m4 libgmp-dev python2.7
 
+# opam
 sudo add-apt-repository ppa:avsm/ppa  -y
 sudo apt update
 sudo apt install -y opam
@@ -17,20 +16,25 @@ opam switch create 4.08.1
 
 sudo mkdir /opt/home2
 cd /opt/home2
-sudo chown kamo:kamo .dun
+sudo chown kamo:kamo .
 mkdir git
-cd git
+
+# hflmc2 (katsura)
+cd /opt/home2/git
 git clone git@github.com:kamocyc/hflmc2.git hflmc2_mora
 cd hflmc2_mora
 
 opam install dune.1.11.4 cmdliner.1.0.4 core.v0.13.0 menhir.20190924 ppx_deriving_cmdliner.0.4.1 fmt logs lwt ppx_compare ppx_deriving.4.5 ppx_deriving_cmdliner ppx_let ppx_sexp_conv
 dune build
 
-cd ..
+# tanahashi
+cd /opt/home2/git
 git clone git@github.com:kamocyc/muapprox.git
 cd muapprox
 
+opam switch 4.08.1
 opam install z3.4.8.4 bignum.v0.13.0 async extlib -y
+dune build
 
 # rustup
 cd /tmp
