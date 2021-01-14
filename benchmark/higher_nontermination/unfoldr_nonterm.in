@@ -4,17 +4,17 @@ Unfoldr_sum f1 f2 f3 seed k =v
   f1 seed (\isEnd.
   f2 seed (\elem.
   f3 seed (\next_seed.
-    (isEnd != 0 \/ k 0) /\
-    (isEnd =  0 \/
+    (isEnd != 0 => k 0) /\
+    (isEnd =  0 =>
       Unfoldr_sum f1 f2 f3 next_seed (\res.
         k (elem + res)))))).
 Pred1 n k =v
-  (n != 0 \/ k 0) /\
-  (n =  0 \/ k 1).
+  (n =  0 => k 0) /\
+  (n != 0 => k 1).
 Pred2 n k =v
-  (n != 0 \/ k 0) /\
-  (n =  0 \/ k 1).
+  (n =  0 => k 0) /\
+  (n != 0 => k 1).
 Pred3 n k =v
-  (n != 0 \/ k 0) /\
-  (n =  0 \/ k (n-1)).
+  (n =  0 => k 0) /\
+  (n != 0 => k (n-1)).
 
