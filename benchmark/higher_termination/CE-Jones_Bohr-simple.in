@@ -1,0 +1,7 @@
+%HES
+Sentry =v F3 false (F5 false) true.
+F1 u c d =u d.
+F2 u a b x =u a (F1 u) x.
+F3 u a x =u a (F2 u a) x.
+F4 u v =u v.
+F5 u e x =u e (F4 u) x.

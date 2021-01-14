@@ -3,16 +3,10 @@ let rec ack m n k =
   else if n = 0 then ack (m-1) 1 k
   else ack m (n-1) (fun r -> ack (m-1) r k)
 
-let main k =
-  (* let m = Random.int 0 in
-  let n = Random.int 0 in *)
+let () =
   let m = read_int () in
   let n = read_int () in
   if n>0 && m>0 then
-    ack m n k
+    ack m n (fun r -> print_int r)
   else
-    k 0
-  
-let () = 
-  main (fun r -> print_int r)
-  
+    print_int 0

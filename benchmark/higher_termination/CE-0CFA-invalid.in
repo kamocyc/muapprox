@@ -1,0 +1,5 @@
+%HES
+Sentry =v F (F Omega Id) Id 1 (\r. true).
+F x y z k =u x z k.
+Omega x k =u Omega x k.
+Id x k =u k x.

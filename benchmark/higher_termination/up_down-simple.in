@@ -1,0 +1,37 @@
+%HES
+Sentry =v ∀t1. ∀t2.
+  (t1 > 0 => App Down t1) /\
+  ((t1 <= 0 /\ t2 < 0) => App Up t2).
+App f x =u f x.
+Down x =u (x = 0 => true) /\ (x != 0 => Down (x-1)).
+Up x =u (x = 0 => true) /\ (x != 0 => Up (x+1)).
+
+/*
+// Appを無くすと高速に解ける。自明なbeta簡約はするようにしたほうが良いか
+// というか、最初のvが効いているので、効かないようにしたいかも。（効いていない？）
+Sentry =v ∀t1. ∀t2.
+  (t1 > 0 => Down t1) /\
+  ((t1 <= 0 /\ t2 < 0) => Up t2).
+Down x =u (x = 0 => true) /\ (x != 0 => Down (x-1)).
+Up x =u (x = 0 => true) /\ (x != 0 => Up (x+1)).
+*/
+
+/*
+/* これも遅い */
+%HES
+Sentry =v ∀t1. t1 <= 0 => App Up t1 /\ App Down (-t1).
+App f x =u f x.
+Down x =u (x = 0 => true) /\ (x != 0 => Down (x-1)).
+Up x =u (x = 0 => true) /\ (x != 0 => Up (x+1)).
+*/
+
+/*
+/* DownとUpに自明にtrueな式があるとiterationの回る速度が遅くなった。 */ 
+%HES
+Sentry =v ∀t1. ∀t2.
+  (t1 > 0 => App Down t1) /\
+  ((t1 <= 0 /\ t2 < 0) => App Up t2).
+App f x =u f x.
+Down x =u (x = 0 => true) /\ (x != 0 => Down (x-1)).
+Up x =u (x = 0 => true) /\ (x != 0 => Up (x+1)).
+*/
