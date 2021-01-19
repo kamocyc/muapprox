@@ -3,3 +3,7 @@ Sentry =v F.
 B =v F.
 F =u A.
 A =u B.
+
+/*
+fairness: (B, Never)
+*/

@@ -2,23 +2,17 @@ from pprint import pprint
 import json
 import os
 import subprocess
-# import signal   
 import time
 import re
-# import sys
 import argparse
 
 if os.path.basename(os.getcwd()) == 'benchmark':
     os.chdir('..')
 
 os.system('./clean.sh')
-
 os.chdir("benchmark/output")
 
 OUTPUT_FILE_NAME = "bench_out_append.txt"
-
-# class MyTimeout(Exception):
-#     pass
 
 with open(OUTPUT_FILE_NAME, 'w') as f:
     pass
@@ -27,29 +21,27 @@ def append(text):
     with open(OUTPUT_FILE_NAME, 'a') as f:
         f.write(str(text))
 
-# Parameters
-# not used
-RETRY_COOLDOWN = 10
-
-backend_solver_candidate = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama']
-nth_last_line = -1
+BACKEND_SOLVER_CANDIDATE = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama']
+BENCHMARK_NAMES = ['first_order', 'higher_nontermination', 'higher_termination', 'higher_fairtermination']
 
 parser = argparse.ArgumentParser(description='benchmarker.')
 parser.add_argument('backend_solver', metavar='backend_solver', type=str, 
-                    choices=backend_solver_candidate,
+                    choices=BACKEND_SOLVER_CANDIDATE,
                     help='backend solver name')
 parser.add_argument('--timeout', dest='timeout', action='store', type=int, default=60,
                     help='timeout')
-parser.add_argument('--benchmark', dest='benchmark', action='store', type=str, default='first_order',
-                    choices=['first_order', 'higher_nontermination', 'higher_termination'],
+parser.add_argument('--benchmark', dest='benchmark', action='store', type=str,
+                    choices=BENCHMARK_NAMES,
                     help='benchmark set')
+
+KILL_PROCESS_NAMES = ["hflmc2", "main.exe", "z3", "hoice", "eld", "java"]
+nth_last_line = -1
 
 args = parser.parse_args()
 backend_solver_name = args.backend_solver
 timeout = float(args.timeout)
 benchmark = args.benchmark
 
-kill_process_names = ["hflmc2", "main.exe", "z3", "hoice", "eld", "java"]
 lists_path = '../list_' + benchmark + '.txt'
 base_dir = '/opt/home2/git/muapprox/benchmark/' + benchmark
 add_args = []
@@ -142,7 +134,7 @@ def run(cmd):
     stdout = readfile("/tmp/stdout_1.txt")
     stderr = readfile("/tmp/stderr_1.txt")
     
-    for name in kill_process_names:
+    for name in KILL_PROCESS_NAMES:
         os.system('pkill ' + name)
         
     return stdout, elapsed, stderr, timed_out
@@ -171,7 +163,7 @@ def get_data(file):
                 else:
                     return {}
         except:
-            print("get_1")
+            print("get_1 (pre): not found (" + mode + ")")
             return {}
             
     def get_2(mode):
@@ -187,7 +179,7 @@ def get_data(file):
             
             return data
         except:
-            print("get_2")
+            print("get_2 (post): not found (" + mode + ")")
             return []
     
     data = {}
@@ -294,7 +286,6 @@ def main():
         "exe_path": exe_path,
         "add_args": add_args,
         "nth_last_line": nth_last_line,
-        "kill_process_names": kill_process_names,
     })
     
     with open(lists_path) as f:

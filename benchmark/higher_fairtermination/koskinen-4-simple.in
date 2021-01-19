@@ -1,0 +1,23 @@
+%HES
+Sentry =v ∀x. Life x.
+Ha2 x =v Ha2 x.
+Ha1 x =v Ha1 x.
+Run x f k =u (x < 0 => k x) /\ (x >= 0 => f x (\r. f r (\r'. Run r' f k))).
+Walk x f k =u (x < 0 => k x) /\ (x >= 0 => f x (\r. Walk r f k)).
+App f x i k =u f x (G i) k.
+G i x k =u k (x-i).
+Life x =v ((x < 0 => App Walk x 1 (\r. Ha1 r)) /\ (x >= 0 => App Run x 1 (\r. Ha2 r))) /\ Life x.
+
+/*
+/* xの値を制限すると解ける. 20secくらいかかる */
+%HES
+Sentry =v ∀x. (x = -1 \/ x = 0) => Life x.
+Ha2 x =v Ha2 x.
+Ha1 x =v Ha1 x.
+Run x f k =u (x < 0 => k x) /\ (x >= 0 => (f x (\r. f r (\r'. Run r' f k)))).
+Walk x f k =u (x < 0 => k x) /\ (x >= 0 => (f x (\r. Walk r f k))).
+App f x i k =u f x (G i) k.
+G i x k =u k (x-i).
+Life x =v ((x < 0 => App Walk x 1 (\r. Ha1 r)) /\ (x >= 0 => App Run x 1 (\r. Ha2 r))) /\ Life x.
+/* lifeの不動点をuにすると、/\ Life xがfalseになるので、invalidになる。 */
+*/

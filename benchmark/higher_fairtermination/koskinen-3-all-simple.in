@@ -1,9 +1,18 @@
+
+%HES
+Sentry =v ∀t. Foo 0 /\ Bar t.
+Halt =u Halt.
+Bar x =u (x > 0 => Bar (x-1)) /\ (x <= 0 => Foo x).
+Foo x =v (x <= 0 => Foo x) /\ (x > 0 => Halt).
+
+/*
+/* CPS版. Bar -> Foo のcall-sequenceが無い */
 %HES
 Sentry =v ∀t. Foo 0 /\ Bar t (\r. Foo r).
 Halt =u Halt.
 Bar x k =u (x > 0 => Bar (x-1) k) /\ (x <= 0 => k x).
 Foo x =v (x <= 0 => Foo x) /\ (x > 0 => Halt).
-
+*/
 
 /*
 Ω = {

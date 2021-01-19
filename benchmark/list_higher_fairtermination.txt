@@ -1,0 +1,12 @@
+lester.in
+koskinen-3-all-simple.in
+repeat-simple.in
+koskinen-1-simple.in
+hofmann-2-simple.in
+koskinen-2-simple.in
+koskinen-3-3-simple.in
+koskinen-3-2-simple.in
+koskinen-3-1-simple.in
+closure-simple.in
+hofmann-1-simple.in
+intro-simple.in

@@ -2,4 +2,13 @@
 Sentry =v ∀n. (n = 0 => true) /\ (n != 0 => F n).
 A =v F 1.
 F x =u (x < 0 => true) /\ (x = 0 => A) /\ (x > 0 => F 0).
-/* これはすぐ解けた */
+
+/*
+F -> A -> F -> F -> A -> ...のように構文的に呼ばれるようにする
+fairness: (A, Never)
+*/
+/*
+Sentry =v ∀n. F n (\_. true).
+A k =v k true.  /* この場合、ここで再帰呼び出しが切れるのでダメ */
+F x k =u (x < 0 => k true) /\ (x = 0 => A k) /\ (x > 0 => F 0 (\_. F 1 k)).
+*/

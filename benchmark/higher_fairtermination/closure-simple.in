@@ -1,6 +1,22 @@
 %HES
+Sentry =v ∀n. F (Const n).
+Finish =v Finish.
+Const x k =u k x.
+F g =u g (\n. (n > 0 => F (Const (n-1)) /\ (n <= 0 => Finish))).
+
+/*
+fairness: (Finish, Never)
+Ω={
+  Finish -> 2
+  otherwise -> 1
+}
+*/
+
+/*
+%HES
 /* nを制限しないと解けない */
 Sentry =v ∀n. n < 16 => F (Const n).
 Finish =v Finish.
 Const x k =u k x.
 F g =u g (\n. (n > 0 => F (Const (n-1)) /\ (n <= 0 => Finish))).
+*/

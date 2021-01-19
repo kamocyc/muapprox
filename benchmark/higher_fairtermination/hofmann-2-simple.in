@@ -11,4 +11,7 @@ B -> 4
 C -> 3
 otherwise -> 2
 }
+
+fairness: (B, Never)
+fairness: (Always, C)
 */
