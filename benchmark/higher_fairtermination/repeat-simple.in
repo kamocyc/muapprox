@@ -1,0 +1,16 @@
+%HES
+Sentry =v Repeat F.
+A =v Repeat F.
+F x =u (x > 0 => F (x-1)) /\ (x <= 0 => A).
+Repeat g =u ∀n. n < 64 => g n.
+/* 単純に∀nだと解けなかった */
+
+
+/*
+Aの呼び出し時点でcall-sequenceが切れている
+%HES
+Sentry =v Repeat F (\_. true).
+A k =v k true.
+F x k =u (x > 0 => F (x-1) k) /\ (x <= 0 => A k).
+Repeat g k =u ∀n. g n (\_. Repeat g k).
+*/

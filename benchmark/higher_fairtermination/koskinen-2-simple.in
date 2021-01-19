@@ -1,0 +1,6 @@
+%HES
+/* 制限しないと解けない */
+Sentry =v ∀a. ∀b. (a < 2 /\ b > 2) => Main a b.
+Print x =v Print x.
+Main a b =u Rumble a b (\r. Rumble a r (\r'. Print r')).
+Rumble x y k =u (x < y => (Rumble (x+1) y k /\ Rumble x (y-1) k)) /\ (x >= y => k x).

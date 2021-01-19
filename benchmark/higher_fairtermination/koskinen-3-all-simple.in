@@ -1,0 +1,58 @@
+%HES
+Sentry =v ∀t. Foo 0 /\ Bar t (\r. Foo r).
+Halt =u Halt.
+Bar x k =u (x > 0 => Bar (x-1) k) /\ (x <= 0 => k x).
+Foo x =v (x <= 0 => Foo x) /\ (x > 0 => Halt).
+
+
+/*
+Ω = {
+Halt -> 3
+Bar -> 3
+Foo -> 2
+otherwise -> 1
+}
+
+For every infinite path,
+1. "Foo" happens infinitely often, and
+2. "Halt" happens only finitely often, and
+3. "Bar" happens only finitely often
+*/
+
+/*
+/* simple conjunction */
+%HES
+Sentry =v
+  (∀t. Foo1 0 /\ Bar1 t (\r. Foo1 r)) /\
+  (∀t. Foo2 0 /\ Bar2 t (\r. Foo2 r)) /\
+  (∀t. Foo3 0 /\ Bar3 t (\r. Foo3 r)).
+Foo1 x =v (x <= 0 => Foo1 x) /\ (x > 0 => Halt1).
+Bar1 x k =u (x > 0 => Bar1 (x-1) k) /\ (x <= 0 => k x).
+Halt1 =u Halt1.
+/*
+Ω = {
+Foo1 -> 2
+Bar1 -> 1
+Halt1 -> 1 }
+*/
+
+Halt2 =u Halt2.
+Foo2 x =v (x <= 0 => Foo2 x) /\ (x > 0 => Halt2).
+Bar2 x k =v (x > 0 => Bar2 (x-1) k) /\ (x <= 0 => k x).
+/*
+Ω = {
+Halt2 -> 3
+Foo2 -> 2
+Bar2 -> 2 }
+*/
+
+Bar3 x k =u (x > 0 => Bar3 (x-1) k) /\ (x <= 0 => k x).
+Halt3 =v Halt3.
+Foo3 x =v (x <= 0 => Foo3 x) /\ (x > 0 => Halt3).
+/*
+Ω = {
+Bar3 -> 3
+Halt3 -> 2
+Foo3 -> 2 }
+*/
+*/

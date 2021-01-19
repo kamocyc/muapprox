@@ -1,0 +1,5 @@
+%HES
+Sentry =v ∀n. (n = 0 => true) /\ (n != 0 => F n).
+A =v F 1.
+F x =u (x < 0 => true) /\ (x = 0 => A) /\ (x > 0 => F 0).
+/* これはすぐ解けた */

@@ -1,0 +1,14 @@
+%HES
+Sentry =v Loop.
+B =v Loop.
+C =u B.
+Loop =v Inner_loop 0 0.
+Inner_loop i s =v ((i < 1024 /\ s != 0) => ∀s. Inner_loop (i+1) s) /\ ((not (i < 1024 /\ s != 0)) => C).
+
+/*
+Ω = {
+B -> 4
+C -> 3
+otherwise -> 2
+}
+*/
