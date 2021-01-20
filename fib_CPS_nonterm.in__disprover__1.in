@@ -1,0 +1,6 @@
+%HES
+Main  =ν ∀r.∀recFib_CPS_nonterm52.recFib_CPS_nonterm52 < 1 + 1 * r || recFib_CPS_nonterm52 < 1 + -1 * r || recFib_CPS_nonterm52 < 1 || Fib_CPS_nonterm recFib_CPS_nonterm52 r Id.
+Fib_CPS_nonterm recFib_CPS_nonterm52 n k =ν recFib_CPS_nonterm52 > 0 && ((n = 0 || n = 1) && k 1 || n != 0 && n != 1 && Fib_CPS_nonterm (recFib_CPS_nonterm52 - 1) (n - 1) (Cont1 recFib_CPS_nonterm52 (n - 2) k)).
+Cont1 recFib_CPS_nonterm52 ppn k a =ν Fib_CPS_nonterm (recFib_CPS_nonterm52 - 1) ppn (Cont2 a k).
+Cont2 a k b =ν k (a + b).
+Id n =ν true.

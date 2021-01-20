@@ -1,0 +1,198 @@
+[Main:App:Input]
+  Main : bool =ν ∃r5.Fib_CPS_nonterm r5 Id
+  Fib_CPS_nonterm : int -> (int -> bool) -> bool =ν λn6:int.λk7:(int -> bool).(n6 != 0 && n6 != 1 || k7 1) && (n6 = 0 || n6 = 1 || Fib_CPS_nonterm (n6 - 1) (Cont1 (n6 - 2) k7))
+  Cont1 : int -> (int -> bool) -> int -> bool =ν λppn8:int.λk9:(int -> bool).λa10:int.Fib_CPS_nonterm ppn8 (Cont2 a10 k9)
+  Cont2 : int -> (int -> bool) -> int -> bool =ν λa11:int.λk12:(int -> bool).λb13:int.k12 (a11 + b13)
+  Id : int -> bool =ν λn14:int.false
+[Solver:App:get_dual_hes]
+  Main =ν ∀r5.Fib_CPS_nonterm r5 Id
+  Fib_CPS_nonterm =μ λn6:int.λk7:(int -> bool).(n6 = 0 || n6 = 1) && k7 1 || n6 != 0 && n6 != 1 && Fib_CPS_nonterm (n6 - 1) (Cont1 (n6 - 2) k7)
+  Cont1 =μ λppn8:int.λk9:(int -> bool).λa10:int.Fib_CPS_nonterm ppn8 (Cont2 a10 k9)
+  Cont2 =μ λa11:int.λk12:(int -> bool).λb13:int.k12 (a11 + b13)
+  Id =μ λn14:int.true
+[Solver:App:Exists-Encoded HES (disprover)]
+  forall (r5 : int).Fib_CPS_nonterm r5 Id
+s.t.
+Fib_CPS_nonterm (n6 : int) (k7 : int -> bool) : bool =mu (n6 = 0 \/ n6 = 1) /\ k7 1 \/ n6 != 0 /\ n6 != 1 /\ Fib_CPS_nonterm (n6 - 1) (Cont1 (n6 - 2) k7);
+  Cont1 (ppn8 : int) (k9 : int -> bool) (a10 : int) : bool =mu Fib_CPS_nonterm ppn8 (Cont2 a10 k9);
+  Cont2 (a11 : int) (k12 : int -> bool) (b13 : int) : bool =mu k12 (a11 + b13);
+  Id (n14 : int) : bool =mu true;
+[Solver:App:Eliminate Mu (disprover)]
+  forall (r5 : int).forall (recFib_CPS_nonterm5252 : int).recFib_CPS_nonterm5252 < 1 + 1 * r5 \/ recFib_CPS_nonterm5252 < 1 + -1 * r5 \/ recFib_CPS_nonterm5252 < 1 \/ Fib_CPS_nonterm recFib_CPS_nonterm5252 r5 Id
+s.t.
+
+  Fib_CPS_nonterm (recFib_CPS_nonterm5252 : int) (n6 : int) (k7 : int -> bool) : bool =nu recFib_CPS_nonterm5252 > 0 /\ ((n6 = 0 \/ n6 = 1) /\ k7 1 \/ n6 != 0 /\ n6 != 1 /\ Fib_CPS_nonterm (recFib_CPS_nonterm5252 - 1) (n6 - 1) (Cont1 recFib_CPS_nonterm5252 (n6 - 2) k7));
+  Cont1 (recFib_CPS_nonterm5252 : int) (ppn8 : int) (k9 : int -> bool) (a10 : int) : bool =nu Fib_CPS_nonterm (recFib_CPS_nonterm5252 - 1) ppn8 (Cont2 a10 k9);
+  Cont2 (a11 : int) (k12 : int -> bool) (b13 : int) : bool =nu k12 (a11 + b13);
+  Id (n14 : int) : bool =nu true;
+[Solver:App:Exists-Encoded HES (prover)]
+  forall (r5 : int).r5 < 1 \/ Exists56 r5
+s.t.
+Exists56 (r5 : int) : bool =nu (Fib_CPS_nonterm r5 Id \/ Fib_CPS_nonterm (-r5) Id \/ Exists56 (r5 - 1)) /\ r5 >= 0;
+  Fib_CPS_nonterm (n6 : int) (k7 : int -> bool) : bool =nu (n6 != 0 /\ n6 != 1 \/ k7 1) /\ (n6 = 0 \/ n6 = 1 \/ Fib_CPS_nonterm (n6 - 1) (Cont1 (n6 - 2) k7));
+  Cont1 (ppn8 : int) (k9 : int -> bool) (a10 : int) : bool =nu Fib_CPS_nonterm ppn8 (Cont2 a10 k9);
+  Cont2 (a11 : int) (k12 : int -> bool) (b13 : int) : bool =nu k12 (a11 + b13);
+  Id (n14 : int) : bool =nu false;
+[Solver:App:Eliminate Mu (prover)]
+  forall (r5 : int).r5 < 1 \/ Exists56 r5
+s.t.
+Exists56 (r5 : int) : bool =nu (Fib_CPS_nonterm r5 Id \/ Fib_CPS_nonterm (-r5) Id \/ Exists56 (r5 - 1)) /\ r5 >= 0;
+  Fib_CPS_nonterm (n6 : int) (k7 : int -> bool) : bool =nu (n6 != 0 /\ n6 != 1 \/ k7 1) /\ (n6 = 0 \/ n6 = 1 \/ Fib_CPS_nonterm (n6 - 1) (Cont1 (n6 - 2) k7));
+  Cont1 (ppn8 : int) (k9 : int -> bool) (a10 : int) : bool =nu Fib_CPS_nonterm ppn8 (Cont2 a10 k9);
+  Cont2 (a11 : int) (k12 : int -> bool) (b13 : int) : bool =nu k12 (a11 + b13);
+  Id (n14 : int) : bool =nu false;
+HES for backend (mode=disprover, iter_count=1, coe1=1, coe2=1): fib_CPS_nonterm.in__disprover__1.in
+run command (unix_system): /opt/home2/git/hflmc2_mora/_build/default/bin/main.exe --no-disprove /tmp/nuonly-121974072.smt2 > /tmp/89381150_stdout.tmp 2> /tmp/89381150_stderr.tmp
+HES for backend (mode=prover, iter_count=1, coe1=1, coe2=1): fib_CPS_nonterm.in__prover__1.in
+run command (unix_system): /opt/home2/git/hflmc2_mora/_build/default/bin/main.exe --no-disprove /tmp/nuonly-217229565.smt2 > /tmp/99575265_stdout.tmp 2> /tmp/99575265_stderr.tmp
+[[MAIN]] Verification Result:
+  invalid
+Profiling:
+  total: 3.037339 sec
+(mode=disprover, iter_count=1, coe1=1, coe2=1)
+stdout::(mode=disprover, iter_count=1, coe1=1, coe2=1)
+INPUT FILE: /tmp/nuonly-121974072.smt2
+[Main:App:Input]
+  Main : bool =ν
+    ∀r5:int.
+     ∀recFib_CPS_nonterm526:int.
+      recFib_CPS_nonterm526 < 1 + 1 * r5
+      || recFib_CPS_nonterm526 < 1 + -1 * r5
+         || recFib_CPS_nonterm526 < 1 || Fib_CPS_nonterm recFib_CPS_nonterm526 r5 Id
+  Fib_CPS_nonterm : int -> int -> (int -> bool) -> bool =ν
+    λrecFib_CPS_nonterm527:int.
+     λn8:int.
+      λk9:(int -> bool).
+       recFib_CPS_nonterm527 > 0
+       && ((n8 = 0 || n8 = 1) && k9 1
+           || n8 /= 0
+              && n8 /= 1
+                 && Fib_CPS_nonterm (recFib_CPS_nonterm527 - 1) (n8 - 1)
+                     (Cont1 recFib_CPS_nonterm527 (n8 - 2) k9))
+  Cont1 : int -> int -> (int -> bool) -> int -> bool =ν
+    λrecFib_CPS_nonterm5210:int.
+     λppn11:int.
+      λk12:(int -> bool).
+       λa13:int.Fib_CPS_nonterm (recFib_CPS_nonterm5210 - 1) ppn11 (Cont2 a13 k12)
+  Cont2 : int -> (int -> bool) -> int -> bool =ν
+    λa14:int.λk15:(int -> bool).λb16:int.k15 (a14 + b16)
+  Id : int -> bool =ν λn17:int.true
+[Main:App:Simplified]
+  Main : bool =ν
+    ∀r5:int.
+     ∀recFib_CPS_nonterm526:int.
+      recFib_CPS_nonterm526 < 1 + 1 * r5
+      || recFib_CPS_nonterm526 < 1 + -1 * r5
+         || recFib_CPS_nonterm526 < 1 || Fib_CPS_nonterm recFib_CPS_nonterm526 r5 (λn17:int.true)
+  Fib_CPS_nonterm : int -> int -> (int -> bool) -> bool =ν
+    λrecFib_CPS_nonterm527:int.
+     λn8:int.
+      λk9:(int -> bool).
+       recFib_CPS_nonterm527 > 0
+       && ((n8 = 0 || n8 = 1) && k9 1
+           || n8 /= 0
+              && n8 /= 1
+                 && Fib_CPS_nonterm (recFib_CPS_nonterm527 - 1) (n8 - 1)
+                     (Cont1 recFib_CPS_nonterm527 (n8 - 2) k9))
+  Cont1 : int -> int -> (int -> bool) -> int -> bool =ν
+    λrecFib_CPS_nonterm5210:int.
+     λppn11:int.
+      λk12:(int -> bool).
+       λa13:int.Fib_CPS_nonterm (recFib_CPS_nonterm5210 - 1) ppn11 (λb16:int.k12 (a13 + b16))
+Main *[X39()]
+Fib_CPS_nonterm (int(recFib_CPS_nonterm5223) -> (int(n24) -> ((int(t25) -> *[X11(t25,n24,recFib_CPS_nonterm5223)]) -> *[X12(n24,recFib_CPS_nonterm5223)])))
+Cont1 (int(recFib_CPS_nonterm5239) -> (int(ppn40) -> ((int(t41) -> *[X1(t41,ppn40,recFib_CPS_nonterm5239)]) -> (int(a43) -> *[X2(a43,ppn40,recFib_CPS_nonterm5239)]))))
+
+
+infering new formula: Main = (∀int(r5).(∀int(recFib_CPS_nonterm526).(recFib_CPS_nonterm526<1 + 1 * r5 || (recFib_CPS_nonterm526<1 + -1 * r5 || (recFib_CPS_nonterm526<1 || (((Fib_CPS_nonterm recFib_CPS_nonterm526) r5) (\int(n17).tt)))))))
+[Result]
+X39() => X40(r5)
+X40(r5) => X41(recFib_CPS_nonterm526,r5)
+X41(recFib_CPS_nonterm526,r5) => (recFib_CPS_nonterm526<1 + 1 * r5 \/ (recFib_CPS_nonterm526<1 + -1 * r5 \/ (recFib_CPS_nonterm526<1 \/ X53(recFib_CPS_nonterm526,r5))))
+X53(recFib_CPS_nonterm526,r5) => X12(r5,recFib_CPS_nonterm526)
+(X53(recFib_CPS_nonterm526,r5) /\ X11(x61,r5,recFib_CPS_nonterm526)) => tt
+tt => X39()
+
+
+infering new formula: Fib_CPS_nonterm = (\int(recFib_CPS_nonterm527).(\int(n8).(\(int(t38) -> *[X13(t38,n8,recFib_CPS_nonterm527)]).(recFib_CPS_nonterm527>0:X14(n8,recFib_CPS_nonterm527) && (((n8=0 || n8=1):X33(n8,recFib_CPS_nonterm527) && (k9 1):X34(n8,recFib_CPS_nonterm527)) || (n8/=0:X18(n8,recFib_CPS_nonterm527) && (n8/=1:X20(n8,recFib_CPS_nonterm527) && (((Fib_CPS_nonterm recFib_CPS_nonterm527 - 1) n8 - 1) (((Cont1 recFib_CPS_nonterm527) n8 - 2) k9)):X21(n8,recFib_CPS_nonterm527)):X19(n8,recFib_CPS_nonterm527))):X15(n8,recFib_CPS_nonterm527)))))
+[Result]
+X12(x66,x65) => (x65>0 /\ (((x66=0 \/ x66=1) /\ X13(1,x66,x65)) \/ (x66/=0 /\ (x66/=1 /\ X55(x66,x65)))))
+(X12(x66,x65) /\ X13(x67,x66,x65)) => X11(x67,x66,x65)
+X55(n8,recFib_CPS_nonterm527) => X12(n8 - 1,recFib_CPS_nonterm527 - 1)
+(X55(n8,recFib_CPS_nonterm527) /\ X11(x64,n8 - 1,recFib_CPS_nonterm527 - 1)) => X54(x64,n8,recFib_CPS_nonterm527)
+X54(x63,n8,recFib_CPS_nonterm527) => X2(x63,n8 - 2,recFib_CPS_nonterm527)
+(X54(a43,n8,recFib_CPS_nonterm527) /\ X1(x62,n8 - 2,recFib_CPS_nonterm527)) => X13(x62,n8,recFib_CPS_nonterm527)
+X39() => X40(r5)
+X40(r5) => X41(recFib_CPS_nonterm526,r5)
+X41(recFib_CPS_nonterm526,r5) => (recFib_CPS_nonterm526<1 + 1 * r5 \/ (recFib_CPS_nonterm526<1 + -1 * r5 \/ (recFib_CPS_nonterm526<1 \/ X53(recFib_CPS_nonterm526,r5))))
+X53(recFib_CPS_nonterm526,r5) => X12(r5,recFib_CPS_nonterm526)
+(X53(recFib_CPS_nonterm526,r5) /\ X11(x61,r5,recFib_CPS_nonterm526)) => tt
+tt => X39()
+
+
+infering new formula: Cont1 = (\int(recFib_CPS_nonterm5210).(\int(ppn11).(\(int(t53) -> *[X3(t53,ppn11,recFib_CPS_nonterm5210)]).(\int(a13).(((Fib_CPS_nonterm recFib_CPS_nonterm5210 - 1) ppn11) (\int(b16).(k12 a13 + b16)))))))
+[Result]
+X2(x72,x70,x69) => X56(x72,x70,x69)
+(X2(a43,x70,x69) /\ X3(x71,x70,x69)) => X1(x71,x70,x69)
+X56(a13,ppn11,recFib_CPS_nonterm5210) => X12(ppn11,recFib_CPS_nonterm5210 - 1)
+(X56(a13,ppn11,recFib_CPS_nonterm5210) /\ X11(x68,ppn11,recFib_CPS_nonterm5210 - 1)) => X3(a13 + x68,ppn11,recFib_CPS_nonterm5210)
+X12(x66,x65) => (x65>0 /\ (((x66=0 \/ x66=1) /\ X13(1,x66,x65)) \/ (x66/=0 /\ (x66/=1 /\ X55(x66,x65)))))
+(X12(x66,x65) /\ X13(x67,x66,x65)) => X11(x67,x66,x65)
+X55(n8,recFib_CPS_nonterm527) => X12(n8 - 1,recFib_CPS_nonterm527 - 1)
+(X55(n8,recFib_CPS_nonterm527) /\ X11(x64,n8 - 1,recFib_CPS_nonterm527 - 1)) => X54(x64,n8,recFib_CPS_nonterm527)
+X54(x63,n8,recFib_CPS_nonterm527) => X2(x63,n8 - 2,recFib_CPS_nonterm527)
+(X54(a43,n8,recFib_CPS_nonterm527) /\ X1(x62,n8 - 2,recFib_CPS_nonterm527)) => X13(x62,n8,recFib_CPS_nonterm527)
+X39() => X40(r5)
+X40(r5) => X41(recFib_CPS_nonterm526,r5)
+X41(recFib_CPS_nonterm526,r5) => (recFib_CPS_nonterm526<1 + 1 * r5 \/ (recFib_CPS_nonterm526<1 + -1 * r5 \/ (recFib_CPS_nonterm526<1 \/ X53(recFib_CPS_nonterm526,r5))))
+X53(recFib_CPS_nonterm526,r5) => X12(r5,recFib_CPS_nonterm526)
+(X53(recFib_CPS_nonterm526,r5) /\ X11(x61,r5,recFib_CPS_nonterm526)) => tt
+tt => X39()
+[Size] 2
+[Dual Size] 2
+remove or or
+X56(x72,x70,x69) => X2(x72,x70,x69)
+X1(x71,x70,x69) => X3(x71,x70,x69)
+X12(ppn11,recFib_CPS_nonterm5210 - 1) => X56(a13,ppn11,recFib_CPS_nonterm5210)
+(tmp81=recFib_CPS_nonterm5210 - 1 /\ X3(a13 + x68,ppn11,recFib_CPS_nonterm5210)) => X11(x68,ppn11,tmp81)
+x65<=0 => X12(x66,x65)
+((x66/=0 /\ x66/=1) /\ x66=0) => X12(x66,x65)
+(X13(1,x66,x65) /\ x66=0) => X12(x66,x65)
+((x66/=0 /\ x66/=1) /\ x66=1) => X12(x66,x65)
+(X13(1,x66,x65) /\ x66=1) => X12(x66,x65)
+((x66/=0 /\ x66/=1) /\ X55(x66,x65)) => X12(x66,x65)
+(X13(1,x66,x65) /\ X55(x66,x65)) => X12(x66,x65)
+X11(x67,x66,x65) => X13(x67,x66,x65)
+X12(n8 - 1,recFib_CPS_nonterm527 - 1) => X55(n8,recFib_CPS_nonterm527)
+((tmp82=n8 - 1 /\ tmp83=recFib_CPS_nonterm527 - 1) /\ X54(x64,n8,recFib_CPS_nonterm527)) => X11(x64,tmp82,tmp83)
+X2(x63,n8 - 2,recFib_CPS_nonterm527) => X54(x63,n8,recFib_CPS_nonterm527)
+(tmp84=n8 - 2 /\ X13(x62,n8,recFib_CPS_nonterm527)) => X1(x62,tmp84,recFib_CPS_nonterm527)
+X40(r5) => X39()
+X41(recFib_CPS_nonterm526,r5) => X40(r5)
+(recFib_CPS_nonterm526>=1 + 1 * r5 /\ (recFib_CPS_nonterm526>=1 + -1 * r5 /\ (recFib_CPS_nonterm526>=1 /\ X53(recFib_CPS_nonterm526,r5)))) => X41(recFib_CPS_nonterm526,r5)
+X12(r5,recFib_CPS_nonterm526) => X53(recFib_CPS_nonterm526,r5)
+ff => X11(x61,r5,recFib_CPS_nonterm526)
+X39() => ff
+[Warning]Some definite clause has or-head
+Run command: "/opt/home2/git/fptprove/hflmc3.sh /tmp/fptprove-79920466.smt2"
+OK!!!
+/tmp/fptprove-193990038.smt2,sat,2.108634600,8
+
+Process result:
+out: OK!!!
+/tmp/fptprove-193990038.smt2,sat,2.108634600,8
+
+status: Ok
+err:
+
+
+Profiling:
+  CHC Solver: 3.023294 sec
+did not calculate refinement. Use --show-refinement
+Verification Result:
+  Valid
+Profiling:
+  total: 3.026032 sec
+stdout_end::
+Parsed status: valid (mode=disprover, iter_count=1, coe1=1, coe2=1)
+valid

@@ -1,0 +1,7 @@
+%HES
+Main  =ν ∀r.r < 1 || Exists56 r.
+Exists56 r =ν (Fib_CPS_nonterm r Id || Fib_CPS_nonterm (-r) Id || Exists56 (r - 1)) && r >= 0.
+Fib_CPS_nonterm n k =ν (n != 0 && n != 1 || k 1) && (n = 0 || n = 1 || Fib_CPS_nonterm (n - 1) (Cont1 (n - 2) k)).
+Cont1 ppn k a =ν Fib_CPS_nonterm ppn (Cont2 a k).
+Cont2 a k b =ν k (a + b).
+Id n =ν false.
