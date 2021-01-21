@@ -9,6 +9,7 @@ type options =
     oneshot : bool;
     separate_original_formula_in_exists : bool;
     solver : solver_type;
+    solver_backend: string option;
     first_order_solver: first_order_solver_type option;
     coe : int * int;
     dry_run : bool;
@@ -27,6 +28,12 @@ let get_solver solver_name =
 let get_first_order_solver use_fo_solver = 
   if use_fo_solver then Some FptProverRecLimit else None
   
+let get_solver_backend s =
+  let s = String.trim s in
+  match s with
+  | "" -> None
+  | s -> Some s
+
 (* let get_first_order_solver solver_name =
   match solver_name with
   | "fptprover-rec-limit" -> Some FptProverRecLimit

@@ -1,4 +1,4 @@
-jq '[.[] | {
+jq -r '[.[] | {
   file: .file,
   result: .result,
   time: .time,
@@ -6,5 +6,5 @@ jq '[.[] | {
   disprove_iter_count: .data.disprover.iter_count,
   prove_iters: .data.prover_post | map({iter_index: .iter_count, time: .time}),
   disprove_iters: .data.disprover_post | map({iter_index: .iter_count, time: .time})}]
-  # | .[] | "\(.file)\t\(.prove_iter_count)\t\(.disprove_iter_count)"
+  | .[] | "\(.prove_iter_count)\t\(.disprove_iter_count)"
   # with -r option'

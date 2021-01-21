@@ -1,0 +1,7 @@
+%HES                 
+MAIN_333  =v
+  F (\u_346.\k_proceed_347.u_346 true k_proceed_347) (\u_344.\k_halt_345.k_halt_345 true) true (\main_338.true).
+F g h z k_f_19 =v Forall (\x_343.g (F h g) k_f_19).
+Forall p      =v ∀n. p n.
+Exists p        =v ExistsAux 1000 p.
+ExistsAux x p =v x > 0 /\ (p x \/ p (0-x) \/ ExistsAux (x-1) p).

@@ -14,6 +14,7 @@ let print_for_debug = ref (Obj.magic())
 let no_backend_inlining = ref (Obj.magic())
 let no_separate_original_formula_in_exists = ref (Obj.magic())
 let solver = ref (Obj.magic())
+let solver_backend = ref (Obj.magic())
 let first_order_solver = ref (Obj.magic())
 let coe = ref (Obj.magic())
 let dry_run = ref (Obj.magic())
@@ -56,10 +57,13 @@ type params =
   (** If specified, when approximating exists do not create new predicate that reduces the formula size **)
   
   ; solver : string [@default "katsura"]
-  (** Choose background mu-only-CHC solver. Available: katsura, iwayama *)
+  (** Choose background nu-only-HFLz solver. Available: katsura, iwayama *)
+  
+  ; solver_backend : string [@default ""]
+  (** --solver option on the backend solver. *)
   
   ; first_order_solver : bool [@default false]
-  (** If true, use solver for solving first-order formulas. If empty (or default), always use solvers for higher-order formulas. **)
+  (** If true, use z3 or hoice to solve first-order formulas. If empty (or default), always use a solver for higher-order formulas. **)
   
   ; coe : string [@default ""]
   (** Initial coefficients. Speficfy such as "1,8" (default is "1,1") **)
@@ -68,8 +72,10 @@ type params =
   (** Do not solve **)
   
   ; no_simplify : bool [@default false]
+  (** Do not simplify formula. It seems to get better results when false. (default: false) **)
   
   ; ignore_unknown : bool [@default false]
+  (** If true, skip "Unknown" result from a backend solver (the same behaviour as "Invalid" result). If false, stop solving when get "Unknown". (default: false) **)
   
   }
   [@@deriving cmdliner,show]
@@ -84,6 +90,7 @@ let set_up_params params =
   set_ref no_separate_original_formula_in_exists params.no_separate_original_formula_in_exists;
   set_ref no_backend_inlining      params.no_inlining_backend;
   set_ref solver                   params.solver;
+  set_ref solver_backend           params.solver_backend;
   set_ref first_order_solver       params.first_order_solver;
   set_ref coe                      params.coe;
   set_ref dry_run                  params.dry_run;

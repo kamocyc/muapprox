@@ -199,17 +199,21 @@ module KatsuraSolver : BackendSolver = struct
     (* print_endline @@ "FILE: " ^ path; *)
     path
     
-  let solver_command hes_path no_backend_inlining =
+  let solver_command hes_path solver_options =
     let solver_path = get_solver_path () in
-    if no_backend_inlining
-    then [|solver_path; "--no-disprove"; "--no-inlining"; hes_path;|]
-    else [|solver_path; "--no-disprove"; hes_path;|]
+    Array.of_list (
+      solver_path::"--no-disprove"::
+        (List.filter_map (fun x -> x)
+          [if solver_options.no_backend_inlining then Some "--no-inlining" else None;
+          match solver_options.solver_backend with None -> None | Some s -> Some ("--solver=" ^ s)]) @
+        [hes_path]
+    )
 
   let parse_results result debug_context elapsed =
     parse_results_inner result debug_context elapsed (fun stdout -> 
-      print_endline @@ "stdout::" ^ show_debug_context debug_context;
+      (* print_endline @@ "stdout::" ^ show_debug_context debug_context;
       print_endline stdout;
-      print_endline "stdout_end::";
+      print_endline "stdout_end::"; *)
       let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nProfiling:$" in
       try
         ignore @@ Str.search_forward reg stdout 0;
@@ -220,7 +224,7 @@ module KatsuraSolver : BackendSolver = struct
     
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
-    let command = solver_command path solve_options.no_backend_inlining in
+    let command = solver_command path solve_options in
     unix_system command >>|
       (fun (status_code, elapsed, stdout, stderr) ->
         try
@@ -241,11 +245,15 @@ module IwayamaSolver : BackendSolver = struct
     output_pre_debug_info hes debug_context;
     Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes
     
-  let solver_command hes_path no_backend_inlining =
+  let solver_command hes_path solver_options =
     let solver_path = get_solver_path () in
-    if no_backend_inlining
-    then [|solver_path; "--no-inlining"; hes_path;|]
-    else [|solver_path; hes_path;|]
+    Array.of_list (
+      solver_path::
+        (List.filter_map (fun x -> x)
+          [if solver_options.no_backend_inlining then Some "--no-inlining" else None;
+          match solver_options.solver_backend with None -> None | Some s -> Some ("--solver=" ^ s)]) @
+        [hes_path]
+    )
 
   let parse_results result debug_context elapsed =
     parse_results_inner result debug_context elapsed (fun stdout -> 
@@ -260,7 +268,7 @@ module IwayamaSolver : BackendSolver = struct
   
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
-    let command = solver_command path solve_options.no_backend_inlining in
+    let command = solver_command path solve_options in
     unix_system command
     >>| (fun (status_code, elapsed, stdout, stderr) ->
         try

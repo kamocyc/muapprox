@@ -6,10 +6,27 @@ import time
 import re
 import argparse
 
+def is_process_running(process_name):
+    os.system("ps -ef | grep \"" + process_name + "\" | grep -v grep | awk '{ print $2 }' > __result2.tmp")
+    try:
+        with open('__result2.tmp', 'r') as f:
+            text = f.read().strip()
+    except:
+        return is_process_running(process_name)
+    
+    return text != ''
+
+if not is_process_running("python3 memory_watchdog.py"):
+    print('########################')
+    print('Error: memory_watchdog.py IS NOT RUNNING')
+    print('########################')
+    exit(1)
+
 if os.path.basename(os.getcwd()) == 'benchmark':
     os.chdir('..')
 
 os.system('./clean.sh')
+# "output" subdirectory is necessary
 os.chdir("benchmark/output")
 
 OUTPUT_FILE_NAME = "bench_out_append.txt"
@@ -22,7 +39,7 @@ def append(text):
         f.write(str(text))
 
 BACKEND_SOLVER_CANDIDATE = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama']
-BENCHMARK_NAMES = ['first_order', 'higher_nontermination', 'higher_termination', 'higher_fairtermination']
+# BENCHMARK_NAMES = ['first_order', 'higher_nontermination', 'higher_termination', 'higher_fairtermination']
 
 parser = argparse.ArgumentParser(description='benchmarker.')
 parser.add_argument('backend_solver', metavar='backend_solver', type=str, 
@@ -31,7 +48,6 @@ parser.add_argument('backend_solver', metavar='backend_solver', type=str,
 parser.add_argument('--timeout', dest='timeout', action='store', type=int, default=60,
                     help='timeout')
 parser.add_argument('--benchmark', dest='benchmark', action='store', type=str,
-                    choices=BENCHMARK_NAMES,
                     help='benchmark set')
 
 KILL_PROCESS_NAMES = ["hflmc2", "main.exe", "z3", "hoice", "eld", "java"]
@@ -43,7 +59,7 @@ timeout = float(args.timeout)
 benchmark = args.benchmark
 
 lists_path = '../list_' + benchmark + '.txt'
-base_dir = '/opt/home2/git/muapprox/benchmark/' + benchmark
+base_dir = '/opt/home2/git/muapprox/benchmark/'
 add_args = []
 
 if backend_solver_name == 'sas19':
@@ -56,28 +72,6 @@ else:
     exe_path = '/opt/home2/git/muapprox/benchmark/run_' + backend_solver_name + '.sh'
     nth_last_line = -3
     BENCH_SET = 6
-
-# if BENCH_SET == 2:
-#     # under development
-#     lists_path = './list.txt'
-#     base_dir = '/opt/home2/git/muapprox/converted/'
-#     exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
-#     add_args = []
-#     nth_last_line = -3
-# # higher
-# if BENCH_SET == 4:
-#     # mora
-#     lists_path = './list2.txt'
-#     base_dir = '/opt/home2/git/hflmc2_mora/benchmark/inputs/higher_nonterminating/'
-#     exe_path = '/opt/home2/git/hflmc2_mora/_build/default/bin/main.exe'
-#     add_args = []
-#     nth_last_line = -3
-# if BENCH_SET == 5:
-#     lists_path = './list2.txt'
-#     base_dir = '/opt/home2/git/muapprox/benchmark/inputs/higher_nonterminating/'
-#     exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
-#     add_args = []
-#     nth_last_line = -3
 
 def get_lines(text):
     return text.strip(' \n\r').split("\n")
