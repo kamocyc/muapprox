@@ -1,0 +1,20 @@
+%HES
+
+Sentry =v F S T 0.
+T =v T.
+S k =u k 1.
+Close1 flag i n y =u Loop_after flag i n y.
+F x y n =v F x y (n+1) /\ G x y n.
+G flag y n =v Loop flag 1 n y.
+Loop flag i n y =v flag (\b. (b = 1 => Close1 flag i n y) /\ (b != 1 => Loop_after flag i n y)).
+Loop_after flag i n y =v (i <= n => Loop flag (i+1) n y) /\ (i > n => y).
+
+/* 37 sec 程度 */
+/*
+Ω = {
+  T -> 4
+  S -> 3
+  Close1 -> 3
+  otherwise -> 2
+}
+*/

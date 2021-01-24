@@ -2,23 +2,34 @@ from pprint import pprint
 import json
 import os
 import subprocess
-# import signal   
 import time
 import re
-# import sys
 import argparse
+
+def is_process_running(process_name):
+    os.system("ps -ef | grep \"" + process_name + "\" | grep -v grep | awk '{ print $2 }' > __result2.tmp")
+    try:
+        with open('__result2.tmp', 'r') as f:
+            text = f.read().strip()
+    except:
+        return is_process_running(process_name)
+    
+    return text != ''
+
+if not is_process_running("python3 memory_watchdog.py"):
+    print('########################')
+    print('Error: memory_watchdog.py IS NOT RUNNING')
+    print('########################')
+    exit(1)
 
 if os.path.basename(os.getcwd()) == 'benchmark':
     os.chdir('..')
 
 os.system('./clean.sh')
-
+# "output" subdirectory is necessary
 os.chdir("benchmark/output")
 
 OUTPUT_FILE_NAME = "bench_out_append.txt"
-
-# class MyTimeout(Exception):
-#     pass
 
 with open(OUTPUT_FILE_NAME, 'w') as f:
     pass
@@ -27,31 +38,28 @@ def append(text):
     with open(OUTPUT_FILE_NAME, 'a') as f:
         f.write(str(text))
 
-# Parameters
-# not used
-RETRY_COOLDOWN = 10
-
-backend_solver_candidate = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama']
-nth_last_line = -1
+BACKEND_SOLVER_CANDIDATE = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama']
+# BENCHMARK_NAMES = ['first_order', 'higher_nontermination', 'higher_termination', 'higher_fairtermination']
 
 parser = argparse.ArgumentParser(description='benchmarker.')
 parser.add_argument('backend_solver', metavar='backend_solver', type=str, 
-                    choices=backend_solver_candidate,
+                    choices=BACKEND_SOLVER_CANDIDATE,
                     help='backend solver name')
 parser.add_argument('--timeout', dest='timeout', action='store', type=int, default=60,
                     help='timeout')
-parser.add_argument('--benchmark', dest='benchmark', action='store', type=str, default='first_order',
-                    choices=['first_order', 'higher_nontermination', 'higher_termination'],
+parser.add_argument('--benchmark', dest='benchmark', action='store', type=str,
                     help='benchmark set')
+
+KILL_PROCESS_NAMES = ["hflmc2", "main.exe", "z3", "hoice", "eld", "java"]
+nth_last_line = -1
 
 args = parser.parse_args()
 backend_solver_name = args.backend_solver
 timeout = float(args.timeout)
 benchmark = args.benchmark
 
-kill_process_names = ["hflmc2", "main.exe", "z3", "hoice", "eld", "java"]
 lists_path = '../list_' + benchmark + '.txt'
-base_dir = '/opt/home2/git/muapprox/benchmark/' + benchmark
+base_dir = '/opt/home2/git/muapprox/benchmark/'
 add_args = []
 
 if backend_solver_name == 'sas19':
@@ -64,28 +72,6 @@ else:
     exe_path = '/opt/home2/git/muapprox/benchmark/run_' + backend_solver_name + '.sh'
     nth_last_line = -3
     BENCH_SET = 6
-
-# if BENCH_SET == 2:
-#     # under development
-#     lists_path = './list.txt'
-#     base_dir = '/opt/home2/git/muapprox/converted/'
-#     exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
-#     add_args = []
-#     nth_last_line = -3
-# # higher
-# if BENCH_SET == 4:
-#     # mora
-#     lists_path = './list2.txt'
-#     base_dir = '/opt/home2/git/hflmc2_mora/benchmark/inputs/higher_nonterminating/'
-#     exe_path = '/opt/home2/git/hflmc2_mora/_build/default/bin/main.exe'
-#     add_args = []
-#     nth_last_line = -3
-# if BENCH_SET == 5:
-#     lists_path = './list2.txt'
-#     base_dir = '/opt/home2/git/muapprox/benchmark/inputs/higher_nonterminating/'
-#     exe_path = '/opt/home2/git/muapprox/_build/default/bin/main.exe'
-#     add_args = []
-#     nth_last_line = -3
 
 def get_lines(text):
     return text.strip(' \n\r').split("\n")
@@ -142,7 +128,7 @@ def run(cmd):
     stdout = readfile("/tmp/stdout_1.txt")
     stderr = readfile("/tmp/stderr_1.txt")
     
-    for name in kill_process_names:
+    for name in KILL_PROCESS_NAMES:
         os.system('pkill ' + name)
         
     return stdout, elapsed, stderr, timed_out
@@ -171,7 +157,7 @@ def get_data(file):
                 else:
                     return {}
         except:
-            print("get_1")
+            print("get_1 (pre): not found (" + mode + ")")
             return {}
             
     def get_2(mode):
@@ -187,7 +173,7 @@ def get_data(file):
             
             return data
         except:
-            print("get_2")
+            print("get_2 (post): not found (" + mode + ")")
             return []
     
     data = {}
@@ -294,7 +280,6 @@ def main():
         "exe_path": exe_path,
         "add_args": add_args,
         "nth_last_line": nth_last_line,
-        "kill_process_names": kill_process_names,
     })
     
     with open(lists_path) as f:

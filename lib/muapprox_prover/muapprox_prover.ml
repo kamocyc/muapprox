@@ -24,9 +24,6 @@ let get_status_from_z3_output result =
   | "timeout" :: _ -> raise Status.Timeout
   | _ -> Status.Unknown
    *)
-let read_command_outputs () =
-  let unlines lines = String.concat "\n" lines in
-  (read_strings "_stdout.tmp" |> unlines, read_strings "_stderr.tmp" |> unlines)
 
 open Async
 open Solve_options
@@ -69,12 +66,19 @@ end
 
 (* TODO: 引用符で囲むなどの変換する？ *)
 let unix_system commands =
-  let commands = Array.concat [commands; [|">"; "_stdout.tmp"; "2>"; "_stderr.tmp"|]] in
+  let r = Random.int 0x10000000 in
+  let stdout_name, stderr_name = Printf.sprintf "/tmp/%d_stdout.tmp" r, Printf.sprintf "/tmp/%d_stderr.tmp" r in
+  let commands = Array.concat [commands; [|">"; stdout_name; "2>"; stderr_name|]] in
+  let command = String.concat " " (Array.to_list commands) in
+  print_endline @@ "run command (unix_system): " ^ command;
   let start_time = Stdlib.Sys.time () in
-  Unix.system ((String.concat " " (Array.to_list commands)))
+  Unix.system command 
     >>| (fun code ->
+      let unlines lines = String.concat "\n" lines in
       let elapsed = Stdlib.Sys.time () -. start_time in
-      code, elapsed
+      code, elapsed,
+      read_strings stdout_name |> unlines,
+      read_strings stderr_name |> unlines
     )
 
 module FptProverRecLimitSolver : BackendSolver = struct
@@ -191,16 +195,25 @@ module KatsuraSolver : BackendSolver = struct
   
   let save_hes_to_file hes debug_context =
     output_pre_debug_info hes debug_context;
-    Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes
+    let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
+    (* print_endline @@ "FILE: " ^ path; *)
+    path
     
-  let solver_command hes_path no_backend_inlining =
+  let solver_command hes_path solver_options =
     let solver_path = get_solver_path () in
-    if no_backend_inlining
-    then [|solver_path; "--no-disprove"; "--no-inlining"; hes_path;|]
-    else [|solver_path; "--no-disprove"; hes_path;|]
+    Array.of_list (
+      solver_path::"--no-disprove"::
+        (List.filter_map (fun x -> x)
+          [if solver_options.no_backend_inlining then Some "--no-inlining" else None;
+          match solver_options.solver_backend with None -> None | Some s -> Some ("--solver=" ^ s)]) @
+        [hes_path]
+    )
 
   let parse_results result debug_context elapsed =
     parse_results_inner result debug_context elapsed (fun stdout -> 
+      (* print_endline @@ "stdout::" ^ show_debug_context debug_context;
+      print_endline stdout;
+      print_endline "stdout_end::"; *)
       let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nProfiling:$" in
       try
         ignore @@ Str.search_forward reg stdout 0;
@@ -211,11 +224,10 @@ module KatsuraSolver : BackendSolver = struct
     
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
-    let command = solver_command path solve_options.no_backend_inlining in
+    let command = solver_command path solve_options in
     unix_system command >>|
-      (fun (status_code, elapsed) ->
+      (fun (status_code, elapsed, stdout, stderr) ->
         try
-          let stdout, stderr = read_command_outputs () in
           parse_results (status_code, stdout, stderr) debug_context elapsed
         with _ -> Status.Unknown)
 end
@@ -233,11 +245,15 @@ module IwayamaSolver : BackendSolver = struct
     output_pre_debug_info hes debug_context;
     Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes
     
-  let solver_command hes_path no_backend_inlining =
+  let solver_command hes_path solver_options =
     let solver_path = get_solver_path () in
-    if no_backend_inlining
-    then [|solver_path; "--no-inlining"; hes_path;|]
-    else [|solver_path; hes_path;|]
+    Array.of_list (
+      solver_path::
+        (List.filter_map (fun x -> x)
+          [if solver_options.no_backend_inlining then Some "--no-inlining" else None;
+          match solver_options.solver_backend with None -> None | Some s -> Some ("--solver=" ^ s)]) @
+        [hes_path]
+    )
 
   let parse_results result debug_context elapsed =
     parse_results_inner result debug_context elapsed (fun stdout -> 
@@ -252,11 +268,10 @@ module IwayamaSolver : BackendSolver = struct
   
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
-    let command = solver_command path solve_options.no_backend_inlining in
+    let command = solver_command path solve_options in
     unix_system command
-    >>| (fun (status_code, elapsed) ->
+    >>| (fun (status_code, elapsed, stdout, stderr) ->
         try
-          let stdout, stderr = read_command_outputs () in
           parse_results (status_code, stdout, stderr) debug_context elapsed
           with _ -> Status.Unknown)
 end

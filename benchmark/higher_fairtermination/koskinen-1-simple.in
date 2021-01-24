@@ -1,0 +1,20 @@
+/* Reduceで切れているが、Finish->* と続くのでOK */
+%HES
+Sentry =v ∀t. Explore t F.
+Finish =v Finish.
+Explore x r =u Reduce x r (\y. (y <= 0 => Finish) /\ (y > 0 => Explore y r)).
+Reduce x r k =u (x <= 0 => k x) /\ (x > 0 => r x k).
+F x k =u k (x-2).
+
+/*
+fairness: (Finish, Never)
+*/
+
+/*
+/* さらに単純化したバージョン */ 
+%HES
+Sentry =v ∀t. Explore t.
+Finish =v Finish.
+Explore x =u (x <= 0 => A x) /\ (x > 0 => A (x-2)).
+A y =u (y <= 0 => Finish) /\ (y > 0 => Explore y).
+*/
