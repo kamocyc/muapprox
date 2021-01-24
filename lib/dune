@@ -4,6 +4,7 @@
     hflmc2_util
     hflmc2_options
     hflmc2_syntax
+    ltl_program
     muapprox.muapprox_prover
     )
   (flags (-cclib -lstdc++)))

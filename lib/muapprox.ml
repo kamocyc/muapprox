@@ -98,6 +98,7 @@ let check_format file format_type =
   | _ -> failwith "format should be \"hes\", \"in\" or \"auto\""
 
 let main file cont =
+  Ltl_program.domain file;
   let solve_options = get_solve_options file in
   let is_hes = check_format file !Options.format in
   let psi = parse file is_hes in
