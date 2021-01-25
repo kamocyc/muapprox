@@ -25,7 +25,7 @@ open Raw_program
 %token ENV HES
 %token TRANSITION PRIORITY INITIAL
 
-%token TBOOL TINT TARROW "->"
+%token TUNIT TINT TARROW "->"
 
 %right OR
 %right AND
@@ -131,7 +131,7 @@ atom:
 // | uvar ":" abstraction_ty DOT { $1, $3 }
 
 abstraction_ty:
-| TBOOL                    { Type.TyBool ()   }
+| TUNIT                    { Type.TyUnit ()   }
 | abstraction_argty "->" abstraction_ty
     { let x = Id.{ name="_"; id=(-1); ty=$1 } in
       Type.TyArrow(x, $3)

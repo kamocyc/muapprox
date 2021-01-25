@@ -27,6 +27,12 @@ type itenv_type = ITEInt | ITEInter of itype * int * int
 type itenv_item = id * itenv_type
 type itenv = itenv_item list
 
+type itype' =
+    ITState' of string
+  | ITFunc' of iarg * itype'
+  | ITInt'
+[@@deriving show]
+
 type transition_rule = (string * string) * string
 let show_transition_rule ((state, symbol), target) =
   "(" ^ state ^ ", " ^ symbol ^ ") -> " ^ target

@@ -8,7 +8,7 @@ type 'ty arg
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 type 'annot ty
-  = TyBool of 'annot
+  = TyUnit of 'annot
   | TyArrow of 'annot ty arg Id.t * 'annot ty
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
@@ -29,7 +29,7 @@ type simple_argty = simple_ty arg
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 let rec show_simple_ty (ty : simple_ty) = match ty with
-  | TyBool _ -> "bool"
+  | TyUnit _ -> "unit"
   | TyArrow (arg, body) -> show_simple_argty arg.ty ^ "->" ^ show_simple_ty body
 and show_simple_argty (ty : simple_argty) = match ty with
   | TyInt -> "int"
@@ -43,7 +43,7 @@ let mk_arrows : 'annot ty arg Id.t list -> 'annot ty -> 'annot ty =
     List.fold_right args ~init:ret_ty ~f:begin fun arg ret_ty ->
       TyArrow(arg, ret_ty)
     end
-
+(* 
 let decompose_arrow : 'annot ty -> 'annot ty arg Id.t list * 'annot =
   let rec go acc = function
     | TyBool ann -> List.rev acc, ann
@@ -70,7 +70,7 @@ let rec merge
 let merges : ('annot -> 'annot -> 'annot) -> 'annot ty list -> 'annot ty =
   fun append tys -> match tys with
     | [] -> invalid_arg "Type.merges"
-    | ty::tys -> List.fold_right ~init:ty tys ~f:(merge append)
+    | ty::tys -> List.fold_right ~init:ty tys ~f:(merge append) *)
 
 (* Abstraction Type *)
 (* 

@@ -99,7 +99,6 @@ let check_format file format_type =
   | _ -> failwith "format should be \"hes\", \"in\" or \"auto\""
 
 let main file cont =
-  Ltl_program.domain file;
   let solve_options = get_solve_options file in
   let is_hes = check_format file !Options.format in
   let psi = parse file is_hes in
@@ -131,5 +130,5 @@ let main file cont =
 let assign_serial_to_vars_hes = Muapprox_prover.Check_formula_equality.assign_serial_to_vars_hes
 let check_equal_hes = Muapprox_prover.Check_formula_equality.check_equal_hes
 let show_debug_context = Muapprox_prover.show_debug_context
-
 let abbrev_variable_numbers_hes = Muapprox_prover.Abbrev_variable_numbers.abbrev_variable_numbers_hes
+let convert_ltl = Ltl_program.convert_ltl

@@ -7,36 +7,18 @@ let print_location lexbuf =
   let pos = lexbuf.lex_curr_p in
   Printf.sprintf "file: %s, line %d, column %d" pos.pos_fname
     pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
-(* 
-let transition_function1 q symbol =
-  match q with
-  | ITFunc _ -> failwith "a"
-  | ITState s ->begin
-    match s, symbol with
-    | _, "a" -> [ITState "qa"]
-    | _, "b" -> [ITState "qb"]
-    | _ -> failwith "transition_function1"
-  end
-
-let priority q = 
-  match q with
-  | ITFunc _ -> failwith "a"
-  | ITState s ->begin
-    match s with
-    | "qa" -> 0
-    | "qb" -> 1
-    | _ -> failwith "priority"
-  end *)
 
 let as_function assoc key =
-  List.assoc key assoc
-  
+  match List.assoc_opt key assoc with
+  | None -> failwith @@ "as_function: Not_found (key=" ^ key ^ ")"
+  | Some s -> s
+
 let as_multi_function assoc key =
   match List.find_all (fun (k, v) -> key = k) assoc with
   | [] -> failwith @@ "as_multi_function (key=(" ^ fst key ^ ", " ^ snd key ^ "))"
   | l -> l |> List.map (fun (k, v) -> v)
-  
-let domain file =
+
+let convert_ltl file =
   Core.In_channel.with_file file ~f:begin fun ch ->
     let lexbuf = Lexing.from_channel ch in
     let program, env =
@@ -44,7 +26,7 @@ let domain file =
         Parser.main Lexer.token lexbuf
       with
       | Parser.Error as b->
-        print_string "Parse rrror: ";
+        print_string "Parse error: ";
         print_endline @@ print_location lexbuf;
         raise b
         in
@@ -67,13 +49,20 @@ let domain file =
     print_endline "";
     match env with
     | Some (env, initial_state, transition, priority) -> begin
+      let all_states = List.map fst priority in
+      let max_m = List.fold_left (fun a (_, b) -> if a < b then b else a) (-1) priority in
+      let env = canonical_it_hes program' all_states max_m in
+      print_endline "env:";
+      print_endline @@ show_itype_env env;
+      (* let env = env in *)
       let func_priority = get_priority env in
-      let program_ = trans_hes env program' (as_multi_function transition) (as_function priority) initial_state in
-      print_endline "program (after):";
-      print_endline @@ show_hes program_;
-      print_endline "Omega:";
+      let program_ = trans_hes env program' (as_multi_function transition) (as_function priority) initial_state all_states in
+      (* print_endline "program (after):";
+      print_endline @@ show_hes_as_ocaml program_ *)
+      print_endline @@ to_hflz program_ func_priority;
+      (* print_endline "Omega:";
       print_endline (List.map (fun (f, p) -> f ^ " -> " ^ string_of_int p) func_priority |> String.concat "\n");
-      print_endline ""
+      print_endline "" *)
     end
     | None -> failwith "a"
   end

@@ -7,6 +7,7 @@
 (library
  (public_name ltl_program)
  (libraries
+   str
    core
    fmt
    logs
@@ -14,5 +15,6 @@
    lwt
    lwt.unix
    menhirLib)
+   (flags (-cclib -lstdc++))
  (preprocess (pps ppx_deriving.std ppx_compare ppx_sexp_conv ppx_inline_test ppx_expect)))
 (env (dev (flags (:standard -warn-error -A -w -3-26-27-33))))

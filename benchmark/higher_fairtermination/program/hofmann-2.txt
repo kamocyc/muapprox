@@ -1,0 +1,38 @@
+%HES
+let f = g h
+let h = event b; f
+let g (k : unit) = if * then (event a; g k) else (event c; k)
+let () = f
+
+%ENV
+f : (q0, 0)
+f : (q1, 0)
+h : (q0, 0)
+g : ((q0, 0) -> q0, 0)
+
+%INITIAL
+q0
+
+%TRANSITION
+(q0, a) -> q2
+(q0, b) -> q2
+(q0, c) -> q2
+(q0, a) -> q0
+(q0, b) -> q0
+(q0, c) -> q0
+(q0, b) -> q1
+(q1, a) -> q0
+(q1, b) -> q0
+(q1, c) -> q0
+(q2, a) -> q2
+(q2, b) -> q2
+(q2, c) -> qd
+(qd, a) -> qd
+(qd, b) -> qd
+(qd, c) -> qd
+
+%PRIORITY
+q0 -> 1
+q1 -> 2
+q2 -> 2
+qd -> 1

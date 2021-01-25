@@ -42,7 +42,7 @@ rule token = parse
 | ":"                      { COLON     }
 | ","                      { COMMA }
 | "int"                    { TINT      }
-| "bool"                   { TBOOL     }
+| "unit"                   { TUNIT     }
 | "->"                     { TARROW    }
 | "let"                    { LET }
 | digit digit*             { INT (int_of_string (Lexing.lexeme lexbuf)) }

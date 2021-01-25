@@ -1,0 +1,21 @@
+%HES
+let f = event a; event b; f
+let () = f
+
+%ENV
+f : (qa, 0)
+f : (qb, 1)
+
+
+%INITIAL
+qa
+
+%TRANSITION
+(qa, a) -> qa
+(qb, a) -> qa
+(qa, b) -> qb
+(qb, b) -> qb
+
+%PRIORITY
+qa -> 0
+qb -> 1
