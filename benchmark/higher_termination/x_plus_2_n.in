@@ -1,5 +1,5 @@
 %HES
-Sentry =v Main (\r. true).
+Sentry =u Main (\r. true).
 Main k =u ∀n. ∀x. ((n >= 0 /\ x >= 0) => F n x k) /\ ((n < 0 \/ x < 0) => k 0).
 F n m k =u (n = 0 => Succ m k) /\ (n != 0 => G (F (n-1)) m k).
 G r a k =u r a (\r'. r r' k).

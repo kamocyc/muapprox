@@ -106,14 +106,8 @@ let of_func env {Hflz.fix; body; var} =
 
 
 let of_hes hes =
+  let (entry, rules) = hes in
   Log.app begin fun m -> m ~header:"of_hes" "%a" Manipulate.Print_syntax.(hflz_hes simple_ty_) hes end;
-  match hes with
-  | [] -> failwith "of_hes"
-  | frule::rem -> begin
-    (* let rec_preds = Hflz_util.get_recurring_predicates hes in
-    if List.exists ~f:(fun id -> id = frule.Hflz.var ) rec_preds then failwith "hflz_hes': First rule is recursive"; *)
-    if frule.Hflz.var.ty <> TyBool () then failwith "hflz_hes': First rule has arguments";
-    let ep = go [] frule.Hflz.body in
-    let funcs = List.map ~f:(of_func []) rem in
-    Hes.HesLogic.Hes (funcs, ep)
-  end
+  let ep = go [] entry in
+  let funcs = List.map ~f:(of_func []) rules in
+  Hes.HesLogic.Hes (funcs, ep)

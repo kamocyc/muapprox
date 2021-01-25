@@ -145,7 +145,7 @@ module Subst = struct
         | Bool _         -> phi
 
     (** Invariant: phi must have type TyBool *)
-    let reduce_head : 'ty S.Hflz.hes -> 'ty S.Hflz.t -> 'ty S.Hflz.t =
+    let reduce_head : 'ty S.Hflz.hes_rule list -> 'ty S.Hflz.t -> 'ty S.Hflz.t =
       fun hes phi -> match phi with
       | Var x ->
           begin match x.ty, List.find hes ~f:(fun rule -> S.Id.eq x rule.var) with
@@ -218,7 +218,7 @@ module Reduce = struct
           end
       | Abs(x, phi) -> Abs(x, beta phi)
       | phi -> phi
-    let rec ones = 1 :: ones
+    (* let rec ones = 1 :: ones
     module Scc(Key: Map.Key) = struct
       module Set = Set.Make'(Key)
       module Map = Map.Make'(Key)
@@ -270,11 +270,7 @@ module Reduce = struct
         ls
     end
     let inline : simple_ty S.Hflz.hes -> simple_ty S.Hflz.hes =
-      fun rules ->
-        let main, rules = match rules with
-          | [] -> assert false
-          | main::rules -> main, rules
-        in
+      fun (main, rules) ->
         let module Scc = Scc(Id.Key) in
         let dep_graph : Scc.graph =
           IdMap.of_alist_exn @@ List.map (main::rules) ~f:begin fun rule ->
@@ -341,7 +337,7 @@ module Reduce = struct
         in
         List.map (main::rules) ~f:begin fun rule ->
           { rule with body = Subst.Hflz.hflz inline_map rule.body }
-        end
+        end *)
   end
 end
 
@@ -380,13 +376,14 @@ module Simplify = struct
   let hflz_hes_rule : 'a Hflz.hes_rule -> 'a Hflz.hes_rule =
     fun rule -> { rule with body = hflz rule.body }
   let hflz_hes : simple_ty Hflz.hes -> bool -> simple_ty Hflz.hes =
-    fun rules inlining ->
+    fun (entry, rules) inlining ->
+      hflz entry,
       rules
-      |> begin
+      (* |> begin
           if inlining
           then Reduce.Hflz.inline
           else Fn.id
-         end
+         end *)
       |> List.map ~f:hflz_hes_rule
 
   let rec hfl : ?force:bool -> Hfl.t -> Hfl.t =

@@ -68,16 +68,19 @@ let assign_serial_to_vars gen env (phi : Type.simple_ty Hflz.t) =
     | Op (op, ariths) -> Op (op, List.map (go_arith env) ariths) in
   go env phi
   
-let assign_serial_to_vars_hes (hes : Type.simple_ty Hflz.hes) =
+let assign_serial_to_vars_hes ((entry, rules) : Type.simple_ty Hflz.hes) =
   let counter = ref 0 in
   let gen ty =
     counter := !counter + 1;
     { Id.name = "x" ^ (string_of_int !counter); id = !counter; ty = ty } in
-  let env = List.map (fun rule -> (lift_id rule.Hflz.var, gen (Type.TySigma rule.Hflz.var.ty))) hes in
-  List.map (fun rule -> {
-    Hflz.var = unlift_id (find_id rule.Hflz.var env |> snd);
-    fix = rule.fix;
-    body = assign_serial_to_vars gen env rule.body}) hes
+  let env = List.map (fun rule -> (lift_id rule.Hflz.var, gen (Type.TySigma rule.Hflz.var.ty))) rules in
+  let entry = assign_serial_to_vars gen env entry in
+  let rules =
+    List.map (fun rule -> {
+      Hflz.var = unlift_id (find_id rule.Hflz.var env |> snd);
+      fix = rule.fix;
+      body = assign_serial_to_vars gen env rule.body}) rules in
+  entry, rules
 
 let check_equal phi1 phi2 =
   let cp path constr dir = (constr ^ " " ^ dir) :: path in

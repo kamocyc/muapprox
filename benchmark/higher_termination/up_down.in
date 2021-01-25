@@ -1,5 +1,5 @@
 %HES
-Sentry =v Main (\r. true).
+Sentry =u Main (\r. true).
 Main k =u ∀t1. ∀t2.
   (t1 > 0 => App Down t1 k) /\
   ((t1 <= 0 /\ t2 < 0) => App Up t2 k) /\

@@ -71,9 +71,10 @@ let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes_rule Fmt.t =
       (hflz format_ty_) rule.body *)
 
 let hflz_hes : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes Fmt.t =
-  fun format_ty_ ppf hes ->
-    Fmt.pf ppf "@[<v>%a@]"
-      (Fmt.list (hflz_hes_rule format_ty_)) hes
+  fun format_ty_ ppf (entry, rules) ->
+    Fmt.pf ppf "@[<v>Sentry =v %a@]@[<v>%a@]"
+      (hflz format_ty_) entry
+      (Fmt.list (hflz_hes_rule format_ty_)) rules
 
 module PrintUtil = struct
   let replace_apos s =
@@ -209,14 +210,10 @@ module FptProverHes = struct
         hflz' phi
   
   let hflz_hes' : 'ty Hflz.hes Fmt.t =
-    fun ppf hes ->
-      match hes with
-      | [] -> failwith "hflz_hes': Empty hes"
-      | first_rule::hes -> begin
-        Fmt.pf ppf "@[<v>%a\ns.t.\n%a@]"
-          hflz' first_rule.body
-          (Fmt.list hflz_hes_rule') hes
-      end
+    fun ppf (entry, rules) ->
+      Fmt.pf ppf "@[<v>%a\ns.t.\n%a@]"
+        hflz' entry
+        (Fmt.list hflz_hes_rule') rules
     
   let save_hes_to_file ?(file) hes =
     Random.self_init ();
@@ -296,9 +293,10 @@ module MachineReadable = struct
         (hflz' format_ty_ show_forall without_id) phi
   
   let hflz_hes' : (Prec.t -> 'ty Fmt.t) -> bool -> bool -> 'ty Hflz.hes Fmt.t =
-    fun format_ty_ show_forall without_id ppf hes ->
-      Fmt.pf ppf "@[<v>%a@]"
-        (Fmt.list (hflz_hes_rule' format_ty_ show_forall without_id)) hes
+    fun format_ty_ show_forall without_id ppf (entry, rules) ->
+      Fmt.pf ppf "@[<v>Sentry =v %a.@]@[<v>%a@]"
+        (hflz' format_ty_ show_forall without_id) entry
+        (Fmt.list (hflz_hes_rule' format_ty_ show_forall without_id)) rules
     
   let save_hes_to_file ?(file) ?(without_id=false) show_forall hes =
     Random.self_init ();

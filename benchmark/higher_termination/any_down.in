@@ -1,4 +1,4 @@
 %HES
-Main =v ∀n. F n (\r. true).
+Sentry =u ∀n. F n (\r. true).
 F n k =u ∀r. ((r > 0 => F1 (n - r) k) /\ (r <= 0 => F1 (n - (1 - r)) k)).
 F1 n_next k =u (n_next > 0 => F n_next k) /\ (n_next <=0 => k true).

@@ -61,7 +61,7 @@ let output_debug (dbg : debug_context option) path =
   
 
 module type BackendSolver = sig
-  val run : options -> debug_context option -> Hflmc2_syntax.Type.simple_ty Hflz.hes_rule list -> bool -> Status.t Deferred.t
+  val run : options -> debug_context option -> Hflmc2_syntax.Type.simple_ty Hflz.hes -> bool -> Status.t Deferred.t
 end
 
 (* TODO: 引用符で囲むなどの変換する？ *)
@@ -90,7 +90,7 @@ module FptProverRecLimitSolver : BackendSolver = struct
     | Sat -> Sat
     | UnSat -> UnSat
   
-  let run option debug_context hes with_par =
+  let run option debug_context (hes : 'a Hflz.hes) with_par =
     print_endline "FIRST-ORDER";
     let path_ = Manipulate.Print_syntax.FptProverHes.save_hes_to_file hes in
     print_endline @@ "HES PATH: " ^ path_;
@@ -284,6 +284,7 @@ let rec is_first_order_function_type (ty : Hflmc2_syntax.Type.simple_ty) =
   
 let is_first_order_hes hes =
   Hflz_mani.decompose_lambdas_hes hes
+  |> (fun (e, r) -> (Hflz.mk_entry_rule e)::r)
   |> List.for_all (fun { Hflz.var; _} -> is_first_order_function_type var.ty)
   
 let solve_onlynu_onlyforall solve_options debug_context hes with_par =
@@ -345,21 +346,23 @@ let is_onlyforall_body formula =
   fold_hflz (fun b f -> match f with Hflz.Exists _ -> false | _ -> b) formula true
 let is_onlynu_onlyforall_rule {Hflz.var; fix; body} =
   (fix = Fixpoint.Greatest) && is_onlyforall_body body
-let is_onlynu_onlyforall =
-  List.for_all is_onlynu_onlyforall_rule
+let is_onlynu_onlyforall (entry, rules) =
+  is_onlyforall_body entry
+  && (List.for_all is_onlynu_onlyforall_rule rules)
 
 let is_onlyexists_body formula =
   fold_hflz (fun b f -> match f with Hflz.Forall _ -> false | _ -> b) formula true
 let is_onlymu_onlyexists_rule {Hflz.var; fix; body} =
   (fix = Fixpoint.Least) && is_onlyexists_body body
-let is_onlymu_onlyexists =
-  List.for_all is_onlymu_onlyexists_rule
+let is_onlymu_onlyexists (entry, rules) =
+  is_onlyexists_body entry
+  && (List.for_all is_onlymu_onlyexists_rule rules)
 
 (* let flip_status_pair (s1, s2) =
   (Status.flip s1, s2) *)
 
 (* TODO: forallを最外に移動？ => いらなそうか *)
-let elim_mu_exists coe1 coe2 debug_output hes name =
+let elim_mu_exists coe1 coe2 debug_output (hes : 'a Hflz.hes) name =
   (* 再帰参照していない述語はgreatestに置換 *)
   (* これをすると、fixpoint alternationが新たにできて、式が複雑になることがあるので、やめる *)
   (* let hes = to_greatest_from_not_recursive rec_preds hes in *)
@@ -446,13 +449,7 @@ let solve_onlynu_onlyforall_with_schedule solve_options nu_only_hes cont =
   
 (* 「shadowingが無い」とする。 *)
 (* timeoutは個別のsolverのtimeout *)  
-let check_validity coe1 coe2 solve_options hes cont =
-  (* Log.app begin fun m -> m ~header:"check_validity (first)" "%a" Manipulate.Print_syntax.(MachineReadable.hflz_hes' simple_ty_ false) hes end; *)
-  (* let hes = Hflz_mani.decompose_lambdas_hes hes in
-  Log.app begin fun m -> m ~header:"Decompose lambdas" "%a" Manipulate.Print_syntax.(hflz_hes simple_ty_) hes end; *)
-  (* let rec_preds = Manipulate.Hflz_util.get_recurring_predicates hes in *)
-  (* print_endline "get_recurring_predicates";
-    List.iter (fun p -> print_string @@ Hflmc2_syntax.Id.to_string p ^ ", ") rec_preds; print_endline ""; *)
+let check_validity coe1 coe2 solve_options (hes : 'a Hflz.hes) cont =
   if is_onlynu_onlyforall hes then
     solve_onlynu_onlyforall_with_schedule solve_options hes cont
   else if is_onlymu_onlyexists hes then

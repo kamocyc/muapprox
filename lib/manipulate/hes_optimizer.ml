@@ -20,10 +20,12 @@ let get_pvar_called_counts hes =
   then P1 is eliminated by inline expansion
   (the reason of this is trivial when you think the hes as a plain HFLz formula)
 *)
-module InlineExpansion : sig
+module InlineExpansion (* : sig
   val optimize: 'a Hflz.hes -> 'a Hflz.hes
-end = struct
-  let optimize (hes_list : 'a Hflz.hes) =
+end*) = struct
+  let optimize (org_hes : 'a Hflz.hes) =
+    let (entry, org_rules) = org_hes in
+    let hes_list = (Hflz.mk_entry_rule entry)::org_rules in
     let n = List.length hes_list in
     let pvar_to_id = List.mapi (fun i {Hflz.var;_} -> (var, i)) hes_list in
     let called_counts = get_pvar_called_counts hes_list in
@@ -51,6 +53,7 @@ end = struct
     |> List.mapi (fun i r -> (i, r))
     |> List.filter (fun (id, {Hflz.var; _}) -> not expanded.(id))
     |> List.map (fun (_, r) -> r)
+    |> Hflz.decompose_entry_rule
 end
 
 let simple_partial_evaluate_hfl phi =
@@ -67,8 +70,10 @@ let simple_partial_evaluate_hfl phi =
   in
   go phi
 
-let simple_partial_evaluate_hes =
-  List.map (fun rule -> { rule with Hflz.body = simple_partial_evaluate_hfl rule.Hflz.body })
+let simple_partial_evaluate_hes (entry, rules) =
+  (Hflz.mk_entry_rule entry)::rules |>
+  List.map (fun rule -> { rule with Hflz.body = simple_partial_evaluate_hfl rule.Hflz.body }) |>
+  Hflz.decompose_entry_rule
 
 let evaluate_trivial_boolean phi =
   let rec go phi = match phi with
@@ -104,8 +109,10 @@ let evaluate_trivial_boolean phi =
     | Var _ -> phi in
   go phi
 
-let evaluate_trivial_boolean =
-  List.map (fun rule -> { rule with Hflz.body = evaluate_trivial_boolean rule.Hflz.body })
+let evaluate_trivial_boolean (entry, rules) =
+  (Hflz.mk_entry_rule entry)::rules |>
+  List.map (fun rule -> { rule with Hflz.body = evaluate_trivial_boolean rule.Hflz.body }) |>
+  Hflz.decompose_entry_rule
   
 let simplify (hes : Type.simple_ty Hflz.hes)=
   let hes = InlineExpansion.optimize hes in
@@ -170,7 +177,7 @@ let%expect_test "InlineExpansition.optimize" =
       var = nth 4;
       body = Abs (id_n 401 TyInt, And (Pred (Eq, [Var (id_n 401 `Int); Int 5]), App (Var (nth 3), Arith (Int 6))))
     }] in
-  Hflz_typecheck.type_check org;
+  Hflz_typecheck.type_check (Bool true, org);
   ignore [%expect.output];
   print_endline "OK";
   [%expect {| OK |}];
@@ -210,14 +217,14 @@ let%expect_test "InlineExpansition.optimize" =
          (Type.TyBool ())))
       }
     body: λx_401401:int.x_401401 = 5 && x_300300 6} |}];
-  let hes = InlineExpansion.optimize org in
+  let hes = InlineExpansion.optimize (Bool true, org) in
   ignore [%expect.output];
   (* ignore [%expect.output]; *)
-  Hflz_typecheck.type_check org;
+  Hflz_typecheck.type_check (Bool true, org);
   ignore [%expect.output];
   print_endline "OK";
   [%expect {| OK |}];
-  print_endline @@ Print_syntax.show_hes hes;
+  print_endline @@ Print_syntax.show_hes (snd hes);
   (* print_endline @@ show_hes hes; *)
   (* print_endline @@ Util.fmt_string (Print_syntax.hflz_hes_rule Print_syntax.simple_ty_) rule; *)
   [%expect {|
