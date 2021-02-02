@@ -27,7 +27,7 @@ module Sugar = struct
     }
     [@@deriving eq,ord,show,iter,map,fold,sexp]
   
-  type 'ty hes = 'ty hes_rule list
+  type 'ty hes = 'ty t * 'ty hes_rule list
     [@@deriving eq,ord,show,iter,map,fold,sexp]
     
   let mk_var x : 'a t = Var x
@@ -61,24 +61,10 @@ type 'ty hes_rule =
   }
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
-let ensure_no_mu_exists hes =
-  let rec no_exists = function
-    | Bool _ -> true
-    | Var _  -> true
-    | Or (f1, f2)  -> no_exists f1 && no_exists f2
-    | And (f1, f2) -> no_exists f1 && no_exists f2
-    | Abs (_, f1)  -> no_exists f1
-    | Forall (_, f1) -> no_exists f1
-    | Exists _ -> false
-    | App (f1, f2) -> no_exists f1 && no_exists f2
-    | Arith _ -> true
-    | Pred _ -> true in
-  List.for_all ~f:(fun {body; fix; _} -> fix = Fixpoint.Greatest && no_exists body) hes
-
 let lookup_rule f hes =
   List.find_exn hes ~f:(fun r -> Id.eq r.var f)
 
-type 'ty hes = 'ty hes_rule list
+type 'ty hes = 'ty t * 'ty hes_rule list
   [@@deriving eq,ord,show,iter,map,fold,sexp]
 
 (* Construction *)
@@ -140,8 +126,9 @@ let desugar_formula (formula : 'a Sugar.t) : 'a t =
     | Not phi1         -> neg phi1 in
   thr formula
     
-let desugar (hes : 'a Sugar.hes) : 'a hes =
-  List.map ~f:(fun { var; body; fix } -> { var; fix; body = desugar_formula body }) hes
+let desugar ((entry, rules) : 'a Sugar.hes) : 'a hes =
+  desugar_formula entry,
+  List.map ~f:(fun { var; body; fix } -> { var; fix; body = desugar_formula body }) rules
   
 let rec fvs = function
   | Var x          -> IdSet.singleton x
@@ -233,3 +220,26 @@ let get_hflz_type phi =
   go phi
 
 let id_n n t = { Id.name = "x_" ^ string_of_int n; id = n; ty = t }
+
+
+let dummy_entry_name = "MAIN__"
+let mk_entry_rule body = {var=Id.gen ~name:dummy_entry_name (Type.TyBool ()); fix=Fixpoint.Greatest; body=body }
+let decompose_entry_rule rules = match rules |> Stdlib.List.partition (fun r -> r.var.name = dummy_entry_name) with
+  | [e], rules -> e.body, rules
+  | _ -> failwith "decompose_entry_rule"
+
+
+let ensure_no_mu_exists (hes : 'a hes) =
+  let rec no_exists = function
+    | Bool _ -> true
+    | Var _  -> true
+    | Or (f1, f2)  -> no_exists f1 && no_exists f2
+    | And (f1, f2) -> no_exists f1 && no_exists f2
+    | Abs (_, f1)  -> no_exists f1
+    | Forall (_, f1) -> no_exists f1
+    | Exists _ -> false
+    | App (f1, f2) -> no_exists f1 && no_exists f2
+    | Arith _ -> true
+    | Pred _ -> true in
+  List.for_all ~f:(fun {body; fix; _} -> fix = Fixpoint.Greatest && no_exists body) ((mk_entry_rule (fst hes))::(snd hes))
+  

@@ -1,7 +1,7 @@
 open Hflz_typecheck
 open Hflz
 
-let get_dependency_graph (hes : 'a hes) =
+let get_dependency_graph (hes : 'a hes_rule list) =
   let preds = List.mapi (fun i {var; _} -> (i, var)) hes in
   let graph_size = List.length hes in
   let graph = Mygraph.init graph_size in
@@ -20,18 +20,3 @@ let get_dependency_graph (hes : 'a hes) =
     )
     hes;
   preds, graph
-  
-(* 自身に到達可能なノードのみを返す *)
-(* 構文的に展開していって、再帰的に参照していなければ、不動点を使う必要はない。 *)
-let get_recurring_predicates (hes : Type.simple_ty hes) = 
-  let preds, graph = get_dependency_graph hes in
-  (* 自身に到達可能なノードのみを返す *)
-  List.filter_map
-    (fun (i, var) -> 
-      let reachables = Mygraph.reachable_nodes_from ~start_is_reachable_initially:false i graph in
-      match List.find_opt (fun n -> n = i) reachables with
-      | None -> None
-      | Some _ -> Some var
-    )
-    preds
-  

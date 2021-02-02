@@ -1,5 +1,5 @@
 %HES
-Sentry =v F (App (F (App Id) (App Omega))) (App Id) true.
+Sentry =u F (App (F (App Id) (App Omega))) (App Id) true.
 App h x =u h x.
 F x y z =u y z.
 Omega x =u Omega x.

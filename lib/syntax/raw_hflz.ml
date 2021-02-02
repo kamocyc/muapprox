@@ -381,7 +381,9 @@ module Typing = struct
               error @@ Fmt.strf "%s is defined twice" rule.var
           end
         in
-        List.map hes ~f:(self#hes_rule id_env)
+        match List.map hes ~f:(self#hes_rule id_env) with
+        | [] -> failwith "raw_hflz: hes"
+        | {body=entry; _}::rules -> (entry, rules)
   end
 
   exception IntType
@@ -439,7 +441,7 @@ module Typing = struct
         { var; body; fix = rule.fix }
 
     method hes : unit Hflz.Sugar.hes -> simple_ty Hflz.Sugar.hes =
-      fun hes -> List.map hes ~f:self#hes_rule
+      fun (entry, rules) -> self#term entry, List.map rules ~f:self#hes_rule
   end
 
   let to_typed rhes =
@@ -448,10 +450,13 @@ module Typing = struct
     let ty_env, unbound_ints =
       add_annot#get_ty_env, add_annot#get_unbound_ints
     in
+    if StrMap.length unbound_ints <> 0 then
+      failwith @@ "to_typed: unbound integer variables: " ^ (String.concat ~sep:", " (List.map (StrMap.to_alist unbound_ints) ~f:(fun (name, _) -> name)));
     let deref     = new deref ty_env in
     let hes       = deref#hes annotated in
-    match hes with
-    | main::rest ->
+    hes
+    (* match hes with
+    | (main, rest) ->
         (* dirty hack for compatibility with Suzuki's impl*)
         let ub_ints =
           List.map (StrMap.to_alist unbound_ints) ~f:begin
@@ -464,7 +469,7 @@ module Typing = struct
           { main with var; body }
         in
         main :: rest
-    | _ -> assert false
+    | _ -> assert false *)
 end
 
 open Type
@@ -533,22 +538,24 @@ let rename_ty_body : simple_ty Hflz.Sugar.hes -> simple_ty Hflz.Sugar.hes =
     in
     let env =
       IdMap.of_list @@
-        List.map hes ~f:begin fun rule ->
+        List.map (snd hes) ~f:begin fun rule ->
           rule.var, rule.var.ty
         end
     in
-    List.map hes ~f:(rule env)
+    let (entry, rules) = hes in
+    term env entry,
+    List.map rules ~f:(rule env)
 
 let to_typed (raw_hes, env) =
   let typed_hes =
     raw_hes
     |> Typing.to_typed
-    |> List.map ~f:rename_simple_ty_rule
+    |> (fun (e, rules) -> e, List.map ~f:rename_simple_ty_rule rules)
   in
   let () = (* check env *)
     let unknown_nt =
       List.find env ~f:begin fun (f,_) ->
-        List.for_all typed_hes ~f:(fun r -> r.var.name <> f)
+        List.for_all (snd typed_hes) ~f:(fun r -> r.var.name <> f)
       end
     in
     match unknown_nt with
@@ -556,7 +563,7 @@ let to_typed (raw_hes, env) =
     | Some (f,_) -> Fn.fatal @@ "ENV: There is no NT named " ^ f
   in
   let gamma = IdMap.of_list @@
-    List.map typed_hes ~f:begin fun rule ->
+    List.map (snd typed_hes) ~f:begin fun rule ->
       let v = rule.var in
       let aty =
         match List.Assoc.find ~equal:String.equal env v.name with

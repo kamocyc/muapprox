@@ -101,8 +101,11 @@ let type_check (hes : Type.simple_ty hes) : unit =
   (* let path = Print_syntax.FptProverHes.save_hes_to_file hes in
   print_endline @@ "Not checked HES path (.hes): " ^ path; *)
   let show_ty = Type.show_ty Fmt.nop in
-  let env = List.map (fun {var={ty;_} as var;_} -> {var with ty=Type.TySigma ty}) hes in
+  let (entry, rules) = hes in
+  let env = List.map (fun {var={ty;_} as var;_} -> {var with ty=Type.TySigma ty}) rules in
+  let ty' = get_hflz_type env entry in
+  if not @@ Type.eq_modulo_arg_ids ty' (TyBool ()) then failwith @@ "rule type mismatch (Checked type: " ^ show_ty ty' ^ " / Env type: " ^ show_ty (TyBool ()) ^ ")";
   List.iter (fun ({var={ty;_}; body; _}) -> 
     let ty' = get_hflz_type env body in
     if not @@ Type.eq_modulo_arg_ids ty' ty then failwith @@ "rule type mismatch (Checked type: " ^ show_ty ty' ^ " / Env type: " ^ show_ty ty ^ ")"
-  ) hes
+  ) rules

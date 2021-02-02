@@ -1,5 +1,5 @@
 %HES
-Sentry =v ∀n. ∀m. F n m (\r. true).
+Sentry =u ∀n. ∀m. F n m (\r. true).
 F m n k =u ((m > 0 => F (m-1) n k) /\ (m <= 0 => k false)) /\ ((n > 0 => F m (n-1) k) /\ (n <= 0 => k false)).
 
 /*

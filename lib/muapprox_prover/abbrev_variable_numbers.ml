@@ -90,11 +90,11 @@ let abbrev_variable_numbers env (phi : Type.simple_ty Hflz.t) =
     | Op (op, ariths) -> Op (op, List.map (go_arith env) ariths) in
   go env phi
   
-let abbrev_variable_numbers_hes (hes : Type.simple_ty Hflz.hes) =
-  let env = List.map (fun rule -> (lift_id rule.Hflz.var, lift_id rule.Hflz.var, rule.Hflz.var.name)) hes in
-  List.map (fun rule -> {
-    Hflz.var = rule.Hflz.var;
-    fix = rule.fix;
-    body = abbrev_variable_numbers env rule.body}) hes
-
-
+let abbrev_variable_numbers_hes ((entry, rules) : Type.simple_ty Hflz.hes) =
+  let env = List.map (fun rule -> (lift_id rule.Hflz.var, lift_id rule.Hflz.var, rule.Hflz.var.name)) rules in
+  let entry = abbrev_variable_numbers env entry in
+  let rules =
+    List.map (fun rule -> {
+      rule with
+      Hflz.body = abbrev_variable_numbers env rule.Hflz.body}) rules in
+  entry, rules

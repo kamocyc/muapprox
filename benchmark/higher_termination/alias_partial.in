@@ -1,5 +1,5 @@
 %HES
-Main =v G 2 (\r. true).
+Sentry =u G 2 (\r. true).
 G y k =u F 1 y k.
 F x y k =u (x > 0 => F (x - 1) y k) /\ (x <= 0 => Lambda y k).
 Lambda x k =u k (x + 1).

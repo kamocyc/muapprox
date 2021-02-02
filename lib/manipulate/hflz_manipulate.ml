@@ -217,8 +217,7 @@ type forall_or_exists =
   | FE_Exists of Type.simple_ty Type.arg Id.t
 
 (* phiの中のlambdaをdecomposeする *)
-let decompose_lambda_ (phi : Type.simple_ty Hflz.t) (rule_id : Type.simple_ty Id.t) (hes : Type.simple_ty hes) =
-  let hes_var_names = List.map (fun {var; _} -> Id.remove_ty var) hes in
+let decompose_lambda_ (phi : Type.simple_ty Hflz.t) (rule_id : Type.simple_ty Id.t) (hes_var_names : unit Id.t list) =
   let new_rules = ref [] in
   let mk_quant quants body =
     let rec go quants =
@@ -283,9 +282,9 @@ let decompose_lambda_ (phi : Type.simple_ty Hflz.t) (rule_id : Type.simple_ty Id
 
 (* abstractionをHESのequationに切り出す。 *)
 (* これは、単一のruleに関するものである。 *)
-let decompose_lambdas hes (rule : Type.simple_ty hes_rule) = 
+let decompose_lambdas hes_names (rule : Type.simple_ty hes_rule) = 
   let rec go ({body; var; _} as rule) = 
-    let new_rules, res = decompose_lambda_ body var hes in
+    let new_rules, res = decompose_lambda_ body var hes_names in
     match new_rules with
     | [] -> [{rule with body = res}]
     | xs -> begin
@@ -294,8 +293,11 @@ let decompose_lambdas hes (rule : Type.simple_ty hes_rule) =
     end in
   go rule
 
-let decompose_lambdas_hes hes =
-  hes |> List.map (decompose_lambdas hes) |> List.flatten
+let decompose_lambdas_hes (entry, rules) =
+  let hes_names = List.map (fun {var; _} -> Id.remove_ty var) rules in
+  let rules = (mk_entry_rule entry) :: rules in
+  let rules = rules |> List.map (decompose_lambdas hes_names) |> List.flatten in
+  Hflz.decompose_entry_rule rules
   
 let get_top_rule hes =
   match hes with
@@ -312,13 +314,13 @@ let get_top_rule hes =
     | _ -> failwith "(get_top_rule 2) not implemented"
   end
 
-let get_dual_hes (hes : Type.simple_ty hes) = 
-  let top, others = get_top_rule hes in
-  let results = List.map (fun rule -> Hflz.negate_rule rule) others in
-  let results = { top with body = Hflz.negate_formula top.body } :: results in
-  Log.app begin fun m -> m ~header:"get_dual_hes" "%a" Print.(hflz_hes simple_ty_) results end;
-  type_check results;
-  results
+let get_dual_hes ((entry, rules) : Type.simple_ty hes): Type.simple_ty hes =
+  let entry = Hflz.negate_formula entry in
+  let results = List.map (fun rule -> Hflz.negate_rule rule) rules in
+  let hes = (entry, results) in
+  Log.app begin fun m -> m ~header:"get_dual_hes" "%a" Print.(hflz_hes simple_ty_) hes end;
+  type_check hes;
+  entry, results
 
 let subst_arith_var replaced formula =
   let rec go_arith arith = match arith with
@@ -465,19 +467,20 @@ let encode_body_exists_formula new_pred_name_cand coe1 coe2 hes_preds hfl =
   let hfl = go hes_preds hfl in
   hfl, !new_rules
 
-(* hesからexistentailを除去 *)
+(* hesからexistentialを除去 *)
 let encode_body_exists coe1 coe2 (hes : Type.simple_ty Hflz.hes) =
-  let env = List.map (fun {var; _} -> { var with ty=Type.TySigma var.ty }) hes in
-  let hes =
-    hes |>
-    List.mapi
-      (fun i {var; fix; body} -> 
-        let new_pred_name_cand = if i = 0 then None else Some var.name in
-        let body, new_rules = encode_body_exists_formula new_pred_name_cand coe1 coe2 env body in
+  let (entry, rules) = hes in
+  let env = List.map (fun {var; _} -> { var with ty=Type.TySigma var.ty }) rules in
+  let entry, new_rules = encode_body_exists_formula None coe1 coe2 env entry in
+  let rules =
+    rules |>
+    List.map
+      (fun {var; fix; body} -> 
+        let body, new_rules = encode_body_exists_formula (Some var.name) coe1 coe2 env body in
         {var; fix; body}::new_rules
       )
     |> List.flatten in
-  hes
+  (entry, new_rules @ rules)
 
 let rec beta (phi : 'a Hflz.t) : 'a Hflz.t = match phi with
   | Or (phi1, phi2) -> Or (beta phi1, beta phi2)
@@ -513,7 +516,7 @@ let rec beta (phi : 'a Hflz.t) : 'a Hflz.t = match phi with
 (* let%expect_test "beta" =
   App () *)
 
-let get_outer_mu_funcs (funcs : 'a hes) =
+let get_outer_mu_funcs (funcs : 'a hes_rule list) =
   let funcs_count = List.length funcs in
   (* construct a table *)
   let pvar_to_nid = Hashtbl.create funcs_count in
@@ -680,14 +683,13 @@ let replace_occurences coe1 coe2 (outer_mu_funcs : (unit Type.ty Id.t * unit Typ
     | Bool _ | Pred _ | Arith _ | Var _ -> fml in
   go [] fml
 
-let elim_mu_with_rec hes coe1 coe2 =
+let elim_mu_with_rec (entry, rules) coe1 coe2 =
   (* calc outer_mu_funcs *)
-  let outer_mu_funcs = get_outer_mu_funcs hes in
-(* 最上部のruleは再帰参照されない前提 *)
-  if List.length (Env.lookup (List.nth hes 0).var outer_mu_funcs) <> 0 then assert false;
+  let rules = (Hflz.mk_entry_rule entry)::rules in
+  let outer_mu_funcs = get_outer_mu_funcs rules in
   (* make tvars *)
   let rec_tvars =
-    hes
+    rules
     |> List.filter_map
       (fun {fix; var=pvar; _} ->
         if fix = Fixpoint.Least then
@@ -695,7 +697,7 @@ let elim_mu_with_rec hes coe1 coe2 =
         else None)
     |> Env.create in
   (* make new hes *)
-  let hes = List.map
+  let rules = List.map
     (fun {var=mypvar; body; _} ->
       let outer_pvars = Env.lookup mypvar outer_mu_funcs in
       let scoped_rec_tvars =
@@ -727,21 +729,15 @@ let elim_mu_with_rec hes coe1 coe2 =
             (rec_tvar_bounds' @ formula_type_vars)
             body
       in
-      (* boundsを追加 -> ここが若干面倒？といっても、前に高階部分を加えればいいのか *)
       let mypvar = {mypvar with ty=to_ty (List.map (fun pvar -> Env.lookup pvar rec_tvars) outer_pvars) mypvar.ty} in
       (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
       {fix=Greatest; var=mypvar; body=beta body}
     )
-    hes
+    rules
   in
-  (* let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
-  print_endline @@ "Not decomposed HES path: " ^ path;
-  let hes = decompose_lambdas_hes hes in *)
-  (* TODO: 場合によっては、TOP levelを上に持ってくることが必要になる？ *)
-    (* |> move_first (fun {var; _} -> var.name = original_top_level_predicate.name) in *)
+  let hes = Hflz.decompose_entry_rule rules in
   type_check hes;
   hes
-  (* failwith "end" *)
 
 
 let encode_body_forall_formula_sub new_pred_name_cand hes_preds hfl = 
@@ -847,20 +843,18 @@ let encode_body_forall_formula new_pred_name_cand hes_preds hfl =
 
 (* hesからforallを除去 *)
 let encode_body_forall_except_top (hes : Type.simple_ty Hflz.hes) =
-  let env = List.map (fun {var; _} -> { var with ty=Type.TySigma var.ty }) hes in
+  let (entry, rules) = hes in
+  let env = List.map (fun {var; _} -> { var with ty=Type.TySigma var.ty }) rules in
   let hes =
-    hes |>
-    List.mapi
-      (fun i {var; fix; body} -> 
-        if i <> 0 then
-          let new_pred_name_cand = if i = 0 then None else Some var.name in
-          let body, new_rules = encode_body_forall_formula new_pred_name_cand env body in
-          {var; fix; body}::new_rules
-        else
-          [{var; fix; body}]
+    rules |>
+    List.map
+      (fun {var; fix; body} -> 
+        let new_pred_name_cand = Some var.name in
+        let body, new_rules = encode_body_forall_formula new_pred_name_cand env body in
+        {var; fix; body}::new_rules
       )
     |> List.flatten in
-  hes
+  (entry, hes)
 
 
 
@@ -954,7 +948,7 @@ let%expect_test "encode_body_forall_formula_sub" =
               && Forall0 x_33 x_44 x_55 x_11 x_22 x_100100 (x_300300 + 1)
                  && Forall0 x_33 x_44 x_55 x_11 x_22 x_100100 (x_300300 - 1)|}];
   (* check well-typedness *)
-  let hes = [
+  let rules = [
     {
       var = id_n 200 (TyArrow (id_n 3 TyInt, TyArrow (id_n 4 @@ TySigma (TyArrow (id_n 32 TyInt, TyBool ())),
         TyArrow (id_n 5 TyInt, TyArrow (id_n 1 TyInt, (TyArrow (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))), TyBool ())))))));
@@ -965,6 +959,7 @@ let%expect_test "encode_body_forall_formula_sub" =
       body = Abs (id_n 12 TyInt, Abs (id_n 11 TyInt, Bool true));
       fix = Fixpoint.Greatest };
     rule ] in
+  let hes = Bool true, rules in
   let hes = decompose_lambdas_hes hes in
   type_check hes;
   ignore [%expect.output];

@@ -1,3 +1,3 @@
 %HES
-Sentry =v ∀m. ∀n. ((n > 0 /\ m > 0) => Ack m n (\_. true)) /\ ((not (n > 0 /\ m > 0)) => true).
+Sentry =u ∀m. ∀n. ((n > 0 /\ m > 0) => Ack m n (\_. true)) /\ ((not (n > 0 /\ m > 0)) => true).
 Ack m n k =u (m = 0 => k (n + 1)) /\ (m != 0 => ((n = 0 => Ack (m - 1) 1 k) /\ (n != 0 => Ack m (n - 1) (\r. Ack (m - 1) r k)))).

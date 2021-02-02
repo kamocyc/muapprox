@@ -326,7 +326,7 @@ let%expect_test "encode_body_exists_formula_sub" =
       body = Abs (id_n 12 TyInt, Abs (id_n 11 TyInt, Bool true));
       fix = Fixpoint.Greatest };
     rule ] in
-  let hes = decompose_lambdas_hes hes in
+  let hes = decompose_lambdas_hes (Bool true, hes) in
   type_check hes;
   ignore [%expect.output];
   print_endline "OK";

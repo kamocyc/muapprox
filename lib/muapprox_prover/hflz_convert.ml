@@ -173,8 +173,7 @@ let do_env env (fix, pvar, ass, f) =
   let (_, env) = Env.add_env_pvar env (pvar, sorts) args in
   env
   
-let of_hes (Hes.HesLogic.Hes (funcs, ep)) =
+let of_hes (Hes.HesLogic.Hes (funcs, ep)): Type.simple_ty Hflz.hes =
   let env = List.fold_left funcs ~init:[] ~f:(fun env r -> do_env env r) in
   let top = go env ep in
-  let top_rule = { fix=Fixpoint.Greatest; var=Id.gen ~name:"Sentry" (TyBool ()); body=top} in
-  top_rule::(List.map ~f:(of_func env) funcs)
+  top, List.map ~f:(of_func env) funcs
