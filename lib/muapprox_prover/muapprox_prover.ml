@@ -15,15 +15,6 @@ let read_strings file =
       let s = input_line fp in (s::loop())
     with _ -> close_in fp; []
   in loop()
-(*   
-let get_status_from_z3_output result =
-  match result with
-  | [] -> failwith "no result"
-  | "sat" :: _ -> Status.Valid
-  | "unsat" :: _ -> Status.Invalid
-  | "timeout" :: _ -> raise Status.Timeout
-  | _ -> Status.Unknown
-   *)
 
 open Async
 open Solve_options
@@ -202,7 +193,7 @@ module KatsuraSolver : BackendSolver = struct
   let solver_command hes_path solver_options =
     let solver_path = get_solver_path () in
     Array.of_list (
-      solver_path::"--no-disprove"::
+      solver_path :: (if solver_options.no_disprove then ["--no-disprove"] else []) @
         (List.filter_map (fun x -> x)
           [if solver_options.no_backend_inlining then Some "--no-inlining" else None;
           match solver_options.solver_backend with None -> None | Some s -> Some ("--solver=" ^ s)]) @
@@ -288,9 +279,9 @@ let is_first_order_hes hes =
   |> List.for_all (fun { Hflz.var; _} -> is_first_order_function_type var.ty)
   
 let solve_onlynu_onlyforall solve_options debug_context hes with_par =
-  (* let hes =
-    if solve_options.no_simplify then hes else Manipulate.Hes_optimizer.simplify hes in
-  let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in *)
+  let hes =
+    if solve_options.no_simplify then hes else (let hes = Manipulate.Hes_optimizer.simplify hes in Log.app begin fun m -> m ~header:("Simplified") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end; hes) in
+  (* let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in *)
   let run =
     if is_first_order_hes hes && solve_options.first_order_solver = Some FptProverRecLimit then (
       FptProverRecLimitSolver.run
@@ -300,20 +291,6 @@ let solve_onlynu_onlyforall solve_options debug_context hes with_par =
       | Iwayama -> IwayamaSolver.run
     ) in
   run solve_options debug_context hes with_par
-
-(*  no_simplify
-  let (module Solver : BackendSolver) = (
-    if is_first_order_hes hes && solve_options.first_order_solver = Some FptProverRecLimit then (
-      (module FptProverRecLimitSolver)
-    ) else (
-      match solve_options.solver with
-      | Katsura -> (module KatsuraSolver)
-      | Iwayama -> (module IwayamaSolver)
-    )) in
-  let path = Solver.save_hes_to_file hes in
-  let command = Solver.solver_command path solve_options.no_backend_inlining in
-  let status = Solver.parse_results @@ Hflmc2_util.Fn.Command.run_command ~timeout:solve_options.timeout command in
-  status, status *)
 
 let flip_solver solver =
   fun timeout is_print_for_debug ->
@@ -390,7 +367,14 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
     file = solve_options.file;
   } in
   if not solve_options.dry_run then (
-    (solve_onlynu_onlyforall solve_options debug_context nu_only_hes false)
+    let solvers = 
+      match solve_options.solver_backend with
+      | None -> [
+        solve_onlynu_onlyforall { solve_options with solver_backend = Some "hoice" } debug_context nu_only_hes false;
+        solve_onlynu_onlyforall { solve_options with solver_backend = Some "z3" } debug_context nu_only_hes false
+      ]
+      | Some s -> [solve_onlynu_onlyforall solve_options debug_context nu_only_hes false] in
+    (Deferred.any solvers)
     >>= (fun result ->
         match result with
         | Status.Valid -> return (Status.Valid, debug_context)
@@ -405,31 +389,7 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
           ) else return (Status.Unknown, debug_context)
         | _ -> return (Status.Unknown, debug_context))
   ) else (print_endline "DRY RUN"; Unix.system "echo" >>| (fun _ -> Status.Unknown, None))
-  (* solve_onlynu_onlyforall solve_options nu_only_hes (fun (result, result') -> 
-    match result with
-    | Status.Valid -> cont (Status.Valid, result')
-    | _ -> begin
-      let dual_hes = Hflz_mani.get_dual_hes hes in
-      let nu_only_dual_hes = elim_mu_exists coe1 coe2 dual_hes in
-      solve_onlynu_onlyforall solve_options nu_only_dual_hes (fun (dual_result, dual_result') -> 
-        match dual_result with
-        | Status.Valid -> cont (Status.Invalid, dual_result')
-        | _ -> begin
-          if solve_options.oneshot then
-            cont (dual_result, dual_result')
-          else
-            (* koba-testの係数の増やし方を利用 *)
-            let coe1, coe2 = if (coe1, coe2) = (1, 1) then (1, 8) else (2 * coe1, 2 * coe2) in
-            go coe1 coe2
-        end
-      )
-    end
-  ) *)
 
-
-(* let get_greatest_approx_hes hes =
-  List.map (fun rule -> { rule with Hflz.fix = Fixpoint.Greatest }) hes 
-   *)
 let check_validity_full coe1 coe2 solve_options hes cont =
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in
   let dresult = Deferred.any
@@ -443,7 +403,7 @@ let check_validity_full coe1 coe2 solve_options hes cont =
   Core.never_returns(Scheduler.go())
 
 let solve_onlynu_onlyforall_with_schedule solve_options nu_only_hes cont =
-  let dresult = Deferred.any [solve_onlynu_onlyforall solve_options None nu_only_hes true] in
+  let dresult = Deferred.any [solve_onlynu_onlyforall { solve_options with no_disprove = false } None nu_only_hes true] in
   upon dresult (fun result -> cont (result, None); Rfunprover.Solver.kill_z3(); shutdown 0);
   Core.never_returns(Scheduler.go())
   

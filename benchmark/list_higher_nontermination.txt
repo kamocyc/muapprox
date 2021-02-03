@@ -1,10 +1,9 @@
-higher_nontermination/alternate.in
 higher_nontermination/fib_CPS_nonterm.in
-higher_nontermination/inf_closure.in
-higher_nontermination/indirectHO_e.in
-higher_nontermination/foldr_nonterm.in
 higher_nontermination/fixpoint_nonterm.in
+higher_nontermination/foldr_nonterm.in
+higher_nontermination/indirectHO_e.in
 higher_nontermination/indirect_e.in
+higher_nontermination/inf_closure.in
 higher_nontermination/loopHO.in
 higher_nontermination/passing_cond.in
 higher_nontermination/unfoldr_nonterm.in
