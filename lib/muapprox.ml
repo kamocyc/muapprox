@@ -71,6 +71,7 @@ let get_solve_options file =
     ignore_unknown = !Options.ignore_unknown;
     pid = Unix.getpid();
     file = file;
+    kill_processes = !Options.kill_processes;
   }
 
 let check_format file format_type =

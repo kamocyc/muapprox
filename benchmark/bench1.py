@@ -50,7 +50,7 @@ parser.add_argument('--timeout', dest='timeout', action='store', type=int, defau
 parser.add_argument('--benchmark', dest='benchmark', action='store', type=str,
                     help='benchmark set')
 
-KILL_PROCESS_NAMES = ["hflmc2", "main.exe", "z3", "hoice", "eld", "java"]
+KILL_PROCESS_NAMES = ["hflmc2", "main.exe", "muapprox_main.exe", "z3", "hoice", "eld", "java"]
 nth_last_line = -1
 
 args = parser.parse_args()

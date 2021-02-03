@@ -1,12 +1,12 @@
 (executables
- (names main)
- (modules main)
+ (names muapprox_main)
+ (modules muapprox_main)
  (libraries muapprox)
  (flags (-cclib -lstdc++))
  (link_flags (-linkall)))
-(install
- (package muapprox)
- (section bin)
- (files (main.exe as hflmc3)))
+; (install
+;  (package muapprox)
+;  (section bin)
+;  (files (main.exe as hflmc3)))
 
 (env (dev (flags (:standard -warn-error -A))))

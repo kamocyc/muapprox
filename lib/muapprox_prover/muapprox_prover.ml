@@ -37,6 +37,14 @@ let show_debug_context debug =
   | Some debug -> "(mode=" ^ debug.mode ^ ", iter_count=" ^ string_of_int debug.iter_count ^ ", coe1=" ^ (string_of_int debug.coe1) ^ ", coe2=" ^ (string_of_int debug.coe2) ^ ")"
 
 
+let kill_processes () =
+  (* eld and java are not executed when ran with --no-disprove because they are used only for proving unsat *)
+  (* TODO: main.exe should be renamed *)
+  let process_names = ["hflmc2"; "main.exe"; "z3"; "hoice"] in
+  let kill_command = String.concat "; " (List.map (fun n -> "pkill " ^ n) process_names) in
+  print_endline @@ "kill command=" ^ kill_command;
+  Unix.system kill_command
+  
 let save_string_to_file path buf =
   let oc = Stdlib.open_out path in
   Stdlib.output_string oc buf;
@@ -376,6 +384,8 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
       | Some s -> [solve_onlynu_onlyforall solve_options debug_context nu_only_hes false] in
     (Deferred.any solvers)
     >>= (fun result ->
+      (if solve_options.kill_processes then kill_processes () >>= (fun _ -> Deferred.return None) else Deferred.return None)
+    >>= (fun _ ->
         match result with
         | Status.Valid -> return (Status.Valid, debug_context)
         | Status.Invalid ->
@@ -387,7 +397,7 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
             let (coe1',coe2') = if (coe1,coe2)=(1,1) then (1,8) else (2*coe1, 2*coe2) in
             mu_elim_solver coe1' coe2' (iter_count + 1) solve_options false hes mode_name
           ) else return (Status.Unknown, debug_context)
-        | _ -> return (Status.Unknown, debug_context))
+        | _ -> return (Status.Unknown, debug_context)))
   ) else (print_endline "DRY RUN"; Unix.system "echo" >>| (fun _ -> Status.Unknown, None))
 
 let check_validity_full coe1 coe2 solve_options hes cont =
