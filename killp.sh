@@ -1,8 +1,8 @@
 #!/bin/bash
-pkill main.exe
-pkill muapprox_main.exe
-pkill z3
-pkill hoice
-pkill hflmc2
-pkill eld
-pkill java
+killall main.exe
+killall muapprox_main.exe
+killall z3
+killall hoice
+killall hflmc2
+killall eld
+killall java

@@ -20,7 +20,6 @@ let coe = ref (Obj.magic())
 let dry_run = ref (Obj.magic())
 let no_simplify = ref (Obj.magic())
 let ignore_unknown = ref (Obj.magic())
-let kill_processes = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -77,9 +76,6 @@ type params =
   
   ; ignore_unknown : bool [@default false]
   (** If true, skip "Unknown" result from a backend solver (the same behaviour as "Invalid" result). If false, stop solving when get "Unknown". (default: false) **)
-  
-  ; kill_processes : bool [@default false]
-  (** If true, kill unused processes of backend solvers (names: "hflmc2"; "main.exe"; "z3"; "hoice"). This may also kill processes of the same names. If this is false, your system will slow down because of zombie processes. **)
   }
   [@@deriving cmdliner,show]
 
@@ -99,7 +95,6 @@ let set_up_params params =
   set_ref dry_run                  params.dry_run;
   set_ref no_simplify              params.no_simplify;
   set_ref ignore_unknown           params.ignore_unknown;
-  set_ref kill_processes           params.kill_processes;
   params.input
 
 (******************************************************************************)

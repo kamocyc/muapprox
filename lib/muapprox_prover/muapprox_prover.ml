@@ -8,16 +8,9 @@ module Hflz_convert_rev = Hflz_convert_rev
 module Check_formula_equality = Check_formula_equality
 module Abbrev_variable_numbers = Abbrev_variable_numbers
 
-let read_strings file =
-  let fp = open_in file in
-  let rec loop() =
-    try
-      let s = input_line fp in (s::loop())
-    with _ -> close_in fp; []
-  in loop()
-
 open Async
 open Solve_options
+open Unix_command
 
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
@@ -31,20 +24,14 @@ type debug_context = {
   file: string;
 }
 
-let show_debug_context debug =
-  match debug with
-  | None -> ""
-  | Some debug -> "(mode=" ^ debug.mode ^ ", iter_count=" ^ string_of_int debug.iter_count ^ ", coe1=" ^ (string_of_int debug.coe1) ^ ", coe2=" ^ (string_of_int debug.coe2) ^ ")"
+(* let read_strings file =
+  let fp = Stdlib.open_in file in
+  let rec loop() =
+    try
+      let s = Stdlib.input_line fp in (s::loop())
+    with _ -> Stdlib.close_in fp; []
+  in loop() *)
 
-
-let kill_processes () =
-  (* eld and java are not executed when ran with --no-disprove because they are used only for proving unsat *)
-  (* TODO: main.exe should be renamed *)
-  let process_names = ["hflmc2"; "main.exe"; "z3"; "hoice"] in
-  let kill_command = String.concat "; " (List.map (fun n -> "pkill " ^ n) process_names) in
-  print_endline @@ "kill command=" ^ kill_command;
-  Unix.system kill_command
-  
 let save_string_to_file path buf =
   let oc = Stdlib.open_out path in
   Stdlib.output_string oc buf;
@@ -58,27 +45,14 @@ let output_debug (dbg : debug_context option) path =
   end
   | None -> ()
   
+let show_debug_context debug =
+  match debug with
+  | None -> ""
+  | Some debug -> "(mode=" ^ debug.mode ^ ", iter_count=" ^ string_of_int debug.iter_count ^ ", coe1=" ^ (string_of_int debug.coe1) ^ ", coe2=" ^ (string_of_int debug.coe2) ^ ")"
 
 module type BackendSolver = sig
   val run : options -> debug_context option -> Hflmc2_syntax.Type.simple_ty Hflz.hes -> bool -> Status.t Deferred.t
 end
-
-(* TODO: 引用符で囲むなどの変換する？ *)
-let unix_system commands =
-  let r = Random.int 0x10000000 in
-  let stdout_name, stderr_name = Printf.sprintf "/tmp/%d_stdout.tmp" r, Printf.sprintf "/tmp/%d_stderr.tmp" r in
-  let commands = Array.concat [commands; [|">"; stdout_name; "2>"; stderr_name|]] in
-  let command = String.concat " " (Array.to_list commands) in
-  print_endline @@ "run command (unix_system): " ^ command;
-  let start_time = Stdlib.Sys.time () in
-  Unix.system command 
-    >>| (fun code ->
-      let unlines lines = String.concat "\n" lines in
-      let elapsed = Stdlib.Sys.time () -. start_time in
-      code, elapsed,
-      read_strings stdout_name |> unlines,
-      read_strings stderr_name |> unlines
-    )
 
 module FptProverRecLimitSolver : BackendSolver = struct
   let convert_status (s : Fptprover.Status.t) : Status.t =
@@ -224,7 +198,7 @@ module KatsuraSolver : BackendSolver = struct
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
     let command = solver_command path solve_options in
-    unix_system command >>|
+    unix_system command (Option.map (fun c -> c.mode) debug_context) >>|
       (fun (status_code, elapsed, stdout, stderr) ->
         try
           parse_results (status_code, stdout, stderr) debug_context elapsed
@@ -268,7 +242,7 @@ module IwayamaSolver : BackendSolver = struct
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
     let command = solver_command path solve_options in
-    unix_system command
+    unix_system command (Option.map (fun c -> c.mode) debug_context)
     >>| (fun (status_code, elapsed, stdout, stderr) ->
         try
           parse_results (status_code, stdout, stderr) debug_context elapsed
@@ -288,7 +262,12 @@ let is_first_order_hes hes =
   
 let solve_onlynu_onlyforall solve_options debug_context hes with_par =
   let hes =
-    if solve_options.no_simplify then hes else (let hes = Manipulate.Hes_optimizer.simplify hes in Log.app begin fun m -> m ~header:("Simplified") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end; hes) in
+    if solve_options.no_simplify
+    then hes
+    else (
+      let hes = Manipulate.Hes_optimizer.simplify hes in
+      Log.app begin fun m -> m ~header:("Simplified") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+      hes) in
   (* let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in *)
   let run =
     if is_first_order_hes hes && solve_options.first_order_solver = Some FptProverRecLimit then (
@@ -383,8 +362,7 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
       ]
       | Some s -> [solve_onlynu_onlyforall solve_options debug_context nu_only_hes false] in
     (Deferred.any solvers)
-    >>= (fun result ->
-      (if solve_options.kill_processes then kill_processes () >>= (fun _ -> Deferred.return None) else Deferred.return None)
+    >>= (fun result -> kill_processes (Option.map (fun a -> a.mode) debug_context)
     >>= (fun _ ->
         match result with
         | Status.Valid -> return (Status.Valid, debug_context)
@@ -398,17 +376,20 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
             mu_elim_solver coe1' coe2' (iter_count + 1) solve_options false hes mode_name
           ) else return (Status.Unknown, debug_context)
         | _ -> return (Status.Unknown, debug_context)))
-  ) else (print_endline "DRY RUN"; Unix.system "echo" >>| (fun _ -> Status.Unknown, None))
+  ) else (print_endline "DRY RUN"; Deferred.return (Status.Unknown, None))
 
 let check_validity_full coe1 coe2 solve_options hes cont =
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in
   let dresult = Deferred.any
                   [mu_elim_solver coe1 coe2 1 solve_options solve_options.print_for_debug hes "prover";
                    (mu_elim_solver coe1 coe2 1 solve_options solve_options.print_for_debug hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
+  let dresult = dresult >>=
+    (fun ri -> kill_processes (Some "prover") >>=
+      (fun _ -> kill_processes (Some "disprover") >>|
+        (fun _ -> ri))) in
   upon dresult (
     fun (result, info) ->
       cont (result, info);
-      Rfunprover.Solver.kill_z3();
       shutdown 0);
   Core.never_returns(Scheduler.go())
 

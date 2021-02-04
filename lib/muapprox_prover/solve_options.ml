@@ -18,7 +18,6 @@ type options =
     ignore_unknown: bool;
     pid: int;
     file: string;
-    kill_processes: bool;
   }
 
 let get_solver solver_name = 
