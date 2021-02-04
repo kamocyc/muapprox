@@ -1,18 +1,19 @@
 %HES
 Sentry =v
-  ∀n.∀recQs122.recQs122 < 1 + 1 * n || recQs122 < 1 + -1 * n || recQs122 < 1 || Qs recQs122 n (\r.true).
+  ∀n.∀r1.r1 < 1 + 1 * n || r1 < 1 + -1 * n || r1 < 1 || Qs r1 n (\r.true).
 
 
-Qs recQs122 n k =ν
-  recQs122 > 0 &&
+Qs r1 n k =ν
+  r1 > 0 &&
   (n > 0 || k 0) &&
   (n <= 0 || (
     ∀m.∀recPar123.
-      recPar123 < 1 + 1 * (n - 1) || /* /* ここをコメントアウトすればhoiceで解けるようになる */ recPar123 < 1 + -1 * (n - 1) || */
+      recPar123 < 1 + 1 * (n - 1) ||
+      /* /* ここをコメントアウトすればhoiceで解けるようになる */ recPar123 < 1 + -1 * (n - 1) || */
       recPar123 < 1 + 1 * m ||
       recPar123 < 1 + -1 * m ||
       recPar123 < 1 ||
-      Par recPar123 recQs122 m 0 0 (n - 1) k
+      Par recPar123 r1 m 0 0 (n - 1) k
     )).
 
 
