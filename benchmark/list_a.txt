@@ -1,3 +1,2 @@
-higher_nontermination/fib_CPS_nonterm.in
-higher_termination/sum-invalid.in
-higher_termination/mult-invalid.in
+higher_termination/notused/sum-invalid.in
+higher_termination/notused/mult-invalid.in
