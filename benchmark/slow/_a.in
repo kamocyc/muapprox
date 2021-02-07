@@ -1,0 +1,34 @@
+%HES
+Sentry =v
+  ∀n.∀r.r < 1 + 1 * n || r < 1 + -1 * n || r < 1 || Qs r Comp n (\r.true).
+
+
+Qs re2 cmp n k =ν
+  re2 > 0 &&
+  (n > 0 || k 0) &&
+  (n <= 0 || (
+    ∀m.∀re1.
+      re1 < 1 + 1 * (n - 1) ||
+      /* /* ここをコメントアウトすればhoiceで解けるようになる */ re1 < 1 + -1 * (n - 1) || */
+      re1 < 1 + 1 * m ||
+      re1 < 1 + -1 * m ||
+      re1 < 1 ||
+      Par re1 re2 cmp m 0 0 (n - 1) k
+    )).
+
+
+Par recPar123 recQs122 cmp x l r xs k =ν
+  recPar123 > 0 &&
+  (xs > 0 ||
+    Qs (recQs122 - 1) cmp l (
+      \r_ap_.Qs (recQs122 - 1) cmp r (
+        \r_ap__ap_.k (r_ap_ + 1 + r_ap__ap_))
+    )) &&
+  (xs <= 0 ||
+    (∀m. cmp m x (\r. 
+      (r != 1 || Par (recPar123 - 1) recQs122 cmp x (1 + l) r (xs - 1) k) &&
+      (r = 1 || Par (recPar123 - 1) recQs122 cmp x l (1 + r) (xs - 1) k))
+    )).
+
+
+Comp x y k =ν (x < y || k 1) && (x >= y || k 0).

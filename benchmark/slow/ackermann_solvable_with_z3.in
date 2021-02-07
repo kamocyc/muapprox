@@ -54,10 +54,6 @@ Sentry =v
       r1 < 1 + -1 * n ||
       r1 < 1 + 1 * m ||
       r1 < 1 + -1 * m ||
-      r1 < 1 + 1 * n ||
-      r1 < 1 + -1 * n ||
-      r1 < 1 + 1 * m ||
-      r1 < 1 + -1 * m ||
       r1 < 1 ||
       Ack r1 m n (\replaced_exc_.true)
     )

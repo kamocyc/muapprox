@@ -50,8 +50,6 @@ Qs recQs132 n k =ν
       ∀m.∀recPar133.
         recPar133 < 1 + 1 * (n - 1) ||
         recPar133 < 1 + -1 * (n - 1) ||
-/*        recPar133 < 1 + 1 * 0 ||
-        recPar133 < 1 + -1 * 0 || */
         recPar133 < 1 + 1 * m ||
         recPar133 < 1 + -1 * m ||
         recPar133 < 1 ||
@@ -75,8 +73,10 @@ Par recPar133 recQs132 x l r xs k =ν
       (m <  x || Par (recPar133 - 1) recQs132 x (1 + l) r (xs - 1) k) &&
       (m >= x || Par (recPar133 - 1) recQs132 x l (1 + r) (xs - 1) k)
     )).
-    
 */
+
+
+
 
 /* 
 n > 0
