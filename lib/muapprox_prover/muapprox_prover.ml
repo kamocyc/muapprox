@@ -223,8 +223,7 @@ module IwayamaSolver : BackendSolver = struct
     Array.of_list (
       solver_path::
         (List.filter_map (fun x -> x)
-          [if solver_options.no_backend_inlining then Some "--no-inlining" else None;
-          match solver_options.solver_backend with None -> None | Some s -> Some ("--solver=" ^ s)]) @
+          [if solver_options.no_backend_inlining then Some "--no-inlining" else None]) @
         [hes_path]
     )
 
