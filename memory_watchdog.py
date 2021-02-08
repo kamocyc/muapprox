@@ -6,7 +6,7 @@ def get_physical_memory_size_in_gib():
     return mem_bytes / (1024.**3)
     
 PROCESS_NAME = 'main.exe'
-THRESHOLD = 11.0 / get_physical_memory_size_in_gib() * 100
+THRESHOLD = 1.5 / get_physical_memory_size_in_gib() * 100
 
 def get_memory_usage(process_name):
     command = "top -b -n 1 -o \"%MEM\" -w | grep " + process_name + " | head -n 1 | awk '{print $1, $10}' > _result.tmp"

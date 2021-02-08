@@ -1,0 +1,18 @@
+/* Linear でないので、SMTソルバで解けない */
+/* n^4 がbound */
+
+%HES
+Sentry =u ∀n. Main (\k. k (n * n)) (\k.\m. k (m * m)).
+Main f g =u
+  f (g (\n.
+    (n > 0 => Main (\k. k (n - 1)) (\k.\m. k m)) /\
+    (n <= 0 => true)
+  )).
+
+
+/* 単純にnをthunkにしただけだと、再帰の開始時にnが自由に現れるのでboundに使って、解ける */
+/*
+%HES
+Sentry =u ∀n. Main n.
+Main n =u (n > 0 => Main (n - 1)) /\ (n <= 0 => true).
+*/
