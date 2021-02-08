@@ -1,0 +1,3 @@
+%HES
+Sentry =v ∀m.∀n.(n <= 0 || m <= 0 || (∀recAck61.recAck61 < 1 + 1 * n || recAck61 < 1 + -1 * n || recAck61 < 1 + 1 * m || recAck61 < 1 + -1 * m || recAck61 < 1 + 1 * n || recAck61 < 1 + -1 * n || recAck61 < 1 + 1 * m || recAck61 < 1 + -1 * m || recAck61 < 1 || Ack recAck61 m n (\replaced_exc_.true))) && (n > 0 && m > 0 || true).
+Ack recAck61 m n k =ν recAck61 > 0 && (m != 0 || k (n + 1)) && (m = 0 || (n != 0 || Ack (recAck61 - 1) (m - 1) 1 k) && (n = 0 || Ack (recAck61 - 1) m (n - 1) (\r.Ack (recAck61 - 1) (m - 1) r k))).

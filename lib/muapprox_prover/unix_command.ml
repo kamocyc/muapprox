@@ -24,6 +24,7 @@ let kill_processes mode =
       Hashtbl.remove pids mode; *)
       let comma_sep_pid_filenames = List.map String.trim pid_filenames |> (String.concat ",") in
       (* https://stackoverflow.com/a/3211182/12976091 *)
+      (* https://stackoverflow.com/a/13481601/12976091 *)
       let killptree_command = {|
       killtree() {
         local _pid=$1
@@ -33,6 +34,8 @@ let kill_processes mode =
             killtree ${_child} ${_sig}
         done
         kill -${_sig} ${_pid}
+        kill -cont ${_pid}  # stopped processes are not SIGTERMed!!
+        # wait ${_pid} 2>/dev/null || true  # for suppress "Terminated" message, but it takes time(?)
       }
       for pid in `echo |} ^ comma_sep_pid_filenames ^ {| | sed "s/,/ /g"`
       do
