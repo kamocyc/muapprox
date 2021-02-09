@@ -4,9 +4,9 @@ let rec fib_CPS_nonterm n k =
     let pn = n - 1 in
     let ppn = n - 2 in
     fib_CPS_nonterm pn (cont1 ppn k)
-and cont1 ppn (k:int->int) a = fib_CPS_nonterm ppn (cont2 a k)
-and cont2 a (k:int->int) b = k (a + b)
-let id (n:int) = n
+and cont1 ppn (k:int->unit) a = fib_CPS_nonterm ppn (cont2 a k)
+and cont2 a (k:int->unit) b = k (a + b)
+let id (n:int) = ignore n; ()
 let main () =
   let r = read_int () in
   if r <= (-3) then
@@ -20,3 +20,4 @@ let main () =
   else
     fib_CPS_nonterm 10 id
 
+let () = main ()

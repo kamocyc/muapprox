@@ -39,19 +39,29 @@ let report_times () =
 
 let show_result = Muapprox_prover.Status.string_of
 
+let check_predicate_name (_, psi) =
+  List.iter
+    psi
+    ~f:(fun {Hflz.var; _} ->
+      if var.name ="Sentry" then failwith "You cannot use name \"Sentry\" except the first predicate."
+    )
+  
 let parse file is_hes =
-  if is_hes then (
-    let psi =
-      match Hes.HesParser.from_file file with
-      | Ok hes -> Muapprox_prover.Hflz_convert.of_hes hes
-      | Error _ -> failwith "hes_parser" in
-    Log.app begin fun m -> m ~header:"hes Input" "%a" Print.(hflz_hes simple_ty_) psi end;
-    psi
-  ) else (
-    let psi, _ = Syntax.parse_file file in
-    Log.app begin fun m -> m ~header:"Input" "%a" Print.(hflz_hes simple_ty_) psi end;
-    psi
-  )
+  let psi = 
+    if is_hes then (
+      let psi =
+        match Hes.HesParser.from_file file with
+        | Ok hes -> Muapprox_prover.Hflz_convert.of_hes hes
+        | Error _ -> failwith "hes_parser" in
+      Log.app begin fun m -> m ~header:"hes Input" "%a" Print.(hflz_hes simple_ty_) psi end;
+      psi
+    ) else (
+      let psi, _ = Syntax.parse_file file in
+      Log.app begin fun m -> m ~header:"Input" "%a" Print.(hflz_hes simple_ty_) psi end;
+      psi
+    ) in
+  check_predicate_name psi;
+  psi
 
 let get_solve_options file =
   let open Muapprox_prover.Solve_options in
