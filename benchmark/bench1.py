@@ -50,7 +50,7 @@ parser.add_argument('--timeout', dest='timeout', action='store', type=int, defau
 parser.add_argument('--benchmark', dest='benchmark', action='store', type=str,
                     help='benchmark set')
 
-KILL_PROCESS_NAMES = ["hflmc2", "main.exe", "z3", "hoice", "eld", "java"]
+KILL_PROCESS_NAMES = ["hflmc2", "main.exe", "muapprox_main.exe", "z3", "hoice", "eld", "java", "hflmc3.sh", "para_aux.sh", "sh"]
 nth_last_line = -1
 
 args = parser.parse_args()
@@ -128,8 +128,9 @@ def run(cmd):
     stdout = readfile("/tmp/stdout_1.txt")
     stderr = readfile("/tmp/stderr_1.txt")
     
-    for name in KILL_PROCESS_NAMES:
-        os.system('pkill ' + name)
+    # for name in KILL_PROCESS_NAMES:
+    #     os.system('killall -9 ' + name)
+    os.system('../../killp.sh')
         
     return stdout, elapsed, stderr, timed_out
 

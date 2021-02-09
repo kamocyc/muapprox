@@ -1,0 +1,33 @@
+%HES
+Sentry =v
+  ∀n.∀r1.∀r2.n <= 0 || r1 < 1 + n || r2 < 1 + n || Qs r1 r2 Comp n (\r.true).
+
+
+Qs r1 r2 cmp n k =ν
+  r1 > 0 &&
+  (n > 0 || k 0) &&
+  (n <= 0 || (
+    ∀m.∀r2p.
+      m <= 0 ||
+      r2p < 1 + 1 * n ||
+      r2p < 1 ||
+      Par r1 r2p cmp m 0 0 (n - 1) k
+    )).
+
+
+Par r1 r2 cmp x l r xs k =ν
+  r2 > 0 &&
+  (xs > 0 ||
+    (Qs (r1 - 1) r2 cmp l (
+      \r_ap_. (Qs (r1 - 1) r2 cmp r (
+        \r_ap__ap_.k (r_ap_ + 1 + r_ap__ap_)))
+    ))) &&
+  (xs <= 0 ||
+    (∀m.
+      (m < x || Par r1 (r2 - 1) cmp x (1 + l) r (xs - 1) k) &&
+      (m >= x || Par r1 (r2 - 1) cmp x l (1 + r) (xs - 1) k)
+    )).
+
+Comp x y k =v
+  (x < y \/ k 1) /\
+  (x >= y \/ k 0).

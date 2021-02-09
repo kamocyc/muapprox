@@ -2,6 +2,7 @@
 open Hflz_typecheck
 open Hflz
 open Hflz_manipulate
+module Util = Hflmc2_util
 
 let%expect_test "desugar_formula" =
   let open Type in

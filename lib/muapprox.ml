@@ -57,6 +57,7 @@ let get_solve_options file =
   let open Muapprox_prover.Solve_options in
   {
     no_backend_inlining = !Options.no_backend_inlining;
+    no_disprove = true;
     timeout = !Options.timeout;
     print_for_debug = !Options.print_for_debug;
     oneshot = !Options.oneshot;
@@ -111,21 +112,7 @@ let main file cont =
     Log.app begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
     psi
   ) else psi in
-  (* TODO: *)
   Muapprox_prover.check_validity coe1 coe2 solve_options psi (fun (s1, info) -> cont (s1, info))
-  (* TODO: topのpredicate variableの扱い？ *)
-  (* let psi, top = Syntax.Trans.Preprocess.main psi in
-  match top with
-  | Some(top) -> begin
-    match Typing.main psi top with  
-    | `Sat ->  `Valid
-    | `Unsat ->  `Invalid
-    | `Unknown -> `Unknown
-    | _ -> `Fail
-    end
-  | None -> print_string "[Warn]input was empty\n";
-      `Valid (* because the input is empty *)
- *)
 
 let assign_serial_to_vars_hes = Muapprox_prover.Check_formula_equality.assign_serial_to_vars_hes
 let check_equal_hes = Muapprox_prover.Check_formula_equality.check_equal_hes

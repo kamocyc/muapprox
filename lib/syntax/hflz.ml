@@ -49,7 +49,6 @@ type 'ty t =
   | Forall of 'ty arg Id.t * 'ty t
   | Exists of 'ty arg Id.t * 'ty t
   | App    of 'ty t * 'ty t
-  (* constructers only for hflz *)
   | Arith  of Arith.t
   | Pred   of Formula.pred * Arith.t list
   [@@deriving eq,ord,show,iter,map,fold,sexp]

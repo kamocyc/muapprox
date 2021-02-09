@@ -76,7 +76,6 @@ type params =
   
   ; ignore_unknown : bool [@default false]
   (** If true, skip "Unknown" result from a backend solver (the same behaviour as "Invalid" result). If false, stop solving when get "Unknown". (default: false) **)
-  
   }
   [@@deriving cmdliner,show]
 

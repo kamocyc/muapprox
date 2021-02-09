@@ -4,6 +4,7 @@ type first_order_solver_type = FptProverRecLimit
 type options = 
   {
     no_backend_inlining : bool;
+    no_disprove: bool;
     timeout : float;
     print_for_debug : bool;
     oneshot : bool;

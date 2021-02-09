@@ -5,7 +5,7 @@ module IdSet = Hflmc2_syntax.IdSet
 
 open Hflz_typecheck
 open Hflz
-module Util = Hflmc2_util
+(* module Util = Hflmc2_util *)
 
 let show_hflz = Print.show_hflz
 let show_hflz_full = Print.show_hflz_full
@@ -493,8 +493,9 @@ let rec beta (phi : 'a Hflz.t) : 'a Hflz.t = match phi with
       | Exists (x, phi1) -> Exists (x, go (x::acc) phi1)
       | Abs(x, phi1) -> begin
         let fvs = fvs_with_type phi2 in
-        (* print_endline "fvs"; Util.print_list Id.to_string fvs;
-        print_endline "acc"; Util.print_list Id.to_string acc; *)
+        (* print_endline @@ Print_syntax.show_hflz phi1;
+        print_endline "fvs:"; Hflmc2_util.print_list Id.to_string fvs;
+        print_endline "acc:"; Hflmc2_util.print_list Id.to_string acc; *)
         if List.exists (fun a -> List.exists (fun v -> Id.eq a v) acc) fvs then failwith "[beta] free variable collision";
         reduced := true;
         beta @@ Hflmc2_syntax.Trans.Subst.Hflz.hflz (Hflmc2_syntax.IdMap.of_list [x, phi2]) phi1
@@ -502,7 +503,7 @@ let rec beta (phi : 'a Hflz.t) : 'a Hflz.t = match phi with
       | phi1 -> phi1 in
     let res = go [] phi1 in
     if !reduced then
-      res
+      beta res
     else (
       (* Log.app begin fun m -> m ~header:"not done" "%a" Print.(hflz simple_ty_) (App (phi1, phi2)) end; *)
       App (phi1, phi2))
@@ -583,9 +584,34 @@ let rectvar_of_pvar pvar =
 let is_rectvar v =
   String.length v.Id.name >=3 &&
   String.sub v.Id.name 0 3 = rectvar_prefix
-  
+
+let get_occuring_arith_terms phi = 
+  (* remove expressions that contain locally bound variables *)
+  let remove ls x =
+    List.filter (fun (expr, vars) -> not @@ List.exists ((=) (Id.remove_ty x)) vars) ls
+  in
+  let rec go_hflz phi = match phi with
+    | Bool _ -> []
+    | Var v -> [] (* use only arithmetic variable *)
+    | Or (p1, p2) -> (go_hflz p1) @ (go_hflz p2)
+    | And (p1, p2) -> (go_hflz p1) @ (go_hflz p2)
+    | Abs (x, p1) -> remove (go_hflz p1) x
+    | Forall (x, p1) -> remove (go_hflz p1) x
+    | Exists (x, p1) -> remove (go_hflz p1) x
+    | App (p1, p2) -> (go_hflz p1) @ (go_hflz p2)
+    | Arith (a) -> [(a, get_occurring_arith_vars a)]
+    | Pred (p, xs) -> List.map (fun a -> (a, get_occurring_arith_vars a)) xs
+  and get_occurring_arith_vars phi = match phi with
+    | Int _ -> []
+    | Var v -> [Id.remove_ty v]
+    | Op (_, xs) -> List.map get_occurring_arith_vars xs |> List.concat
+  in
+  go_hflz phi |> List.map fst
+
 let get_guessed_terms_rep coe arg_terms term res =
-  let arg_terms = List.filter_map (function Arith a -> Some a | _ -> None) arg_terms in
+  let arg_terms = List.map get_occuring_arith_terms arg_terms |> List.concat in
+  let arg_terms = Hflmc2_util.remove_duplicates (=) arg_terms in
+  (* let arg_terms = List.filter_map (function Arith a -> Some a | _ -> None) arg_terms in *)
   let rec go arg_terms res = 
     match arg_terms with
     | [] -> res
@@ -625,11 +651,12 @@ let is_pred pvar =
   (String.uppercase_ascii @@ String.sub pvar.Id.name 0 1) = String.sub pvar.Id.name 0 1
   
 let replace_occurences coe1 coe2 (outer_mu_funcs : (unit Type.ty Id.t * unit Type.ty Id.t list) list) scoped_rec_tvars rec_tvars (fml : 'a Hflz.t) : 'a Hflz.t =
-  let rec go apps fml : 'a Hflz.t = 
+  let rec go (apps : Type.simple_ty t list) fml : 'a Hflz.t = 
     match fml with
     | Var pvar when is_pred pvar -> begin
       let arg_pvars = Env.lookup pvar outer_mu_funcs in
       let make_args env_guessed env =
+        (* 述語 -> 再帰回数の変数 を受け取り、pvarの再帰変数は-1、ほかはそのまま適用する *)
         arg_pvars
         |> List.map
           (fun pvar' ->
@@ -652,26 +679,28 @@ let replace_occurences coe1 coe2 (outer_mu_funcs : (unit Type.ty Id.t * unit Typ
         to_app new_fml (make_args Env.empty scoped_rec_tvars)
       else begin
         let new_tvars = List.map (fun pvar -> Env.lookup pvar rec_tvars) new_pvars in
-        let guessed_terms = get_guessed_terms coe1 coe2 apps in
+        let formula_type_ids = pvar.ty |> to_args |> List.rev in
+        let formula_type_terms = List.map argty_to_ty formula_type_ids in
+        let guessed_terms = get_guessed_terms coe1 coe2 (apps @ formula_type_terms) in
         let havocs =
           (Core.List.cartesian_product
             (List.map (fun tvar -> Arith.Var{tvar with Id.ty=`Int}) new_tvars)
             guessed_terms)
           |> List.map (fun (t1, t2) -> Pred (Lt, [t1; t2]))
           |> formula_fold (fun acc t -> Or (acc, t)) in
-        let formula_type_vars = pvar.ty |> to_args |> List.rev in
-          (to_abs'
-            formula_type_vars
-            (to_forall
-              new_tvars
-                (Or (
-                havocs,
-                to_app
-                  new_fml
-                  (make_args (Env.create (Core.List.zip_exn new_pvars new_tvars)) scoped_rec_tvars @ (List.map argty_to_ty formula_type_vars))
-              ))
-            )
+        let rec_vars = make_args (Env.create (Core.List.zip_exn new_pvars new_tvars)) scoped_rec_tvars in
+        (to_abs'
+          formula_type_ids
+          (to_forall
+            new_tvars
+              (Or (
+              havocs,
+              to_app
+                new_fml
+                (rec_vars @ formula_type_terms)
+            ))
           )
+        )
       end
     end
     | App (f1,f2) ->  App (go (f2::apps) f1, go [] f2)
@@ -682,6 +711,38 @@ let replace_occurences coe1 coe2 (outer_mu_funcs : (unit Type.ty Id.t * unit Typ
     | Exists(x, f1) -> Exists (x, go [] f1)
     | Bool _ | Pred _ | Arith _ | Var _ -> fml in
   go [] fml
+
+let remove_duplicate_bounds (phi : Type.simple_ty Hflz.t) =
+  let rec go phi = match phi with
+    | Bool _ | Var _ | Arith _ | Pred _ -> phi
+    | Or (p1, p2) -> begin
+      (* remove duplicate of the form "pred_1 || pred_2 || ... || pred_n" *)
+      let rec sub phi = match phi with
+        | Pred _ -> [phi]
+        | Or (p1, p2) -> begin
+          let a1 = sub p1 in
+          let a2 = sub p2 in
+          match a1, a2 with
+          | [], _ -> []
+          | _, [] -> []
+          | _ -> a1 @ a2
+        end
+        | _ -> []
+      in
+      match sub phi with
+      | [] -> Or (go p1, go p2)
+      | xs -> begin
+        Hflmc2_util.remove_duplicates (=) xs |>
+        formula_fold (fun acc f -> Or (acc, f))
+      end
+    end
+    | And (p1, p2) -> And (go p1, go p2)
+    | Abs (x, p2) -> Abs (x, go p2)
+    | Forall (x, p2) -> Forall (x, go p2)
+    | Exists (x, p2) -> Exists (x, go p2)
+    | App (p1, p2) -> App (go p1, go p2)
+  in 
+  go phi
 
 let elim_mu_with_rec (entry, rules) coe1 coe2 =
   (* calc outer_mu_funcs *)
@@ -730,8 +791,9 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 =
             body
       in
       let mypvar = {mypvar with ty=to_ty (List.map (fun pvar -> Env.lookup pvar rec_tvars) outer_pvars) mypvar.ty} in
-      (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
-      {fix=Greatest; var=mypvar; body=beta body}
+      Log.app begin fun m -> m ~header:"body (before beta)" "%a" Print.(hflz simple_ty_) body end;
+      Log.app begin fun m -> m ~header:"body (after beta)" "%a" Print.(hflz simple_ty_) (beta body) end;
+      {fix=Greatest; var=mypvar; body=body |> beta |> remove_duplicate_bounds}
     )
     rules
   in

@@ -1,0 +1,11 @@
+%HES
+Sentry =u
+  ∀m. ∀n.
+    (n <= 0 \/ m <= 0) \/ Ack m n (\_. true).
+
+
+
+Ack m n k =u
+  (m = 0  => k (n + 1)) /\
+  ((m != 0 /\ n =  0) => Ack (m - 1) 1 k) /\
+  ((m != 0 /\ n != 0) => Ack m (n - 1) (\r. Ack (m - 1) r k)).
