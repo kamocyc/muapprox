@@ -60,7 +60,7 @@ type params =
   (** Choose background nu-only-HFLz solver. Available: katsura, iwayama *)
   
   ; solver_backend : string [@default ""]
-  (** --solver option on the backend solver. *)
+  (** --solver option on the backend solver. (only used in the katsura solver) *)
   
   ; first_order_solver : bool [@default false]
   (** If true, use z3 or hoice to solve first-order formulas. If empty (or default), always use a solver for higher-order formulas. **)

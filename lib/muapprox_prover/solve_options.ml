@@ -29,11 +29,16 @@ let get_solver solver_name =
 let get_first_order_solver use_fo_solver = 
   if use_fo_solver then Some FptProverRecLimit else None
   
-let get_solver_backend s =
-  let s = String.trim s in
-  match s with
-  | "" -> None
-  | s -> Some s
+let get_solver_backend s solver =
+  match solver with
+  | Katsura -> begin
+    (* solver-backend option is only for katsura-solver *)
+    let s = String.trim s in
+    match s with
+    | "" -> None
+    | s -> Some s
+  end
+  | _ -> Some "hoice" (* set a random value to use only one solver when solving *)
 
 (* let get_first_order_solver solver_name =
   match solver_name with
