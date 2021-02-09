@@ -232,21 +232,26 @@ end
 module MachineReadable = struct
   open PrintUtil
   
+  let fixpoint_ascii =
+    fun ppf t -> match t with
+      | Hflmc2_syntax.Fixpoint.Least    -> Fmt.string ppf "u"
+      | Hflmc2_syntax.Fixpoint.Greatest -> Fmt.string ppf "v"
+
   let hflz_' (format_ty_ : Prec.t -> 'ty Fmt.t) (show_forall : bool) (without_id : bool) =
     let rec go_ (prec : Prec.t) (ppf : formatter) (phi : 'ty Hflz.t) = match phi with
       | Bool true -> Fmt.string ppf "true"
       | Bool false -> Fmt.string ppf "false"
       | Var x -> id__' without_id ppf x
       | Or(phi1,phi2)  ->
-          show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ || %a@]"
+          show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ \\/ %a@]"
             (go_ Prec.or_) phi1
             (go_ Prec.or_) phi2
       | And (phi1,phi2)  ->
-          show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ && %a@]"
+          show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ /\\ %a@]"
             (go_ Prec.and_) phi1
             (go_ Prec.and_) phi2
       | Abs (x, psi) -> begin
-        show_paren (prec > Prec.abs) ppf "@[<1>\\%a.@,%a@]"
+        show_paren (prec > Prec.abs) ppf "@[<1>\\%a. @,%a@]"
             (id__' without_id) x
             (* (argty (Prec.(succ arrow))) x.ty *)
             (go_ Prec.abs) psi
@@ -255,7 +260,7 @@ module MachineReadable = struct
       | Forall (x, psi) ->
           (* TODO: ∀は出力したほうがいい？ => 付けるべき。付けないとなぜか\がつくことがある *)
           if show_forall then (
-            show_paren (prec > Prec.abs) ppf "@[<1>∀%a.@,%a@]"
+            show_paren (prec > Prec.abs) ppf "@[<1>∀%a. @,%a@]"
               (id__' without_id) x
               (* (argty (Prec.(succ arrow))) x.ty *)
               (go_ Prec.abs) psi
@@ -263,7 +268,7 @@ module MachineReadable = struct
             go_ Prec.abs ppf psi
           )
       | Exists (x, psi) -> 
-        show_paren (prec > Prec.abs) ppf "@[<1>∃%a.@,%a@]"
+        show_paren (prec > Prec.abs) ppf "@[<1>∃%a. @,%a@]"
             (id__' without_id) x
             (* (argty (Prec.(succ arrow))) x.ty *)
             (go_ Prec.abs) psi
@@ -289,12 +294,12 @@ module MachineReadable = struct
         (replace_apos @@ Id.to_string ~without_id:without_id rule.var)
         (pp_print_list ~pp_sep:fprint_space (id__' without_id)) args
         (* (format_ty_ Prec.zero) rule.var.ty *)
-        fixpoint rule.fix
+        fixpoint_ascii rule.fix
         (hflz' format_ty_ show_forall without_id) phi
   
   let hflz_hes' : (Prec.t -> 'ty Fmt.t) -> bool -> bool -> 'ty Hflz.hes Fmt.t =
     fun format_ty_ show_forall without_id ppf (entry, rules) ->
-      Fmt.pf ppf "@[<v>Sentry =v %a.@]@[<v>%a@]"
+      Fmt.pf ppf "@[<v>@[<2>Sentry =v@ %a.@]@ %a@]"
         (hflz' format_ty_ show_forall without_id) entry
         (Fmt.list (hflz_hes_rule' format_ty_ show_forall without_id)) rules
     

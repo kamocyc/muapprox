@@ -325,6 +325,6 @@ let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes_rule Fmt.t =
 
 let hflz_hes : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes Fmt.t =
   fun format_ty_ ppf (entry, rules) ->
-    Fmt.pf ppf "@[<v>%a@]@[<v>%a@]"
+    Fmt.pf ppf "@[<v>%a@ s.t.@ %a@]"
       (hflz format_ty_) entry
       (Fmt.list (hflz_hes_rule format_ty_)) rules

@@ -11,26 +11,28 @@ open Raw_hflz
 %token START_HES EOF
 %token LPAREN "(" RPAREN  ")"
 %token TRUE FALSE
-%token LAMBDA DOT "." COLON ":"
+%token LAMBDA DOT "." 
 %token DEF_G "=v"
 %token DEF_L "=m"
 %token FORALL 
 %token EXISTS
 
-%token PLUS  "+" MINUS "-" STAR  "*" SLASH "/" PERCENT "%" NEG
+%token PLUS  "+" MINUS "-" STAR  "*" NEG SLASH "/" PERCENT "%"
 %token EQ "=" NEQ "<>" LE "<=" GE ">=" LT "<" GT ">"
 %token NOT "not" IMPLY "=>" IFF "<=>"
 %token AND "&&" OR "||"
 
+// unused
+%token COLON ":"
 %token TBOOL TINT TARROW "->" SEMICOLON ";"
 
+%left IFF
 %right IMPLY
-%right IFF
-%right OR
-%right AND
+%left OR
+%left AND
 %nonassoc NOT
 %left PLUS MINUS
-%left STAR
+%left STAR SLASH PERCENT
 %nonassoc NEG
 
 %type <Raw_hflz.hes> hes
