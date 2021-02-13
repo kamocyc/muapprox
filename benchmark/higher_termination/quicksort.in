@@ -11,9 +11,9 @@ Par cmp x l r xs k =u
   (
     xs > 0 =>
       ∀m.
-        cmp m x (\r.
-          ((r = 1 => Par cmp x (1 + l) r (xs - 1) k) /\
-          (r != 1 => Par cmp x l (1 + r) (xs - 1) k)))
+        cmp m x (\r'.
+          ((r' = 1 => Par cmp x (1 + l) r (xs - 1) k) /\
+          (r' != 1 => Par cmp x l (1 + r) (xs - 1) k)))
   ).
 
 Comp x y k =u

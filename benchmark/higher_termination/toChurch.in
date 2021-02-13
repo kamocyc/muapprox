@@ -1,6 +1,15 @@
 %HES
+Sentry =u ∀x. (x >= 0 => ∀y. ToChurch x Succ y (\_. true)) /\ (x < 0 => true).
+ToChurch n f x k =u (n = 0 => Id x k) /\ (n != 0 => Compose f (ToChurch (n - 1) f) x k).
+Succ x k =u k (x + 1).
+Id x k =u k x.
+Compose f g x k =u g x (\r. f r k).
+
+/*
+%HES
 Sentry =u ∀x. (x >= 0 => (ToChurch x Succ) 0 (\_. true)) /\ (x < 0 => true).
 ToChurch n f x k =u (n = 0 => Id x k) /\ (n != 0 => Compose f (ToChurch (n - 1) f) x k).
 Succ x k =u k (x + 1).
 Id x k =u k x.
 Compose f g x k =u g x (\r. f r k).
+*/

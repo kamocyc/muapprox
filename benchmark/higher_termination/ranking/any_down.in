@@ -1,0 +1,100 @@
+%HES
+Sentry =v
+  ∀n. (n < 0 \/ F (n + 1) n (\r. true)) /\ (n >= 0 \/ Fp n (\r. true)).
+
+F np n k =v
+  (0 <= n /\
+  n < np /\
+  ∀r.
+    ((r <= 0 \/ F1 n (n - r) k) /\
+    (r > 0 \/ F1 n (n - (1 - r)) k))).
+    
+F1 n n_next k =v
+  (n_next <= 0 \/ F n n_next k) /\
+  (n_next > 0 \/ k true).
+
+
+
+Fp n k =v
+  ∀r.
+    ((r <= 0 \/ F1p (n - r) k) /\
+    (r > 0 \/ F1p (n - (1 - r)) k)).
+    
+F1p n_next k =v
+  (n_next <= 0 \/ false) /\
+  (n_next > 0 \/ k true).
+  
+/*
+%HES
+Sentry =v
+  ∀n. (n >= 0 => F (n + 1) n (\r. true)) \/ (n < 0 => Fp n (\r. true)).
+
+F np n k =v
+  (0 <= n /\
+  n < np /\
+  ∀r.
+    ((r <= 0 \/ F1 n (n - r) k) /\
+    (r > 0 \/ F1 n (n - (1 - r)) k))).
+    
+F1 n n_next k =v
+  (n_next <= 0 \/ F n n_next k) /\
+  (n_next > 0 \/ k true).
+
+
+Fp n k =v
+  ∀r.
+    ((r <= 0 \/ F1p (n - r) k) /\
+    (r > 0 \/ F1p (n - (1 - r)) k)).
+    
+F1p n_next k =v
+  (n_next <= 0 \/ false) /\
+  (n_next > 0 \/ k true).
+  
+*/
+
+/*
+%HES
+Sentry =v ∀n. F true (n + 1) n (\r. true).
+
+F is_first np n k =v
+  is_first \/ 
+  (0 <= n /\
+  n < np /\
+  ∀r.
+    ((r <= 0 \/ F1 n (n - r) k) /\
+    (r > 0 \/ F1 n (n - (1 - r)) k))).
+    
+F1 n n_next k =v
+  (n_next <= 0 \/ F false n n_next k) /\
+  (n_next > 0 \/ k true).
+*/
+
+/*
+%HES
+Sentry =v ∀n.
+  (n >= 0 => F (n + 1) n (\r. true)) /\
+  (n < 0  => Fp (n - 1) n (\r. true)).
+
+F np n k =v
+  0 <= n - 1 /\
+  n < np /\
+  ∀r.
+    ((r > 0 => F1 n (n - r) k) /\
+    (r <= 0 => F1 n (n - (1 - r)) k)).
+    
+F1 n n_next k =v
+  (n_next > 0 => F n n_next k) /\
+  (n_next <=0 => k true).
+
+
+Fp np n k =v
+  n <= 0 /\
+  n > np /\
+  ∀r.
+    ((r > 0 => F1p n (n - r) k) /\
+    (r <= 0 => F1p n (n - (1 - r)) k)).
+    
+F1p n n_next k =v
+  (n_next > 0 => Fp n n_next k) /\
+  (n_next <=0 => k true).
+*/

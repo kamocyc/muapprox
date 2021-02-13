@@ -1,0 +1,15 @@
+%HES
+Sentry =v
+  ∀l1. ∀l2.
+    (l1 >= 0 => Append (l1 + 1) l1 l2 (\r. true)) /\
+    (l1 < 0  => Append' l1 l2 (\r. true)).
+    
+Append xsp xs ys k =v
+  0 <= xs /\
+  xsp > xs /\
+  ((xs <= 0) => k ys) /\
+  ((xs > 0) => Append xs (xs - 1) ys (\r. k (1 + r))).
+
+Append' xs ys k =v
+  ((xs <= 0) => k ys) /\
+  ((xs > 0) => false).

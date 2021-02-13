@@ -1,5 +1,5 @@
 %HES
 Sentry =u ∀n. F n false (\r. true).
-F x y k =u ((x > 0) => App F (x-1) y k) /\ ((x <= 0) => k (Id y)).
+F x y k =u ((x > 0) => App F (x-1) y k) /\ ((x <= 0) => Id y k).
 App h v u k =u h v u k.
-Id x =u x.
+Id x k =u k x.

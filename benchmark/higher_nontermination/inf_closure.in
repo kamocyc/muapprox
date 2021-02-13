@@ -1,8 +1,8 @@
 %HES
-Main =v ∃r. F r Is_zero.
+Main =v ∃r. F r Is_zero (\_. false).
 Is_zero n k =v (n = 0 => k 1) /\ (n != 0 => k 0).
 Succ_app f n k =v f (n + 1) k.
-F n cond =v
+F n cond k =v
   cond n (\res.
-    (res =  1 => false) /\
-    (res !=1 => F n (Succ_app cond))).
+    (res =  1 => k true) /\
+    (res !=1 => F n (Succ_app cond) k)).

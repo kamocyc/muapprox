@@ -1,3 +1,6 @@
 %HES
 Sentry =u ∀l1. ∀l2. Zip l1 l2 (\r. true).
-Zip xs ys k =u ((xs <= 0) => k 0) /\ ((xs > 0 /\ ys <= 0) => k 0) /\ ((xs > 0 /\ ys > 0) => Zip (xs - 1) (ys - 1) (\r. k (1 + r))).
+Zip xs ys k =u
+  ((xs <= 0) => k 0) /\
+  ((xs > 0 /\ ys <= 0) => k 0) /\
+  ((xs > 0 /\ ys > 0) => Zip (xs - 1) (ys - 1) (\r. k (1 + r))).

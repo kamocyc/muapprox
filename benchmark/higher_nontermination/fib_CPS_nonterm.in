@@ -1,4 +1,15 @@
 %HES
+Sentry =v Main true (\r. false).
+Main u c =v ∃r. Fib r Id c.
+Id n c =v c n.
+Cont2 a k b c =v k (a + b) c.
+Cont1 ppn k a c =v Fib ppn (Cont2 a k) c.
+Fib n k c =v
+  ((n = 0 \/ n = 1) => k 1 c) /\
+  ((n != 0 /\ n != 1) => Fib (n - 1) (Cont1 (n - 2) k) c).
+
+/*
+%HES
 Main =v ∃r. Fib_CPS_nonterm r Id.
 Fib_CPS_nonterm n k =v
   ((n = 0 \/ n = 1) => k 1) /\
@@ -6,4 +17,5 @@ Fib_CPS_nonterm n k =v
     Fib_CPS_nonterm (n - 1) (Cont1 (n - 2) k)).
 Cont1 ppn k a =v Fib_CPS_nonterm ppn (Cont2 a k).
 Cont2 a k b =v k (a + b).
-Id n =v false.
+Id n k =v k n.
+*/

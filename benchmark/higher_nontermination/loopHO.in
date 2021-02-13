@@ -1,8 +1,6 @@
 %HES
-Main =v ∃r. Loop App r.
-Loop h n =v
-  (n > 0  => ∃d. h (n + d) (Loop h)) /\
-  (n <= 0 => false).
-App n k =v k n.
-
-
+Main =v ∃r. Loop App r (\_. false).
+Loop h n k =v
+  (n > 0  => ∃d. h (n + d) (Loop h) k) /\
+  (n <= 0 => k true).
+App n f k =v f n k.

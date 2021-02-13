@@ -2,8 +2,12 @@
 Sentry =u Main (\r. true).
 Main k =u ∀t1. ∀t2.
   (t1 > 0 => App Down t1 k) /\
-  ((t1 <= 0 /\ t2 < 0) => App Up t2 k) /\
-  ((t1 <= 0 /\ t2 >= 0) => k false).
+  (
+    t1 <= 0 => (
+      (t2 < 0 => App Up t2 k) /\
+      (t2 >= 0 => k false)
+    )
+  ).
 App f x k =u f x k.
 Down x k =u (x = 0 => k false) /\ (x != 0 => Down (x-1) k).
 Up x k =u (x = 0 => k false) /\ (x != 0 => Up (x+1) k).

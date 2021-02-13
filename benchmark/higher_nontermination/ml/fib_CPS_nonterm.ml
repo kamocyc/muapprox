@@ -6,7 +6,7 @@ let rec fib_CPS_nonterm n k =
     fib_CPS_nonterm pn (cont1 ppn k)
 and cont1 ppn (k:int->unit) a = fib_CPS_nonterm ppn (cont2 a k)
 and cont2 a (k:int->unit) b = k (a + b)
-let id (n:int) = ignore n; ()
+let id (n:int) = print_int n; ()
 let main () =
   let r = read_int () in
   if r <= (-3) then

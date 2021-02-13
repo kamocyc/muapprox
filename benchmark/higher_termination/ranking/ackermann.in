@@ -1,0 +1,15 @@
+%HES
+Sentry =v
+  ∀m. ∀n.
+    (     (n > 0 /\ m > 0)  => Ack (m + 1) (n + 1) m n (\_. true)) /\
+    ((not (n > 0 /\ m > 0)) => true).
+
+Ack mp np m n k =v
+  m >= 0 /\
+  n >= 0 /\
+  (mp > m \/ (mp = m /\ np > n)) /\
+  (m = 0  => k (n + 1)) /\
+  (m != 0 => (
+    (n = 0  => Ack m n (m - 1) 1 k) /\
+    (n != 0 => Ack m n m (n - 1) (\r. Ack m n (m - 1) r k))
+  )).

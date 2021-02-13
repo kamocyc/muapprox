@@ -1,7 +1,7 @@
 %HES
-Main =v ∃t. G t (\f. f false).
-App f x k =v f x k.
-Id u =v u.
-G x k =v
-  (x =  0 => k Id) /\
-  (x != 0 => App G (x-1) k).
+Main =v ∃t. G t true (\f. false).
+App f x u k =v f x u k.
+Id u k =v k u.
+G x u k =v
+  (x =  0 => Id u k) /\
+  (x != 0 => App G (x-1) u k).

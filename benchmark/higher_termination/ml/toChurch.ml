@@ -8,7 +8,8 @@ let () =
   let x = read_int () in
   if x >= 0 then
     let tos = toChurch x succ in
-    tos 0 (fun r -> print_int r)
+    let y = read_int () in
+    tos y (fun r -> print_int r)
   else ()
 
 (* 

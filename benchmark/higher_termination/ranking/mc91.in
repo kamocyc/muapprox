@@ -1,0 +1,7 @@
+%HES
+Sentry =v ∀n. n > 111 \/ Mc (n - 1) n (\r. true).
+Mc np n k =v
+  111-n >= 0 /\
+  111-np > 111-n /\
+  (n <= 100  \/ k (n - 10)) /\
+  (n >  100 \/ Mc n (n + 11) (\r. Mc n r k)).

@@ -1,14 +1,14 @@
 %HES
 Main =v ∃r. ∃n.
-    (r >  0 => F IsPositive n) /\
-    (r <= 0 => F IsNegative n).
+    (r >  0 => F IsPositive n (\_. false)) /\
+    (r <= 0 => F IsNegative n (\_. false)).
 IsPositive n k =v
   (n >  0 => k 1) /\
   (n <= 0 => k 0).
 IsNegative n k =v
   (n <  0 => k 1) /\
   (n >= 0 => k 0).
-F cond x =v
+F cond x k =v
   cond x (\res.
-    (res != 0 => F cond (x - 1)) /\
-    (res =  0 => false)).
+    (res != 0 => F cond (x - 1) k) /\
+    (res =  0 => k true)).
