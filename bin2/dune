@@ -1,5 +1,5 @@
 (executables
- (names check_formula_equality converter simplify abbrev ltl_converter dual)
+ (names check_formula_equality converter simplify abbrev ltl_converter dual simplify_model)
  (libraries muapprox core)
  (preprocess (pps ppx_jane))
  ; (flags (-cclib -lstdc++))
