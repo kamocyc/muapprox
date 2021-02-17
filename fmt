@@ -1,0 +1,4 @@
+#!/bin/bash
+# Usage: echo "(10 (20 30))" | ./fmt  # output formatted expression
+
+node ./smt-lib-formatter/out/main.js

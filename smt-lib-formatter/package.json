@@ -1,0 +1,55 @@
+{
+	"name": "smt-lib",
+	"displayName": "smt-lib",
+	"description": "SMT-LIB syntax highlighting and comment-out",
+	"version": "0.0.1",
+	"publisher": "kamocyc",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/kamocyc/smt-lib-extension.git"
+	},
+	"engines": {
+		"vscode": "^1.18.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"activationEvents": [
+		"onLanguage:smt-lib"
+	],
+	"main": "./src/extension.js",
+	"contributes": {
+		"languages": [
+			{
+				"id": "smt-lib",
+				"aliases": [
+					"SMT-LIB",
+					"smt-lib"
+				],
+				"extensions": [
+					".smt2",
+					".smt"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "smt-lib",
+				"scopeName": "source.smt",
+				"path": "./syntaxes/smt.tmLanguage"
+			}
+		]
+	},
+	"scripts": {
+		"compile": "node_modules/typescript/bin/tsc -p ./"
+	},
+	"dependencies": {
+		"sexp": "^0.1.5"
+	},
+	"devDependencies": {
+		"@types/node": "^14.14.28",
+		"@types/vscode": "^1.53.0",
+		"typescript": "^4.1.5"
+	}
+}
