@@ -1,0 +1,30 @@
+%HES
+Sentry =u ∀n. Loop (Square n) (\_. true).
+
+Loop f k =u
+  f (\r.
+    (r <= 0 => k 0) /\
+    (r > 0 => Loop (Pred r) k)
+  ).
+
+Pred r k =u k (r - 1).
+
+Square n k =u Square_inner n n k.
+
+Square_inner n m k =u
+  (m <= 0 => k 0) /\
+  (m >  0 => (Square_inner n (m - 1) (\r. k (n + r)))).
+
+/*
+/* 一般の形 */
+
+Main n = ∀n. n >= 0 => F n.
+F n = n = 0 \/ F (n - 1)
+
+G n k = k n.
+F f = f (\x. x = 0) \/ F(Pred f)
+Pred f k =u f(\x. k(x-1))
+
+/* 「「整数値を返す高階関数」を渡す」 -> 「「整数値を返す高階関数」と「整数値」を渡す」 */
+/* とにかく、「引数」に来うるexpressionならなんでもなりうる。(非線形、ackermann、高階関数) */
+*/

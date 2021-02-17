@@ -1,0 +1,12 @@
+%HES
+Sentry =u
+  ∀l1. ∀l2. Append (G l1) (G l2) (\r. true).
+
+Append fxs fys k =u
+  fxs (\xs. fys (\ys.
+    ((xs <= 0) => k ys) /\
+    ((xs > 0) => Append (Pred xs) fys (\r. k (1 + r)))
+  )).
+
+G n k =u k n.
+Pred n k =u k (n - 1).

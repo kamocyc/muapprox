@@ -25,9 +25,9 @@ Par recPar123 recQs122 x l r xs k =ν
         \r_ap__ap_.k (r_ap_ + 1 + r_ap__ap_))
     )) &&
   (xs <= 0 ||
-    (∀m.
-      (m < x || Par (recPar123 - 1) recQs122 x (1 + l) r (xs - 1) k) &&
-      (m >= x || Par (recPar123 - 1) recQs122 x l (1 + r) (xs - 1) k)
+    (
+      (Par (recPar123 - 1) recQs122 x (1 + l) r (xs - 1) k) &&
+      (Par (recPar123 - 1) recQs122 x l (1 + r) (xs - 1) k)
     )).
 
 

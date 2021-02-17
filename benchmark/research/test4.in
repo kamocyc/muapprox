@@ -7,5 +7,13 @@
 
 %HES
 Sentry =u ∀m. ∀n. Main n (\k. k m).
-Main n f =u (n > 0 => (Main2 f /\ Main (n - 1) f)) /\ (n <= 0 => true).
-Main2 f =u f (\m. (m > 0 => Main2 (\k. k (m - 1))) /\ (m <= 0 => true)).
+
+Main n f =u
+  (n >  0 => (Main2 f /\ Main (n - 1) f)) /\
+  (n <= 0 => true).
+
+Main2 f =u
+  f (\m.
+    (m >  0 => Main2 (\k. k (m - 1))) /\
+    (m <= 0 => true)
+  ).

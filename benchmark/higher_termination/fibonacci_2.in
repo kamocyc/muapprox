@@ -1,0 +1,6 @@
+%HES
+Sentry =u ∀n. Fib (G n) (\r. true).
+Fib f k =u f (\n. ((n < 2) => k 1) /\ ((n >= 2) => (Fib (Pred n) (\r. Fib (Pred (n - 1)) (\rr. k (r + rr)))))).
+
+G n k =u k n.
+Pred n k =u k (n - 1).

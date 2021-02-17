@@ -1,0 +1,21 @@
+%HES
+Sentry =u
+  ∀n. ∀k.
+    ((n >= 0 /\ k >= 0) => Bin (G n) k (\r. true)) /\
+    ((n < 0 \/ k < 0) => true).
+
+Bin f k c =u
+  f (\n.
+    ( n = 0 => c 1) /\
+    ((n != 0 /\ (k <= 0 \/ k >= n)) => c 1) /\
+    ((n != 0 /\  k > 0  /\ k <  n) =>
+      Bin (Pred n) (k - 1) (\r.
+        Bin (Pred n) k (\rr.
+          c (r + rr)
+        )
+      )
+    )
+  ).
+
+G n k =u k n.
+Pred n k =u k (n - 1).
