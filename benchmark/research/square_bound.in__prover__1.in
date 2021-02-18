@@ -1,0 +1,81 @@
+/* これは解ける */
+/* boundと実際の再帰に使う変数が、同じ変数になっていれば解けるっぽい。別々に計算するとダメ */
+/* 定数部分の解析をすることで、別々でも、同値性の判定ができそう。 */
+%HES
+Sentry =v
+  ∀n. ∀r1. 
+    Square n (\f. \r.
+      r1 < 1 +  1 * n \/
+      r1 < 1 + -1 * n \/
+      r1 < 1 +  1 * r \/
+      r1 < 1 + -1 * r \/
+      r1 < 1 \/
+      Loop r1 f (\replaced_exc_. true)
+    ).
+
+Loop r1 f k =v
+  r1 > 0 /\
+  f (\r.
+    (r > 0 \/ k 0) /\
+    (r <= 0 \/ Loop (r1 - 1) (Pred r) k)
+  ).
+
+Pred r k =v k (r - 1).
+
+Square n k =v
+  ∀r1.
+    r1 < 1 + 1 * n \/
+    r1 < 1 + -1 * n \/
+    r1 < 1 \/
+    (
+      Square_inner r1 n n (\a.
+        k (\kk. kk a) a
+      )
+    ).
+
+Square_inner r1 n m k =v
+  r1 > 0 /\
+  (m > 0 \/ k 0) /\
+  (m <= 0 \/ Square_inner (r1 - 1) n (m - 1) (\r. k (n + r))).
+
+
+/*
+/* これは追加したバージョンだが、解けない */
+/* うまい変形が存在する? */
+%HES
+Sentry =v
+  ∀n.
+    n < 1 \/ 
+      Square n (\ret.
+        (∀r1.
+          r1 < 1 + 1 * ret \/
+          r1 < 1 + -1 * ret \/
+          r1 < 1 \/
+          Loop r1 (Square2 n) (\replaced_exc_. true))).
+    
+Loop r1 f k =v
+  r1 > 0 /\
+  f (\r.
+    (r > 0  \/ k 0) /\
+    (r <= 0 \/ Loop (r1 - 1) (\k. k (r - 1)) k)
+  ).
+
+Square n k =v
+  ∀r1.
+    r1 < 1 + 1 * n \/
+    r1 < 1 + -1 * n \/
+    r1 < 1 \/
+    Square_inner r1 n n k.
+
+Square2 n2 k2 =v
+  ∀r12.
+    r12 < 1 + 1 * n2 \/
+    r12 < 1 + -1 * n2 \/
+    r12 < 1 \/
+    Square_inner r12 n2 n2 k2.
+    
+Square_inner r1 n m k =v
+  r1 > 0 /\
+  (m > 0 \/ k 0) /\
+  (m <= 0 \/ Square_inner (r1 - 1) n (m - 1) (\r. k (n + r))).
+*/

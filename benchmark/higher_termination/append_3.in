@@ -1,0 +1,5 @@
+%HES
+Sentry =u ∀l1. ∀l2. Append Rand l2 (\r. true).
+Append fxs ys k =u fxs (\xs. ((xs <= 0) => k ys) /\ ((xs > 0) => Append (Pred xs) ys (\r. k (1 + r)))).
+Rand k =u ∀x. k x.
+Pred x k =u k (x - 1).

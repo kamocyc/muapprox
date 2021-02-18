@@ -1,0 +1,36 @@
+%HES
+Sentry =v
+  ∀n.
+    ∀r2.
+      r2 < 1 + 1 * n \/
+      r2 < 1 - 1 * n \/
+      r2 < 1 \/
+      Square n (\ret.
+        (∀r1.
+          r1 < 1 + 1 * n \/
+          r1 < 1 + -1 * n \/
+          r1 < 1 + 1 * ret \/
+          r1 < 1 + -1 * ret \/
+          r1 < 1 \/
+          Loop r1 (Square n) (\replaced_exc_. true))).
+    
+Loop r1 f k =v
+  r1 > 0 /\
+  f (\r.
+    (r > 0 \/ k 0) /\
+    (r <= 0 \/ Loop (r1 - 1) (Pred r) k)
+  ).
+  
+Pred r k =v k (r - 1).
+
+Square n k =v
+  ∀r1.
+    r1 < 1 + 1 * n \/
+    r1 < 1 + -1 * n \/
+    r1 < 1 \/
+    Square_inner r1 n n k.
+
+Square_inner r1 n m k =v
+  r1 > 0 /\
+  (m > 0 \/ k 0) /\
+  (m <= 0 \/ Square_inner (r1 - 1) n (m - 1) (\r. k (n + r))).

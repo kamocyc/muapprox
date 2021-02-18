@@ -1,0 +1,32 @@
+%HES
+Sentry =v
+  ∀n.
+    (\k.
+      k (\m. \k2.
+        ∀r2.
+          r2 < 1 + 1 * m \/
+          r2 < 1 + -1 * m \/
+          r2 < 1 + 1 * n \/
+          r2 < 1 + -1 * n \/
+          r2 < 1 \/
+          Mult r2 n m k2)
+    )
+    (\s.
+      ∀m.
+        s m (\r.
+          ∀r1.
+            r1 < 1 + 1 * n \/
+            r1 < 1 + -1 * n \/
+            r1 < 1 + 1 * m \/
+            r1 < 1 + -1 * m \/
+            r1 < 1 + 1 * r \/
+            r1 < 1 + -1 * r \/
+            r1 < 1 \/
+            Loop r1 (\m'. \k. m' = m => k r)
+            (\replaced_exc_. true)
+        )
+    ).
+    
+Loop r1 nf k =v r1 > 0 /\ (∀m. nf m (\n. n <= 0 \/ Loop (r1 - 1) (\replaced_exc_. \f. f (n - 1)) k /\ (n > 0 \/ k 0))).
+
+Mult r2 n m k =v r2 > 0 /\ (m > 0 \/ k 0) /\ (m <= 0 \/ Mult (r2 - 1) n (m - 1) (\r. k (n + r))).

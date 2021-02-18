@@ -1,0 +1,7 @@
+%HES
+Sentry =u ∀l. (l >= 0 => ∀m. Foldr Sum (G m) (G l) (\r. true)) /\ (l < 0 => true).
+Sum fm fn k =u fm (\m. fn (\n. k (m + n))).
+Foldr h fe fl k =u fe (\e. fl (\l. (l = 0 => k e) /\ (l != 0 => ∀m. Foldr h fe (Pred l) (\r. h (G m) (G r) k)))).
+
+G n k =u k n.
+Pred n k =u k (n - 1).

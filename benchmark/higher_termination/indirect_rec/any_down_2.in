@@ -1,0 +1,7 @@
+%HES
+Sentry =u ∀n. F (G n) (\r. true).
+F f k =u f (\n. ∀r. ((r > 0 => F1 (Predm n r) k) /\ (r <= 0 => F1 (Predm n (1 - r)) k))).
+F1 f_n_next k =u f_n_next (\n_next. (n_next > 0 => F f_n_next k) /\ (n_next <=0 => k true)).
+
+G n k =u k n.
+Predm n m k =u (m <= 0 => k n) /\ (m > 0 => Predm (n - 1) (m - 1) k).

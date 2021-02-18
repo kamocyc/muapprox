@@ -1,0 +1,26 @@
+/* Initを簡単にしたバージョン */
+/* これでも解けない(タイムアウト) */
+%HES
+Sentry =v
+  ∀n.
+    ∀r2.
+      r2 < 1 + 1 * n \/
+      r2 < 1 + -1 * n \/
+      r2 < 1 \/
+      Times r2 n n (\ret.
+        ∀r1.
+          r1 < 1 + 1 * ret \/
+          r1 < 1 + -1 * ret \/
+          r1 < 1 \/
+          Loop r1 (Init n) (\replaced_exc_. true)
+      ).
+    
+Loop r1 f k =v
+  r1 > 0 /\
+  f (\b. \g. (b != 0 \/ k 0) /\ (b = 0 \/ Loop (r1 - 1) (Pred g) k)).
+
+Init n k =v Pred (\k2. ∀r3. r3 < 1 + 1 * n \/ r3 < 1 + -1 * n \/ r3 < 1 \/ Times r3 n n k2) k.
+
+Pred f k =v f (\r. (r > 0 \/ k 0 (\k2. k2 (r - 1))) /\ (r <= 0 \/ k 1 (\k2. k2 (r - 1)))).
+
+Times r3 n m k =v r3 > 0 /\ (m > 0 \/ k 0) /\ (m <= 0 \/ Times (r3 - 1) n (m - 1) (\r. k (n + r))).

@@ -1,0 +1,20 @@
+%HES
+Sentry =u
+  ∀n.
+    Init
+      n
+      (\a. \b. b (\c. Loop (\f. f a b) (\_. true))).
+
+Loop f k =u
+  f (\b. \g.
+    (b  = 0 => k 0) /\
+    (b != 0 => Loop (Pred g) k)
+  ).
+
+Init n k =u (n < 0 => Init (n + 1) k) /\ (n >= 0 => Pred (Times n n) k).
+
+Pred f k =u f (\r. (r <= 0 => k 0 (\k. k (r - 1))) /\ (r > 0 => k 1 (\k. k (r - 1)))).
+
+Times n m k =u
+  (m <= 0 => k 0) /\
+  (m >  0 => (Times n (m - 1) (\r. k (n + r)))).
