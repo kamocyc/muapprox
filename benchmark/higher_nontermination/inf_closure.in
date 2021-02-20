@@ -1,3 +1,4 @@
+/* non-terminate when r >= 1 */
 %HES
 Main =v ∃r. F r Is_zero (\_. false).
 Is_zero n k =v (n = 0 => k 1) /\ (n != 0 => k 0).

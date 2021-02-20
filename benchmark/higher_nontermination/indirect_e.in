@@ -1,3 +1,4 @@
+/* non-terminate when t <= -1 */
 %HES
 Main =v ∃t. G t true (\f. false).
 App f x u k =v f x u k.

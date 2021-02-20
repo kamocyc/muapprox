@@ -1,3 +1,4 @@
+/* non-terminate when r <= -1 and n <= -1 */
 %HES
 Main =v ∃r. ∃n.
     (r >  0 => F IsPositive n (\_. false)) /\

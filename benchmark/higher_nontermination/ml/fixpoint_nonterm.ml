@@ -18,7 +18,7 @@ let main () k =
   else
     fix to_zero 10 k
     
-let() = main() |> ignore
+let () = main () (fun r -> print_int r)
 
 (* 
 let rec fix (f:int -> int) (n:int) =

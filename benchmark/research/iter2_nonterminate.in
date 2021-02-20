@@ -1,0 +1,24 @@
+/* n >= m + 4 のときに限り停止しない. ループ2回でわかる */
+%HES
+Sentry =u ∀m. ∀n. Loop m n (\_. true).
+Loop m n k =u
+  (n >= m + 4 => Loop m (n + 1) k) /\
+  (n <  m + 4 => k 0).
+
+/*
+/* valid */
+%HES
+Sentry =u ∀m. ∀n. n <= m => Loop (m - n) (\_. true).
+Loop i k =u
+  (i  = 0 => k 0) /\
+  (i != 0 => Loop (i - 1) k).
+*/
+
+/*
+/* invalid (n >= m + 1 のとき、停止しない). ループ1回でわかる */
+%HES
+Sentry =u ∀m. ∀n. Loop (m - n) (\_. true).
+Loop i k =u
+  (i  = 0 => k 0) /\
+  (i != 0 => Loop (i - 1) k).
+*/

@@ -1,19 +1,17 @@
 %HES
-Sentry =u ∀n. Loop (Square n) (\_. true).
+Sentry =u ∀n. Loop (Mult n n) (\_. true).
 
 Loop f k =u
   f (\r.
     (r <= 0 => k 0) /\
-    (r > 0 => Loop (Pred r) k)
+    (r >  0 => Loop (Pred r) k)
   ).
 
 Pred r k =u k (r - 1).
 
-Square n k =u Square_inner n n k.
-
-Square_inner n m k =u
+Mult n m k =u
   (m <= 0 => k 0) /\
-  (m >  0 => (Square_inner n (m - 1) (\r. k (n + r)))).
+  (m >  0 => (Mult n (m - 1) (\r. k (n + r)))).
 
 /*
 /* 一般の形 */

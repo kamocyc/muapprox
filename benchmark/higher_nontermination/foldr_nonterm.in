@@ -1,3 +1,4 @@
+/* non-terminate when isTerminate <= 0 */
 %HES
 Main =v
   ∃xs.

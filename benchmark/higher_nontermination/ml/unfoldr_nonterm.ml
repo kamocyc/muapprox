@@ -18,3 +18,7 @@ let pred n = if n=0 then (false, 0, 0) else (true, 1, n-1)
 let main () =
   let r = read_int2 () in
   unfoldr_sum pred r
+
+let () = main () |> print_int
+
+(* r = 0 で停止しない (末尾再帰でないのでstack overflowになる) *)

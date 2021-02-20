@@ -17,3 +17,5 @@ let rec g (x:int) (u:unit) =
 let main () =
   let r = read_int2 () in
   g r () ()
+
+let () = main ()

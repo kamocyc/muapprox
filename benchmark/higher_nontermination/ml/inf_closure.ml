@@ -18,3 +18,5 @@ let rec f n (cond:int->bool) =
   else
     f n (succ_app cond)
 let main () = let r = read_int2 () in f r is_zero
+
+let () = main ()

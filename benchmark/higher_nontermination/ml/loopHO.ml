@@ -6,3 +6,5 @@ let rec loop h n =
   else ()
 let app n k = k n
 let main () = let r = read_int () in loop app r
+
+let () = main ()

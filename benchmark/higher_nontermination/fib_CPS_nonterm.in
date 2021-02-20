@@ -1,3 +1,4 @@
+/* non-terminate when r <= -1 */
 %HES
 Sentry =v Main true (\r. false).
 Main u c =v ∃r. Fib r Id c.

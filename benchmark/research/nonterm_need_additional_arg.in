@@ -1,0 +1,7 @@
+/* invalid (n >= m + 1 のとき、停止しない). ループ1回でわかる */
+%HES
+Sentry =u ∀m. X (Loop m).
+X f =u ∀n. f n (\_. true).
+Loop m n k =u
+  (m - n  = 0 => k 0) /\
+  (m - n != 0 => Loop (m - 1) n k).

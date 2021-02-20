@@ -19,3 +19,5 @@ let main () =
   let n = read_int2 () in
   if r > 0 then f isPositive n
            else f isNegative n
+
+let () = main ()

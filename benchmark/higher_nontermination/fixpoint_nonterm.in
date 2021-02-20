@@ -1,3 +1,4 @@
+/* non-terminate when r <= -1 */
 %HES
 Main =v ∃r. Fix To_zero r (\_. false).
 

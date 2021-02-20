@@ -1,3 +1,4 @@
+/* non-terminate when r <= -1 */
 %HES
 Main =v ∃r. G r true true (\_. false).
 App h v k =v h true v k.

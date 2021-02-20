@@ -1,3 +1,4 @@
+/* non-terminate when r >= 1 and r + d_1 + ... + d_n >= 1 for every n */
 %HES
 Main =v ∃r. Loop App r (\_. false).
 Loop h n k =v

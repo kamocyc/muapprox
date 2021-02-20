@@ -1,0 +1,14 @@
+%HES
+Sentry =u ∀n. Mult n n (\r. Loop (\k. k r) (\_. true)).
+
+Loop f k =u
+  f (\r.
+    (r <= 0 => k 0) /\
+    (r >  0 => Loop (Pred r) k)
+  ).
+
+Pred r k =u k (r - 1).
+
+Mult n m k =u
+  (m <= 0 => k 0) /\
+  (m >  0 => (Mult n (m - 1) (\r. k (n + r)))).

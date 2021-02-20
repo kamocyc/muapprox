@@ -24,3 +24,5 @@ let main () =
   if xs > 0 then
     foldr sum_may_nonterm 0 xs
   else -1
+
+let () = main () |> print_int

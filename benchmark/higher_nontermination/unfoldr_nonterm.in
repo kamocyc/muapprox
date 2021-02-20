@@ -1,3 +1,4 @@
+/* non-terminate when r = 0 */
 %HES
 Main =v ∃r. Unfoldr_sum Pred1 Pred2 Pred3 r (\_. false).
 Unfoldr_sum f1 f2 f3 seed k =v

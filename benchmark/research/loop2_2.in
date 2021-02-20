@@ -1,0 +1,37 @@
+/* 結局あんまりユニークな例は作れなかった */
+/* これは解ける (invalid) */
+%HES
+Sentry =u ∀n. ∀m. F n m (\r. true).
+F m n k =u
+  (m > 0 => F (m-1) (n+1) k) /\
+  (n > 0 => F (m+1) (n-1) k) /\
+  k false.
+
+/*
+/* これはlexicographic orderでvalid？ */
+%HES
+Sentry =u ∀n. ∀m. F n m (\r. true).
+F m n k =u
+  (m > 0 => F (m-1) n k) /\
+  (n > 0 => F (m+1) (n-1) k) /\
+  k false.
+*/
+
+/*
+/* これは多分タイムアウト */
+%HES
+Sentry =u ∀n. ∀m. F n m (\r. true).
+F m n k =u
+  
+  ∀r.
+    (      (r > 0 /\ m > 0)                              => F (m-1) (n+1) k) /\
+    (((not (r > 0 /\ m > 0)) /\      (r <= 0 /\ n > 0))  => F (m+1) (n-1) k) /\
+    (((not (r > 0 /\ m > 0)) /\ (not (r <= 0 /\ n > 0))) => k false).
+*/
+/*
+
+/* rはランダムな分岐のためだけに使われるが、下記のように愚直にエンコードすると、hoiceで解いた場合に3倍程度時間がかかる
+  (z3ではどちらもそもそも解けない) */
+Sentry =v ∀n. ∀m. F n m (\r. true).
+F m n k =u ∀r. ((r > 0 /\ m > 0) => F (m-1) n k) /\ (((not (r > 0 /\ m > 0)) /\ (r <= 0 /\ n > 0)) => F m (n-1) k) /\ (((not (r > 0 /\ m > 0)) /\ (not (r <= 0 /\ n > 0))) => k false).
+*/
