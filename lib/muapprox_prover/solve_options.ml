@@ -1,4 +1,4 @@
-type solver_type = Iwayama | Katsura
+type solver_type = Iwayama | Katsura | Suzuki
 type first_order_solver_type = FptProverRecLimit
 
 type options = 
@@ -24,6 +24,7 @@ let get_solver solver_name =
   match solver_name with
   | "iwayama" -> Iwayama
   | "katsura" -> Katsura
+  | "suzuki"  -> Suzuki
   | s -> failwith @@ "unknown solver \"" ^ s ^ "\""
 
 let get_first_order_solver use_fo_solver = 

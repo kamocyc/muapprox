@@ -248,6 +248,57 @@ module IwayamaSolver : BackendSolver = struct
           with _ -> Status.Unknown)
 end
 
+module SuzukiSolver : BackendSolver = struct
+  include SolverCommon
+  
+  let get_solver_path () =
+    match Stdlib.Sys.getenv_opt "suzuki_solver_path" with
+    | None -> failwith "Please set environment variable `suzuki_solver_path`"
+    | Some s -> s
+  
+  let save_hes_to_file hes debug_context =
+    Hflmc2_syntax.Print.global_not_output_zero_minus_as_negative_value := true;
+    let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
+    output_pre_debug_info hes debug_context;
+    Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes
+    
+  let solver_command hes_path solver_options =
+    let solver_path = get_solver_path () in
+    Array.of_list (
+      "RUST_LOG=\" \" "::
+      solver_path::
+        (List.filter_map (fun x -> x)
+          [if solver_options.no_backend_inlining then Some "--no-inlining" else None]) @
+        [hes_path]
+    )
+
+  let parse_results result debug_context elapsed =
+    parse_results_inner result debug_context elapsed (fun stdout -> 
+      let reg = Str.regexp "^\\(Sat\\|UnSat\\)$" in
+      try
+        ignore @@ Str.search_forward reg stdout 0;
+        let s = Str.matched_group 1 stdout in
+        (* 出力"Sat"がvalidに対応する(？) *)
+        Status.of_string (
+          match s with
+          | "Sat" -> "valid"
+          | "UnSat" -> "invalid"
+          | _ -> failwith @@ "Illegal status string1 (" ^ s ^ ")"
+        )
+      with
+        | Not_found -> failwith @@ "not matched"
+    )
+  
+  let run solve_options debug_context hes _ = 
+    let path = save_hes_to_file hes debug_context in
+    let command = solver_command path solve_options in
+    unix_system ~no_quote:true command (Option.map (fun c -> c.mode) debug_context)
+    >>| (fun (status_code, elapsed, stdout, stderr) ->
+        try
+          parse_results (status_code, stdout, stderr) debug_context elapsed
+          with _ -> Status.Unknown)
+end
+
 let rec is_first_order_function_type (ty : Hflmc2_syntax.Type.simple_ty) =
   match ty with
   | TyBool () -> true
@@ -275,6 +326,7 @@ let solve_onlynu_onlyforall solve_options debug_context hes with_par =
       match solve_options.solver with
       | Katsura -> KatsuraSolver.run
       | Iwayama -> IwayamaSolver.run
+      | Suzuki  -> SuzukiSolver.run
     ) in
   run solve_options debug_context hes with_par
 

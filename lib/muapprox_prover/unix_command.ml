@@ -52,9 +52,13 @@ let kill_processes mode =
     end >>| (fun _ -> Hashtbl.remove pids mode; ())
   end
 
-let unix_system commands mode =
+let unix_system ?(no_quote=false) commands mode =
   (* quote *)
-  let commands = Array.to_list commands |> List.map (fun c -> "\"" ^ c ^ "\"") in
+  (* 環境変数をセットするためにquoteしない *)
+  let commands =
+    if no_quote then Array.to_list commands
+    else Array.to_list commands |> List.map (fun c -> "\"" ^ c ^ "\"") 
+    in
   let r = Random.int 0x10000000 in
   let stdout_name = Printf.sprintf "/tmp/%d_stdout.tmp" r in
   let stderr_name = Printf.sprintf "/tmp/%d_stderr.tmp" r in

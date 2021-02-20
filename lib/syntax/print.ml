@@ -96,21 +96,30 @@ let op : Arith.op t =
 let op_ : Arith.op t_with_prec =
   ignore_prec op
 
+let global_not_output_zero_minus_as_negative_value = ref false
+
 let rec gen_arith_ : 'avar t_with_prec -> 'avar Arith.gen_t t_with_prec =
-  fun avar_ prec ppf a -> match a with
+  fun avar_ prec ppf a ->
+    let show_op = function | (Arith.Op (op',[a1;a2])) -> begin
+      let op_prec = Prec.of_op op' in
+      let prec_l = Prec.(succ_if (not @@ op_is_leftassoc op') op_prec) in
+      let prec_r = Prec.(succ_if (not @@ op_is_rightassoc op') op_prec) in
+      show_paren (prec > op_prec) ppf "@[<1>%a@ %a@ %a@]"
+        (gen_arith_ avar_ prec_l) a1
+        op op'
+        (gen_arith_ avar_ prec_r) a2
+    end | _ -> assert false
+    in
+    match a with
     | Int n -> Fmt.int ppf n
     | Var x -> avar_ prec ppf x
-    | Op (Sub,[Int 0;a]) ->
+    | Op (Sub,[Int 0; a']) ->
+      if !global_not_output_zero_minus_as_negative_value then
+        show_op a
+      else
         show_paren (prec > Prec.neg) ppf "-%a"
-          (gen_arith_ avar_ Prec.(succ neg)) a
-    | Op (op',[a1;a2]) ->
-        let op_prec = Prec.of_op op' in
-        let prec_l = Prec.(succ_if (not @@ op_is_leftassoc op') op_prec) in
-        let prec_r = Prec.(succ_if (not @@ op_is_rightassoc op') op_prec) in
-        show_paren (prec > op_prec) ppf "@[<1>%a@ %a@ %a@]"
-          (gen_arith_ avar_ prec_l) a1
-          op op'
-          (gen_arith_ avar_ prec_r) a2
+          (gen_arith_ avar_ Prec.(succ neg)) a'
+    | Op (op',[a1;a2]) -> show_op a
     | _ -> assert false
 let gen_arith : 'avar t_with_prec -> 'avar Arith.gen_t t =
   fun avar_ ppf a -> gen_arith_ avar_ Prec.zero ppf a
