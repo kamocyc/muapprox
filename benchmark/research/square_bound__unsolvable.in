@@ -1,0 +1,31 @@
+/* 述語を引数fで受けているが解けない */
+/* 結果の値を共有しないと解けない模様 */
+%HES
+Sentry =v
+  ∀n.
+    A n
+    (\f.
+      f (\r.
+        (∀r1.
+          r1 < 1 +  1 * n \/
+          r1 < 1 + -1 * n \/
+          r1 < 1 +  1 * r \/
+          r1 < 1 + -1 * r \/
+          r1 < 1 \/
+          Loop r1 f (\replaced_exc_. true))
+      )
+    ).
+
+A n kk =v
+  kk (\k.
+    ∀r2p.
+      r2p < 1 + 1 * n \/
+      r2p < 1 + -1 * n \/
+      r2p < 1 \/
+      Mult r2p n n k).
+  
+Loop r1 f k =v r1 > 0 /\ f (\r. (r > 0 \/ k 0) /\ (r <= 0 \/ Loop (r1 - 1) (Pred r) k)).
+
+
+Pred r k =v k (r - 1).
+Mult r2 n m k =v r2 > 0 /\ (m > 0 \/ k 0) /\ (m <= 0 \/ Mult (r2 - 1) n (m - 1) (\r. k (n + r))).

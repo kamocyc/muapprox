@@ -1,0 +1,28 @@
+/* katsura solverで、高階関数の引数値を追加していないため、解けない (POPL13) */
+%HES
+Sentry =v ∀i. App (Check i) i.
+App f x =v App f (x + 1) /\ f x.
+Check x y =v
+  (x <= y /\ true) \/
+  (x > y /\ false).
+
+
+/*
+/* 以下のように i を追加すると解ける */
+%HES
+Sentry =v ∀i. App i (Check i) i.
+App i f x =v App i f (x + 1) /\ f x.
+Check x y =v
+  (x <= y /\ true) \/
+  (x > y /\ false).
+*/
+
+/*
+/* 同じPOPL13の手法を使わないと型が付かない例 */
+%HES
+Sentry =u
+  ∀n.
+    F (H n) (H n).
+H x k =u k x.
+F x y =u x (\r1. y (\r2. (r1 = r2 => true) /\ (r1 /= r2 => F x y))).
+*/

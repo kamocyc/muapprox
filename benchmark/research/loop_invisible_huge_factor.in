@@ -1,0 +1,6 @@
+%HES
+Sentry =u ∀n. Loop 0 n.
+Loop b n =u
+  ((b = 0 /\ n >= 0) => Loop 1 (200 * n)) /\
+  ((b = 1 /\ n >= 0) => Loop 1 (n - 1)) /\
+  (n < 0 => true).

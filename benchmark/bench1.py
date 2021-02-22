@@ -38,7 +38,7 @@ def append(text):
     with open(OUTPUT_FILE_NAME, 'a') as f:
         f.write(str(text))
 
-BACKEND_SOLVER_CANDIDATE = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama']
+BACKEND_SOLVER_CANDIDATE = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama', 'muapprox_suzuki']
 # BENCHMARK_NAMES = ['first_order', 'higher_nontermination', 'higher_termination', 'higher_fairtermination']
 
 parser = argparse.ArgumentParser(description='benchmarker.')
@@ -50,7 +50,7 @@ parser.add_argument('--timeout', dest='timeout', action='store', type=int, defau
 parser.add_argument('--benchmark', dest='benchmark', action='store', type=str,
                     help='benchmark set')
 
-KILL_PROCESS_NAMES = ["hflmc2", "main.exe", "muapprox_main.exe", "z3", "hoice", "eld", "java", "hflmc3.sh", "para_aux.sh", "sh"]
+KILL_PROCESS_NAMES = ["hflmc2", "main.exe", "muapprox_main.exe", "z3", "hoice", "eld", "java", "hflmc3.sh", "para_aux.sh", "sh", "hflmc"]
 nth_last_line = -1
 
 args = parser.parse_args()
@@ -109,7 +109,7 @@ def preexec_fn():
     os.setsid()
 
 def readfile(path):
-    with open(path, 'r') as f:
+    with open(path, 'r', errors='ignore') as f:
         return f.read()
     
 def run(cmd):

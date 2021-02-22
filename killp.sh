@@ -13,3 +13,5 @@ killall -9 sh
 killall -9 timeout
 killall -9 horsat2
 killall -9 less
+killall -9 hflmc
+killall -9 rcaml-smt

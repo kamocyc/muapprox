@@ -1,3 +1,14 @@
+
+let rec sum n k =
+  if n <= 0
+    then k 0
+    else sum (n - 1) (fun r -> k (n + r))
+
+let () =
+  let n = read_int () in
+  sum n (fun r -> print_int r)
+
+(* 
 let s' (k : int -> unit) =
   let rec sum n (k : int -> unit) =
     if n<=0
@@ -15,4 +26,4 @@ let rec sum n =
     else n + sum (n-1)
 
 let () =
-  sum (Random.int 0) |> ignore
+  sum (Random.int 0) |> ignore *)

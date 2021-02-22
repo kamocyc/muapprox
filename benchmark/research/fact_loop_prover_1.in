@@ -1,0 +1,34 @@
+%HES
+Sentry =v
+  ∀n.
+    (\kk.
+      kk (
+        \k. ∀r2.
+          r2 < 1 + 1 * n \/
+          r2 < 1 + -1 * n \/
+          r2 < 1 \/
+          Fact r2 n k
+      )
+    )
+    (\f.
+      f (\r.
+        ∀r1.
+          r1 < 1 + 1 * n \/
+          r1 < 1 + -1 * n \/
+          r1 < 1 + 1 * r \/
+          r1 < 1 + -1 * r \/
+          r1 < 1 \/
+          Loop r1 (\k. k r) (\replaced_exc_. true)
+      )
+    ).
+    
+Fact r2 n k =v
+  r2 > 0 /\
+  (n > 0 \/ k 1) /\
+  (n <= 0 \/ Fact (r2 - 1) (n - 1) (\r. ∀r3. r3 < 1 + 1 * r \/ r3 < 1 + -1 * r \/ r3 < 1 + 1 * n \/ r3 < 1 + -1 * n \/ r3 < 1 \/ Mult r3 n r k)).
+
+Loop r1 f k =v r1 > 0 /\ f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ Loop (r1 - 1) (Pred n) k)).
+
+Mult r3 n m k =v r3 > 0 /\ (m > 0 \/ k 0) /\ (m <= 0 \/ Mult (r3 - 1) n (m - 1) (\r. k (n + r))).
+
+Pred r k =v k (r - 1).
