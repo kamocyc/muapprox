@@ -1,0 +1,9 @@
+%HES
+Sentry =u Zip (\k. ∀l1. k l1) (\k. ∀l2. k l2) (\r. true).
+Zip fxs fys k =u
+  fxs (\xs. fys (\ys.
+    ((xs <= 0) => k 0) /\
+    ((xs > 0 /\ ys <= 0) => k 0) /\
+    ((xs > 0 /\ ys > 0) => Zip (Pred xs) (Pred ys) (\r. k (1 + r)))
+  )).
+Pred n k =u k (n - 1).

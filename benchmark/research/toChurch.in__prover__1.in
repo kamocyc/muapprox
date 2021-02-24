@@ -1,0 +1,12 @@
+/* 解けてvalidになる */
+%HES
+Sentry =v Check (\k. ∀x. k x) (\b. \n. \fnn. (b != 1 \/ (∀y. ∀r1. r1 < 1 + 1 * n \/ r1 < 1 - 1 * n \/ r1 < 1 + 1 * y \/ r1 < 1 + -1 * y \/ r1 < 1 \/ ToChurch r1 fnn Succ y (\replaced_exc_. true))) /\ (b != 0 \/ true)).
+
+Check fn k =v fn (\n. (n < 0 \/ k 1 n (\k. k n)) /\ (n >= 0 \/ k 0 n (\k. k n))).
+
+ToChurch r1 fn f x k =v r1 > 0 /\ fn (\n. (n != 0 \/ Id x k) /\ (n = 0 \/ Compose f (ToChurch (r1 - 1) (Pred n) f) x k)).
+
+Succ x k =v k (x + 1).
+Id x k =v k x.
+Compose f g x k =v g x (\r. f r k).
+Pred x k =v k (x - 1).

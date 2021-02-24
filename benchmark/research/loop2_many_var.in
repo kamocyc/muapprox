@@ -1,0 +1,16 @@
+/* hoiceとz3併用で解けた */
+/* 解く時間は、変数を追加しない場合とあまり変わらない */
+%HES
+Sentry =u ∀n. ∀m. A n m n m 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.
+A m n x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 =u F m n x1 x2 x3 x4 x5 x6 x7 x8 m n y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 (\r. true).
+F m n x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 k =u
+  ∀r.
+    (      (r > 0 /\ m > 0)                              => F (m-1) n x1 x2 x3 r x5 x6 m n x9 x10 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 k) /\
+    (((not (r > 0 /\ m > 0)) /\      (r <= 0 /\ n > 0))  => F m (n-1) x1 x2 x3 r x5 x6 m n x9 x10 y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 k) /\
+    (((not (r > 0 /\ m > 0)) /\ (not (r <= 0 /\ n > 0))) => k false).
+    
+/* variables: n, m, r, r */
+/*            1 2 3 4*/
+
+/* y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 */
+/* loop2で引数を増やした。やはり遅くなる場合がある。小さなベンチマークに特化してやってもいいが。。。 */

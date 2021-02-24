@@ -1,0 +1,9 @@
+%HES
+Sentry =u Mult_in (\r. true).
+Mult_in k =u
+  (\f. f (\k. ∀m. k m) (\k. ∀n. k n)) (\fm. \fn. Check fm fn (\b. \fmm. \fnn. (b = 1 => Mult fmm fnn k) /\ (b = 0 => k 0))).
+Check fm fn k =u
+  fm (\m. fn (\n. (m > 0 => k 1 (\k. k m) (\k. k n)) /\ (m <= 0 => k 0 (\k. k m) (\k. k n)))).
+Mult fm fn k =u fm (\m. fn (\n. (m > 0 => Mult (Pred m) (Id n) (\r. k (r + n))) /\ (m <= 0 => k 0))).
+Pred x k =u k (x - 1).
+Id x k =u k x.

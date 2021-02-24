@@ -1,0 +1,20 @@
+/* typingで、stackoverflowになる -> recursive typeが出てくるからのようだった */
+/* 本来はoccurence checkされるはずだが、漏れている? */
+/* ただ、どちらにしても、以下の式は間違っていた */
+
+%HES
+Sentry =u Main (\r. true).
+
+Main k =u
+  (\kf. kf (\kn. ∀n. kn n) (\kx. ∀x. kx x)) (\nf. \xf. (Check nf xf (\b. (b = 1 => F nf xf k) /\ (b = 0 => k 0)))).
+
+F nf mf k =u nf (\n. mf (\m. (n = 0 => Succ m k) /\ (n != 0 => G (F (\k. k (n-1))) m k))).
+
+G r a k =u r a (\r'. r (\k. k r') k).
+
+Succ n k =u k (n + 1).
+
+Check nf xf k =u
+  nf (\n. xf (\x. (n >= 0 /\ x >= 0 => k 1) /\ (n < 0 \/ x < 0 => k 0))).
+
+Pred n k =u k (n - 1).

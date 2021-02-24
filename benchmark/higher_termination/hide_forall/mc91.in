@@ -1,0 +1,3 @@
+%HES
+Sentry =u (\f. f (\k. ∀n. k n)) (\fn. Mc fn (\r. true)).
+Mc fn k =u fn (\n. (n > 100 => k (\kk. kk (n - 10))) /\ (n <= 100 => Mc (\k. k (n + 11)) (\r. Mc r k))).

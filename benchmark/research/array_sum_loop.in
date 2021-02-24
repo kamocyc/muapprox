@@ -15,11 +15,12 @@ Sentry =u
 Main x y ar k =u 
   Loop x y ar 0 1 (\r. y = y \/ x = x \/ k r).
 
-Loop x y ar i j k =u
+/* ここでLoopにxとyを渡さないとkatsura-solverで解けない */
+Loop x_ y_ ar i j k =u
   ar i (\x.
     ar j (\y.
       (x + y <= 0 => k false) /\
-      (x + y  > 0 => Pred ar 0 (\ar'. Loop x y ar' 0 1 k))
+      (x + y  > 0 => Pred ar 0 (\ar'. Loop x_ y_ ar' 0 1 k))
     )
   ).
 

@@ -1,0 +1,16 @@
+%HES
+Sentry =v Main (\r. true).
+Pred x k =v k (x - 1).
+Succ x k =v k (x + 1).
+Down r1 fx k =v r1 > 0 /\ fx (\x. (x != 0 \/ k false) /\ (x = 0 \/ Down (r1 - 1) (Pred x) k)).
+Up r2 fx k =v r2 > 0 /\ fx (\x. (x != 0 \/ k false) /\ (x = 0 \/ Up (r2 - 1) (Succ x) k)).
+App f fx k =v f fx k.
+Check f1 f2 k =v f1 (\t1. f2 (\t2. (t1 <= 0 \/ k 0 (\k. k t1) (\k. k t2)) /\ (t1 > 0 \/ t2 >= 0 \/ k 1 (\k. k t1) (\k. k t2)) /\ (t1 > 0 \/ t2 < 0 \/ k 2 (\k. k t1) (\k. k t2)))).
+Main k =v
+  Check (\k2. ∀t1. k2 t1) (\k4. ∀t2. k4 t2) (\b. \f1p. \f2p.
+    f1p (\xx1. f2p (\xx2.
+      (b != 0 \/ App (\fx. \k. ∀r1. r1 < 1 \/ Down r1 fx k) (\k. k xx1) k) /\
+      (b != 1 \/ App (\fx. \k. ∀r2. r2 < 1 \/ Up r2 fx k) (\k. k xx2) k) /\
+      (b != 2 \/ k false)
+    ))
+  ).

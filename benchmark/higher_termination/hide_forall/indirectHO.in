@@ -1,0 +1,5 @@
+%HES
+Sentry =u ∀n. F n false false (\r. true).
+F n u x k =u ((n > 0) => App (F (n-1)) x k) /\ ((n <= 0) => Id x k).
+App h v k =u h false v k.
+Id x k =u k x.

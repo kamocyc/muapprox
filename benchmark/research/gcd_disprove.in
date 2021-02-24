@@ -1,0 +1,18 @@
+/* n=0, m=1 (or n=1, m=0) で無限ループする。proveになるためには、n > 0 /\ m > 0が必要 */
+/* disprove側のexistsを、pcSATが解くために時間がかかるため、解けない */
+%HES
+Sentry =u ∀n. ∀m. Gcd n m (\r. true).
+Gcd a b k =u
+  (a > b => Gcd (a - b) b k) /\
+  (a < b => Gcd a (b - a) k) /\
+  (a = b => k a).
+
+/*
+/* これはvalid */
+%HES
+Sentry =u ∀n. ∀m. n > 0 /\ m > 0 => Gcd n m (\r. true).
+Gcd a b k =u
+  (a > b => Gcd (a - b) b k) /\
+  (a < b => Gcd a (b - a) k) /\
+  (a = b => k a).
+*/

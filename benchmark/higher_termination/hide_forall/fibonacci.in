@@ -1,0 +1,4 @@
+/* 再帰回数はn回 */
+%HES
+Sentry =u ∀n. Fib n (\r. true).
+Fib n k =u ((n < 2) => k 1) /\ ((n >= 2) => (Fib (n - 1) (\r. Fib (n - 2) (\rr. k (r + rr))))).

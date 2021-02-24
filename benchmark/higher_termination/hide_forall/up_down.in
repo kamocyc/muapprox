@@ -1,0 +1,33 @@
+%HES
+Sentry =u Main (\r. true).
+
+Pred x k =u k (x - 1).
+Succ x k =u k (x + 1).
+
+Down fx k =u
+  fx (\x.
+    (x = 0 => k false) /\ (x != 0 => Down (Pred x) k)
+  ).
+
+Up fx k =u
+  fx (\x.
+    (x = 0 => k false) /\ (x != 0 => Up (Succ x) k)
+  ).
+
+App f fx k =u f fx k.
+
+Check f1 f2 k =u
+  f1 (\t1. f2 (\t2.
+    (t1 > 0 => k 0 (\k. k t1) (\k. k t2)) /\
+    (t1 <= 0 /\ t2 < 0 => k 1 (\k. k t1) (\k. k t2)) /\
+    (t1 <= 0 /\ t2 >= 0 => k 2 (\k. k t1) (\k. k t2)))).
+
+Main k =u
+  (\k3. k3 (\k2. ∀t1. k2 t1) (\k4. ∀t2. k4 t2))
+  (\f1. \f2.
+    Check f1 f2 (\b. \f1p. \f2p.
+      (b = 0 => App Down f1p k) /\
+      (b = 1 => App Up f2p k) /\
+      (b = 2 => k false)
+    )
+  ).

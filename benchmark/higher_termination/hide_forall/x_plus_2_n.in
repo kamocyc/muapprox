@@ -1,0 +1,19 @@
+/* いったん関数にくるんで渡す。条件判定は、別途関数をつくる。などで行う */
+%HES
+Sentry =u Main (\r. true).
+
+Main k =u
+  (\kf. kf (\kn. ∀n. kn n) (\kx. ∀x. kx x)) (\nf. \xf. (Check nf xf (\b. \nff. \xff. (b = 1 => F nff xff k) /\ (b = 0 => k 0)))).
+
+F nf mf k =u nf (\n. mf (\m. (n = 0 => Succ m k) /\ (n != 0 => G (F (\k. k (n-1))) (\k. k m) k))).
+
+G r a k =u r a (\r'. r (\k. k r') k).
+
+Succ n k =u k (n + 1).
+
+Check nf xf k =u
+  nf (\n. xf (\x.
+    (n >= 0 /\ x >= 0 => k 1 (\k. k n) (\k. k x)) /\
+    (n <  0 \/ x <  0 => k 0 (\k. k n) (\k. k x)))).
+
+Pred n k =u k (n - 1).

@@ -1,0 +1,3 @@
+%HES
+Sentry =u ∀l1. ∀l2. Append l1 l2 (\r. true).
+Append xs ys k =u ((xs <= 0) => k ys) /\ ((xs > 0) => Append (xs - 1) ys (\r. k (1 + r))).

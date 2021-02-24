@@ -1,0 +1,4 @@
+%HES
+Sentry =u (\f. f (\k. ∀x. k x)) (\fx. Sum fx (\y. true)).
+Sum fx k =u fx (\x. (x <= 0 => (k 0)) /\ (x > 0 => Sum (Pred x) (\m. k (m + x)))).
+Pred x k =u k (x - 1).

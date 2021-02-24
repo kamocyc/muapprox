@@ -1,0 +1,5 @@
+%HES
+Sentry =u ∀n. F n false (\r. true).
+F x u k =u (x > 0 => ∀m. App m F (x-1) u k) /\ (x <= 0 => G u k).
+G u k =u k false.
+App i h v u k =u (i >= 0 => App (i-1) h v u k) /\ (i < 0 => h v u k).

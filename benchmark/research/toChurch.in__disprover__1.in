@@ -1,0 +1,12 @@
+/* これはinvalidになるはず (?) katsura-solverで解くとvalidとなる。suzuki solverで解いてもSatと出た。iwayama solverでは解けない */
+/*？？*/
+%HES
+Sentry =v Check (\k. ∀x. x < 1 \/ Exists195 k x) (\b. \fnn. b = 1 /\ (∀y. y < 1 \/ Exists194 fnn y) \/ b = 0 /\ false).
+Exists195 k x =v (k x \/ k (-x) \/ Exists195 k (x - 1)) /\ x >= 0.
+Exists194 fnn y =v (ToChurch fnn Succ y (\replaced_exc_. false) \/ ToChurch fnn Succ (-y) (\replaced_exc_. false) \/ Exists194 fnn (y - 1)) /\ y >= 0.
+Check fn k =v fn (\n. n >= 0 /\ k 1 (\k. k n) \/ n < 0 /\ k 0 (\k. k n)).
+ToChurch fn f x k =v fn (\n. n = 0 /\ Id x k \/ n != 0 /\ Compose f (ToChurch (Pred n) f) x k).
+Succ x k =v k (x + 1).
+Id x k =v k x.
+Compose f g x k =v g x (\r. f r k).
+Pred x k =v k (x - 1).

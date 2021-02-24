@@ -1,0 +1,32 @@
+/* POPL13のリストのエンコーディング。解けた */
+%HES
+Sentry =u ∀n. Main n (\r. true).
+
+Main len k =u
+  For_all
+    (\x. x <= len)
+    len
+    (\i.\k. k (len - i))
+    k.
+
+Hd len l k =u l 0 k.
+
+Tl len l k =u k (len - 1) (\i.\k. l (i + 1) k).
+
+Is_nil len l k =u
+  (len = 0 => k 1) /\
+  (len = 1 => k 0).
+
+For_all f len l k =u
+  Is_nil len l (\b.
+    (b = 1 => k false) /\
+    (b = 0 => (
+      Hd len l (\e.
+        Tl len l (\len'. \xs'.
+          For_all f len' xs' (\b'.
+            k (b' /\ f e)
+          )
+        )
+      )
+    ))
+  ).

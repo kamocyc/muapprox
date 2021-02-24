@@ -1,0 +1,8 @@
+/* これはhoiceでも解ける */
+/* Sumの最初の呼び出しは変数が1つしかないため */
+%HES
+Sentry =u ∀x. Sum x x 0 0 0 (\y. true).
+Sum x x1 x2 x3 x4 k =u (x <= 0 => (k 0)) /\ (x > 0 => Sum (x - 1) x1 x2 x x4 (\m. k (m + x))).
+
+/* variables: x, y, x, m */
+/*            1, 2, 3, 4 */

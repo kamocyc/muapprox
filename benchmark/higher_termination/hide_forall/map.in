@@ -1,0 +1,6 @@
+%HES
+Sentry =u Main (\r. true).
+Main k =u ∀l. (l >= 0 => Map (Compose (Add 1) (Add 2)) l k) /\ (l < 0 => k 0).
+Add x y k =u k (x + y).
+Compose f g x k =u g x (\r. f r k).
+Map f xs k =u (xs = 0 => k 0) /\ (xs != 0 => ∀m. f m (\r. Map f (xs - 1) (\r'. k (r + r')))).

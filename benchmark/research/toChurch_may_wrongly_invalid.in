@@ -1,0 +1,51 @@
+/* validのはずだが、invalidになる。原因はまだ不明 */
+/* 高階の変換をしたやつの近似変換をして試してみるか */
+%HES
+Sentry =u
+  (\ff. ff (\k. ∀x. k x))
+  (\fn.
+    Check fn (\b. \fnn.
+      (b = 1 => (∀y. ToChurch fnn Succ y (\_. true))) /\ (b = 0 => true)
+    )
+  ).
+
+Check fn k =u
+  fn (\n.
+    (n >= 0 => k 1 (\k. k n)) /\
+    (n  < 0 => k 0 (\k. k n))
+  ).
+
+ToChurch fn f x k =u
+  fn (\n.
+    (n = 0 => Id x k) /\ (n != 0 => Compose f (ToChurch (Pred n) f) x k)
+  ).
+  
+Succ x k =u k (x + 1).
+
+Id x k =u k x.
+
+Compose f g x k =u g x (\r. f r k).
+
+Pred x k =u k (x - 1).
+
+
+/*
+/* katsura-solverではinvalid, suzuki-solverではvalidになる */
+/* Checkの中のエンコーディングを変えただけなので、validityは変わらないはずなので、おかしい? */
+%HES
+Sentry =v Check (\k. k (-1) \/ k 0 \/ k 1) (\b. \fnn. b = 1 /\ (∀y. y < 1 \/ Exists194 fnn y) \/ b = 0 /\ false).
+
+Exists194 fnn y =v(ToChurch fnn Succ y (\replaced_exc_. false) \/ ToChurch fnn Succ (-y) (\replaced_exc_. false) \/ Exists194 fnn (y - 1)) /\ y >= 0.
+
+Check fn k =v fn (\n. n >= 0 /\ k 1 (\k. k n) \/ n < 0 /\ k 0 (\k. k n)).
+
+ToChurch fn f x k =v fn (\n. n = 0 /\ Id x k \/ n != 0 /\ Compose f (ToChurch (Pred n) f) x k).
+
+Succ x k =v k (x + 1).
+
+Id x k =v k x.
+
+Compose f g x k =v g x (\r. f r k).
+
+Pred x k =v k (x - 1).
+*/

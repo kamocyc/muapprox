@@ -1,0 +1,9 @@
+%HES
+Sentry =u Main false (\r. true).
+Main u k =u App (Check 0) 0 k.
+Check x y k =u
+  (x = y => k true) /\ (x /= y => k false).
+App f x k =u
+  (App (Succ f) (x - 1) k) /\
+  (f x k).
+Succ f x k =u f (x + 1) k.
