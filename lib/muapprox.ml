@@ -81,6 +81,7 @@ let get_solve_options file =
     ignore_unknown = !Options.ignore_unknown;
     pid = Unix.getpid();
     file = file;
+    always_approximate = !Options.always_approximate;
   }
 
 let check_format file format_type =

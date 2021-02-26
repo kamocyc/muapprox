@@ -18,6 +18,7 @@ type options =
     ignore_unknown: bool;
     pid: int;
     file: string;
+    always_approximate: bool;
   }
 
 let get_solver solver_name = 

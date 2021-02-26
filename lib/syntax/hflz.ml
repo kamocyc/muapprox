@@ -4,6 +4,7 @@ open Hflmc2_util
 open Id
 open Type
 
+(* Notを追加したHFLzのsyntax sugar *)
 module Sugar = struct
   type 'ty t =
     | Bool   of bool
@@ -15,7 +16,6 @@ module Sugar = struct
     | Forall of 'ty arg Id.t * 'ty t
     | Exists of 'ty arg Id.t * 'ty t
     | App    of 'ty t * 'ty t
-    (* constructers only for hflz *)
     | Arith  of Arith.t
     | Pred   of Formula.pred * Arith.t list
     [@@deriving eq,ord,show,iter,map,fold,sexp]
@@ -157,17 +157,34 @@ let fvs_with_type : 'ty t -> 'ty Type.arg Id.t list = fun hes ->
     | Pred (_, as')   -> as' |> List'.map (fun a -> Arith.fvs a |> List'.map (fun id -> {id with Id.ty = Type.TyInt})) |> List'.flatten in
   go hes |> Hflmc2_util.remove_duplicates (fun e x -> Id.eq e x) |> List.sort ~compare:(fun a b -> Int.compare a.id b.id)
 
+exception CannotNegate
 (* 全体を一度にnegateすると単純なやり方でよい。 *)
-(* 追加すると非常に面倒。しかし、froallは必ず処理が必要。追加しないということはできない *)
-(* negationをどう扱うか。基本的には、HFLにnegationは存在しないので、適宜なんとかする。 *)
 let negate_formula (formula : Type.simple_ty t) = 
+  let is_negation_of f1 f2 =
+    let rec neg (f : 'a t) : 'a t = match f with
+      | Bool b -> Bool (not b)
+      | Or  (f1, f2) -> And (neg f1, neg f2)
+      | And (f1, f2) -> Or  (neg f1, neg f2)
+      | Forall (x, f) -> Exists (x, neg f)
+      | Exists (x, f) -> Forall (x, neg f)
+      | Pred (p, args) -> Pred (Formula.negate_pred p, args)
+      | Arith _ | Var _ | Abs _ | App _ -> raise CannotNegate in
+    try
+      neg f1 = f2
+    with CannotNegate -> false
+  in
   let rec go formula = match formula with
     | Bool b -> Bool (not b)
     | Var x  -> Var x
+    | And (Or (f1, f2), Or(f3, f4)) when is_negation_of f1 f3 ->
+      (* ifのとき *)
+      (* !((p \/ q) /\ (!p \/ r))  =  (!p /\ !q) \/ (p /\ !r)  =
+         (!p => !q) /\ (p => !r)  =  ((p \/ !q) /\ (!p \/ !r)) *)
+      print_endline "NEGATE IF!!!";
+      And (Or (f1, go f2), Or(f3, go f4))
     | Or  (f1, f2) -> And (go f1, go f2)
     | And (f1, f2) -> Or  (go f1, go f2)
     | Abs (x, f1)  -> Abs (x, go f1)
-    (* failwith "[negate_formula] Abs" *)
     | App (f1, f2) -> App (go f1, go f2)
     | Forall (x, f) -> Exists (x, go f)
     | Exists (x, f) -> Forall (x, go f)

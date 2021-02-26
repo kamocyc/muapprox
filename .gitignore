@@ -5,7 +5,6 @@ _build
 **/*.annot
 **/*.status
 **/*.install
-converted/
 output/
 a.out
 submit/

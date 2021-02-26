@@ -6,7 +6,8 @@ module Program2 = Program
 let upto m =
   let rec go m = if m = 0 then [0] else m :: (go (m - 1)) in    
   go m
-    
+
+(* simple typeに対するcanonical intersection typeを返す *)
 let canonical_it (simple_type : Type.simple_ty) states max_m =
   let product xs ys =
     List.map (fun x -> List.map (fun y -> (x, y)) ys) xs |> List.flatten in
@@ -22,7 +23,9 @@ let canonical_it (simple_type : Type.simple_ty) states max_m =
       ) in
   go simple_type
 
-let canonical_it_hes (h : hes) states max_m =
+(* プログラムのcanonical intersection type を返す 
+  （各関数のsimple typeをcanonical intersection typeにする） *)
+let canonical_it_hes (h : hes) (states : string list) (max_m : int) =
   let ms = upto max_m in
   let to_funty args =
     let rec go args = match args with
@@ -30,7 +33,6 @@ let canonical_it_hes (h : hes) states max_m =
       | x::xs -> Type.TyArrow ({ty=x; name=""; id=0}, go xs) in
     go args in
   let program, hes = h in
-  (* let program = canonical_it (Type.TyUnit ()) states max_m in *)
   let hes_ty = List.map (fun {args; var; _} ->
     canonical_it (to_funty (List.map (fun (_, t) -> t) args)) states max_m |>
       List.map (fun s ->
@@ -40,7 +42,6 @@ let canonical_it_hes (h : hes) states max_m =
       ) |> List.flatten
   ) hes |> List.flatten in
   hes_ty
-  (* (program, hes) *)
   
 let max_env (env : itenv) (m : int): itenv =
   env |>

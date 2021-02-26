@@ -20,6 +20,7 @@ let coe = ref (Obj.magic())
 let dry_run = ref (Obj.magic())
 let no_simplify = ref (Obj.magic())
 let ignore_unknown = ref (Obj.magic())
+let always_approximate = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -76,6 +77,9 @@ type params =
   
   ; ignore_unknown : bool [@default false]
   (** If true, skip "Unknown" result from a backend solver (the same behaviour as "Invalid" result). If false, stop solving when get "Unknown". (default: false) **)
+  
+  ; always_approximate : bool [@default false]
+  (** Always approximate a HFLz formula even if the formula (or its dual) is v-HFLz. **)
   }
   [@@deriving cmdliner,show]
 
@@ -95,6 +99,7 @@ let set_up_params params =
   set_ref dry_run                  params.dry_run;
   set_ref no_simplify              params.no_simplify;
   set_ref ignore_unknown           params.ignore_unknown;
+  set_ref always_approximate       params.always_approximate;
   params.input
 
 (******************************************************************************)

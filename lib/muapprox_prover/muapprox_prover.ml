@@ -452,11 +452,15 @@ let solve_onlynu_onlyforall_with_schedule solve_options nu_only_hes cont =
 (* 「shadowingが無い」とする。 *)
 (* timeoutは個別のsolverのtimeout *)  
 let check_validity coe1 coe2 solve_options (hes : 'a Hflz.hes) cont =
-  if is_onlynu_onlyforall hes then
-    solve_onlynu_onlyforall_with_schedule solve_options hes cont
-  else if is_onlymu_onlyexists hes then
-    solve_onlynu_onlyforall_with_schedule solve_options (Hflz_mani.get_dual_hes hes) (fun (status_pair, i) -> cont (Status.flip status_pair, i))
-  else check_validity_full coe1 coe2 solve_options hes cont
+  if solve_options.always_approximate then
+    check_validity_full coe1 coe2 solve_options hes cont
+  else begin
+    if is_onlynu_onlyforall hes then
+      solve_onlynu_onlyforall_with_schedule solve_options hes cont
+    else if is_onlymu_onlyexists hes then
+      solve_onlynu_onlyforall_with_schedule solve_options (Hflz_mani.get_dual_hes hes) (fun (status_pair, i) -> cont (Status.flip status_pair, i))
+    else check_validity_full coe1 coe2 solve_options hes cont
+  end
 
 (* 
 CheckValidity(Φ, main) { /* Φ: HES, main: Entry formula */
