@@ -309,9 +309,107 @@ module MachineReadable = struct
     let file = match file with Some s -> s | None -> Printf.sprintf "/tmp/%s-%d.smt2" "nuonly" r in
     let oc = open_out file in
     let fmt = Format.formatter_of_out_channel oc in
-    Format.pp_set_margin fmt 1000;
+    (* Format.pp_set_margin fmt 1000; *)
+    Format.pp_set_margin fmt 80;
     Printf.fprintf oc "%%HES\n" ;
     hflz_hes' Hflmc2_syntax.Print.simple_ty_ show_forall without_id fmt hes;
+    Format.pp_print_flush fmt ();
+    close_out oc;
+    file
+end
+
+module AsProgram = struct
+  open PrintUtil
+  
+  let id_str = fun without_id x -> String.lowercase_ascii @@ replace_apos @@ Id.to_string ~without_id:without_id x
+  let id__' : bool -> 'ty Id.t t =
+    fun without_id ppf x -> Fmt.pf ppf "%s" (id_str without_id x)
+  
+  let hflz_' (format_ty_ : Prec.t -> 'ty Fmt.t) (show_forall : bool) (without_id : bool) =
+    let rec go_ int_env (prec : Prec.t) (ppf : formatter) (phi : 'ty Hflz.t) = match phi with
+      | Bool true -> begin
+        Fmt.string ppf "(";
+        List.iter (fun x ->
+          let name = id_str without_id x in
+          Fmt.pf ppf "print_endline (\"%s: \" ^ string_of_int %s); " name name;
+        ) (List.rev int_env);
+        Fmt.string ppf "true)"
+      end
+      | Bool false -> Fmt.string ppf "false"
+      | Var x -> id__' without_id ppf x
+      | Or(phi1,phi2)  ->
+          show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ || %a@]"
+            (go_ int_env Prec.or_) phi1
+            (go_ int_env Prec.or_) phi2
+      | And (phi1,phi2)  ->
+          show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ && %a@]"
+            (go_ int_env Prec.and_) phi1
+            (go_ int_env Prec.and_) phi2
+      | Abs (x, psi) -> begin
+        let env =
+          match x.ty with
+          | TyInt -> (Id.remove_ty x)::int_env
+          | _ -> int_env in
+        show_paren (prec > Prec.abs) ppf "@[<1>fun %a -> @,%a@]"
+            (id__' without_id) x
+            (* (argty (Prec.(succ arrow))) x.ty *)
+            (go_ env Prec.abs) psi
+      end 
+      (* failwith @@ "(Print.Hflz) Abstractions should be converted to HES equations." *)
+      | Forall (x, psi) ->
+          (* TODO: ∀は出力したほうがいい？ => 付けるべき。付けないとなぜか\がつくことがある *)
+          if show_forall then (
+            show_paren (prec > Prec.abs) ppf "@[<1>let %a = read_int () in @,%a@]"
+              (id__' without_id) x
+              (go_ ((Id.remove_ty x)::int_env) Prec.abs) psi
+          ) else assert false
+      | Exists (x, psi) -> failwith "AsProgram: exists"
+        (* show_paren (prec > Prec.abs) ppf "@[<1>let %a = read_int () (* !!Exists *) in @,%a@]"
+            (id__' without_id) x
+            (go_ Prec.abs) psi *)
+      | App (psi1, psi2) ->
+          show_paren (prec > Prec.app) ppf "@[<1>%a@ %a@]"
+            (go_ int_env Prec.app) psi1
+            (go_ int_env Prec.(succ app)) psi2
+      | Arith a ->
+          arith_ without_id prec ppf a
+      | Pred (pred, as') ->
+          show_paren (prec > Prec.eq) ppf "%a"
+            (formula without_id) (Formula.Pred(pred, as'))
+    in go_ []
+
+  let hflz' : (Prec.t -> 'ty Fmt.t) -> bool -> bool -> 'ty Hflz.t Fmt.t =
+    fun format_ty_ show_forall without_id -> hflz_' format_ty_ show_forall without_id Prec.zero
+  
+  let hflz_hes_rule' : (Prec.t -> 'ty Fmt.t) -> bool -> bool -> 'ty Hflz.hes_rule Fmt.t =
+    fun format_ty_ show_forall without_id ppf rule ->
+      match rule.fix with
+      | Hflmc2_syntax.Fixpoint.Least -> begin
+        let args, phi = Hflz.decompose_abs rule.body in
+        (* 'ty Type.arg Id.t を表示したい *)
+        Fmt.pf ppf "@[<2>and %s %a =@ %a@]"
+          (String.lowercase_ascii @@ replace_apos @@ Id.to_string ~without_id:without_id rule.var)
+          (pp_print_list ~pp_sep:fprint_space (id__' without_id)) args
+          (hflz' format_ty_ show_forall without_id) phi
+      end
+      | Greatest -> failwith "AsProgram: GFP"
+  
+  let hflz_hes' : (Prec.t -> 'ty Fmt.t) -> bool -> bool -> 'ty Hflz.hes Fmt.t =
+    fun format_ty_ show_forall without_id ppf (entry, rules) ->
+      Fmt.pf ppf "@[<v>@[<2>let rec sentry () =@ %a@]@ %a@] "
+        (hflz' format_ty_ show_forall without_id) entry
+        (Fmt.list (hflz_hes_rule' format_ty_ show_forall without_id)) rules;
+      Fmt.string ppf "let () = print_string (string_of_bool (sentry ()))"
+    
+  let save_hes_to_file ?(file) ?(without_id=false) hes =
+    Random.self_init ();
+    let r = Random.int 0x10000000 in
+    let file = match file with Some s -> s | None -> Printf.sprintf "/tmp/%s-%d.ml" "nuonly" r in
+    let oc = open_out file in
+    let fmt = Format.formatter_of_out_channel oc in
+    (* Format.pp_set_margin fmt 1000; *)
+    Format.pp_set_margin fmt 80;
+    hflz_hes' Hflmc2_syntax.Print.simple_ty_ true without_id fmt hes;
     Format.pp_print_flush fmt ();
     close_out oc;
     file

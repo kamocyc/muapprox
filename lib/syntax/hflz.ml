@@ -180,7 +180,7 @@ let negate_formula (formula : Type.simple_ty t) =
       (* ifのとき *)
       (* !((p \/ q) /\ (!p \/ r))  =  (!p /\ !q) \/ (p /\ !r)  =
          (!p => !q) /\ (p => !r)  =  ((p \/ !q) /\ (!p \/ !r)) *)
-      print_endline "NEGATE IF!!!";
+      (* print_endline "NEGATE IF!!!"; *)
       And (Or (f1, go f2), Or(f3, go f4))
     | Or  (f1, f2) -> And (go f1, go f2)
     | And (f1, f2) -> Or  (go f1, go f2)
