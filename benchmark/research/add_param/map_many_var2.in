@@ -1,0 +1,9 @@
+%HES
+Sentry =u Main 0 (\r. true).
+Main x1 k =u ∀l. (l >= 0 => ∀x11. (x11 >= x1 /\ x11 >= l) => Map x11 (Compose x11 (Add 1) x11 (Add 2)) l x11 k) /\ (l < 0 => k 0).
+Add x y x1 k =u k (x + y).
+Compose x11 f y11 g x z11 k =u ∀w11. (w11 >= x11 /\ w11 >= y11 /\ w11 >= z11) => g x w11 (\r. ∀w12. (w12 >= x11 /\ w12 >= y11 /\ w12 >= z11 /\ w12 >= r) => f r w12 k).
+Map x1 f xs y1 k =u
+  ∀w11. (w11 >= x1 /\ w11 >= xs /\ w11 >= y1) => 
+      ((xs = 0 => k 0) /\
+      (xs != 0 => ∀m. ∀w12. (w12 >= x1 /\ w12 >= xs /\ w12 >= y1 /\ w12 >= m) => f m w12 (\r. ∀w13. (w13 >= r /\ w13 >= x1 /\ w13 >= xs /\ w13 >= y1 /\ w13 >= m) => Map w11 f (xs - 1) w13 (\r'. k (r + r'))))).

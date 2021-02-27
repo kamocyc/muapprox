@@ -1,0 +1,57 @@
+%HES
+Sentry =v
+  ∀x1. ∀r2.
+    ∀rec1. ∀rec2.
+      rec1 < 1 + 1 * x1 \/
+      rec1 < 1 + -1 * x1 \/
+      rec1 < 1 + 1 * r2 \/
+      rec1 < 1 + -1 * r2 \/
+      rec1 < 1 \/
+      rec2 < 1 + 1 * x1 \/
+      rec2 < 1 + -1 * x1 \/
+      rec2 < 1 + 1 * r2 \/
+      rec2 < 1 + -1 * r2 \/
+      rec2 < 1 \/
+      F rec1 rec2 r2 x1 (\x_501. true).
+      
+F rec1 rec2 m n k1 =v
+  rec1 > 0 /\
+  rec2 > 0 /\
+  (∀r2.
+    (r2 <= 0 \/ m <= 0 \/ (
+      ∀r1n. ∀r2n. (
+        (rec1 - 1 > 0  /\ r1n >= rec1 - 1 /\ r2n >= rec2) \/
+        (rec1 - 1 <= 0 /\ (r1n >= 1 + n /\ r1n >= 1 - n /\ r1n >= 1 + m /\ r1n >= 1 - m /\ r1n >= 1) /\ r2n >= rec2 - 1)
+      ) => 
+      F r1n r2n (m - 1) n k1
+    )) /\
+    (r2 > 0 /\ m > 0 \/
+      (r2 > 0 \/ n <= 0 \/ (
+        ∀r1n. ∀r2n. (
+          (rec1 - 1 > 0  /\ r1n >= rec1 - 1 /\ r2n >= rec2) \/
+          (rec1 - 1 <= 0 /\ (r1n >= 1 + n /\ r1n >= 1 - n /\ r1n >= 1 + m /\ r1n >= 1 - m /\ r1n >= 1) /\ r2n >= rec2 - 1)
+        ) => 
+        F r1n r2n m (n - 1) k1
+      )) /\
+      (r2 <= 0 /\ n > 0 \/ k1 0))).
+      
+/*
+%HES
+Sentry =v
+  ∀x1. ∀r2.
+    ∀rec1.
+      rec1 < 1 + 1 * x1 \/
+      rec1 < 1 + -1 * x1 \/
+      rec1 < 1 + 1 * r2 \/
+      rec1 < 1 + -1 * r2 \/
+      rec1 < 1 \/
+      F rec1 r2 x1 (\x_501. true).
+      
+F rec1 m n k1 =v
+  rec1 > 0 /\
+  (∀r2.
+    (r2 <= 0 \/ m <= 0 \/ F (rec1 - 1) (m - 1) n k1) /\
+    (r2 > 0 /\ m > 0 \/
+      (r2 > 0 \/ n <= 0 \/ F (rec1 - 1) m (n - 1) k1) /\
+      (r2 <= 0 /\ n > 0 \/ k1 0))).
+*/

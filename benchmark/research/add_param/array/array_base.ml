@@ -1,3 +1,4 @@
+(* 単にarrayを書いたもの *)
 let make_array k = k (fun i k' -> k' 0)
 let update ar i x k=
   k (fun j k' -> if j = i then k' x else ar j k')

@@ -1,0 +1,27 @@
+%HES
+Sentry =u ∀n. ∀m. ∀x1. x1 >= n /\ x1 >= m /\ x1 >= -n /\ x1 >= -m => A n m x1.
+A m n x1 =u F m n x1 (\r. true).
+F m n x1 k =u
+  ∀r.
+    (      (r > 0 /\ m > 0)                              => (∀x2. x2 >= x1 /\ x2 >= m /\ x2 >= n /\ x2 >= r /\ x2 >= -m /\ x2 >= -n /\ x2 >= -r => F (m-1) n x2 k)) /\
+    (((not (r > 0 /\ m > 0)) /\      (r <= 0 /\ n > 0))  => (∀x2. x2 >= x1 /\ x2 >= m /\ x2 >= n /\ x2 >= r /\ x2 >= -m /\ x2 >= -n /\ x2 >= -r => F m (n-1) x2 k)) /\
+    (((not (r > 0 /\ m > 0)) /\ (not (r <= 0 /\ n > 0))) => k false).
+    
+    
+/*
+/* 解けない */
+%HES
+Sentry =u ∀n. ∀m. ∀x1. x1 >= n /\ x1 >= m => A n m x1.
+A m n x1 =u F m n x1 (\r. true).
+F m n x1 k =u
+  ∀r.
+    (      (r > 0 /\ m > 0)                              => (∀x2. x2 >= x1 /\ x2 >= m /\ x2 >= n /\ x2 >= r => F (m-1) n x2 k)) /\
+    (((not (r > 0 /\ m > 0)) /\      (r <= 0 /\ n > 0))  => (∀x2. x2 >= x1 /\ x2 >= m /\ x2 >= n /\ x2 >= r => F m (n-1) x2 k)) /\
+    (((not (r > 0 /\ m > 0)) /\ (not (r <= 0 /\ n > 0))) => k false).
+    
+/* variables: n, m, r, r */
+/*            1 2 3 4*/
+
+/* y1 y2 y3 y4 y5 y6 y7 y8 y9 y10 */
+/* loop2で引数を増やした。やはり遅くなる場合がある。小さなベンチマークに特化してやってもいいが。。。 */
+*/

@@ -1,0 +1,49 @@
+%HES
+Sentry =v ∀a. ∀b. Main a b.
+Print x =v Print x.
+Main a b =v
+  ∀r1. ∀r2.
+    r1 < 1 + 1 * b \/
+    r1 < 1 + -1 * b \/
+    r1 < 1 + 1 * a \/
+    r1 < 1 + -1 * a \/
+    r1 < 1 \/
+    r2 < 1 + 1 * b \/
+    r2 < 1 + -1 * b \/
+    r2 < 1 + 1 * a \/
+    r2 < 1 + -1 * a \/
+    r2 < 1 \/
+    Rumble r1 r2 a b (
+      \r. ∀r1.  ∀r2.
+        r1 < 1 + 1 * r \/
+        r1 < 1 + -1 * r \/
+        r1 < 1 + 1 * a \/
+        r1 < 1 + -1 * a \/
+        r1 < 1 \/
+        r2 < 1 + 1 * r \/
+        r2 < 1 + -1 * r \/
+        r2 < 1 + 1 * a \/
+        r2 < 1 + -1 * a \/
+        r2 < 1 \/
+        Rumble r1 r2 a r (\r_ap_. Print r_ap_)
+      ).
+      
+Rumble r1 r2 x y k =v
+  r1 > 0 /\
+  r2 > 0 /\
+  (x >= y \/
+    (
+      ∀r1n. ∀r2n. (
+        (r1 - 1 > 0  /\ r1n >= r1 - 1 /\ r2n >= r2) \/
+        (r1 - 1 <= 0 /\ (r1n >= 1 + x /\ r1n >= 1 - x /\ r1n >= 1 + y /\ r1n >= 1 - y /\ r1n >= 1) /\ r2n >= r2 - 1)
+      ) => 
+      Rumble r1n r2n (x + 1) y k
+    ) /\
+    (
+      ∀r1n. ∀r2n. (
+        (r1 - 1 > 0  /\ r1n >= r1 - 1 /\ r2n >= r2) \/
+        (r1 - 1 <= 0 /\ (r1n >= 1 + x /\ r1n >= 1 - x /\ r1n >= 1 + y /\ r1n >= 1 - y /\ r1n >= 1) /\ r2n >= r2 - 1)
+      ) => 
+      Rumble r1n r2n x (y - 1) k
+    )
+  ) /\ (x < y \/ k x).

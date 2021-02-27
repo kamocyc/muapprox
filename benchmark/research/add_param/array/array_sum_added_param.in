@@ -1,0 +1,30 @@
+/* おそらくvalidになるはずだが、タイムアウト */
+%HES
+Sentry =u
+  ∀arg1_1094. 
+   ∀n_1097. 
+    SET (\i_1109. \k_make_array_1110. k_make_array_1110 0) n_1097 0
+     (\acc. \ar_1081. LOOP SUM ar_1081 n_1097 0 (\x_1074. acc = acc \/ true)).
+LOOP f ar_10 n_9 i k_loop_120 =u
+  f ar_10 n_9
+   (\x_1092. 
+     (x_1092 - i > 0 \/ k_loop_120 0)
+     /\ (x_1092 - i <= 0
+         \/ LOOP f ar_10 n_9 (i + 1) (\x_1052. k_loop_120 (1 + x_1052)))).
+SET ar_7 n_6 acc k_set_211 =u
+  (n_6 > 0 \/ k_set_211 acc ar_7)
+  /\ (n_6 <= 0
+      \/ SET
+          (\j_1116. 
+            \k_update_1117. 
+             (j_1116 != n_6 \/ k_update_1117 n_6)
+             /\ (j_1116 = n_6 \/ ar_7 j_1116 k_update_1117))
+          (n_6 - 1) (n_6 + acc) k_set_211).
+SUM ar_4 n_3 k_sum_288 =u
+  ar_4 n_3
+   (\x_1101. 
+     (x_1101 != 0 \/ k_sum_288 0)
+     /\ (x_1101 = 0
+         \/ ar_4 n_3
+             (\e_1086. 
+               SUM ar_4 (n_3 - 1) (\r_1057. k_sum_288 (r_1057 + e_1086))))).

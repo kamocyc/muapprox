@@ -1,6 +1,0 @@
-%HES
-Sentry =u ∀n. ∀m. F n m (\r. true).
-F m n k =u
-  (m > 0 => F (m-1) n k) /\
-  (n > 0 => F (m+1) (n-1) k) /\
-  k false.

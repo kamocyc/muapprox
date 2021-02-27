@@ -1,0 +1,42 @@
+%HES
+Sentry =v ∀x. Life x.
+Ha2 x =v Ha2 x.
+Ha1 x =v Ha1 x.
+Run r11 r12 x f k =v r11 > 0 /\ r12 > 0 /\ (x >= 0 \/ k x) /\ (x < 0 \/ f x (\r. f r (\r_ap_. (
+  ∀r1n. ∀r2n. (
+    (r11 - 1 > 0  /\ r1n >= r11 - 1 /\ r2n >= r12) \/
+    (r11 - 1 <= 0 /\ (r1n >= 1) /\ r2n >= r12 - 1)
+  ) => 
+  Run r1n r2n r_ap_ f k
+)))).
+Walk r21 r22 x f k =v r21 > 0 /\ r22 > 0 /\ (x >= 0 \/ k x) /\ (x < 0 \/ f x (\r. (
+  ∀r1n. ∀r2n. (
+    (r21 - 1 > 0  /\ r1n >= r21 - 1 /\ r2n >= r22) \/
+    (r21 - 1 <= 0 /\ (r1n >= 1 /\ r1n >= 1 + r /\ r1n >= 1 - r) /\ r2n >= r22 - 1)
+  ) => 
+  Walk r1n r2n r f k
+))).
+App f x i k =v f x (G i) k.
+G i x k =v k (x - i).
+Life x =v
+  (x >= 0 \/ App (\x. \f. \k.
+    ∀r21. ∀r22.
+      r21 < 1 + 1 * x \/
+      r21 < 1 + -1 * x \/
+      r21 < 1 \/
+      r22 < 1 + 1 * x \/
+      r22 < 1 + -1 * x \/
+      r22 < 1 \/
+      Walk r21 r22 x f k
+  ) x 1 (\r. Ha1 r)) /\
+  (x <  0 \/ App (\x. \f. \k.
+    ∀r11. ∀r12.
+      r11 < 1 + 1 * x \/
+      r11 < 1 + -1 * x \/
+      r11 < 1 \/
+      r12 < 1 + 1 * x \/
+      r12 < 1 + -1 * x \/
+      r12 < 1 \/
+      Run r11 r12 x f k
+  ) x 1 (\r. Ha2 r)) /\
+  Life x.
