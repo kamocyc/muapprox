@@ -452,7 +452,7 @@ let encode_body_exists_formula new_pred_name_cand coe1 coe2 hes_preds hfl =
         | None ->
           (* boundされている変数が使用されない、つまり無駄なboundなので無視 *)
           go hes_preds f1
-        | Some x -> failwith "quantifiers for higher-order variables are not implemented"
+        | Some x -> failwith @@ "quantifiers for higher-order variables are not implemented (" ^ x.name ^ ")"
       ) else (
         let hfl, rules = encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl in
         let new_rule_vars = List.map (fun rule -> { rule.var with ty = Type.TySigma rule.var.ty }) rules in

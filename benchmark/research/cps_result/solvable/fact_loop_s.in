@@ -1,0 +1,18 @@
+%HES
+Sentry =u ∀n. Fact n (\r. Loop (\k. k r) (\_. true)).
+
+Fact n k =u
+  (n <= 0 => k 1) /\
+  (n >  0 => Fact (n - 1) (\r. Mult n r k)).
+
+Loop f k =u
+  f (\n.
+    (n <= 0 => k 0) /\
+    (n > 0 => Loop (Pred n) k)
+  ).
+
+Mult n m k =u
+  (m <= 0 => k 0) /\
+  (m >  0 => (Mult n (m - 1) (\r. k (n + r)))).
+
+Pred r k =u k (r - 1).

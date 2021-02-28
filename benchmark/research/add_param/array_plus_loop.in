@@ -1,0 +1,38 @@
+/* 「配列」の第一要素と第二要素の和の数だけ再帰 */
+/* 解けない */
+%HES
+Sentry =u
+  ∀x.∀y.
+    Make_array (\ar.
+      Update ar 0 x (\ar'.
+        Update ar 1 y (\ar''.
+          /* 再帰回数の算出と型付けのためにxとyを渡す必要がある */
+          /* yだけでも解けた. xだけだとinvalidになる。 */
+          Main ar'' (\_. true)
+        )
+      )
+    ).
+
+Main ar k =u 
+  Loop ar 0 1 (\r. k r).
+
+/* ここでLoopにxとyを渡さないとkatsura-solverで解けない */
+Loop ar i j k =u
+  ar i (\x.
+    ar j (\y.
+      (x + y <= 0 => k false) /\
+      (x + y  > 0 => Pred ar 0 (\ar'. Loop ar' 0 1 k))
+    )
+  ).
+
+/* i番目の要素の値を1減らす */
+Pred ar i k =u
+  ar i (\x.
+    Update ar i (x - 1) k
+  ).
+  
+Make_array k =u k (\i.\k'. k' 0).
+Update ar i x k =u
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+Check ar i x k =u
+  ar i (\r. k (r = x)).

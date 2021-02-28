@@ -1,3 +1,4 @@
+(* n^2回ループするので、n^2の結果を渡す必要 *)
 let rec mult n m k =
   if m <= 0 then k 0
   else mult n (m - 1) (fun r -> k (n + r))

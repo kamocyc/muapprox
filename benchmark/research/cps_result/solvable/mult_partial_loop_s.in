@@ -1,0 +1,4 @@
+%HES
+Sentry =u ∀n. ∀m. Mult n m (\r. Loop (\m. \k. m = m /\ k r) (\_. true)).
+Loop nf k =u ∀m. nf m (\n. n > 0 => (Loop (\_. \f. f (n - 1)) k) /\ (n <= 0 => k 0)).
+Mult n m k =u (m <= 0 => k 0) /\ (m > 0 => Mult n (m - 1) (\r. k (n + r))).

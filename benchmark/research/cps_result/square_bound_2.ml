@@ -1,3 +1,6 @@
+(* square_bound_1.inで、n^2の結果が直接現れないようにしたもの
+	cps_rev_n.ml のような変換が必要 *)
+
 let pred f k = f (fun r -> if r <= 0 then k 0 (fun k -> k (r - 1)) else k 1 (fun k -> k (r - 1)))
 
 let rec loop f k =

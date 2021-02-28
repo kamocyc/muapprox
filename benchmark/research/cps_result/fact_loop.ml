@@ -1,3 +1,4 @@
+(* fact n 回ループをする *)
 let pred r k = k (r - 1)
 
 let rec mult n m k =

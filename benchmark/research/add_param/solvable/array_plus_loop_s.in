@@ -1,4 +1,5 @@
 /* 「配列」の第一要素と第二要素の和の数だけ再帰 */
+/* 解ける */
 %HES
 Sentry =u
   ∀x.∀y.
@@ -35,5 +36,3 @@ Update ar i x k =u
   k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
 Check ar i x k =u
   ar i (\r. k (r = x)).
-
-  

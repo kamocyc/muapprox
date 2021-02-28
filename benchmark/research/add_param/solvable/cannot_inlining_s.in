@@ -1,0 +1,17 @@
+/* Main2の再帰回数はm回だが、Mainには引数として渡されていないので、boundとして使えない。
+   かつ、Main自体が再帰的な述語なので、inliningすることができない
+   解決策としては、このような場合にmをMainに渡すことだが、一般にはどうすればいいのかが課題
+*/
+
+%HES
+Sentry =u ∀m. ∀n. Main n m (\k. k m).
+
+Main n m f =u
+  (n >  0 => (Main2 f m /\ Main (n - 1) m f)) /\
+  (n <= 0 => true).
+
+Main2 f mm =u
+  f (\m.
+    (m >  0 => Main2 (\k. k (m - 1)) mm) /\
+    (m <= 0 => true)
+  ).

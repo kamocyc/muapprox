@@ -14,7 +14,7 @@ Mult n m k =u
   (m >  0 => (Mult n (m - 1) (\r. k (n + r)))).
 
 /*
-/* 一般の形 */
+/* 一般の形? */
 
 Main n = ∀n. n >= 0 => F n.
 F n = n = 0 \/ F (n - 1)

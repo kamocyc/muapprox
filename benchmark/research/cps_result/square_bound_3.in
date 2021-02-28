@@ -1,3 +1,4 @@
+/* square_bound_1.inで、n^2の結果が直接現れないようにしたもの */
 %HES
 Sentry =u
   ∀n.

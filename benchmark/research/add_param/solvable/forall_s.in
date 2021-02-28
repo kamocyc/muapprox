@@ -1,0 +1,14 @@
+/* nを渡しているので解ける */
+%HES
+Sentry =u Prepare Main.
+
+Prepare k =u ∀n. k n (\k2. k2 n).
+Main n f =u Loop f (\r. n = 0 \/ true).
+
+Loop f k =u
+  f (\r.
+    (r <= 0 => k 0) /\
+    (r >  0 => Loop (Pred r) k)
+  ).
+
+Pred r k =u k (r - 1).
