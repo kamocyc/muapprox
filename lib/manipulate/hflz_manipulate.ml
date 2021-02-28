@@ -791,8 +791,8 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 =
             body
       in
       let mypvar = {mypvar with ty=to_ty (List.map (fun pvar -> Env.lookup pvar rec_tvars) outer_pvars) mypvar.ty} in
-      Log.app begin fun m -> m ~header:"body (before beta)" "%a" Print.(hflz simple_ty_) body end;
-      Log.app begin fun m -> m ~header:"body (after beta)" "%a" Print.(hflz simple_ty_) (beta body) end;
+      (* Log.app begin fun m -> m ~header:"body (before beta)" "%a" Print.(hflz simple_ty_) body end;
+      Log.app begin fun m -> m ~header:"body (after beta)" "%a" Print.(hflz simple_ty_) (beta body) end; *)
       {fix=Greatest; var=mypvar; body=body |> beta |> remove_duplicate_bounds}
     )
     rules

@@ -82,6 +82,7 @@ let get_solve_options file =
     pid = Unix.getpid();
     file = file;
     always_approximate = !Options.always_approximate;
+    assign_values_for_exists_at_first_iteration = !Options.assign_values_for_exists_at_first_iteration;
   }
 
 let check_format file format_type =

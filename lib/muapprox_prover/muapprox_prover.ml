@@ -377,25 +377,30 @@ let is_onlymu_onlyexists (entry, rules) =
   (Status.flip s1, s2) *)
 
 (* TODO: forallを最外に移動？ => いらなそうか *)
-let elim_mu_exists coe1 coe2 debug_output (hes : 'a Hflz.hes) name =
+let elim_mu_exists coe1 coe2 debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
   (* 再帰参照していない述語はgreatestに置換 *)
   (* これをすると、fixpoint alternationが新たにできて、式が複雑になることがあるので、やめる *)
   (* let hes = to_greatest_from_not_recursive rec_preds hes in *)
   (* forall, existential, nu, mu *)
   (* forall, nu, mu *)
-  let hes = Hflz_mani.encode_body_exists coe1 coe2 hes in
-  if debug_output then Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-  (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes; *)
-  let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 in
-  if debug_output then Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-  if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
-  (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes; *)
-  (* forall, nu *)
-  hes
+  (* TODO *)
+  let heses =
+    if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
+    else [Hflz_mani.encode_body_exists coe1 coe2 hes] in
+  List.map (fun hes ->
+    if debug_output then Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+    (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes; *)
+    let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 in
+    if debug_output then Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+    if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
+    (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes; *)
+    (* forall, nu *)
+    hes
+  ) heses
 
 (* これ以降、本プログラム側での近似が入る *)
 let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.options) debug_output hes mode_name = 
-  let nu_only_hes = elim_mu_exists coe1 coe2 debug_output hes mode_name in
+  let nu_only_heses = elim_mu_exists coe1 coe2 debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
   let debug_context = Some {
     mode = mode_name;
     iter_count = iter_count;
@@ -407,14 +412,30 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
   if not solve_options.dry_run then (
     let solvers = 
       match solve_options.solver_backend with
-      | None -> [
-        solve_onlynu_onlyforall { solve_options with solver_backend = Some "hoice" } debug_context nu_only_hes false;
-        solve_onlynu_onlyforall { solve_options with solver_backend = Some "z3" } debug_context nu_only_hes false
-      ]
-      | Some s -> [solve_onlynu_onlyforall solve_options debug_context nu_only_hes false] in
-    (Deferred.any solvers)
+      | None ->
+        List.map (fun nu_only_hes ->
+          [
+            solve_onlynu_onlyforall { solve_options with solver_backend = Some "hoice" } debug_context nu_only_hes false;
+            solve_onlynu_onlyforall { solve_options with solver_backend = Some "z3" } debug_context nu_only_hes false
+          ]
+        ) nu_only_heses
+      | Some s ->
+        List.map (fun nu_only_hes -> [solve_onlynu_onlyforall solve_options debug_context nu_only_hes false]) nu_only_heses in
+    (Deferred.all (List.map Deferred.any solvers))
     >>= (fun result -> kill_processes (Option.map (fun a -> a.mode) debug_context)
     >>= (fun _ ->
+        let result =  
+          List.fold_left
+            (fun a s ->
+              match a, s with
+              | Status.Valid, _ -> Status.Valid
+              | _, Status.Valid -> Status.Valid
+              | Status.Invalid, _ -> Status.Invalid
+              | _, Status.Invalid -> Status.Invalid
+              | _, _ -> Status.Unknown
+              )
+            Status.Unknown
+            result in
         match result with
         | Status.Valid -> return (Status.Valid, debug_context)
         | Status.Invalid ->

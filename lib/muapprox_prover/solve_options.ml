@@ -19,6 +19,7 @@ type options =
     pid: int;
     file: string;
     always_approximate: bool;
+    assign_values_for_exists_at_first_iteration: bool;
   }
 
 let get_solver solver_name = 

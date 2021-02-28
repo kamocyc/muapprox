@@ -111,7 +111,11 @@ let rec gen_arith_ : 'avar t_with_prec -> 'avar Arith.gen_t t_with_prec =
     end | _ -> assert false
     in
     match a with
-    | Int n -> Fmt.int ppf n
+    | Int n ->
+      if n >= 0 then
+        Fmt.int ppf n
+      else
+        (Fmt.string ppf "("; Fmt.int ppf n; Fmt.string ppf ")";)
     | Var x -> avar_ prec ppf x
     | Op (Sub,[Int 0; a']) ->
       if !global_not_output_zero_minus_as_negative_value then

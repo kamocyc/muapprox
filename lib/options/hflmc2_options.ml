@@ -21,6 +21,7 @@ let dry_run = ref (Obj.magic())
 let no_simplify = ref (Obj.magic())
 let ignore_unknown = ref (Obj.magic())
 let always_approximate = ref (Obj.magic())
+let assign_values_for_exists_at_first_iteration = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -80,6 +81,9 @@ type params =
   
   ; always_approximate : bool [@default false]
   (** Always approximate a HFLz formula even if the formula (or its dual) is v-HFLz. **)
+  
+  ; assign_values_for_exists_at_first_iteration: bool; [@defalut false]
+  (** At the first iteration (coe1=1, coe2=1), to solve existential quantifiers, assinging concrete values. **)
   }
   [@@deriving cmdliner,show]
 
@@ -100,6 +104,7 @@ let set_up_params params =
   set_ref no_simplify              params.no_simplify;
   set_ref ignore_unknown           params.ignore_unknown;
   set_ref always_approximate       params.always_approximate;
+  set_ref assign_values_for_exists_at_first_iteration params.assign_values_for_exists_at_first_iteration;
   params.input
 
 (******************************************************************************)
