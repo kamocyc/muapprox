@@ -766,8 +766,6 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 =
       let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars body in
       (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
       let formula_type_vars = Hflz.get_hflz_type body |> to_args |> List.rev in
-      (* add rec > 0 if need *)
-      (* if needというのは、mypvarをtopとするループがあるとき *)
       (* 残りに受け取る引数をいったんlambdaで「受ける」 *)
       let rec_tvar_bounds' = List.map snd scoped_rec_tvars in
       let body = 
@@ -776,6 +774,8 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 =
           List.map
             argty_to_ty
             formula_type_vars in
+      (* add rec > 0 if need *)
+      (* if needというのは、mypvarをtopとするループがあるとき *)
       let body =
         if Env.has mypvar scoped_rec_tvars then
           let mytvar = Env.lookup mypvar scoped_rec_tvars in

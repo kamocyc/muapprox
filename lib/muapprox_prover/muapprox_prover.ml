@@ -22,6 +22,7 @@ type debug_context = {
   mode: string;
   pid: int;
   file: string;
+  solver_backend: string option;
 }
 
 (* let read_strings file =
@@ -48,7 +49,22 @@ let output_debug (dbg : debug_context option) path =
 let show_debug_context debug =
   match debug with
   | None -> ""
-  | Some debug -> "(mode=" ^ debug.mode ^ ", iter_count=" ^ string_of_int debug.iter_count ^ ", coe1=" ^ (string_of_int debug.coe1) ^ ", coe2=" ^ (string_of_int debug.coe2) ^ ")"
+  | Some debug ->
+    let show assoc =
+      let rec go = function 
+        | [] -> []
+        | (k, v)::xs -> (k ^ "=" ^ v)::(go xs) in
+      "(" ^ (go assoc |> String.concat ", ") ^ ")"
+    in
+    let soi = string_of_int in
+    let unwrap_or opt alt = match opt with None -> alt | Some s -> s in
+    show [
+      ("mode", debug.mode);
+      ("iter_count", soi debug.iter_count);
+      ("coe1", soi debug.coe1);
+      ("coe2", soi debug.coe2);
+      ("solver_backend", unwrap_or debug.solver_backend "-")
+    ]
 
 module type BackendSolver = sig
   val run : options -> debug_context option -> Hflmc2_syntax.Type.simple_ty Hflz.hes -> bool -> Status.t Deferred.t
@@ -328,7 +344,7 @@ let solve_onlynu_onlyforall solve_options debug_context hes with_par =
       | Iwayama -> IwayamaSolver.run
       | Suzuki  -> SuzukiSolver.run
     ) in
-  run solve_options debug_context hes with_par
+  run solve_options debug_context hes with_par >>| (fun s -> (s, debug_context))
 
 let flip_solver solver =
   fun timeout is_print_for_debug ->
@@ -388,10 +404,10 @@ let elim_mu_exists coe1 coe2 debug_output assign_values_for_exists_at_first_iter
     if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
     else [Hflz_mani.encode_body_exists coe1 coe2 hes] in
   List.map (fun hes ->
-    if debug_output then Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+    (* if debug_output then Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end; *)
     (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes; *)
     let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 in
-    if debug_output then Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+    (* if debug_output then Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end; *)
     if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
     (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes; *)
     (* forall, nu *)
@@ -408,6 +424,7 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
     coe2 = coe2;
     pid = solve_options.pid;
     file = solve_options.file;
+    solver_backend = None;
   } in
   if not solve_options.dry_run then (
     let solvers = 
@@ -415,8 +432,8 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
       | None ->
         List.map (fun nu_only_hes ->
           [
-            solve_onlynu_onlyforall { solve_options with solver_backend = Some "hoice" } debug_context nu_only_hes false;
-            solve_onlynu_onlyforall { solve_options with solver_backend = Some "z3" } debug_context nu_only_hes false
+            solve_onlynu_onlyforall { solve_options with solver_backend = Some "hoice" } (Option.map (fun o -> { o with solver_backend = Some "hoice" }) debug_context) nu_only_hes false;
+            solve_onlynu_onlyforall { solve_options with solver_backend = Some "z3" } (Option.map (fun o -> { o with solver_backend = Some "z3" }) debug_context) nu_only_hes false
           ]
         ) nu_only_heses
       | Some s ->
@@ -424,6 +441,8 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
     (Deferred.all (List.map Deferred.any solvers))
     >>= (fun result -> kill_processes (Option.map (fun a -> a.mode) debug_context)
     >>= (fun _ ->
+        let result, debug_contexts = List.split result in
+        let debug_context = List.hd debug_contexts in
         let result =  
           List.fold_left
             (fun a s ->
@@ -466,7 +485,7 @@ let check_validity_full coe1 coe2 solve_options hes cont =
   Core.never_returns(Scheduler.go())
 
 let solve_onlynu_onlyforall_with_schedule solve_options nu_only_hes cont =
-  let dresult = Deferred.any [solve_onlynu_onlyforall { solve_options with no_disprove = false } None nu_only_hes true] in
+  let dresult = Deferred.any [solve_onlynu_onlyforall { solve_options with no_disprove = false } None nu_only_hes true >>| (fun (s, d) -> s)] in
   upon dresult (fun result -> cont (result, None); Rfunprover.Solver.kill_z3(); shutdown 0);
   Core.never_returns(Scheduler.go())
   
