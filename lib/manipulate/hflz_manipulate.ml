@@ -347,7 +347,7 @@ let rec to_tree seq f b = match seq with
   
 let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl = 
   let open Type in
-  let formula_type_vars = Hflz.get_hflz_type hfl |> to_args |> List.rev in
+  let formula_type_vars = Hflz_util.get_hflz_type hfl |> to_args |> List.rev in
   (* get free variables *)
   let free_vars =
     Hflz.fvs_with_type hfl
@@ -650,12 +650,99 @@ let is_pred pvar =
   String.length pvar.Id.name >= 0 &&
   (String.uppercase_ascii @@ String.sub pvar.Id.name 0 1) = String.sub pvar.Id.name 0 1
   
-let replace_occurences coe1 coe2 (outer_mu_funcs : (unit Type.ty Id.t * unit Type.ty Id.t list) list) scoped_rec_tvars rec_tvars (fml : 'a Hflz.t) : 'a Hflz.t =
+let range n m =
+  let rec go i =
+    if i > m then []
+    else i::(go (i + 1)) in
+  go n
+
+let replace_occurences
+    (coe1: int)
+    (coe2 : int)
+    (outer_mu_funcs : (unit Type.ty Id.t * unit Type.ty Id.t list) list)
+    (scoped_rec_tvars : ('a Id.t * 'b Id.t) list)
+    (rec_tvars : ('a Id.t * unit Type.ty Type.arg Id.t) list)
+    (rec_lex_tvars : ('a Type.arg Id.t * 'a Type.arg Id.t list) list)
+    (fml : 'a Hflz.t) : 'a Hflz.t =
+  let is_lexi_one = List.map (fun e -> List.length (snd e)) rec_lex_tvars |> List.for_all ((=)1) in
   let rec go (apps : Type.simple_ty t list) fml : 'a Hflz.t = 
     match fml with
     | Var pvar when is_pred pvar -> begin
+      let formula_type_ids = pvar.ty |> to_args |> List.rev in
+      let formula_type_terms = List.map argty_to_ty formula_type_ids in
+      let guessed_terms = get_guessed_terms coe1 coe2 (apps @ formula_type_terms) in
       let arg_pvars = Env.lookup pvar outer_mu_funcs in
+      let make_decrement term =
+        let rec_lex_tvars = Env.lookup term rec_lex_tvars in
+        let new_rec_lex_tvars =
+          List.map
+            (fun tvar -> (tvar, Id.gen ~name:(tvar.Id.name ^ "_n") Type.TyInt))
+            rec_lex_tvars
+          |> Env.create
+            in
+        let body =
+          let a_to_i v = Arith.Var {v with Id.ty=`Int} in
+          let rec go xs = match xs with
+            | x1::x2::xs -> begin
+              let new_x1 = Env.lookup x1 new_rec_lex_tvars in
+              let new_x2 = Env.lookup x2 new_rec_lex_tvars in
+              let new_xs = List.map (fun v -> v, (Env.lookup v new_rec_lex_tvars)) (x2::xs) in 
+              Or (
+                And (
+                  Pred (Gt, [a_to_i x1; Int 1]),
+                  And (
+                    Pred (Ge, [a_to_i new_x1; Op (Sub, [a_to_i x1; Int 1])]),
+                    List.map
+                      (fun (x, new_x) -> Pred (Ge, [a_to_i new_x; a_to_i x]))
+                      new_xs |>
+                    formula_fold (fun a b -> And (a, b))
+                  )
+                ),
+                And (
+                  Pred (Le, [a_to_i x1; Int 1]),
+                  And (
+                    formula_fold
+                      (fun a b -> And (a, b))
+                      (List.map (fun t -> Pred (Ge, [a_to_i new_x1; t])) guessed_terms),
+                    go (x2::xs)
+                  )
+                )
+              )
+            end              
+            | [x1] -> begin
+              let new_x1 = Env.lookup x1 new_rec_lex_tvars in
+              Pred (Ge, [a_to_i new_x1; Op (Sub, [a_to_i x1; Int 1])])
+            end
+            | [] -> failwith "go1" in
+          let imply_left = go rec_lex_tvars in
+          Some (fun inner ->
+            Or (
+              Hflz.negate_formula imply_left,
+              inner
+            )), new_rec_lex_tvars |> List.map snd |> List.map (fun t -> {t with Id.ty=`Int})
+        in
+        body
+      in
       let make_args env_guessed env =
+        (* 述語 -> 再帰回数の変数 を受け取り、pvarの再帰変数は-1、ほかはそのまま適用する *)
+        arg_pvars
+        |> List.map
+          (fun pvar' ->
+            try let term = Env.lookup pvar' env in
+              if Id.eq pvar' pvar then
+                make_decrement term
+                (* Arith.Op (Sub, [Var{term with Id.ty=`Int}; Int 1]) *)
+              else
+                (None, Env.lookup term rec_lex_tvars |> List.map (fun v -> {v with Id.ty=`Int}))
+            with
+              Not_found ->
+                (None,
+                  let t = Env.lookup pvar' env_guessed in
+                  Env.lookup t rec_lex_tvars |> List.map (fun v -> {v with Id.ty=`Int})
+                )
+          )
+      in
+      let make_args_one env_guessed env =
         (* 述語 -> 再帰回数の変数 を受け取り、pvarの再帰変数は-1、ほかはそのまま適用する *)
         arg_pvars
         |> List.map
@@ -671,34 +758,72 @@ let replace_occurences coe1 coe2 (outer_mu_funcs : (unit Type.ty Id.t * unit Typ
       in
       (* S_j - S_i *)
       let new_pvars = List.filter (fun pvar -> not @@ Env.has pvar scoped_rec_tvars) arg_pvars in
-      let new_fml = Var {pvar with ty=to_ty (List.map (fun pvar -> Env.lookup pvar rec_tvars) arg_pvars) pvar.ty} in
-      (* print_endline "pvar type";
-      let Var v = new_fml in
-      print_endline @@ Id.show Type.pp_simple_ty v; *)
+      let new_fml =
+        let ty =
+          to_ty (
+            List.map (fun pvar ->
+              let rec_tvar = Env.lookup pvar rec_tvars in
+              Env.lookup rec_tvar rec_lex_tvars
+            ) arg_pvars
+            |> List.flatten
+          ) pvar.ty in
+        Var {pvar with ty=ty} in
+      let make_app new_fml (rec_vars : ((unit Type.ty t -> Type.simple_ty t) option * [> `Int ] Id.t list) list) formula_type_terms = 
+        let body =
+          to_app
+            new_fml
+            ((List.map
+              (fun (_, v) -> List.map (fun v -> Arith (Var v)) v)
+              rec_vars
+            |> List.flatten) @ formula_type_terms) in
+        let funcs = List.filter_map (fun (a, b) -> match a with Some s -> Some (s, b) | None -> None) rec_vars |> List.rev in
+        funcs
+        |> List.fold_left
+          (fun a (tf, vs) ->
+            to_forall
+              (List.map (fun v -> { v with Id.ty=Type.TyInt}) vs)
+              (tf a)
+          ) body
+      in
       if new_pvars = [] then
-        to_app new_fml (make_args Env.empty scoped_rec_tvars)
+        if is_lexi_one then
+          let rec_vars = make_args_one Env.empty scoped_rec_tvars in
+          to_app new_fml rec_vars
+        else
+          (to_abs'
+            formula_type_ids
+            (
+              let rec_vars = make_args Env.empty scoped_rec_tvars in
+              make_app new_fml rec_vars formula_type_terms
+            )
+          )
       else begin
         let new_tvars = List.map (fun pvar -> Env.lookup pvar rec_tvars) new_pvars in
-        let formula_type_ids = pvar.ty |> to_args |> List.rev in
-        let formula_type_terms = List.map argty_to_ty formula_type_ids in
-        let guessed_terms = get_guessed_terms coe1 coe2 (apps @ formula_type_terms) in
+        let new_tvars_lex =
+          List.map (fun v -> Env.lookup v rec_lex_tvars) new_tvars
+          |> List.flatten in
         let havocs =
           (Core.List.cartesian_product
-            (List.map (fun tvar -> Arith.Var{tvar with Id.ty=`Int}) new_tvars)
+            (List.map (fun tvar -> Arith.Var{tvar with Id.ty=`Int}) new_tvars_lex)
             guessed_terms)
           |> List.map (fun (t1, t2) -> Pred (Lt, [t1; t2]))
           |> formula_fold (fun acc t -> Or (acc, t)) in
-        let rec_vars = make_args (Env.create (Core.List.zip_exn new_pvars new_tvars)) scoped_rec_tvars in
         (to_abs'
           formula_type_ids
           (to_forall
-            new_tvars
+            new_tvars_lex
               (Or (
-              havocs,
-              to_app
-                new_fml
-                (rec_vars @ formula_type_terms)
-            ))
+                havocs,
+                if is_lexi_one then
+                  let rec_vars = make_args_one (Env.create (Core.List.zip_exn new_pvars new_tvars)) scoped_rec_tvars in
+                  to_app
+                    new_fml
+                    (rec_vars @ formula_type_terms)
+                else
+                  let rec_vars = make_args (Env.create (Core.List.zip_exn new_pvars new_tvars)) scoped_rec_tvars in
+                  make_app new_fml rec_vars formula_type_terms
+              )
+            )
           )
         )
       end
@@ -744,7 +869,7 @@ let remove_duplicate_bounds (phi : Type.simple_ty Hflz.t) =
   in 
   go phi
 
-let elim_mu_with_rec (entry, rules) coe1 coe2 =
+let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number =
   (* calc outer_mu_funcs *)
   let rules = (Hflz.mk_entry_rule entry)::rules in
   let outer_mu_funcs = get_outer_mu_funcs rules in
@@ -757,17 +882,37 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 =
           Some (pvar, rectvar_of_pvar pvar)
         else None)
     |> Env.create in
+  let lexico_pair_number =
+    Env.create @@ List.map (fun (_, tvar) -> (tvar, lexico_pair_number)) rec_tvars in
+  let rec_lex_tvars =
+    List.map
+      (fun (_, rec_tvar) ->
+        (
+          rec_tvar,
+          range 1 (Env.lookup rec_tvar lexico_pair_number)
+          |> List.map (fun i -> 
+            if i = 1 then rec_tvar
+            else Id.gen ~name:(rec_tvar.name ^ "_" ^ string_of_int i) (Type.TyInt)
+          )
+        )
+      )
+      rec_tvars |>
+    Env.create in
   (* make new hes *)
   let rules = List.map
     (fun {var=mypvar; body; _} ->
       let outer_pvars = Env.lookup mypvar outer_mu_funcs in
       let scoped_rec_tvars =
         Env.create (List.map (fun pvar -> (pvar, (Env.lookup pvar rec_tvars))) outer_pvars) in
-      let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars body in
-      (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
-      let formula_type_vars = Hflz.get_hflz_type body |> to_args |> List.rev in
+      let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars rec_lex_tvars body in
+      Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end;
+      let formula_type_vars = Hflz_util.get_hflz_type body |> to_args |> List.rev in
       (* 残りに受け取る引数をいったんlambdaで「受ける」 *)
-      let rec_tvar_bounds' = List.map snd scoped_rec_tvars in
+      let rec_tvar_bounds' =
+        List.map snd scoped_rec_tvars |>
+        List.map (fun v -> Env.lookup v rec_lex_tvars) |>
+        List.flatten
+        in
       let body = 
         to_app
           body @@
@@ -779,18 +924,38 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 =
       let body =
         if Env.has mypvar scoped_rec_tvars then
           let mytvar = Env.lookup mypvar scoped_rec_tvars in
+          let mytvars = Env.lookup mytvar rec_lex_tvars in
           to_abs'
             (rec_tvar_bounds' @ formula_type_vars) @@
-            And (
-              Pred (Gt, [Var {mytvar with ty=`Int}; Int 0]),
-              body
+            (
+              And (
+                List.map
+                  (fun mytvar ->
+                    Pred (Gt, [Var {mytvar with ty=`Int}; Int 0])
+                  )
+                  mytvars |>
+                formula_fold
+                  (fun a b -> And (a, b)),
+                body
+              )
             )
         else
           to_abs'
             (rec_tvar_bounds' @ formula_type_vars)
             body
       in
-      let mypvar = {mypvar with ty=to_ty (List.map (fun pvar -> Env.lookup pvar rec_tvars) outer_pvars) mypvar.ty} in
+      let mypvar =
+        let ty =
+          to_ty (
+            List.map
+              (fun pvar ->
+                let rec_tvar = Env.lookup pvar rec_tvars in
+                Env.lookup rec_tvar rec_lex_tvars
+              )
+              outer_pvars
+            |> List.flatten
+          ) mypvar.ty in
+        {mypvar with ty=ty} in
       (* Log.app begin fun m -> m ~header:"body (before beta)" "%a" Print.(hflz simple_ty_) body end;
       Log.app begin fun m -> m ~header:"body (after beta)" "%a" Print.(hflz simple_ty_) (beta body) end; *)
       {fix=Greatest; var=mypvar; body=body |> beta |> remove_duplicate_bounds}
@@ -804,7 +969,7 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 =
 
 let encode_body_forall_formula_sub new_pred_name_cand hes_preds hfl = 
   let open Type in
-  let formula_type_vars = Hflz.get_hflz_type hfl |> to_args |> List.rev in
+  let formula_type_vars = Hflz_util.get_hflz_type hfl |> to_args |> List.rev in
   (* get free variables *)
   let free_vars =
     Hflz.fvs_with_type hfl

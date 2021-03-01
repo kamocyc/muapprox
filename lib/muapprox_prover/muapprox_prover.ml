@@ -23,6 +23,7 @@ type debug_context = {
   pid: int;
   file: string;
   solver_backend: string option;
+  default_lexicographic_order: int;
 }
 
 (* let read_strings file =
@@ -393,7 +394,7 @@ let is_onlymu_onlyexists (entry, rules) =
   (Status.flip s1, s2) *)
 
 (* TODO: forallを最外に移動？ => いらなそうか *)
-let elim_mu_exists coe1 coe2 debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
+let elim_mu_exists coe1 coe2 lexico_pair_number debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
   (* 再帰参照していない述語はgreatestに置換 *)
   (* これをすると、fixpoint alternationが新たにできて、式が複雑になることがあるので、やめる *)
   (* let hes = to_greatest_from_not_recursive rec_preds hes in *)
@@ -406,7 +407,7 @@ let elim_mu_exists coe1 coe2 debug_output assign_values_for_exists_at_first_iter
   List.map (fun hes ->
     (* if debug_output then Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end; *)
     (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes; *)
-    let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 in
+    let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number in
     (* if debug_output then Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end; *)
     if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
     (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes; *)
@@ -415,8 +416,8 @@ let elim_mu_exists coe1 coe2 debug_output assign_values_for_exists_at_first_iter
   ) heses
 
 (* これ以降、本プログラム側での近似が入る *)
-let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.options) debug_output hes mode_name = 
-  let nu_only_heses = elim_mu_exists coe1 coe2 debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
+let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : Solve_options.options) debug_output hes mode_name = 
+  let nu_only_heses = elim_mu_exists coe1 coe2 lexico_pair_number debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
   let debug_context = Some {
     mode = mode_name;
     iter_count = iter_count;
@@ -425,6 +426,7 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
     pid = solve_options.pid;
     file = solve_options.file;
     solver_backend = None;
+    default_lexicographic_order = solve_options.default_lexicographic_order;
   } in
   if not solve_options.dry_run then (
     let solvers = 
@@ -455,25 +457,30 @@ let rec mu_elim_solver coe1 coe2 iter_count (solve_options : Solve_options.optio
               )
             Status.Unknown
             result in
+        let retry coe1 coe2 =
+          let (coe1',coe2',lexico_pair_number) =
+            if (coe1,coe2,lexico_pair_number)=(1,1,1) 
+            then (1,1,2)
+            else if (coe1,coe2)=(1,1) 
+              then (1,8,solve_options.default_lexicographic_order)
+              else (2*coe1, 2*coe2,solve_options.default_lexicographic_order) in
+          mu_elim_solver coe1' coe2' lexico_pair_number (iter_count + 1) solve_options false hes mode_name in
         match result with
         | Status.Valid -> return (Status.Valid, debug_context)
-        | Status.Invalid ->
-          let (coe1',coe2') = if (coe1,coe2)=(1,1) then (1,8) else (2*coe1, 2*coe2) in
-          mu_elim_solver coe1' coe2' (iter_count + 1) solve_options false hes mode_name
+        | Status.Invalid -> retry coe1 coe2
         | Status.Unknown -> 
-          if solve_options.ignore_unknown then (
+          if not solve_options.stop_on_unknown then (
             print_endline @@ "return Unknown (" ^ show_debug_context debug_context ^ ")";
-            let (coe1',coe2') = if (coe1,coe2)=(1,1) then (1,8) else (2*coe1, 2*coe2) in
-            mu_elim_solver coe1' coe2' (iter_count + 1) solve_options false hes mode_name
+            retry coe1 coe2
           ) else return (Status.Unknown, debug_context)
         | _ -> return (Status.Unknown, debug_context)))
   ) else (print_endline "DRY RUN"; Deferred.return (Status.Unknown, None))
 
-let check_validity_full coe1 coe2 solve_options hes cont =
+let check_validity_full coe1 coe2 (solve_options : Solve_options.options) hes cont =
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in
   let dresult = Deferred.any
-                  [mu_elim_solver coe1 coe2 1 solve_options solve_options.print_for_debug hes "prover";
-                   (mu_elim_solver coe1 coe2 1 solve_options solve_options.print_for_debug hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
+                  [mu_elim_solver coe1 coe2 solve_options.default_lexicographic_order 1 solve_options solve_options.print_for_debug hes "prover";
+                   (mu_elim_solver coe1 coe2 solve_options.default_lexicographic_order 1 solve_options solve_options.print_for_debug hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
   let dresult = dresult >>=
     (fun ri -> kill_processes (Some "prover") >>=
       (fun _ -> kill_processes (Some "disprover") >>|

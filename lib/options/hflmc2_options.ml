@@ -6,7 +6,6 @@ open Hflmc2_util
 (******************************************************************************)
 
 let format = ref (Obj.magic())
-let no_inlining = ref (Obj.magic())
 let oneshot = ref (Obj.magic())
 let no_approx_mu = ref (Obj.magic())
 let timeout = ref (Obj.magic())
@@ -19,9 +18,11 @@ let first_order_solver = ref (Obj.magic())
 let coe = ref (Obj.magic())
 let dry_run = ref (Obj.magic())
 let no_simplify = ref (Obj.magic())
-let ignore_unknown = ref (Obj.magic())
+let stop_on_unknown = ref (Obj.magic())
 let always_approximate = ref (Obj.magic())
 let assign_values_for_exists_at_first_iteration = ref (Obj.magic())
+let default_lexicographic_order = ref (Obj.magic())
+let use_simple_encoding_when_lexico_is_one = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -35,10 +36,6 @@ type params =
   
   ; format : string [@default "auto"]
   (** input file format ("auto" / "hes" / "in". Default is "auto") **)
-
-  (* Preprocess *)
-  ; no_inlining : bool [@default false]
-  (** Disable inlining *)
 
   ; no_inlining_backend : bool [@default false]
   (** Disable inlining in a backend solver*)
@@ -76,19 +73,22 @@ type params =
   ; no_simplify : bool [@default false]
   (** Do not simplify formula. It seems to get better results when false. (default: false) **)
   
-  ; ignore_unknown : bool [@default false]
-  (** If true, skip "Unknown" result from a backend solver (the same behaviour as "Invalid" result). If false, stop solving when get "Unknown". (default: false) **)
+  ; stop_on_unknown : bool [@default false]
+  (** If true, skip "Unknown" result from a backend solver (the same behaviour as "Invalid" result). If false, stop solving when get "Unknown". (default: true) **)
   
   ; always_approximate : bool [@default false]
   (** Always approximate a HFLz formula even if the formula (or its dual) is v-HFLz. **)
   
-  ; assign_values_for_exists_at_first_iteration: bool; [@defalut false]
+  ; assign_values_for_exists_at_first_iteration: bool [@defalut false]
   (** At the first iteration (coe1=1, coe2=1), to solve existential quantifiers, assinging concrete values. **)
+  
+  ; default_lexicographic_order: int [@default 1]
+  
+  ; use_simple_encoding_when_lexico_is_one: bool [@default true]
   }
   [@@deriving cmdliner,show]
 
 let set_up_params params =
-  set_ref no_inlining              params.no_inlining;
   set_ref no_approx_mu             params.no_approx_mu;
   set_ref oneshot                  params.oneshot;
   set_ref format                   params.format;
@@ -102,9 +102,11 @@ let set_up_params params =
   set_ref coe                      params.coe;
   set_ref dry_run                  params.dry_run;
   set_ref no_simplify              params.no_simplify;
-  set_ref ignore_unknown           params.ignore_unknown;
+  set_ref stop_on_unknown           params.stop_on_unknown;
   set_ref always_approximate       params.always_approximate;
   set_ref assign_values_for_exists_at_first_iteration params.assign_values_for_exists_at_first_iteration;
+  set_ref default_lexicographic_order params.default_lexicographic_order;
+  set_ref use_simple_encoding_when_lexico_is_one params.use_simple_encoding_when_lexico_is_one;
   params.input
 
 (******************************************************************************)

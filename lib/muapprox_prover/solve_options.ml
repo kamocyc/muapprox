@@ -15,11 +15,13 @@ type options =
     coe : int * int;
     dry_run : bool;
     no_simplify: bool;
-    ignore_unknown: bool;
+    stop_on_unknown: bool;
     pid: int;
     file: string;
     always_approximate: bool;
     assign_values_for_exists_at_first_iteration: bool;
+    default_lexicographic_order: int;
+    use_simple_encoding_when_lexico_is_one: bool;
   }
 
 let get_solver solver_name = 

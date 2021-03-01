@@ -78,11 +78,13 @@ let get_solve_options file =
     coe = get_coe !Options.coe;
     dry_run = !Options.dry_run;
     no_simplify = !Options.no_simplify;
-    ignore_unknown = !Options.ignore_unknown;
+    stop_on_unknown = !Options.stop_on_unknown;
     pid = Unix.getpid();
     file = file;
     always_approximate = !Options.always_approximate;
     assign_values_for_exists_at_first_iteration = !Options.assign_values_for_exists_at_first_iteration;
+    default_lexicographic_order = !Options.default_lexicographic_order;
+    use_simple_encoding_when_lexico_is_one  = !Options.use_simple_encoding_when_lexico_is_one;
   }
 
 let check_format file format_type =
@@ -117,13 +119,12 @@ let main file cont =
   let psi = parse file is_hes in
   (* coefficients's default values are 1, 1 (defined in solve_options.ml) *)
   let coe1, coe2 = solve_options.coe in
-  let inlining = not @@ !Options.no_inlining in
   (* for debug *)
-  let psi = if inlining then (
+  (* let psi = if inlining then (
     let psi = Syntax.Trans.Simplify.hflz_hes psi inlining in
     Log.app begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
     psi
-  ) else psi in
+  ) else psi in *)
   Muapprox_prover.check_validity coe1 coe2 solve_options psi (fun (s1, info) -> cont (s1, info))
 
 let assign_serial_to_vars_hes = Muapprox_prover.Check_formula_equality.assign_serial_to_vars_hes

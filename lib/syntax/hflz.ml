@@ -194,46 +194,6 @@ let negate_formula (formula : Type.simple_ty t) =
 
 let negate_rule ({var; body; fix} : Type.simple_ty hes_rule) = 
   {var; body=negate_formula body; fix=Fixpoint.flip_fixpoint fix}
-    
-let get_hflz_type phi =
-  let rec go phi = match phi with
-    | Bool   _ -> Type.TyBool ()
-    | Var    v -> v.ty
-    | Or (f1, f2)  -> begin
-      assert ((go f1) = Type.TyBool ());
-      assert ((go f2) = Type.TyBool ());
-      Type.TyBool ()
-    end
-    | And (f1, f2) -> begin
-      assert ((go f1) = Type.TyBool ());
-      assert ((go f2) = Type.TyBool ());
-      Type.TyBool ()
-    end
-    | Abs (x, f1)  -> Type.TyArrow (x, go f1)
-    | Forall (x, f1) -> go f1
-    | Exists (x, f1) -> go f1
-    | App (f1, f2)   -> begin
-      let ty1 = go f1 in
-      match ty1 with
-      | TyArrow (x, ty1') -> begin
-        (match x.ty with
-        | Type.TyInt -> (match f2 with Arith _ -> () | _ -> failwith "illegal type (App, Arrow)")
-        | Type.TySigma t -> (
-          let sty2 = go f2 in
-          if not @@ Type.eq_modulo_arg_ids t sty2 then (
-            failwith @@ "type assertion failed (ty1=" ^ show_simple_ty t ^ ", ty2=" ^ show_simple_ty sty2 ^ ")"
-          )
-        )
-        );
-        ty1'
-      end
-      | _ -> failwith "illegal type (App)"
-      
-    end
-    | Pred (p, args) -> Type.TyBool ()
-    | Arith t -> failwith "illegal type (Arith)"
-  in
-  go phi
 
 let id_n n t = { Id.name = "x_" ^ string_of_int n; id = n; ty = t }
 
