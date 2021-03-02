@@ -1,6 +1,7 @@
 
 %{
 open Hflmc2_util
+open Hflmc2_syntax
 open Raw_program
 %}
 
@@ -33,9 +34,9 @@ open Raw_program
 %left STAR
 %nonassoc NEG
 
-%type <Raw_program.hes * (Itype.itype_env * string * Itype.transition_rule list * Itype.priority_rule list) option> main
-%type <Type.simple_ty> abstraction_ty
-%type <Type.simple_argty> abstraction_argty
+%type <Raw_program.hes * (Itype.itype_env * Itype.state * Itype.transition_rule list * Itype.priority_rule list) option> main
+%type <Hflmc2_syntax.Type.simple_ty> abstraction_ty
+%type <Hflmc2_syntax.Type.simple_argty> abstraction_argty
 %type <Itype.itype_env> env
 %start main
 
@@ -46,7 +47,7 @@ main:
 | hes env initial transition priority EOF     { $1, Some ($2, $3, $4, $5) }
 
 initial:
-| INITIAL LIDENT { $2 }
+| INITIAL LIDENT { Itype.State $2 }
 
 transition:
 | TRANSITION trans_rule+ { $2 }
@@ -131,7 +132,7 @@ atom:
 // | uvar ":" abstraction_ty DOT { $1, $3 }
 
 abstraction_ty:
-| TUNIT                    { Type.TyUnit ()   }
+| TUNIT                    { Type.TyBool ()   }
 | abstraction_argty "->" abstraction_ty
     { let x = Id.{ name="_"; id=(-1); ty=$1 } in
       Type.TyArrow(x, $3)
@@ -216,10 +217,10 @@ env:
 | ENV env_rule+ { $2 }
 
 env_rule:
-| LIDENT ":" env_argty_item { $1, $3 }
+| LIDENT ":" env_argty_item { Id.gen ~name:$1 (), $3 }
 
 env_ty:
-| LIDENT { Itype.ITState $1 }
+| LIDENT { Itype.ITState (Itype.State $1) }
 | env_argty "->" env_ty { Itype.ITFunc ($1, $3) }
 
 env_argty:

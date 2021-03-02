@@ -7,6 +7,9 @@
 (library
  (public_name ltl_program)
  (libraries
+   muapprox.manipulate
+   hflmc2_syntax
+   hflmc2_util
    str
    core
    fmt

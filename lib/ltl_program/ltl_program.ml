@@ -9,13 +9,13 @@ let print_location lexbuf =
     pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
 
 let as_function assoc key =
-  match List.assoc_opt key assoc with
-  | None -> failwith @@ "as_function: Not_found (key=" ^ key ^ ")"
-  | Some s -> s
+  match List.find_opt (fun (k, s) -> k = key) assoc with
+  | None -> failwith @@ "as_function: Not_found (key=" ^ show_state key ^ ")"
+  | Some (_, s) -> s
 
 let as_multi_function assoc key =
-  match List.find_all (fun (k, v) -> key = k) assoc with
-  | [] -> failwith @@ "as_multi_function (key=(" ^ fst key ^ ", " ^ snd key ^ "))"
+  match List.find_all (fun (k, v) -> k = key) assoc with
+  | [] -> failwith @@ "as_multi_function (key=(" ^ show_state (fst key) ^ ", " ^ show_symbol (snd key) ^ "))"
   | l -> l |> List.map (fun (k, v) -> v)
 
 let convert_ltl file =
@@ -36,7 +36,7 @@ let convert_ltl file =
       print_endline "env:";
       print_endline @@ show_itype_env env;
       print_endline "initial:";
-      print_endline initial_state;
+      print_endline @@ show_state initial_state;
       print_endline "transition:";
       print_endline (List.map show_transition_rule trans |> String.concat "\n");
       print_endline "priority:";
@@ -59,7 +59,16 @@ let convert_ltl file =
       let program_ = trans_hes env program' (as_multi_function transition) (as_function priority) initial_state all_states in
       (* print_endline "program (after):";
       print_endline @@ show_hes_as_ocaml program_ *)
-      print_endline @@ to_hflz program_ func_priority;
+      let hflz = to_hflz program_ func_priority in
+      Manipulate.Hflz_typecheck.type_check hflz;
+      Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz;
+      Format.print_flush ();
+      Format.print_string "\n=======\n";
+      Format.print_flush ();
+      let hflz = Manipulate.Hes_optimizer.eliminate_unreachable_predicates hflz in
+      let hflz = Manipulate.Hes_optimizer.simplify hflz in
+      Manipulate.Hflz_typecheck.type_check hflz;
+      Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz;
       (* print_endline "Omega:";
       print_endline (List.map (fun (f, p) -> f ^ " -> " ^ string_of_int p) func_priority |> String.concat "\n");
       print_endline "" *)

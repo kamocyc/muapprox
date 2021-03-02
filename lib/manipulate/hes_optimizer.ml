@@ -254,3 +254,13 @@ let%expect_test "InlineExpansition.optimize" =
          (Type.TyBool ())))
       }
     body: λx_401401:int.x_401401 = 5 && x_300300 6} |}]
+
+let eliminate_unreachable_predicates (hes : 'a Hflz.hes) : 'a Hflz.hes =
+  let (entry, rules) = hes in
+  let rules = (Hflz.mk_entry_rule entry)::rules in
+  let _, rgraph = Hflz_util.get_dependency_graph rules in
+  let reachables = Mygraph.reachable_nodes_from ~start_is_reachable_initially:true 0 rgraph in
+  let rules = 
+    List.mapi (fun i r -> r, (List.find_all ((=)i) reachables <> [])) rules
+    |> List.filter_map (fun (r, b) -> if b then Some r else None) in
+  Hflz.decompose_entry_rule rules

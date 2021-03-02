@@ -1,8 +1,18 @@
 open Common_type
 
+type state = State of string
+[@@deriving show]
+
+let show_state (State s) = s
+
+type symbol = Symbol of string
+[@@deriving show]
+
+let show_symbol (Symbol s) = s
+
 (* intersection type *)
 type itype =
-    ITState of string
+    ITState of state
   | ITFunc of iarg * itype
 [@@deriving show]
 (* intersection type argument *)
@@ -11,11 +21,11 @@ and iarg =
   | IAInter of (itype * int) list (* (theta_i, m_i) < (theta_j, m_j) for each i < j *)
 [@@deriving show]
 
-type itype_env =(string * (itype * int)) list
+type itype_env =(unit id * (itype * int)) list
 [@@deriving show]
 
 let rec show_itype itype = match itype with
-  | ITState s -> s
+  | ITState s -> show_state s
   | ITFunc (arg, ty) -> show_iarg arg ^ "->" ^ show_itype ty
 and show_iarg arg = match arg with
   | IAInt -> "int"
@@ -24,23 +34,27 @@ and show_iarg arg = match arg with
 (* type of intersection type environment *)
 type itenv_type = ITEInt | ITEInter of itype * int * int
 
-type itenv_item = id * itenv_type
+type itenv_item = (unit id) * itenv_type
 type itenv = itenv_item list
 
 type itype' =
-    ITState' of string
+    ITState' of state
   | ITFunc' of iarg * itype'
   | ITInt'
 [@@deriving show]
 
-type transition_rule = (string * string) * string
+type transition_rule = (state * symbol) * state
 let show_transition_rule ((state, symbol), target) =
-  "(" ^ state ^ ", " ^ symbol ^ ") -> " ^ target
+  "(" ^ show_state state ^ ", " ^ show_symbol symbol ^ ") -> " ^ show_state target
   
-let mk_transition_rule a b c = ((a, b), c)
+let mk_transition_rule a b c = ((State a, Symbol b), State c)
 
-type priority_rule = string * int
+type priority_rule = state * int
 let show_priority_rule (state, priority) =
-  state ^ " -> " ^ string_of_int priority
+  show_state state ^ " -> " ^ string_of_int priority
   
-let mk_priority_rule a b = (a, b)
+let mk_priority_rule a b = (State a, b)
+
+let eq_iarg (a: iarg) b = a = b
+let eq_itype (a: itype) b = a = b
+let eq_itype' (a: itype') b = a = b

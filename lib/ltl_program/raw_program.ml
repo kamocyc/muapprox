@@ -1,8 +1,9 @@
+open Hflmc2_syntax
 open Common_type
   
 type raw_program =
     PUnit
-  | PVar of id
+  | PVar of string
   | PIf of raw_program * raw_program * raw_program
   | PEvent of program_event * raw_program
   | PNonDet of raw_program * raw_program
@@ -16,7 +17,7 @@ type raw_program =
   [@@deriving eq,ord,show]
 
 type func = {
-  var: id;
+  var: string;
   args: (string * Type.simple_argty) list;
   body: raw_program
 }

@@ -1,7 +1,10 @@
+open Hflmc2_syntax
 open Itype
 open Program
 
 module Program2 = Program
+
+let show_id_st id = Id.show Type.pp_simple_ty id
 
 let upto m =
   let rec go m = if m = 0 then [0] else m :: (go (m - 1)) in    
@@ -13,7 +16,7 @@ let canonical_it (simple_type : Type.simple_ty) states max_m =
     List.map (fun x -> List.map (fun y -> (x, y)) ys) xs |> List.flatten in
   let ms = upto max_m in
   let rec go simple_type = match simple_type with
-    | Type.TyUnit () -> states |> List.map (fun s -> ITState s)
+    | Type.TyBool () -> states |> List.map (fun s -> ITState s)
     | Type.TyArrow ({ty=Type.TyInt; _}, body) -> go body |> List.map (fun ty -> ITFunc (IAInt, ty))
     | Type.TyArrow ({ty=Type.TySigma t1; _}, t2) ->
       go t2 |>
@@ -25,19 +28,14 @@ let canonical_it (simple_type : Type.simple_ty) states max_m =
 
 (* プログラムのcanonical intersection type を返す 
   （各関数のsimple typeをcanonical intersection typeにする） *)
-let canonical_it_hes (h : hes) (states : string list) (max_m : int) =
+let canonical_it_hes (h : hes) (states : state list) (max_m : int) =
   let ms = upto max_m in
-  let to_funty args =
-    let rec go args = match args with
-      | [] -> Type.TyUnit ()
-      | x::xs -> Type.TyArrow ({ty=x; name=""; id=0}, go xs) in
-    go args in
   let program, hes = h in
-  let hes_ty = List.map (fun {args; var; _} ->
-    canonical_it (to_funty (List.map (fun (_, t) -> t) args)) states max_m |>
+  let hes_ty = List.map (fun {var; _} ->
+    canonical_it (var.ty) states max_m |>
       List.map (fun s ->
         List.map (fun mm -> 
-          (var, (s, mm))
+          (Id.remove_ty var, (s, mm))
         ) ms
       ) |> List.flatten
   ) hes |> List.flatten in
@@ -51,29 +49,29 @@ let max_env (env : itenv) (m : int): itenv =
 
 let lookup_with_itype_base env x ty f n =
   match List.filter_map f env with
-  | [] -> failwith @@ "lookup_with_itype_base: not found (var=" ^ x ^ ", ty=" ^ show_itype ty ^ ", from=" ^ n ^ ")"
+  | [] -> failwith @@ "lookup_with_itype_base: not found (var=" ^ show_id_st x ^ ", ty=" ^ show_itype ty ^ ", from=" ^ n ^ ")"
   | xs -> begin
     let m' = List.fold_left (fun max (_, _, m') -> if max < m' then m' else max) (-1) xs in
     match List.filter (fun (_, m, m') -> m = m') xs with
-    | [] -> failwith @@ "lookup_with_itype_base: max priority mismatch (var=" ^ x ^ ", ty=" ^ show_itype ty ^ ", max=" ^ string_of_int m' ^ ", priorities=" ^ (List.map (fun (_, m, _) -> string_of_int m) xs |> String.concat ", ") ^ ", from=" ^ n ^ ")"
+    | [] -> failwith @@ "lookup_with_itype_base: max priority mismatch (var=" ^ show_id_st x ^ ", ty=" ^ show_itype ty ^ ", max=" ^ string_of_int m' ^ ", priorities=" ^ (List.map (fun (_, m, _) -> string_of_int m) xs |> String.concat ", ") ^ ", from=" ^ n ^ ")"
     | [(ty, m, _)] -> Some (ty, m)
     | _ -> failwith "lookup_with_itype_base: false"
   end
  
 let lookup_with_itype env x ty =
   lookup_with_itype_base env x ty (fun (id, ty') ->
-    if id = x then begin
+    if Id.eq id x then begin
       match ty' with
-      | ITEInter (t, m, m') -> if t = ty then Some (t, m, m') else None
+      | ITEInter (t, m, m') -> if eq_itype t ty then Some (t, m, m') else None
       | ITEInt -> None
     end else None
   ) "var"
 
 let lookup_arg_type_by_body_type env x ty =
   lookup_with_itype_base env x ty (fun (id, ty') ->
-    if id = x then begin
+    if Id.eq id x then begin
       match ty' with
-      | ITEInter ((ITFunc (_, body)) as t, m, m') -> if body = ty then Some (t, m, m') else None
+      | ITEInter ((ITFunc (_, body)) as t, m, m') -> if eq_itype body ty then Some (t, m, m') else None
       | _ -> None
     end else None
   ) "fun_body"
@@ -132,7 +130,7 @@ let get_arg_type (env : itenv) term states =
   let rec go (env : itenv) term : itype' list = match term with
     | PUnit -> states
     | PVar var -> begin
-      match List.find_all (fun (id, _) -> id = var) env |> List.map (fun (_, v) -> v) with
+      match List.find_all (fun (id, _) -> Id.eq id var) env |> List.map (fun (_, v) -> v) with
       | [] -> failwith "unbounded"
       | ty -> List.map to_itype'_from_envtype ty |> List.sort_uniq compare
     end
@@ -145,7 +143,7 @@ let get_arg_type (env : itenv) term states =
           assert (
             match argty with
             | IAInter tys -> begin
-              List.mapi (fun i (ty1, _) -> to_itype' ty1 = List.nth tys2 i) tys |>
+              List.mapi (fun i (ty1, _) -> eq_itype' (to_itype' ty1) (List.nth tys2 i)) tys |>
               List.for_all (fun x -> x)
             end
             | _ -> false);
@@ -169,13 +167,13 @@ let get_arg_type (env : itenv) term states =
     | PIf (_, p1, p2) -> begin
       let ty1 = go env p1 in
       let ty2 = go env p2 in
-      assert (ty1 = ty2);
+      assert (List.for_all2 eq_itype' ty1 ty2);
       ty1
     end
     | PNonDet (p1, p2) -> begin
       let ty1 = go env p1 in
       let ty2 = go env p2 in
-      assert (ty1 = ty2);
+      assert (List.for_all2 eq_itype' ty1 ty2);
       ty1
     end
     | PEvent (e, p1) -> go env p1
@@ -188,7 +186,12 @@ let make_app v xs =
     | x::xs -> PApp (go xs, x) in
   go (List.rev xs)
 
-let trans (env : itenv) (term : program) transition_function priority all_states =
+let trans
+    (env : itenv)
+    (term : program)
+    (transition_function : state * symbol -> state list)
+    priority
+    all_states =
   let transition_function ty ev = match ty with
     | ITFunc  _ -> failwith "transition_function"
     | ITState s -> transition_function (s, ev) |> List.map (fun s -> ITState s)
@@ -201,15 +204,15 @@ let trans (env : itenv) (term : program) transition_function priority all_states
     | PUnit -> PUnit
     | PVar x -> begin
       match lookup_with_itype env x ty with
-      | None -> failwith @@ "PVar: not found (" ^ x ^ ": (" ^ show_itype ty ^ ", " ^ string_of_int 0 ^ ")"
-      | Some (v, m) -> PVar (make_var_name x v m)
+      | None -> failwith @@ "PVar: not found (" ^ Id.show Type.pp_simple_ty x ^ ": (" ^ show_itype ty ^ ", " ^ string_of_int 0 ^ ")"
+      | Some (v, m) -> PVar ({x with name = make_var_name x.Id.name v m})
     end
     | PNonDet (p1, p2) -> PNonDet (go_prog env p1 ty, go_prog env p2 ty)
     | PIf (Pred(p, args), pthen, pelse) ->
         PIf (Pred(p, List.map (go_arith env) args), go_prog env pthen ty, go_prog env pelse ty)
     | PIf _ -> failwith "PIf: " (* TODO: predicate を再帰的に見る *)
     | PEvent (ev, p) -> begin
-      let states = transition_function ty ev in
+      let states = transition_function ty (Symbol ev) in
       let terms =
         states |>
         List.map (fun state ->
@@ -236,8 +239,8 @@ let trans (env : itenv) (term : program) transition_function priority all_states
       match lookup_arg_type_by_body_type env var_name ty with
       | Some (argty, bodyty) -> begin
         let var = go_prog env var (ITFunc (argty, bodyty)) in
-        assert (argty = IAInt);
-        assert (bodyty = ty);
+        assert (eq_iarg argty IAInt);
+        assert (eq_itype bodyty ty);
         let ps = go_arith env p2 in
         PAppInt (var, ps)
       end
@@ -252,7 +255,7 @@ let trans (env : itenv) (term : program) transition_function priority all_states
         List.filter
           (fun ty' -> match ty' with
             | ITFunc' (a, b) -> begin
-              b = to_itype' ty
+              eq_itype' b (to_itype' ty)
             end
             | _ -> false
           )
@@ -287,15 +290,21 @@ let decompose_ty' ty =
   in
   go ty []
 
-let trans_hes (env : itype_env) ((entry, program) : hes) transition_function priority initial_state all_states =
+let trans_hes
+    (env : itype_env)
+    ((entry, program) : hes)
+    (transition_function : state * symbol -> state list)
+    priority
+    initial_state
+    all_states =
   let env' = List.map to_itype_env env in
   let program = List.map (fun (var, (ty, m)) ->
     let arg_tys, body_ty = decompose_ty' ty in
-    match List.find_opt (fun {var=var'; _} -> var' = var) program with
+    match List.find_opt (fun {var=var'; _} -> Id.eq var' var) program with
     | Some {var; args; body} -> begin
       let arg_env =
         List.mapi (fun i ty ->
-          let s = fst @@ List.nth args i in
+          let s = Id.remove_ty (List.nth args i)in
           match ty with
           | IAInt -> [(s, ITEInt)]
           | IAInter xs ->
@@ -305,13 +314,13 @@ let trans_hes (env : itype_env) ((entry, program) : hes) transition_function pri
       let prog = trans (env' @ arg_env) body transition_function priority all_states body_ty in
       let args =
         List.mapi (fun i ty ->
-          let (s, ty') = List.nth args i in
+          let ({Id.name = s; ty = ty'} as argid) = List.nth args i in
           match ty with
-          | IAInt -> [(s, ty')]
-          | IAInter xs -> List.map (fun (a, b) -> (make_var_name s a b, ty')) xs
+          | IAInt -> [argid]
+          | IAInter xs -> List.map (fun (a, b) -> {argid with name = make_var_name s a b; ty = ty'}) xs
         ) arg_tys |>
         List.flatten in
-      {var = make_var_name var ty m; args = args; body = prog}
+      {var = { var with name = make_var_name var.Id.name ty m }; args = args; body = prog}
     end
     | None -> failwith "trans_hes 1"
   ) env in
@@ -320,4 +329,4 @@ let trans_hes (env : itype_env) ((entry, program) : hes) transition_function pri
 
 let get_priority (env : itype_env) =
   env |>
-  List.map (fun (s, (t, m)) -> (make_var_name s t m, m + 1))
+  List.map (fun (v, (t, m)) -> ({ v with Id.name = make_var_name v.Id.name t m}, m + 1))
