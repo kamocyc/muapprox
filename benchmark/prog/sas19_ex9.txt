@@ -1,0 +1,20 @@
+/* L(A) /\ Trace(P) = \emptyset ではない <=> 式がinvalid となる */
+%HES
+let main = event a; main
+let () = main
+
+%ENV
+main : (qa, 0)
+
+%INITIAL
+qa
+
+%TRANSITION
+(qa, a) -> qa
+(qa, b) -> qb
+(qb, a) -> qa
+(qb, b) -> qb
+
+%PRIORITY
+qa -> 0
+qb -> 1

@@ -1,0 +1,18 @@
+%HES
+Sentry =v F_qa_0.
+F_qb_1  =v
+  G__qa_1___and___qa_0___and___qb_1___and___qb_0___arw__qb_0 F_qa_1 F_qa_0
+   F_qb_1 F_qb_0.
+F_qa_1  =v
+  G__qa_1___and___qa_0___and___qb_1___and___qb_0___arw__qa_0 F_qa_1 F_qa_0
+   F_qb_1 F_qb_0.
+F_qb_0  =u
+  G__qa_1___and___qa_0___and___qb_1___and___qb_0___arw__qb_0 F_qa_1 F_qa_0
+   F_qb_1 F_qb_0.
+F_qa_0  =u
+  G__qa_1___and___qa_0___and___qb_1___and___qb_0___arw__qa_0 F_qa_1 F_qa_0
+   F_qb_1 F_qb_0.
+G__qa_1___and___qa_0___and___qb_1___and___qb_0___arw__qb_0 k_qa_1 k_qa_0 k_qb_1 k_qb_0 =u
+  k_qa_0 /\ k_qb_1.
+G__qa_1___and___qa_0___and___qb_1___and___qb_0___arw__qa_0 k_qa_1 k_qa_0 k_qb_1 k_qb_0 =u
+  k_qa_0 /\ k_qb_1.

@@ -1,0 +1,16 @@
+%HES
+let f (x : int) (y : int) = if x < y then (event a; f x y) else (event b; f x y)
+let () = f 2 1
+
+%INITIAL
+qa
+
+%TRANSITION
+(qa, a) -> qa
+(qb, a) -> qa
+(qa, b) -> qb
+(qb, b) -> qb
+
+%PRIORITY
+qa -> 0
+qb -> 1

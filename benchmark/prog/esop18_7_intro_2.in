@@ -1,0 +1,8 @@
+%HES
+Sentry =v F_int__arw__int__arw__qa_0 2 1.
+F_int__arw__int__arw__qb_1 x y =v
+  (x >= y \/ F_int__arw__int__arw__qa_0 x y)
+  /\ (x < y \/ F_int__arw__int__arw__qb_1 x y).
+F_int__arw__int__arw__qa_0 x y =u
+  (x >= y \/ F_int__arw__int__arw__qa_0 x y)
+  /\ (x < y \/ F_int__arw__int__arw__qb_1 x y).

@@ -49,14 +49,14 @@ and show_simple_argty (ty : Type.simple_argty) = match ty with
 let show_program p =
   let rec go_program p = match p with
     | PUnit -> "()"
-    | PVar s -> Id.to_string s
+    | PVar s -> Id.to_string ~without_id:true s
     | PIf (p, p1, p2) -> "if " ^ go_predicate p ^ " then (" ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PEvent (pe, p) -> "event " ^ pe ^ "; " ^ go_program p
     | PNonDet (p1, p2) -> "if * then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PApp (p1, p2) -> "(" ^ go_program p1 ^ " " ^ go_program p2 ^ ")"
     | PAppInt (p1, a) -> "(" ^ go_program p1 ^ " " ^ go_arith a ^ ")"
   and go_arith p = match p with
-    | AVar v -> (Id.to_string v)
+    | AVar v -> (Id.to_string ~without_id:true v)
     | AInt i -> string_of_int i
     | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ " " ^ show_op op ^ " " ^ go_arith arg2 ^ ")"
     | AOp _ -> failwith "show_program: go_arith"
@@ -69,29 +69,33 @@ let show_program p =
   in
   go_program p
 
+let show_raw_id_name = ref false
+
 let replace_var_name s =
-  let pairs = [
-    ("{", "");
-    ("}", "");
-    ("(", "_");
-    (")", "_");
-    (",", "_");
-    ("/\\", "__and__");
-    ("->", "__arw__");
-  ] in
+  let pairs =
+    (if !show_raw_id_name then []
+    else [
+      ("{", "");
+      ("}", "");
+      ("(", "_");
+      (")", "_");
+      (",", "_");
+      ("/\\", "__and__");
+      ("->", "__arw__");
+    ]) in
   List.fold_left (fun a (f, t) -> Str.global_replace (Str.regexp (Str.quote f)) t a) s pairs
   
 let show_program_as_ocaml p =
   let rec go_program p = match p with
     | PUnit -> "()"
-    | PVar s -> replace_var_name (Id.to_string s)
+    | PVar s -> replace_var_name (Id.to_string ~without_id:true s)
     | PIf (p, p1, p2) -> "if " ^ go_predicate p ^ " then (" ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PEvent (pe, p) -> "event \"" ^ pe ^ "\"; " ^ go_program p
     | PNonDet (p1, p2) -> "if read_int () then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PApp (p1, p2) -> "(" ^ go_program p1 ^ " " ^ go_program p2 ^ ")"
     | PAppInt (p1, a) -> "(" ^ go_program p1 ^ " " ^ go_arith a ^ ")"
   and go_arith p = match p with
-    | AVar v -> replace_var_name (Id.to_string v)
+    | AVar v -> replace_var_name (Id.to_string ~without_id:true v)
     | AInt i -> string_of_int i
     | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ show_op op ^ go_arith arg2 ^ ")"
     | AOp _ -> failwith "show_program: go_arith"
@@ -116,14 +120,14 @@ type hes = program * func list
 
 let show_hes ((entry, hes) : hes) = 
   "let () = " ^ show_program entry ^ "\n" ^
-  (List.map (fun {var; args; body} -> "let " ^ Id.to_string var ^ " " ^ (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^ " = " ^ show_program body) hes |>
+  (List.map (fun {var; args; body} -> "let " ^ Id.to_string ~without_id:true var ^ " " ^ (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^ " = " ^ show_program body) hes |>
   String.concat "\n")
   
 
 let show_hes_as_ocaml ((entry, hes) : hes) = 
   "let read_int () = read_int () != 0\n" ^
   "let event a = print_string a\n" ^
-  (List.mapi (fun i {var; args; body} -> (if i = 0 then "let " else "and ") ^ (replace_var_name (Id.to_string var)) ^ " " ^ (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ replace_var_name name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^ " = " ^ show_program_as_ocaml body) hes |>
+  (List.mapi (fun i {var; args; body} -> (if i = 0 then "let " else "and ") ^ (replace_var_name (Id.to_string var ~without_id:true)) ^ " " ^ (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ replace_var_name name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^ " = " ^ show_program_as_ocaml body) hes |>
   String.concat "\n") ^ "\n" ^
   "let () = " ^ show_program_as_ocaml entry
   
@@ -138,7 +142,7 @@ let convert (raw : Raw_program.raw_program) var_env pred_env : program =
         | Some p -> begin
           match p.ty with
           | Type.TySigma t -> PVar { p with ty = t }
-          | _ -> failwith @@ "convert PVar 3 (name=" ^ id ^ ")"
+          | _ -> failwith @@ "convert PVar 3. Type-mismatch: should not be int type (name=" ^ id ^ ")"
         end
         | None -> failwith @@ "convert PVar 1 (name=" ^ id ^ ")"
       end

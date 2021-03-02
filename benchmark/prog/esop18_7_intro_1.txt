@@ -1,0 +1,18 @@
+/* this is invalid since "b" may occur only finitely */
+%HES
+let g (k : unit) = if * then (event a; k) else (event b; k)
+let f = g f
+let () = f
+
+%INITIAL
+qa
+
+%TRANSITION
+(qa, a) -> qa
+(qb, a) -> qa
+(qa, b) -> qb
+(qb, b) -> qb
+
+%PRIORITY
+qa -> 0
+qb -> 1

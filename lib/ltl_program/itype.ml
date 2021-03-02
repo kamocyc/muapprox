@@ -39,9 +39,13 @@ let show_itype_env (ienv : itype_env) =
 
 (* type of intersection type environment *)
 type itenv_type = ITEInt | ITEInter of itype * int * int
+[@@deriving show]
 
 type itenv_item = (unit id) * itenv_type
+[@@deriving show]
+
 type itenv = itenv_item list
+[@@deriving show]
 
 type itype' =
     ITState' of state

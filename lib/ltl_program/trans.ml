@@ -132,7 +132,13 @@ let get_arg_type (env : itenv) term states =
     | PVar var -> begin
       match List.find_all (fun (id, _) -> Id.eq id var) env |> List.map (fun (_, v) -> v) with
       | [] -> failwith "unbounded"
-      | ty -> List.map to_itype'_from_envtype ty |> List.sort_uniq compare
+      | ty -> begin
+        let results = List.map to_itype'_from_envtype ty in
+        (* print_endline @@ Id.to_string var;
+        print_endline @@ show_itenv env;
+        print_endline @@ string_of_int @@ List.length results; *)
+        results
+      end
     end
     | PApp (p1, p2) -> begin
       let tys1 = go env p1 in
@@ -143,6 +149,10 @@ let get_arg_type (env : itenv) term states =
           assert (
             match argty with
             | IAInter tys -> begin
+              print_endline @@ show_program term;
+              print_endline @@ string_of_int @@ List.length tys;
+              print_endline @@ string_of_int @@ List.length tys2;
+              assert (List.length tys = List.length tys2);
               List.mapi (fun i (ty1, _) -> eq_itype' (to_itype' ty1) (List.nth tys2 i)) tys |>
               List.for_all (fun x -> x)
             end
@@ -208,9 +218,7 @@ let trans
       | Some (v, m) -> PVar ({x with name = make_var_name x.Id.name v m})
     end
     | PNonDet (p1, p2) -> PNonDet (go_prog env p1 ty, go_prog env p2 ty)
-    | PIf (Pred(p, args), pthen, pelse) ->
-        PIf (Pred(p, List.map (go_arith env) args), go_prog env pthen ty, go_prog env pelse ty)
-    | PIf _ -> failwith "PIf: " (* TODO: predicate を再帰的に見る *)
+    | PIf (pred, pthen, pelse) -> PIf (go_pred env pred, go_prog env pthen ty, go_prog env pelse ty)
     | PEvent (ev, p) -> begin
       let states = transition_function ty (Symbol ev) in
       let terms =
@@ -220,43 +228,35 @@ let trans
           go_prog env p state) in
       PEvent (ev, make_nondet terms)
     end
-    (* TODO: 現状、Appの左が変数のときしか対応していない *)
-    (* | PApp ((PVar var_name) as var, p2) -> begin
-      match lookup_arg_type_by_body_type env var_name ty with
-      | Some (argty, bodyty) -> begin
-        let var = go_prog env var (ITFunc (argty, bodyty)) in
-        assert (bodyty = ty);
-        match argty with
-        | IAInter tys -> begin
-          let ps = List.map (fun (ty, m) -> go_prog (max_env env m) p2 ty) tys in
-          make_app var ps
-        end
-        | IAInt -> assert false
-      end
-      | None -> failwith "unbounded var"
-    end *)
-    | PAppInt ((PVar var_name) as var, p2) -> begin
-      match lookup_arg_type_by_body_type env var_name ty with
-      | Some (argty, bodyty) -> begin
-        let var = go_prog env var (ITFunc (argty, bodyty)) in
-        assert (eq_iarg argty IAInt);
-        assert (eq_itype bodyty ty);
-        let ps = go_arith env p2 in
-        PAppInt (var, ps)
-      end
-      | None -> failwith "unbounded var (int)"
-    end
-    | PApp (p1, p2) -> begin
-      let tys' = get_arg_type env p1 all_states in
-      (* print_endline @@ "ty=" ^ show_itype ty;
-      print_endline @@ "len=" ^ string_of_int (List.length tys');
-      List.iter (fun ty -> print_endline @@ show_itype' ty) tys'; *)
+    | PAppInt (p1, p2) -> begin
+      let tys' = get_arg_type env p1 all_states |> List.sort_uniq compare in
       let tys' =
         List.filter
           (fun ty' -> match ty' with
-            | ITFunc' (a, b) -> begin
-              eq_itype' b (to_itype' ty)
-            end
+            | ITFunc' (IAInt, b) -> eq_itype' b (to_itype' ty)
+            | _ -> false
+          )
+          tys' in
+      match tys' with
+      | [(ITFunc' (IAInt, ty')) as fty] -> begin
+        let p1 = go_prog env p1 (from_itype' fty) in
+        let ps = go_arith env p2 in
+        PAppInt (p1, ps)
+      end
+      | _ -> failwith @@ "PAppInt: " ^ show_program term ^ ", length=" ^ string_of_int (List.length tys')
+    end
+    | PApp (p1, p2) -> begin
+      (* p1の型を取得（一般には一意にならない） *)
+      let tys' = get_arg_type env p1 all_states |> List.sort_uniq compare in
+      (* print_endline @@ "ty=" ^ show_itype ty;
+      print_endline @@ "len=" ^ string_of_int (List.length tys');
+      List.iter (fun ty -> print_endline @@ show_itype' ty) tys'; *)
+      (* 戻り値の型に一致するものだけを抽出 *)
+      (* TODO: ここで、必ずしも一意にならない？ *)
+      let tys' =
+        List.filter
+          (fun ty' -> match ty' with
+            | ITFunc' (a, b) -> eq_itype' b (to_itype' ty)
             | _ -> false
           )
           tys' in
@@ -268,11 +268,15 @@ let trans
       end
       | _ -> failwith @@ "PApp: " ^ show_program term ^ ", length=" ^ string_of_int (List.length tys')
     end
-    (* | PApp (_, _) -> failwith "a" *)
-    | PAppInt (_, _) -> failwith "b"
+  and go_pred (env : itenv) (pred : program_predicate) = 
+    match pred with
+    | Pred (p, args) -> Pred(p, List.map (go_arith env) args)
+    | And (p1, p2) -> And (go_pred env p1, go_pred env p2)
+    | Or (p1, p2) -> Or (go_pred env p1, go_pred env p2)
+    | Bool b -> Bool b
   and go_arith (env : itenv) (term : arith_expr) =
     (* type is integer *)
-    (* 変数xの名前の変更をするだけ *)
+    (* 変数xの名前の変更をするだけ. ただし、整数型の変数は名前を変える必要はない（数を増やさないため） *)
     match term with
     | AVar x -> AVar x
     | AInt n -> AInt n
@@ -285,7 +289,7 @@ let to_itype_env (f, (t, i)) = (f, ITEInter (t, i, 0))
 
 let decompose_ty' ty =
   let rec go ty acc = match ty with
-    | ITState _ -> acc, ty
+    | ITState _ -> acc |> List.rev, ty
     | ITFunc (arg, body) -> go body (arg::acc)
   in
   go ty []
@@ -335,12 +339,15 @@ let trans_hes
     all_states =
   let env' = List.map to_itype_env env in
   let program = List.map (fun (var, (ty, m)) ->
+    print_endline @@ show_itype ty;
     let arg_tys, body_ty = decompose_ty' ty in
+    print_endline @@ (List.map show_iarg arg_tys |> String.concat ";");
     match List.find_opt (fun {var=var'; _} -> Id.eq var' var) program with
     | Some {var; args; body} -> begin
+      assert (List.length args = List.length arg_tys);
       let arg_env =
         List.mapi (fun i ty ->
-          let s = Id.remove_ty (List.nth args i)in
+          let s = Id.remove_ty (List.nth args i) in
           match ty with
           | IAInt -> [(s, ITEInt)]
           | IAInter xs ->
@@ -366,7 +373,7 @@ let trans_hes
         body = prog
       }
     end
-    | None -> failwith "trans_hes 1"
+    | None -> failwith @@ "trans_hes 1 (not found: " ^ Id.to_string var ^ ")"
   ) env in
   let hes_env = IdMap.of_list @@ List.map (fun rule -> (Id.remove_ty rule.var, PVar rule.var)) program in
   let program = List.map (fun rule -> { rule with body = substitute hes_env rule.body }) program in

@@ -27,7 +27,7 @@ rule token = parse
                            ; line_no := !line_no+1
                            ; token lexbuf
                            }
-| "(*"                     { comment lexbuf; token lexbuf }
+| "/*"                     { comment lexbuf; token lexbuf }
 | eof                      { EOF       }
 | "()"                     { UNIT }
 | "("                      { LPAREN    }
@@ -67,15 +67,15 @@ rule token = parse
                            }
 
 and comment = parse
-| "*)"
-    { () }
-(* | "*/" { () } *)
-| "(*"
-    { comment lexbuf;
-      comment lexbuf }
-(* | "/*" 
+(* | "*)"
+    { () } *)
+| "*/" { () }
+(* | "(*"
     { comment lexbuf;
       comment lexbuf } *)
+| "/*" 
+    { comment lexbuf;
+      comment lexbuf }
 | eof
     { failwith "unterminated comment" }
 | _
