@@ -1,11 +1,14 @@
+/*
+Example 1 of Hofmann and Chen, "Buchi Types for Infinite Traces and Liveness", CSL-LICS 2014
+
+Trace(P) \subset L(A)
+<=> Trace(P) \cap L(A) != \emptyset
+<=> invalid
+*/
+
 %HES
 let f = event a; event b; f
 let () = f
-
-%ENV
-f : (qa, 0)
-f : (qb, 1)
-
 
 %INITIAL
 qa
@@ -17,5 +20,5 @@ qa
 (qb, b) -> qb
 
 %PRIORITY
-qa -> 0
-qb -> 1
+qa -> 1
+qb -> 2

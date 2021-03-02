@@ -34,7 +34,7 @@ open Raw_program
 %left STAR
 %nonassoc NEG
 
-%type <Raw_program.hes * (Itype.itype_env option * Itype.state * Itype.transition_rule list * Itype.priority_rule list) option> main
+%type <Raw_program.raw_program * (Itype.itype_env option * Itype.state * Itype.transition_rule list * Itype.priority_rule list) option> main
 %type <Hflmc2_syntax.Type.simple_ty> abstraction_ty
 %type <Hflmc2_syntax.Type.simple_argty> abstraction_argty
 %type <Itype.itype_env> env
@@ -117,6 +117,7 @@ app_expr:
 atom:
 | "()" { PUnit }
 | INT  { mk_int   $1 }
+| "*"  { mk_nondet_int () }
 | bool { mk_bool  $1 }
 | lvar { mk_var   $1 }
 // | uvar { mk_var   $1 }

@@ -1,6 +1,6 @@
 open Program
 open Itype
-open Trans
+open Trans_hflz
 
 let print_location lexbuf =
   let open Lexing in
@@ -32,7 +32,7 @@ let set_id_on_env (env : itype_env) program' =
   ) env
   
 let convert_ltl file show_raw_id_name always_use_canonical_type_env =
-  Program.show_raw_id_name := show_raw_id_name;
+  Print_syntax.show_raw_id_name := show_raw_id_name;
   Core.In_channel.with_file file ~f:begin fun ch ->
     let lexbuf = Lexing.from_channel ch in
     let program, automaton =
@@ -45,7 +45,7 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env =
         raise b
         in
       
-    print_endline @@ Raw_program.show_hes program;
+    print_endline @@ Raw_program.show_raw_program program;
     (match automaton with
     | Some (env, initial_state, trans, priority) -> begin
       print_endline "env:";
@@ -58,8 +58,8 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env =
     end
     | None -> ());
     
-    let program' = convert_all program in
-    print_endline "program:"; print_endline @@ show_hes program'; print_endline "";
+    let program' = Trans_program.convert_all program in
+    print_endline "program:"; print_endline @@ Print_syntax.show_program program'; print_endline "";
     
     match automaton with
     | Some (env, initial_state, transition, priority) -> begin
@@ -69,7 +69,7 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env =
         match always_use_canonical_type_env, env with
         | true, _ | _, None ->
           print_endline "INFO: using the canonical intersection type environment";
-          canonical_it_hes program' all_states max_m
+          canonical_it_program program' all_states max_m
         | _, Some env ->
           print_endline "INFO: using the given intersection type environemnt";
           set_id_on_env env program'
@@ -77,12 +77,12 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env =
       print_endline "env:"; print_endline @@ show_itype_env env;
       
       let func_priority = get_priority env in
-      let program_ = trans_hes env program' (as_multi_function transition) (as_function priority) initial_state all_states in
+      let program_ = trans_program env program' (as_multi_function transition) (as_function priority) initial_state all_states in
       
       print_endline "program (after):";
-      print_endline @@ show_hes_as_ocaml program_;
+      print_endline @@ Print_syntax.show_program_as_ocaml program_;
       
-      let hflz = to_hflz program_ func_priority in
+      let hflz = Trans_program.to_hflz program_ func_priority in
       
       Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
       Manipulate.Hflz_typecheck.type_check hflz;

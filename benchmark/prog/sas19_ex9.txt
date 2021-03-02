@@ -1,4 +1,5 @@
-/* L(A) /\ Trace(P) = \emptyset ではない <=> 式がinvalid となる */
+/* 結果はinvalid <=> L(A) \cap Trace(P) /= \emptyset */
+
 %HES
 let main = event a; main
 let () = main

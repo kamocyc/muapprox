@@ -1,34 +1,36 @@
 open Hflmc2_syntax
 open Common_type
   
-type raw_program =
+type raw_expression =
     PUnit
   | PVar of string
-  | PIf of raw_program * raw_program * raw_program
-  | PEvent of program_event * raw_program
-  | PNonDet of raw_program * raw_program
-  | PApp of raw_program * raw_program
+  | PIf of raw_expression * raw_expression * raw_expression
+  | PEvent of program_event * raw_expression
+  | PNonDet of raw_expression * raw_expression
+  | PApp of raw_expression * raw_expression
   | AInt of int
-  | AOp of arith_op * raw_program list
-  | Pred of pred_op * raw_program list 
-  | And of raw_program * raw_program
-  | Or of raw_program * raw_program
+  | AOp of arith_op * raw_expression list
+  | Pred of pred_op * raw_expression list 
+  | And of raw_expression * raw_expression
+  | Or of raw_expression * raw_expression
   | Bool of bool
+  | ANonDet
   [@@deriving eq,ord,show]
 
-type func = {
+type raw_function = {
   var: string;
   args: (string * Type.simple_argty) list;
-  body: raw_program
+  body: raw_expression
 }
 [@@deriving eq,ord,show]
 
-type hes = func list
+type raw_program = raw_function list
 [@@deriving eq,ord,show]
 
 let make_predicate p args = Pred (p, args)
 
 let mk_int n  = AInt n
+let mk_nondet_int () = ANonDet
 let mk_bool b = Bool b
 let mk_var x     = PVar x
 let mk_op op as' = AOp(op, as')

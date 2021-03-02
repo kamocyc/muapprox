@@ -28,18 +28,18 @@ let canonical_it (simple_type : Type.simple_ty) states max_m =
 
 (* プログラムのcanonical intersection type を返す 
   （各関数のsimple typeをcanonical intersection typeにする） *)
-let canonical_it_hes (h : hes) (states : state list) (max_m : int) =
+let canonical_it_program (prog : program) (states : state list) (max_m : int) =
   let ms = upto max_m in
-  let program, hes = h in
-  let hes_ty = List.map (fun {var; _} ->
+  let program, funcs = prog in
+  let prog_ty = List.map (fun {var; _} ->
     canonical_it (var.ty) states max_m |>
       List.map (fun s ->
         List.map (fun mm -> 
           (Id.remove_ty var, (s, mm))
         ) ms
       ) |> List.flatten
-  ) hes |> List.flatten in
-  hes_ty
+  ) funcs |> List.flatten in
+  prog_ty
   
 let max_env (env : itenv) (m : int): itenv =
   env |>
@@ -81,7 +81,7 @@ let make_var_name (x : string) (v : itype) (m : int) =
   x ^ "_{" ^ show_itype v ^ "," ^ string_of_int m ^"}"
 
 let make_nondet terms = 
-  let rec go : Program2.program list -> Program2.program = function 
+  let rec go : Program2.program_expr list -> Program2.program_expr = function 
     | [] -> failwith "make_nondet"
     | [x1] -> x1
     | [x1; x2] -> PNonDet (x1, x2)
@@ -149,7 +149,7 @@ let get_arg_type (env : itenv) term states =
           assert (
             match argty with
             | IAInter tys -> begin
-              print_endline @@ show_program term;
+              print_endline @@ show_program_expr term;
               print_endline @@ string_of_int @@ List.length tys;
               print_endline @@ string_of_int @@ List.length tys2;
               assert (List.length tys = List.length tys2);
@@ -191,14 +191,14 @@ let get_arg_type (env : itenv) term states =
   go env term
   
 let make_app v xs =
-  let rec go (xs: Program2.program list): Program2.program = match xs with
+  let rec go (xs: Program2.program_expr list): Program2.program_expr = match xs with
     | [] -> v
     | x::xs -> PApp (go xs, x) in
   go (List.rev xs)
 
 let trans
     (env : itenv)
-    (term : program)
+    (term : program_expr)
     (transition_function : state * symbol -> state list)
     priority
     all_states =
@@ -210,7 +210,7 @@ let trans
     | ITFunc _ -> failwith "priority"
     | ITState s -> priority s
   in
-  let rec go_prog (env : itenv) (term : program) (ty : itype): Program2.program = (* print_endline @@ "go_prog:" ^ show_program term; *) match term with
+  let rec go_prog (env : itenv) (term : program_expr) (ty : itype): Program2.program_expr = (* print_endline @@ "go_prog:" ^ show_program term; *) match term with
     | PUnit -> PUnit
     | PVar x -> begin
       match lookup_with_itype env x ty with
@@ -243,7 +243,7 @@ let trans
         let ps = go_arith env p2 in
         PAppInt (p1, ps)
       end
-      | _ -> failwith @@ "PAppInt: " ^ show_program term ^ ", length=" ^ string_of_int (List.length tys')
+      | _ -> failwith @@ "PAppInt: " ^ show_program_expr term ^ ", length=" ^ string_of_int (List.length tys')
     end
     | PApp (p1, p2) -> begin
       (* p1の型を取得（一般には一意にならない） *)
@@ -266,7 +266,7 @@ let trans
         let ps = List.map (fun (ty, m) -> go_prog (max_env env m) p2 ty) xs in
         make_app p1 ps
       end
-      | _ -> failwith @@ "PApp: " ^ show_program term ^ ", length=" ^ string_of_int (List.length tys')
+      | _ -> failwith @@ "PApp: " ^ show_program_expr term ^ ", length=" ^ string_of_int (List.length tys')
     end
   and go_pred (env : itenv) (pred : program_predicate) = 
     match pred with
@@ -280,6 +280,7 @@ let trans
     match term with
     | AVar x -> AVar x
     | AInt n -> AInt n
+    | ANonDet -> ANonDet
     | AOp (op, exprs) ->
       AOp (op, List.map (go_arith env) exprs) in
   go_prog env term
@@ -301,7 +302,7 @@ let to_funty args =
   go args
 
 let substitute env phi =
-  let rec hflz (phi : program) = match phi with
+  let rec hflz (phi : program_expr) = match phi with
     | PVar x ->
       begin match IdMap.lookup env x with
         | t -> t
@@ -327,12 +328,13 @@ let substitute env phi =
         | exception Core.Not_found_s _ -> AVar v
       end *)
     | AInt _ -> phi
+    | ANonDet -> ANonDet
     | AOp (op, ps) -> AOp (op, List.map arith ps) in
   hflz phi
     
-let trans_hes
+let trans_program
     (env : itype_env)
-    ((entry, program) : hes)
+    ((entry, program) : program)
     (transition_function : state * symbol -> state list)
     priority
     initial_state
@@ -373,10 +375,10 @@ let trans_hes
         body = prog
       }
     end
-    | None -> failwith @@ "trans_hes 1 (not found: " ^ Id.to_string var ^ ")"
+    | None -> failwith @@ "trans_program 1 (not found: " ^ Id.to_string var ^ ")"
   ) env in
-  let hes_env = IdMap.of_list @@ List.map (fun rule -> (Id.remove_ty rule.var, PVar rule.var)) program in
-  let program = List.map (fun rule -> { rule with body = substitute hes_env rule.body }) program in
+  let prog_env = IdMap.of_list @@ List.map (fun rule -> (Id.remove_ty rule.var, PVar rule.var)) program in
+  let program = List.map (fun rule -> { rule with body = substitute prog_env rule.body }) program in
   let entry = trans env' entry transition_function priority all_states (ITState initial_state) in
   entry, program
 
