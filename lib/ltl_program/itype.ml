@@ -23,14 +23,20 @@ and iarg =
 
 type itype_env =(unit id * (itype * int)) list
 [@@deriving show]
-
+  
 let rec show_itype itype = match itype with
   | ITState s -> show_state s
   | ITFunc (arg, ty) -> show_iarg arg ^ "->" ^ show_itype ty
 and show_iarg arg = match arg with
   | IAInt -> "int"
   | IAInter tys -> tys |> List.map (fun (ty, m) -> "(" ^ show_itype ty ^ "," ^ string_of_int m ^ ")") |> String.concat "/\\"
-  
+
+let show_itype_env (ienv : itype_env) =
+  "[\n" ^
+    (List.map (fun (id, (itype, m)) -> Hflmc2_syntax.Id.to_string id ^ ": (" ^ show_itype itype ^ ", " ^ string_of_int m ^ ")") ienv
+    |> String.concat ";\n") ^
+  "\n]"
+
 (* type of intersection type environment *)
 type itenv_type = ITEInt | ITEInter of itype * int * int
 

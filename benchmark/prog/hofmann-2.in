@@ -1,0 +1,62 @@
+%HES
+Sentry =v
+  G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q0_0
+   H_q0_2 H_q0_1 H_q0_0 H_q1_2 H_q1_1 H_q1_0 H_q2_2 H_q2_1 H_q2_0 H_qd_2 H_qd_1
+   H_qd_0.
+G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q2_2 k_q0_2 k_q0_1 k_q0_0 k_q1_2 k_q1_1 k_q1_0 k_q2_2 k_q2_1 k_q2_0 k_qd_2 k_qd_1 k_qd_0 =u
+  G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q2_2
+   k_q0_2 k_q0_2 k_q0_2 k_q1_2 k_q1_2 k_q1_2 k_q2_2 k_q2_2 k_q2_2 k_qd_2 k_qd_2
+   k_qd_2
+  /\ k_qd_1.
+H_qd_2  =u F_qd_1.
+H_q2_2  =u F_q2_2.
+H_q1_2  =u F_q0_1.
+H_q0_2  =u F_q2_2 /\ F_q0_1 /\ F_q1_2.
+F_q2_2  =u
+  G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q2_2
+   H_q0_2 H_q0_2 H_q0_2 H_q1_2 H_q1_2 H_q1_2 H_q2_2 H_q2_2 H_q2_2 H_qd_2 H_qd_2
+   H_qd_2
+  /\ H_qd_1.
+F_q1_2  =u
+  G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q0_1
+   H_q0_2 H_q0_1 H_q0_1 H_q1_2 H_q1_1 H_q1_1 H_q2_2 H_q2_1 H_q2_1 H_qd_2 H_qd_1
+   H_qd_1
+  /\ H_q0_1.
+G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__qd_1 k_q0_2 k_q0_1 k_q0_0 k_q1_2 k_q1_1 k_q1_0 k_q2_2 k_q2_1 k_q2_0 k_qd_2 k_qd_1 k_qd_0 =v
+  G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__qd_1
+   k_q0_2 k_q0_1 k_q0_1 k_q1_2 k_q1_1 k_q1_1 k_q2_2 k_q2_1 k_q2_1 k_qd_2 k_qd_1
+   k_qd_1
+  /\ k_qd_1.
+G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q0_1 k_q0_2 k_q0_1 k_q0_0 k_q1_2 k_q1_1 k_q1_0 k_q2_2 k_q2_1 k_q2_0 k_qd_2 k_qd_1 k_qd_0 =v
+  G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q2_2
+   k_q0_2 k_q0_2 k_q0_2 k_q1_2 k_q1_2 k_q1_2 k_q2_2 k_q2_2 k_q2_2 k_qd_2 k_qd_2
+   k_qd_2
+  /\ G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q0_1
+      k_q0_2 k_q0_1 k_q0_1 k_q1_2 k_q1_1 k_q1_1 k_q2_2 k_q2_1 k_q2_1 k_qd_2
+      k_qd_1 k_qd_1
+  /\ k_q2_2 /\ k_q0_1.
+H_qd_1  =v F_qd_1.
+H_q2_1  =v F_q2_2.
+H_q1_1  =v F_q0_1.
+H_q0_1  =v F_q2_2 /\ F_q0_1 /\ F_q1_2.
+F_qd_1  =v
+  G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__qd_1
+   H_q0_2 H_q0_1 H_q0_1 H_q1_2 H_q1_1 H_q1_1 H_q2_2 H_q2_1 H_q2_1 H_qd_2 H_qd_1
+   H_qd_1
+  /\ H_qd_1.
+F_q0_1  =v
+  G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q0_0
+   H_q0_2 H_q0_1 H_q0_0 H_q1_2 H_q1_1 H_q1_0 H_q2_2 H_q2_1 H_q2_0 H_qd_2 H_qd_1
+   H_qd_0.
+G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q0_0 k_q0_2 k_q0_1 k_q0_0 k_q1_2 k_q1_1 k_q1_0 k_q2_2 k_q2_1 k_q2_0 k_qd_2 k_qd_1 k_qd_0 =u
+  G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q2_2
+   k_q0_2 k_q0_2 k_q0_2 k_q1_2 k_q1_2 k_q1_2 k_q2_2 k_q2_2 k_q2_2 k_qd_2 k_qd_2
+   k_qd_2
+  /\ G__q0_2___and___q0_1___and___q0_0___and___q1_2___and___q1_1___and___q1_0___and___q2_2___and___q2_1___and___q2_0___and___qd_2___and___qd_1___and___qd_0___arw__q0_1
+      k_q0_2 k_q0_1 k_q0_1 k_q1_2 k_q1_1 k_q1_1 k_q2_2 k_q2_1 k_q2_1 k_qd_2
+      k_qd_1 k_qd_1
+  /\ k_q2_2 /\ k_q0_1.
+H_qd_0  =u F_qd_1.
+H_q2_0  =u F_q2_2.
+H_q1_0  =u F_q0_1.
+H_q0_0  =u F_q2_2 /\ F_q0_1 /\ F_q1_2.

@@ -9,7 +9,10 @@ let map_file_path path converter =
   Stdlib.Filename.concat dir (base ^ ext)
 
 let main filepath =
-  Muapprox.convert_ltl filepath
+  let phi = Muapprox.convert_ltl filepath in
+  let path2 = map_file_path filepath (fun (a, b, _) -> (a, b, ".in")) in
+  ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 ~without_id:true true phi;
+  print_endline @@ "saved: " ^ path2
   
 let command =
   Command.basic

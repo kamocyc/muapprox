@@ -34,7 +34,7 @@ open Raw_program
 %left STAR
 %nonassoc NEG
 
-%type <Raw_program.hes * (Itype.itype_env * Itype.state * Itype.transition_rule list * Itype.priority_rule list) option> main
+%type <Raw_program.hes * (Itype.itype_env option * Itype.state * Itype.transition_rule list * Itype.priority_rule list) option> main
 %type <Hflmc2_syntax.Type.simple_ty> abstraction_ty
 %type <Hflmc2_syntax.Type.simple_argty> abstraction_argty
 %type <Itype.itype_env> env
@@ -44,7 +44,8 @@ open Raw_program
 
 main:
 // | hes EOF     { $1, None }
-| hes env initial transition priority EOF     { $1, Some ($2, $3, $4, $5) }
+| hes env initial transition priority EOF     { $1, Some (Some $2, $3, $4, $5) }
+| hes initial transition priority EOF     { $1, Some (None, $2, $3, $4) }
 
 initial:
 | INITIAL LIDENT { Itype.State $2 }

@@ -24,6 +24,28 @@ and program_predicate =
   | Bool of bool
 [@@deriving eq,ord,show]
 
+let show_pred (op : Formula.pred) = match op with
+  | Formula.Eq  -> "="
+  | Formula.Neq -> "<>"
+  | Formula.Le  -> "<="
+  | Formula.Ge  -> ">="
+  | Formula.Lt  -> "<"
+  | Formula.Gt  -> ">"
+
+let show_op (op : Arith.op) = match op with
+  | Arith.Add -> "+"
+  | Arith.Sub -> "-"
+  | Arith.Mult -> "*"
+  | Arith.Div -> "/"
+  | Arith.Mod -> "mod"
+
+let rec show_simple_ty (ty : Type.simple_ty) = match ty with
+  | TyBool _ -> "bool"
+  | TyArrow (a, b) -> "(" ^ show_simple_argty a.ty ^ " -> " ^ show_simple_ty b ^ ")"
+and show_simple_argty (ty : Type.simple_argty) = match ty with
+  | TyInt -> "int"
+  | TySigma ty -> show_simple_ty ty
+   
 let show_program p =
   let rec go_program p = match p with
     | PUnit -> "()"
@@ -36,10 +58,10 @@ let show_program p =
   and go_arith p = match p with
     | AVar v -> (Id.to_string v)
     | AInt i -> string_of_int i
-    | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ Arith.show_op op ^ go_arith arg2 ^ ")"
+    | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ " " ^ show_op op ^ " " ^ go_arith arg2 ^ ")"
     | AOp _ -> failwith "show_program: go_arith"
   and go_predicate p = match p with
-    | Pred (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ Formula.show_pred op ^ go_arith arg2 ^ ")"
+    | Pred (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ " " ^ show_pred op ^ " " ^ go_arith arg2 ^ ")"
     | Pred _ -> failwith "show_program: go_predicate"
     | And (p1, p2) -> "(" ^ go_predicate p1 ^ " && " ^ go_predicate p2 ^ ")"
     | Or (p1, p2) -> "(" ^ go_predicate p1 ^ " || " ^ go_predicate p2 ^ ")"
@@ -71,10 +93,10 @@ let show_program_as_ocaml p =
   and go_arith p = match p with
     | AVar v -> replace_var_name (Id.to_string v)
     | AInt i -> string_of_int i
-    | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ Arith.show_op op ^ go_arith arg2 ^ ")"
+    | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ show_op op ^ go_arith arg2 ^ ")"
     | AOp _ -> failwith "show_program: go_arith"
   and go_predicate p = match p with
-    | Pred (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ Formula.show_pred op ^ go_arith arg2 ^ ")"
+    | Pred (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ show_pred op ^ go_arith arg2 ^ ")"
     | Pred _ -> failwith "show_program: go_predicate"
     | And (p1, p2) -> "(" ^ go_predicate p1 ^ " && " ^ go_predicate p2 ^ ")"
     | Or (p1, p2) -> "(" ^ go_predicate p1 ^ " || " ^ go_predicate p2 ^ ")"
@@ -94,14 +116,14 @@ type hes = program * func list
 
 let show_hes ((entry, hes) : hes) = 
   "let () = " ^ show_program entry ^ "\n" ^
-  (List.map (fun {var; args; body} -> "let " ^ Id.to_string var ^ " " ^ (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ name ^ ": " ^ Type.show_simple_argty ty ^ ")") args)) ^ " = " ^ show_program body) hes |>
+  (List.map (fun {var; args; body} -> "let " ^ Id.to_string var ^ " " ^ (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^ " = " ^ show_program body) hes |>
   String.concat "\n")
   
 
 let show_hes_as_ocaml ((entry, hes) : hes) = 
   "let read_int () = read_int () != 0\n" ^
   "let event a = print_string a\n" ^
-  (List.mapi (fun i {var; args; body} -> (if i = 0 then "let " else "and ") ^ (replace_var_name (Id.to_string var)) ^ " " ^ (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ replace_var_name name ^ ": " ^ Type.show_simple_argty ty ^ ")") args)) ^ " = " ^ show_program_as_ocaml body) hes |>
+  (List.mapi (fun i {var; args; body} -> (if i = 0 then "let " else "and ") ^ (replace_var_name (Id.to_string var)) ^ " " ^ (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ replace_var_name name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^ " = " ^ show_program_as_ocaml body) hes |>
   String.concat "\n") ^ "\n" ^
   "let () = " ^ show_program_as_ocaml entry
   

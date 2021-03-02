@@ -21,7 +21,7 @@ let as_multi_function assoc key =
 let convert_ltl file =
   Core.In_channel.with_file file ~f:begin fun ch ->
     let lexbuf = Lexing.from_channel ch in
-    let program, env =
+    let program, automaton =
       try
         Parser.main Lexer.token lexbuf
       with
@@ -31,10 +31,12 @@ let convert_ltl file =
         raise b
         in
     print_endline @@ Raw_program.show_hes program;
-    (match env with
+    (match automaton with
     | Some (env, initial_state, trans, priority) -> begin
-      print_endline "env:";
-      print_endline @@ show_itype_env env;
+      print_endline "env (NOT USED):";
+      (match env with
+      | Some env -> print_endline @@ show_itype_env env
+      | None -> print_endline "None");
       print_endline "initial:";
       print_endline @@ show_state initial_state;
       print_endline "transition:";
@@ -47,8 +49,8 @@ let convert_ltl file =
     print_endline "program:";
     print_endline @@ show_hes program';
     print_endline "";
-    match env with
-    | Some (env, initial_state, transition, priority) -> begin
+    match automaton with
+    | Some (_, initial_state, transition, priority) -> begin
       let all_states = List.map fst priority in
       let max_m = List.fold_left (fun a (_, b) -> if a < b then b else a) (-1) priority in
       let env = canonical_it_hes program' all_states max_m in
@@ -69,6 +71,9 @@ let convert_ltl file =
       let hflz = Manipulate.Hes_optimizer.simplify hflz in
       Manipulate.Hflz_typecheck.type_check hflz;
       Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz;
+      Format.print_cut ();
+      Format.print_flush ();
+      hflz
       (* print_endline "Omega:";
       print_endline (List.map (fun (f, p) -> f ^ " -> " ^ string_of_int p) func_priority |> String.concat "\n");
       print_endline "" *)
