@@ -290,6 +290,42 @@ let decompose_ty' ty =
   in
   go ty []
 
+let to_funty args =
+  let rec go args = match args with
+    | [] -> Type.TyBool ()
+    | x::xs -> Type.TyArrow ({ty=x; name=""; id=0}, go xs) in
+  go args
+
+let substitute env phi =
+  let rec hflz (phi : program) = match phi with
+    | PVar x ->
+      begin match IdMap.lookup env x with
+        | t -> t
+        | exception Core.Not_found_s _ -> PVar x
+      end
+    | PUnit -> phi
+    | PIf (p1, p2, p3) ->
+      PIf (pred p1, hflz p2, hflz p3)
+    | PEvent (e, p) -> PEvent (e, hflz p)
+    | PNonDet (p1, p2) -> PNonDet (hflz p1, hflz p2)
+    | PApp (p1, p2) -> PApp (hflz p1, hflz p2)
+    | PAppInt (p1, p2) -> PAppInt (hflz p1, arith p2)
+  and pred (phi : program_predicate) = match phi with
+    | Pred (o, ps) -> Pred (o, List.map arith ps)
+    | And (p1, p2) -> And (pred p1, pred p2)
+    | Or (p1, p2) -> Or (pred p1, pred p2)
+    | Bool _ -> phi
+  and arith (phi : arith_expr) = match phi with
+    | AVar v -> 
+      AVar v
+      (* begin match IdMap.lookup env v with
+        | t -> t
+        | exception Core.Not_found_s _ -> AVar v
+      end *)
+    | AInt _ -> phi
+    | AOp (op, ps) -> AOp (op, List.map arith ps) in
+  hflz phi
+    
 let trans_hes
     (env : itype_env)
     ((entry, program) : hes)
@@ -320,10 +356,20 @@ let trans_hes
           | IAInter xs -> List.map (fun (a, b) -> {argid with name = make_var_name s a b; ty = ty'}) xs
         ) arg_tys |>
         List.flatten in
-      {var = { var with name = make_var_name var.Id.name ty m }; args = args; body = prog}
+      {
+        var = {
+          var with
+            name = make_var_name var.Id.name ty m;
+            ty = to_funty (List.map (fun i -> i.Id.ty) args)
+        };
+        args = args;
+        body = prog
+      }
     end
     | None -> failwith "trans_hes 1"
   ) env in
+  let hes_env = IdMap.of_list @@ List.map (fun rule -> (Id.remove_ty rule.var, PVar rule.var)) program in
+  let program = List.map (fun rule -> { rule with body = substitute hes_env rule.body }) program in
   let entry = trans env' entry transition_function priority all_states (ITState initial_state) in
   entry, program
 

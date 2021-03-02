@@ -60,9 +60,9 @@ let convert_ltl file =
       (* print_endline "program (after):";
       print_endline @@ show_hes_as_ocaml program_ *)
       let hflz = to_hflz program_ func_priority in
+      Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
       Manipulate.Hflz_typecheck.type_check hflz;
-      Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz;
-      Format.print_flush ();
+      Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
       Format.print_string "\n=======\n";
       Format.print_flush ();
       let hflz = Manipulate.Hes_optimizer.eliminate_unreachable_predicates hflz in
