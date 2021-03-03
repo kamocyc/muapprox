@@ -16,7 +16,7 @@ and arith_expr =
     AVar of [`Int] id
   | AInt of int
   | AOp of arith_op * arith_expr list
-  | ANonDet
+  | ANonDet of int option (* id for translation*)
 [@@deriving eq,ord,show]
 and program_predicate =
   | Pred of pred_op * arith_expr list 

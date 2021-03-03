@@ -1,6 +1,6 @@
 open Program
 open Itype
-open Trans_hflz
+open Trans_ltl
 
 let print_location lexbuf =
   let open Lexing in
@@ -81,6 +81,11 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env =
       
       print_endline "program (after):";
       print_endline @@ Print_syntax.show_program_as_ocaml program_;
+      
+      let oc = open_out "a2.ml" in
+      let fmt = Format.formatter_of_out_channel oc in
+      Format.fprintf fmt "%s" (Print_syntax.show_program_as_ocaml program_);
+      close_out oc;
       
       let hflz = Trans_program.to_hflz program_ func_priority in
       

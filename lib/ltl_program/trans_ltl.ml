@@ -280,7 +280,7 @@ let trans
     match term with
     | AVar x -> AVar x
     | AInt n -> AInt n
-    | ANonDet -> ANonDet
+    | ANonDet n -> ANonDet n
     | AOp (op, exprs) ->
       AOp (op, List.map (go_arith env) exprs) in
   go_prog env term
@@ -328,17 +328,32 @@ let substitute env phi =
         | exception Core.Not_found_s _ -> AVar v
       end *)
     | AInt _ -> phi
-    | ANonDet -> ANonDet
+    | ANonDet n -> ANonDet n
     | AOp (op, ps) -> AOp (op, List.map arith ps) in
   hflz phi
+
+let convert_itype_to_simple_type (itype : itype) =
+  let open Type in
+  let rec go_itype (itype : itype) = match itype with
+    | ITState _ -> TyBool ()
+    | ITFunc (IAInt, body) ->
+      TyArrow ({name=""; id=0; ty = TyInt}, go_itype body)
+    | ITFunc (IAInter xs, body) ->
+      let rec go t b= match t with
+        | x::xs -> TyArrow ({name=""; id=0; ty=TySigma x}, go xs b)
+        | [] -> b
+      in
+      let tys = List.map (fun (t, _) -> go_itype t) xs in
+      go tys (go_itype body) in
+  go_itype itype
     
 let trans_program
     (env : itype_env)
     ((entry, program) : program)
     (transition_function : state * symbol -> state list)
-    priority
-    initial_state
-    all_states =
+    (priority : state -> int)
+    (initial_state : state)
+    (all_states : state list) : program =
   let env' = List.map to_itype_env env in
   let program = List.map (fun (var, (ty, m)) ->
     print_endline @@ show_itype ty;
@@ -362,9 +377,26 @@ let trans_program
           let ({Id.name = s; ty = ty'} as argid) = List.nth args i in
           match ty with
           | IAInt -> [argid]
-          | IAInter xs -> List.map (fun (a, b) -> {argid with name = make_var_name s a b; ty = ty'}) xs
+          | IAInter xs ->
+            List.map (fun (tyin, m) ->
+              { argid with
+                name = make_var_name s tyin m;
+                ty = Type.TySigma (convert_itype_to_simple_type tyin)
+              }
+            ) xs
         ) arg_tys |>
         List.flatten in
+      let prog =
+        List.fold_left (fun prog arg ->
+          match arg.Id.ty with
+          | Type.TyInt -> prog
+          | Type.TySigma (ty) -> begin
+            let arg_env = IdMap.of_list [Id.remove_ty arg, PVar { arg with ty = ty }] in
+            substitute arg_env prog
+          end
+        )
+        prog
+        args in
       {
         var = {
           var with
@@ -377,9 +409,15 @@ let trans_program
     end
     | None -> failwith @@ "trans_program 1 (not found: " ^ Id.to_string var ^ ")"
   ) env in
+  (* 型を合わせる *)
   let prog_env = IdMap.of_list @@ List.map (fun rule -> (Id.remove_ty rule.var, PVar rule.var)) program in
-  let program = List.map (fun rule -> { rule with body = substitute prog_env rule.body }) program in
+  let program =
+    List.map (fun rule ->
+      { rule with body = substitute prog_env rule.body }
+    )
+    program in
   let entry = trans env' entry transition_function priority all_states (ITState initial_state) in
+  let entry = substitute prog_env entry in
   entry, program
 
 let get_priority (env : itype_env) =

@@ -1,18 +1,33 @@
+%HES
 let finish = event done; finish
 
-let reduce x r k =
+let reduce (x : int) (r : int -> (int -> unit) -> unit) (k : int -> unit) =
   if x<=0 then k x else r x k
 
-let explore x r =
-  event explore
-  reduce x r k
+let explore (x : int) (r : int -> (int -> unit) -> unit) =
+  event explore;
+  reduce x r (c r)
 
-let k y = 
+let c (r : int -> (int -> unit) -> unit) (y : int) = 
   if y<=0 then finish
   else explore y r
 
-let f x k = k (x - 2)
+let f (x : int) (k : int -> unit) = k (x - 2)
 
-let main() =
-  let t = Random.int(0) in
-  explore t f
+let () =
+  explore * f
+
+
+%INITIAL
+q0
+
+%TRANSITION
+(q0, explore) -> q0
+(q0, done) -> q1
+(q1, explore) -> q1
+(q1, done) -> q1
+
+
+%PRIORITY
+q0 -> 1
+q1 -> 2

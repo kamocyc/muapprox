@@ -28,6 +28,7 @@ let type_check_arith : ty_env -> Arith.t -> bool = fun env arith ->
 let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env hfl ->
   let show_arg_ty = fun fmt ty -> Format.pp_print_string fmt @@ Type.show_ty Fmt.nop ty in
   let show_arg = Type.show_arg show_arg_ty in
+  let show_arg_ty_s = fun ty -> Hflmc2_util.fmt_string Hflmc2_syntax.Print.simple_argty ~margin:200 ty in
   let show_id = Id.show Fmt.nop in
   let show_formula f = 
     let buf = Buffer.create 100 in
@@ -82,7 +83,8 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
       let ty2 = go env f2 in
       if Type.eq_modulo_arg_ids ty2 ty
       then tybody
-      else failwith @@ "App_TyArrow type mismatch" ^ (show_fm hfl) ^ "ty1=" ^ (show_arg arg.ty) ^ " / ty2=" ^ (show_arg (TySigma ty2))
+      else failwith @@ "App_TyArrow type mismatch" ^ (show_fm hfl) ^ "ty1=" ^ (show_arg arg.ty) ^ " / ty2=" ^ (show_arg (TySigma ty2)) ^
+        "\nsimplified:\nty1=" ^ (show_arg_ty_s arg.ty) ^ "/ ty2=" ^ (show_arg_ty_s (TySigma ty2))
     end
     | TyBool _ -> failwith @@ "App: left-hand term should not be boolean. (left-hand term=" ^ (show_fm f1) ^ ", right-hand term=" ^ (show_fm f2) ^ ")"
   end

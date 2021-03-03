@@ -136,7 +136,7 @@ atom:
 abstraction_ty:
 | TUNIT                    { Type.TyBool ()   }
 | abstraction_argty "->" abstraction_ty
-    { let x = Id.{ name="_"; id=(-1); ty=$1 } in
+    { let x = Id.{ name=""; id=0; ty=$1 } in
       Type.TyArrow(x, $3)
     }
 // | TBOOL "[" separated_list(";", predicate) "]" { Type.TyBool($3) }

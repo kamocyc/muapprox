@@ -44,6 +44,7 @@ let convert (raw : Raw_program.raw_expression) var_env pred_env : program_expr =
       | Some p -> AVar ({ p with ty=`Int })
       | None -> failwith @@ "convert PVar 2 (name=" ^ v ^ ")"
     end
+    | ANonDet -> ANonDet None
     | _ -> failwith "go_arith"
   in
   go_prog raw
@@ -90,7 +91,27 @@ let replace_var_name_with_upper_var v func_names =
   let name = replace_var_name_with_upper name func_names in
   {Id.name; id; ty}
 
+let to_forall args body =
+  let rec go = function
+    | [] -> body
+    | arg::xs -> Hflz.Forall(arg, go xs) in
+  go args
+  
 let to_hflz_from_function program func_names =
+  let idMap = Hashtbl.create 10 in
+  let rec get_forall_vars prog = match prog with
+    | PUnit | PVar _ -> prog
+    | PIf (p, p1, p2) -> PIf (p, get_forall_vars p1, get_forall_vars p2)
+    | PEvent (p, p1) -> PEvent (p, get_forall_vars p1)
+    | PNonDet (p1, p2) -> PNonDet (get_forall_vars p1, get_forall_vars p2)
+    | PApp (p1, p2) -> PApp (get_forall_vars p1, get_forall_vars p2)
+    | PAppInt (p1, ANonDet _) ->
+      let id = Id.gen ~name:"forall_x" Type.TyInt in
+      Hashtbl.add idMap id.id id;
+      PAppInt (get_forall_vars p1, ANonDet (Some id.id))
+    | PAppInt (p1, p2) -> PAppInt (get_forall_vars p1, p2)
+  in
+  let program = get_forall_vars program in
   let rec go_program program: 'a Hflz.t = match program with
     | PUnit -> Bool true
     | PVar v -> Var (replace_var_name_with_upper_var v func_names)
@@ -113,12 +134,19 @@ let to_hflz_from_function program func_names =
       )
     | PApp (p1, p2) ->
       App (go_program p1, go_program p2)
+    | PAppInt (p1, ANonDet idn_opt) -> begin
+      match idn_opt with
+      | Some idn ->
+        let id = Hashtbl.find idMap idn in
+        App (go_program p1, Arith (Var {id with ty=`Int}))
+      | None -> assert false      
+    end
     | PAppInt (p1, a) -> 
       App (go_program p1, Arith (go_arith a))
   and go_arith p : Arith.t  = match p with
     | AVar v -> Var (replace_var_name_with_upper_var v func_names)
     | AInt i -> Int i
-    | ANonDet -> failwith "TODO"
+    | ANonDet _ -> assert false
     | AOp (op, [arg1; arg2]) ->
       Op (op, [go_arith arg1; go_arith arg2])
     | AOp _ -> failwith "to_hflz: go_arith"
@@ -129,7 +157,10 @@ let to_hflz_from_function program func_names =
     | Or (p1, p2) -> Or (go_predicate p1, go_predicate p2)
     | Bool b -> Bool b
   in
-  go_program program
+  let forall_bounded_vars = Hashtbl.fold (fun k v acc -> v::acc) idMap [] in
+  to_forall
+    forall_bounded_vars
+    (go_program program)
 
 let to_abs' : 'ty Type.arg Id.t list -> ('ty2 Hflz.t -> 'ty2 Hflz.t) =
   fun args body ->

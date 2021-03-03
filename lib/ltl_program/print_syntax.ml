@@ -39,7 +39,7 @@ let show_program p =
     | AInt i -> string_of_int i
     | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ " " ^ show_op op ^ " " ^ go_arith arg2 ^ ")"
     | AOp _ -> failwith "show_program: go_arith"
-    | ANonDet -> "*"
+    | ANonDet _ -> "*"
   and go_predicate p = match p with
     | Pred (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ " " ^ show_pred op ^ " " ^ go_arith arg2 ^ ")"
     | Pred _ -> failwith "show_program: go_predicate"
@@ -68,17 +68,22 @@ let replace_var_name s =
 let show_program_as_ocaml p =
   let rec go_program p = match p with
     | PUnit -> "()"
-    | PVar s -> replace_var_name (Id.to_string ~without_id:true s)
+    | PVar s -> begin
+      let name = replace_var_name (Id.to_string ~without_id:true s) in
+      match s.ty with
+      | Type.TyBool _ -> "(" ^ name ^ " ())"
+      | Type.TyArrow _ -> name
+    end
     | PIf (p, p1, p2) -> "if " ^ go_predicate p ^ " then (" ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PEvent (pe, p) -> "event \"" ^ pe ^ "\"; " ^ go_program p
-    | PNonDet (p1, p2) -> "if read_int () then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
+    | PNonDet (p1, p2) -> "if read_bool () then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PApp (p1, p2) -> "(" ^ go_program p1 ^ " " ^ go_program p2 ^ ")"
     | PAppInt (p1, a) -> "(" ^ go_program p1 ^ " " ^ go_arith a ^ ")"
   and go_arith p = match p with
     | AVar v -> replace_var_name (Id.to_string ~without_id:true v)
     | AInt i -> string_of_int i
     | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ show_op op ^ go_arith arg2 ^ ")"
-    | ANonDet -> "*"
+    | ANonDet _ -> "(read_int ())"
     | AOp _ -> failwith "show_program: go_arith"
   and go_predicate p = match p with
     | Pred (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ show_pred op ^ go_arith arg2 ^ ")"
@@ -96,9 +101,15 @@ let show_program ((entry, funcs) : program) =
   
 
 let show_program_as_ocaml ((entry, funcs) : program) = 
-  "let read_int () = read_int () != 0\n" ^
+  "let read_bool () = read_int () != 0\n" ^
   "let event a = print_string a\n" ^
-  (List.mapi (fun i {var; args; body} -> (if i = 0 then "let " else "and ") ^ (replace_var_name (Id.to_string var ~without_id:true)) ^ " " ^ (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ replace_var_name name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^ " = " ^ show_program_as_ocaml body) funcs |>
+  (List.mapi (
+    fun i {var; args; body} ->
+      (if i = 0 then "let rec " else "and ") ^
+      (replace_var_name (Id.to_string var ~without_id:true)) ^ " " ^
+      (if List.length args = 0 then "() " else "") ^
+      (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ replace_var_name name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^ " = " ^
+      show_program_as_ocaml body) funcs |>
   String.concat "\n") ^ "\n" ^
-  "let () = " ^ show_program_as_ocaml entry
+  "let _ = " ^ show_program_as_ocaml entry
   
