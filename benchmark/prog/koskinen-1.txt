@@ -1,4 +1,4 @@
-%HES
+%PROGRAM
 let finish = event done; finish
 
 let reduce (x : int) (r : int -> (int -> unit) -> unit) (k : int -> unit) =

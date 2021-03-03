@@ -6,7 +6,7 @@ Trace(P) \subset L(A)
 <=> invalid
 */
 
-%HES
+%PROGRAM
 let f = event a; event b; f
 let () = f
 

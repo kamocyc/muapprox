@@ -1,5 +1,5 @@
 /* this is invalid since "b" may occur only finitely */
-%HES
+%PROGRAM
 let g (k : unit) = if * then (event a; k) else (event b; k)
 let f = g f
 let () = f

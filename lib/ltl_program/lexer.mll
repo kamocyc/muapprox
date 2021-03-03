@@ -14,7 +14,7 @@ let alphanum = ['0'-'9' 'a'-'z' 'A'-'Z' '_']
 let ope_symbols = [ '=' '<' '>' '+' '-' '*' '&' '|' '\\' '/' '!' ]
 
 rule token = parse
-| "%HES"                   { HES }
+| "%PROGRAM"               { PROGRAM }
 | "%ENV"                   { ENV }
 (* | "%STATE"                 { STATE }
 | "%ALPHABET"              { ALPHABET } *)

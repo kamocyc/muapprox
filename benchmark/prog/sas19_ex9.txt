@@ -1,6 +1,6 @@
 /* 結果はinvalid <=> L(A) \cap Trace(P) /= \emptyset */
 
-%HES
+%PROGRAM
 let main = event a; main
 let () = main
 

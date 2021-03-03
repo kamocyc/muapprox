@@ -6,7 +6,7 @@ Trace(P) \subset L(A)
 <=> invalid
 */
 
-%HES
+%PROGRAM
 let f = g h
 let h = event b; f
 let g (k : unit) = if * then (event a; g k) else (event c; k)

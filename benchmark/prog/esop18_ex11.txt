@@ -1,4 +1,4 @@
-%HES
+%PROGRAM
 let g (k : unit) = if * then (event a; k) else (event b; k)
 let f (x : int) = if x > 0 then g (f (x - 1)) else (event b; f 5)
 let () = f 5

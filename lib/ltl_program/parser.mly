@@ -23,7 +23,7 @@ open Raw_program
 %token PLUS  "+" MINUS "-" STAR  "*" SLASH "/" PERCENT "%" NEG
 %token EQ "=" NEQ "<>" LE "<=" GE ">="
 %token AND "&&" OR "||"
-%token ENV HES
+%token ENV PROGRAM
 %token TRANSITION PRIORITY INITIAL
 
 %token TUNIT TINT TARROW "->"
@@ -43,9 +43,9 @@ open Raw_program
 %%
 
 main:
-// | hes EOF     { $1, None }
-| hes env initial transition priority EOF     { $1, Some (Some $2, $3, $4, $5) }
-| hes initial transition priority EOF     { $1, Some (None, $2, $3, $4) }
+// | program EOF     { $1, None }
+| program env initial transition priority EOF     { $1, Some (Some $2, $3, $4, $5) }
+| program initial transition priority EOF     { $1, Some (None, $2, $3, $4) }
 
 initial:
 | INITIAL LIDENT { Itype.State $2 }
@@ -63,11 +63,11 @@ priority_rule:
 | LIDENT "->" INT { Itype.mk_priority_rule $1 $3 }
 
 (******************************************************************************)
-(* HES                                                                        *)
+(* PROGRAM                                                                        *)
 (******************************************************************************)
 
-hes:
-| HES hflz_rule+ { $2 }
+program:
+| PROGRAM hflz_rule+ { $2 }
 
 hflz_rule:
 | "let" lvar arg* "=" hflz
