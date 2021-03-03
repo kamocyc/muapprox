@@ -61,6 +61,7 @@ Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__a
           x (y - 1) k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_1
           k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_1)
   /\ (x < y \/ k_int__arw__q0_1 x).
+Print_int__arw__q0_1 x =v Print_int__arw__q0_1 x /\ Print_int__arw__q1_2 x.
 C3_int__arw__q1_0 r =u Print_int__arw__q1_0 r.
 C3_int__arw__q0_0 r =u Print_int__arw__q0_0 r.
 C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q1_0 k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 a r =u
@@ -90,4 +91,4 @@ Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__a
           k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_1)
   /\ (x < y \/ k_int__arw__q0_1 x).
 Print_int__arw__q1_0 x =u Print_int__arw__q1_2 x.
-Print_int__arw__q0_0 x =u Print_int__arw__q1_2 x.
+Print_int__arw__q0_0 x =u Print_int__arw__q0_1 x /\ Print_int__arw__q1_2 x.

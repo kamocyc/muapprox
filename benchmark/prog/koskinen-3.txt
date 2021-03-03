@@ -1,0 +1,44 @@
+/* Taken from 
+   Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014, Figure 10 */
+/* 元の性質は FG(step \/ phi) なので、本来は、各関数の入り口にstepを挿入するなど変換が必要 */
+/* FG(phi) なので、F(phi) とは異なり、parity がevenのstateからphiを満たさないイベントが生成されたときにdead-stateに遷移する */
+
+%PROGRAM
+let halt = event halt; halt
+  
+let bar (x:int) (k:int->unit) =
+  event bar;
+  if x>0 then bar (x-1) k
+  else k x
+
+let foo (x:int) =
+  event foo;
+  if x<=0 then foo x
+  else halt
+
+let () =
+  if * then foo 0
+  else bar * c
+
+let c (r:int) =
+  foo r
+
+%INITIAL
+q0
+
+%TRANSITION
+(q0, foo) -> q0
+(q0, bar) -> q0
+(q0, halt) -> q0
+(q0, foo) -> q1
+(q1, foo) -> q1
+(q1, bar) -> qd
+(q1, halt) -> qd
+(qd, foo) -> qd
+(qd, bar) -> qd
+(qd, halt) -> qd
+
+%PRIORITY
+q0 -> 1
+q1 -> 2
+qd -> 1

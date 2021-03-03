@@ -1,3 +1,7 @@
+/* 元の問題は有限パスがあるが、この問題は実質的には停止性の検証であるため、finishを再帰呼び出しすることで無限パスに変換できることがわかる。
+   一般には、ESOP18 p.16のような変換が必要 */
+/* transitionで非決定性があると、non-determinsitc branchが生成され、disproveを示すときにpCSPになる */
+/* 変換時に --encode-nondet-with-forall, 解くときに --assign-values-for-exists-at-first-iteration で解ける */
 %PROGRAM
 let finish = event done; finish
 
@@ -23,6 +27,7 @@ q0
 
 %TRANSITION
 (q0, explore) -> q0
+(q0, done) -> q0
 (q0, done) -> q1
 (q1, explore) -> q1
 (q1, done) -> q1

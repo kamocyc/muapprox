@@ -1,0 +1,36 @@
+%HES
+Sentry =v
+  ∀forall_x. 
+   Foo_int__arw__q0_0 0
+   /\ (forall_x <= 0
+       \/ Bar_int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___and___int__arw__qd_2___and___int__arw__qd_1___and___int__arw__qd_0___arw__q0_1
+           (forall_x - 1) (\r. Foo_int__arw__q0_0 r) (\r. Foo_int__arw__q0_0 r)
+           (\r. Foo_int__arw__q0_0 r) (\r. Foo_int__arw__q1_0 r)
+           (\r. Foo_int__arw__q1_0 r) (\r. Foo_int__arw__q1_0 r)
+           (\r. Foo_int__arw__qd_0 r) (\r. Foo_int__arw__qd_0 r)
+           (\r. Foo_int__arw__qd_0 r))
+      /\ (forall_x > 0 \/ Foo_int__arw__q0_0 forall_x).
+Foo_int__arw__q1_2 x =u
+  (x > 0 \/ Foo_int__arw__q1_2 x) /\ (x <= 0 \/ Halt_q1_2).
+Halt_q1_2  =u Halt_qd_1.
+Foo_int__arw__qd_1 x =v
+  (x > 0 \/ Foo_int__arw__qd_1 x) /\ (x <= 0 \/ Halt_qd_1).
+Foo_int__arw__q0_1 x =v
+  (x > 0 \/ Foo_int__arw__q0_1 x) /\ (x <= 0 \/ Halt_q0_1)
+  /\ (x > 0 \/ Foo_int__arw__q1_2 x) /\ (x <= 0 \/ Halt_q1_2).
+Bar_int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___and___int__arw__qd_2___and___int__arw__qd_1___and___int__arw__qd_0___arw__q0_1 x k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 k_int__arw__qd_2 k_int__arw__qd_1 k_int__arw__qd_0 =v
+  (x <= 0
+   \/ Bar_int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___and___int__arw__qd_2___and___int__arw__qd_1___and___int__arw__qd_0___arw__q0_1
+       (x - 1) k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_1
+       k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_1 k_int__arw__qd_2
+       k_int__arw__qd_1 k_int__arw__qd_1)
+  /\ (x > 0 \/ k_int__arw__q0_1 x).
+Halt_qd_1  =v Halt_qd_1.
+Halt_q0_1  =v Halt_q0_1.
+Foo_int__arw__qd_0 x =u
+  (x > 0 \/ Foo_int__arw__qd_1 x) /\ (x <= 0 \/ Halt_qd_1).
+Foo_int__arw__q1_0 x =u
+  (x > 0 \/ Foo_int__arw__q1_2 x) /\ (x <= 0 \/ Halt_q1_2).
+Foo_int__arw__q0_0 x =u
+  (x > 0 \/ Foo_int__arw__q0_1 x) /\ (x <= 0 \/ Halt_q0_1)
+  /\ (x > 0 \/ Foo_int__arw__q1_2 x) /\ (x <= 0 \/ Halt_q1_2).

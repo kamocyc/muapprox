@@ -1,6 +1,7 @@
 /* Taken from 
    Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014, Figure 10 */
 /* if * でdisjunctionが発生している。 */
+/* 解くときに --assign-values-for-exists-at-first-iteration で解ける */
 
 %PROGRAM
 let print (x:int) =
@@ -31,6 +32,7 @@ q0
 
 %TRANSITION
 (q0, rumble) -> q0
+(q0, print) -> q0
 (q0, print) -> q1
 (q1, rumble) -> q1
 (q1, print) -> q1
