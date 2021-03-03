@@ -8,8 +8,8 @@ let map_file_path path converter =
   let dir, base, ext = converter (dir, base, ext) in
   Stdlib.Filename.concat dir (base ^ ext)
 
-let main filepath show_raw_id_name always_use_canonical_type_env =
-  let phi, _ = Muapprox.convert_ltl filepath show_raw_id_name always_use_canonical_type_env in
+let main filepath show_raw_id_name always_use_canonical_type_env encode_nondet_with_forall =
+  let phi, _ = Muapprox.convert_ltl filepath show_raw_id_name always_use_canonical_type_env encode_nondet_with_forall in
   let path2 = map_file_path filepath (fun (a, b, _) -> (a, b, ".in")) in
   ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 ~without_id:true true phi;
   print_endline @@ "saved: " ^ path2
@@ -22,8 +22,9 @@ let command =
           filepath = anon ("filepath" %: string)
       and show_raw_id_name = flag "--raw-id" no_arg ~doc:"output id without escaping (for debug)"
       and always_use_canonical_type_env = flag "--use-canonical-type" no_arg ~doc:"always use canonical intersection type environment even if input file contains environment"
+      and encode_nondet_with_forall = flag "--encode-nondet-with-forall" no_arg ~doc:"encode non-deterministic branch using an universally qunatified integer variable and encoding of if"
       in
-      (fun () -> main filepath show_raw_id_name always_use_canonical_type_env)
+      (fun () -> main filepath show_raw_id_name always_use_canonical_type_env encode_nondet_with_forall)
     )
 
 let () = Command.run command

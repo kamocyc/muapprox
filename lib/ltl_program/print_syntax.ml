@@ -31,7 +31,7 @@ let show_program p =
     | PVar s -> Id.to_string ~without_id:true s
     | PIf (p, p1, p2) -> "if " ^ go_predicate p ^ " then (" ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PEvent (pe, p) -> "event " ^ pe ^ "; " ^ go_program p
-    | PNonDet (p1, p2) -> "if * then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
+    | PNonDet (p1, p2, _) -> "if * then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PApp (p1, p2) -> "(" ^ go_program p1 ^ " " ^ go_program p2 ^ ")"
     | PAppInt (p1, a) -> "(" ^ go_program p1 ^ " " ^ go_arith a ^ ")"
   and go_arith p = match p with
@@ -76,7 +76,7 @@ let show_program_as_ocaml p =
     end
     | PIf (p, p1, p2) -> "if " ^ go_predicate p ^ " then (" ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PEvent (pe, p) -> "event \"" ^ pe ^ "\"; " ^ go_program p
-    | PNonDet (p1, p2) -> "if read_bool () then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
+    | PNonDet (p1, p2, _) -> "if read_bool () then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PApp (p1, p2) -> "(" ^ go_program p1 ^ " " ^ go_program p2 ^ ")"
     | PAppInt (p1, a) -> "(" ^ go_program p1 ^ " " ^ go_arith a ^ ")"
   and go_arith p = match p with

@@ -1,0 +1,93 @@
+%HES
+Sentry =v
+  ∀forall_x. 
+   ∀forall_x. 
+    Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q0_0
+     forall_x forall_x
+     (C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q0_2
+       C3_int__arw__q0_2 C3_int__arw__q0_2 C3_int__arw__q0_2 C3_int__arw__q1_2
+       C3_int__arw__q1_2 C3_int__arw__q1_2 forall_x)
+     (C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q0_1
+       C3_int__arw__q0_2 C3_int__arw__q0_1 C3_int__arw__q0_1 C3_int__arw__q1_2
+       C3_int__arw__q1_1 C3_int__arw__q1_1 forall_x)
+     (C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q0_0
+       C3_int__arw__q0_2 C3_int__arw__q0_1 C3_int__arw__q0_0 C3_int__arw__q1_2
+       C3_int__arw__q1_1 C3_int__arw__q1_0 forall_x)
+     (C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q1_2
+       C3_int__arw__q0_2 C3_int__arw__q0_2 C3_int__arw__q0_2 C3_int__arw__q1_2
+       C3_int__arw__q1_2 C3_int__arw__q1_2 forall_x)
+     (C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q1_1
+       C3_int__arw__q0_2 C3_int__arw__q0_1 C3_int__arw__q0_1 C3_int__arw__q1_2
+       C3_int__arw__q1_1 C3_int__arw__q1_1 forall_x)
+     (C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q1_0
+       C3_int__arw__q0_2 C3_int__arw__q0_1 C3_int__arw__q0_0 C3_int__arw__q1_2
+       C3_int__arw__q1_1 C3_int__arw__q1_0 forall_x).
+C3_int__arw__q1_2 r =u Print_int__arw__q1_0 r.
+C3_int__arw__q0_2 r =u Print_int__arw__q0_0 r.
+C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q1_2 k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 a r =u
+  Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q1_0
+   a r k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2
+   k_int__arw__q1_1 k_int__arw__q1_0.
+C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q0_2 k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 a r =u
+  Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q0_0
+   a r k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2
+   k_int__arw__q1_1 k_int__arw__q1_0.
+Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q1_2 x y k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 =u
+  (x >= y
+   \/ Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q1_2
+       (x + 1) y k_int__arw__q0_2 k_int__arw__q0_2 k_int__arw__q0_2
+       k_int__arw__q1_2 k_int__arw__q1_2 k_int__arw__q1_2
+      /\ Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q1_2
+          x (y - 1) k_int__arw__q0_2 k_int__arw__q0_2 k_int__arw__q0_2
+          k_int__arw__q1_2 k_int__arw__q1_2 k_int__arw__q1_2)
+  /\ (x < y \/ k_int__arw__q1_2 x).
+Print_int__arw__q1_2 x =u Print_int__arw__q1_2 x.
+C3_int__arw__q1_1 r =v Print_int__arw__q1_0 r.
+C3_int__arw__q0_1 r =v Print_int__arw__q0_0 r.
+C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q1_1 k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 a r =v
+  Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q1_0
+   a r k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2
+   k_int__arw__q1_1 k_int__arw__q1_0.
+C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q0_1 k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 a r =v
+  Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q0_0
+   a r k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2
+   k_int__arw__q1_1 k_int__arw__q1_0.
+Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q0_1 x y k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 =v
+  (x >= y
+   \/ Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q0_1
+       (x + 1) y k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_1
+       k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_1
+      /\ Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q0_1
+          x (y - 1) k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_1
+          k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_1)
+  /\ (x < y \/ k_int__arw__q0_1 x).
+C3_int__arw__q1_0 r =u Print_int__arw__q1_0 r.
+C3_int__arw__q0_0 r =u Print_int__arw__q0_0 r.
+C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q1_0 k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 a r =u
+  Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q1_0
+   a r k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2
+   k_int__arw__q1_1 k_int__arw__q1_0.
+C2__int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__int__arw__int__arw__q0_0 k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 a r =u
+  Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q0_0
+   a r k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2
+   k_int__arw__q1_1 k_int__arw__q1_0.
+Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q1_0 x y k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 =u
+  (x >= y
+   \/ Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q1_2
+       (x + 1) y k_int__arw__q0_2 k_int__arw__q0_2 k_int__arw__q0_2
+       k_int__arw__q1_2 k_int__arw__q1_2 k_int__arw__q1_2
+      /\ Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q1_2
+          x (y - 1) k_int__arw__q0_2 k_int__arw__q0_2 k_int__arw__q0_2
+          k_int__arw__q1_2 k_int__arw__q1_2 k_int__arw__q1_2)
+  /\ (x < y \/ k_int__arw__q1_2 x).
+Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q0_0 x y k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_0 k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_0 =u
+  (x >= y
+   \/ Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q0_1
+       (x + 1) y k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_1
+       k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_1
+      /\ Rumble_int__arw__int__arw___int__arw__q0_2___and___int__arw__q0_1___and___int__arw__q0_0___and___int__arw__q1_2___and___int__arw__q1_1___and___int__arw__q1_0___arw__q0_1
+          x (y - 1) k_int__arw__q0_2 k_int__arw__q0_1 k_int__arw__q0_1
+          k_int__arw__q1_2 k_int__arw__q1_1 k_int__arw__q1_1)
+  /\ (x < y \/ k_int__arw__q0_1 x).
+Print_int__arw__q1_0 x =u Print_int__arw__q1_2 x.
+Print_int__arw__q0_0 x =u Print_int__arw__q1_2 x.

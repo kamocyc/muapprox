@@ -31,7 +31,7 @@ let set_id_on_env (env : itype_env) program' =
     | None -> failwith "set_id_on_env"
   ) env
   
-let convert_ltl file show_raw_id_name always_use_canonical_type_env =
+let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nondet_with_forall =
   Print_syntax.show_raw_id_name := show_raw_id_name;
   Core.In_channel.with_file file ~f:begin fun ch ->
     let lexbuf = Lexing.from_channel ch in
@@ -87,7 +87,7 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env =
       Format.fprintf fmt "%s" (Print_syntax.show_program_as_ocaml program_);
       close_out oc;
       
-      let hflz = Trans_program.to_hflz program_ func_priority in
+      let hflz = Trans_program.to_hflz program_ func_priority encode_nondet_with_forall in
       
       Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
       Manipulate.Hflz_typecheck.type_check hflz;

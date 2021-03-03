@@ -7,7 +7,7 @@ type program_expr =
   | PVar of Type.simple_ty id
   | PIf of program_predicate * program_expr * program_expr
   | PEvent of program_event * program_expr
-  | PNonDet of program_expr * program_expr
+  | PNonDet of program_expr * program_expr * int option
   | PApp of program_expr * program_expr
   | PAppInt of program_expr * arith_expr
   (* | PAbs of id * program_expr *)

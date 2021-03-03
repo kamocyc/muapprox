@@ -84,8 +84,8 @@ let make_nondet terms =
   let rec go : Program2.program_expr list -> Program2.program_expr = function 
     | [] -> failwith "make_nondet"
     | [x1] -> x1
-    | [x1; x2] -> PNonDet (x1, x2)
-    | x::xs -> PNonDet(x, go xs) in
+    | [x1; x2] -> PNonDet (x1, x2, None)
+    | x::xs -> PNonDet(x, go xs, None) in
   go terms
     
 let intersect l1 l2 =
@@ -180,7 +180,7 @@ let get_arg_type (env : itenv) term states =
       assert (List.for_all2 eq_itype' ty1 ty2);
       ty1
     end
-    | PNonDet (p1, p2) -> begin
+    | PNonDet (p1, p2, _) -> begin
       let ty1 = go env p1 in
       let ty2 = go env p2 in
       assert (List.for_all2 eq_itype' ty1 ty2);
@@ -217,7 +217,7 @@ let trans
       | None -> failwith @@ "PVar: not found (" ^ Id.show Type.pp_simple_ty x ^ ": (" ^ show_itype ty ^ ", " ^ string_of_int 0 ^ ")"
       | Some (v, m) -> PVar ({x with name = make_var_name x.Id.name v m})
     end
-    | PNonDet (p1, p2) -> PNonDet (go_prog env p1 ty, go_prog env p2 ty)
+    | PNonDet (p1, p2, n) -> PNonDet (go_prog env p1 ty, go_prog env p2 ty, n)
     | PIf (pred, pthen, pelse) -> PIf (go_pred env pred, go_prog env pthen ty, go_prog env pelse ty)
     | PEvent (ev, p) -> begin
       let states = transition_function ty (Symbol ev) in
@@ -312,7 +312,7 @@ let substitute env phi =
     | PIf (p1, p2, p3) ->
       PIf (pred p1, hflz p2, hflz p3)
     | PEvent (e, p) -> PEvent (e, hflz p)
-    | PNonDet (p1, p2) -> PNonDet (hflz p1, hflz p2)
+    | PNonDet (p1, p2, n) -> PNonDet (hflz p1, hflz p2, n)
     | PApp (p1, p2) -> PApp (hflz p1, hflz p2)
     | PAppInt (p1, p2) -> PAppInt (hflz p1, arith p2)
   and pred (phi : program_predicate) = match phi with

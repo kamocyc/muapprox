@@ -22,7 +22,7 @@ let convert (raw : Raw_program.raw_expression) var_env pred_env : program_expr =
     end
     | PIf (p, p1, p2) -> PIf (go_pred p, go_prog p1, go_prog p2)
     | PEvent (pe, p) -> PEvent (pe, go_prog p)
-    | PNonDet (p1, p2) -> PNonDet (go_prog p1, go_prog p2)
+    | PNonDet (p1, p2) -> PNonDet (go_prog p1, go_prog p2, None)
     | PApp (p1, p2) -> begin
       let p1 = go_prog p1 in
       try
@@ -97,13 +97,18 @@ let to_forall args body =
     | arg::xs -> Hflz.Forall(arg, go xs) in
   go args
   
-let to_hflz_from_function program func_names =
+let to_hflz_from_function encode_nondet_with_forall program func_names =
   let idMap = Hashtbl.create 10 in
   let rec get_forall_vars prog = match prog with
     | PUnit | PVar _ -> prog
     | PIf (p, p1, p2) -> PIf (p, get_forall_vars p1, get_forall_vars p2)
     | PEvent (p, p1) -> PEvent (p, get_forall_vars p1)
-    | PNonDet (p1, p2) -> PNonDet (get_forall_vars p1, get_forall_vars p2)
+    | PNonDet (p1, p2, n) ->
+      if encode_nondet_with_forall then begin
+        let id = Id.gen ~name:"forall_nd_x" Type.TyInt in
+        Hashtbl.add idMap id.id id;
+        PNonDet (get_forall_vars p1, get_forall_vars p2, Some id.id)
+      end else PNonDet (get_forall_vars p1, get_forall_vars p2, n)
     | PApp (p1, p2) -> PApp (get_forall_vars p1, get_forall_vars p2)
     | PAppInt (p1, ANonDet _) ->
       let id = Id.gen ~name:"forall_x" Type.TyInt in
@@ -127,11 +132,27 @@ let to_hflz_from_function program func_names =
         )
       )
     | PEvent (_, p) -> go_program p
-    | PNonDet (p1, p2) ->
-      And (
-        go_program p1,
-        go_program p2
-      )
+    | PNonDet (p1, p2, idn_opt) ->
+      if encode_nondet_with_forall then begin
+        match idn_opt with
+        | Some idn ->
+          let id = Hashtbl.find idMap idn in
+          And (
+            Or (
+              Pred (Neq, [Var {id with ty=`Int}; Int 0]),
+              go_program p1
+            ),
+            Or (
+              Pred (Eq, [Var {id with ty=`Int}; Int 0]),
+              go_program p2
+            )
+          )
+        | None -> assert false
+      end else
+        And (
+          go_program p1,
+          go_program p2
+        )
     | PApp (p1, p2) ->
       App (go_program p1, go_program p2)
     | PAppInt (p1, ANonDet idn_opt) -> begin
@@ -169,7 +190,7 @@ let to_abs' : 'ty Type.arg Id.t list -> ('ty2 Hflz.t -> 'ty2 Hflz.t) =
       | arg::xs -> Abs(arg, go xs) in
     go args
     
-let to_hflz prog priority =
+let to_hflz prog priority encode_nondet_with_forall =
   let entry, funcs = prog in
   if List.length funcs <> List.length priority then failwith "to_hflz";
   let func_names = List.map (fun {var;_} -> var) funcs in
@@ -178,7 +199,7 @@ let to_hflz prog priority =
     | None -> failwith "to_hflz (2)"
     | Some pr -> (snd pr, p)) funcs in
   let funcs = List.sort (fun (pr, _) (pr', _) -> compare pr pr') funcs |> List.rev in
-  let entry = to_hflz_from_function entry func_names in
+  let entry = to_hflz_from_function encode_nondet_with_forall entry func_names in
   let rules =
     List.map (fun (pr, {var; args; body}) ->
       let fix = if pr mod 2 = 0 then Fixpoint.Greatest else Fixpoint.Least in
@@ -189,7 +210,7 @@ let to_hflz prog priority =
           let args = List.map (fun a -> replace_var_name_with_upper_var a func_names) args in
           to_abs'
             args
-            (to_hflz_from_function body func_names) 
+            (to_hflz_from_function encode_nondet_with_forall body func_names) 
       }
     ) funcs in
   (entry, rules)

@@ -1,0 +1,41 @@
+/* Taken from 
+   Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014, Figure 10 */
+/* if * でdisjunctionが発生している。 */
+
+%PROGRAM
+let print (x:int) =
+  event print; print x
+
+let rumble (x:int) (y:int) (k:int->unit) =
+  event rumble;
+  if x < y then (
+    if * then
+      rumble (x+1) y k
+    else rumble x (y-1) k
+  ) else k x
+
+let () =
+  c1 * *
+
+let c1 (a:int) (b:int) =
+  rumble a b (c2 c3 a)
+
+let c2 (k:int->unit) (a:int) (r:int) =
+  rumble a r k
+
+let c3 (r:int) =
+  print r
+
+%INITIAL
+q0
+
+%TRANSITION
+(q0, rumble) -> q0
+(q0, print) -> q1
+(q1, rumble) -> q1
+(q1, print) -> q1
+
+
+%PRIORITY
+q0 -> 1
+q1 -> 2
