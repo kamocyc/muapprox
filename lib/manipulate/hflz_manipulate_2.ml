@@ -18,7 +18,7 @@ let list_product l1 l2 =
 
 let eliminate_exists_by_assinging_hflz max_assign_value phi =
   let assigning_values = list_lower_to_upper (-max_assign_value) max_assign_value in
-  let rec go (phi : Type.simple_ty Hflz.t): Type.simple_ty Hflz.t list =
+  let rec go (phi : Type.simple_ty Hflz.t): (Type.simple_ty Hflz.t * ((unit Id.t * int) list)) list =
     match phi with
     | Exists (x, p1) ->
       (* 存在する自由変数？ *)
@@ -26,28 +26,31 @@ let eliminate_exists_by_assinging_hflz max_assign_value phi =
       List.map
         (fun value ->
           List.map
-            (* (substitute x value) *)
-            (Hflmc2_syntax.Trans.Subst.Hflz.hflz (Hflmc2_syntax.IdMap.of_list [x, Arith (Int value)]))
+            (fun (phi, acc) -> 
+              (* (substitute x value) *)
+              (Hflmc2_syntax.Trans.Subst.Hflz.hflz (Hflmc2_syntax.IdMap.of_list [x, Arith (Int value)])) phi,
+              (Id.remove_ty x, value)::acc
+            )
             results
         )
         assigning_values
       |> List.flatten
-    | Bool _ | Var _ | Arith _ | Pred _ -> [phi]
+    | Bool _ | Var _ | Arith _ | Pred _ -> [phi, []]
     | Or (p1, p2) ->
       list_product (go p1) (go p2)
-      |> List.map (fun (a, b) -> Or (a, b))
+      |> List.map (fun ((a, acc1), (b, acc2)) -> Or (a, b), acc1 @ acc2)
     | And (p1, p2) ->
       list_product (go p1) (go p2)
-      |> List.map (fun (a, b) -> And (a, b))
+      |> List.map (fun ((a, acc1), (b, acc2)) -> And (a, b), acc1 @ acc2)
     | App (p1, p2) ->
       list_product (go p1) (go p2)
-      |> List.map (fun (a, b) -> App (a, b))
+      |> List.map (fun ((a, acc1), (b, acc2)) -> App (a, b), acc1 @ acc2)
     | Forall (x, p1) -> 
       go p1
-      |> List.map (fun p1 -> Forall (x, p1))
+      |> List.map (fun (p1, acc) -> Forall (x, p1), acc)
     | Abs (x, p1) -> 
       go p1
-      |> List.map (fun p1 -> Abs (x, p1))
+      |> List.map (fun (p1, acc) -> Abs (x, p1), acc)
   in
   go phi
 
@@ -58,7 +61,7 @@ let eliminate_exists_by_assinging max_assign_value (hes : Type.simple_ty Hflz.he
     List.map
       (fun rule ->
         let bodies = eliminate_exists_by_assinging_hflz max_assign_value rule.body in
-        List.map (fun body -> { rule with body }) bodies
+        List.map (fun (body, acc) -> { rule with body }, acc) bodies
       )
       rules
   in
@@ -73,4 +76,5 @@ let eliminate_exists_by_assinging max_assign_value (hes : Type.simple_ty Hflz.he
     []
     ruless
   |> List.rev
-  |> List.map decompose_entry_rule
+  |> List.map (fun rules -> List.split rules)
+  |> List.map (fun (rules, acc) -> decompose_entry_rule rules, List.flatten acc)

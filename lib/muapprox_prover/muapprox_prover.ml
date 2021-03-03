@@ -22,8 +22,10 @@ type debug_context = {
   mode: string;
   pid: int;
   file: string;
+  temp_file: string;
   solver_backend: string option;
   default_lexicographic_order: int;
+  exists_assignment: (unit Hflz_convert_rev.Id.t * int) list option;
 }
 
 (* let read_strings file =
@@ -58,13 +60,16 @@ let show_debug_context debug =
       "(" ^ (go assoc |> String.concat ", ") ^ ")"
     in
     let soi = string_of_int in
-    let unwrap_or opt alt = match opt with None -> alt | Some s -> s in
+    let unwrap_or alt opt = match opt with None -> alt | Some s -> s in
     show [
       ("mode", debug.mode);
       ("iter_count", soi debug.iter_count);
       ("coe1", soi debug.coe1);
       ("coe2", soi debug.coe2);
-      ("solver_backend", unwrap_or debug.solver_backend "-")
+      ("solver_backend", unwrap_or "-" debug.solver_backend);
+      ("default_lexicographic_order", string_of_int debug.default_lexicographic_order);
+      ("exists_assignment", Option.map (fun m -> "[" ^ ((List.map (fun (id, v) -> id.Hflmc2_syntax.Id.name ^ "=" ^ string_of_int v) m) |> String.concat "; ") ^ "]") debug.exists_assignment |> unwrap_or "-");
+      ("temp_file", debug.temp_file);
     ]
 
 module type BackendSolver = sig
@@ -214,6 +219,7 @@ module KatsuraSolver : BackendSolver = struct
     
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
+    let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
     unix_system command (Option.map (fun c -> c.mode) debug_context) >>|
       (fun (status_code, elapsed, stdout, stderr) ->
@@ -257,6 +263,7 @@ module IwayamaSolver : BackendSolver = struct
   
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
+    let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
     unix_system command (Option.map (fun c -> c.mode) debug_context)
     >>| (fun (status_code, elapsed, stdout, stderr) ->
@@ -308,6 +315,7 @@ module SuzukiSolver : BackendSolver = struct
   
   let run solve_options debug_context hes _ = 
     let path = save_hes_to_file hes debug_context in
+    let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
     unix_system ~no_quote:true command (Option.map (fun c -> c.mode) debug_context)
     >>| (fun (status_code, elapsed, stdout, stderr) ->
@@ -403,8 +411,8 @@ let elim_mu_exists coe1 coe2 lexico_pair_number debug_output assign_values_for_e
   (* TODO *)
   let heses =
     if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
-    else [Hflz_mani.encode_body_exists coe1 coe2 hes] in
-  List.map (fun hes ->
+    else [Hflz_mani.encode_body_exists coe1 coe2 hes, []] in
+  List.map (fun (hes, acc) ->
     (* if debug_output then Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end; *)
     (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes; *)
     let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number in
@@ -412,8 +420,10 @@ let elim_mu_exists coe1 coe2 lexico_pair_number debug_output assign_values_for_e
     if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
     (* if debug_output then ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes; *)
     (* forall, nu *)
-    hes
+    hes, acc
   ) heses
+
+exception Exit
 
 (* これ以降、本プログラム側での近似が入る *)
 let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : Solve_options.options) debug_output hes mode_name = 
@@ -426,26 +436,52 @@ let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : 
     pid = solve_options.pid;
     file = solve_options.file;
     solver_backend = None;
-    default_lexicographic_order = solve_options.default_lexicographic_order;
+    default_lexicographic_order = lexico_pair_number;
+    exists_assignment = None;
+    temp_file = "";
   } in
   if not solve_options.dry_run then (
     let solvers = 
       match solve_options.solver_backend with
       | None ->
-        List.map (fun nu_only_hes ->
+        List.map (fun (nu_only_hes, exists_assignment) ->
           [
-            solve_onlynu_onlyforall { solve_options with solver_backend = Some "hoice" } (Option.map (fun o -> { o with solver_backend = Some "hoice" }) debug_context) nu_only_hes false;
-            solve_onlynu_onlyforall { solve_options with solver_backend = Some "z3" } (Option.map (fun o -> { o with solver_backend = Some "z3" }) debug_context) nu_only_hes false
+            solve_onlynu_onlyforall
+              { solve_options with solver_backend = Some "hoice" }
+              (Option.map (fun o -> { o with solver_backend = Some "hoice"; exists_assignment = Some exists_assignment }) debug_context)
+              nu_only_hes
+              false;
+            solve_onlynu_onlyforall
+              { solve_options with solver_backend = Some "z3" }
+              (Option.map (fun o -> { o with solver_backend = Some "z3"; exists_assignment = Some exists_assignment }) debug_context)
+              nu_only_hes
+              false
           ]
         ) nu_only_heses
       | Some s ->
-        List.map (fun nu_only_hes -> [solve_onlynu_onlyforall solve_options debug_context nu_only_hes false]) nu_only_heses in
-    (Deferred.all (List.map Deferred.any solvers))
+        List.map (fun (nu_only_hes, _) -> [solve_onlynu_onlyforall solve_options debug_context nu_only_hes false]) nu_only_heses in
+    let is_valid = Ivar.create () in
+    let deferred_is_valid = Ivar.read is_valid in
+    let deferred_all =
+      Deferred.all (
+      List.map (fun s ->
+        (Deferred.any s) >>|
+        (fun (result, d) ->
+          (match result with
+          | Status.Valid ->
+            if Ivar.is_empty is_valid
+              then Ivar.fill is_valid [(result, d)]
+              else ()
+          | _ -> ());
+          (result, d)))
+        solvers
+      ) in
+    Deferred.any [deferred_all; deferred_all]
     >>= (fun result -> kill_processes (Option.map (fun a -> a.mode) debug_context)
     >>= (fun _ ->
         let result, debug_contexts = List.split result in
         let debug_context = List.hd debug_contexts in
-        let result =  
+        let result =
           List.fold_left
             (fun a s ->
               match a, s with

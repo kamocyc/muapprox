@@ -79,8 +79,8 @@ type params =
   ; always_approximate : bool [@default false]
   (** Always approximate a HFLz formula even if the formula (or its dual) is v-HFLz. **)
   
-  ; assign_values_for_exists_at_first_iteration: bool [@defalut false]
-  (** At the first iteration (coe1=1, coe2=1), to solve existential quantifiers, assinging concrete values. **)
+  ; instantiate_exists: bool [@defalut false]
+  (** At the first iteration (coe1=1, coe2=1), assign concrete values to existentially quantified variables. **)
   
   ; default_lexicographic_order: int [@default 1]
   
@@ -104,7 +104,7 @@ let set_up_params params =
   set_ref no_simplify              params.no_simplify;
   set_ref stop_on_unknown           params.stop_on_unknown;
   set_ref always_approximate       params.always_approximate;
-  set_ref assign_values_for_exists_at_first_iteration params.assign_values_for_exists_at_first_iteration;
+  set_ref assign_values_for_exists_at_first_iteration params.instantiate_exists;
   set_ref default_lexicographic_order params.default_lexicographic_order;
   set_ref use_simple_encoding_when_lexico_is_one params.use_simple_encoding_when_lexico_is_one;
   params.input
