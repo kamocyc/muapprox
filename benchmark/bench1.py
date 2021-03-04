@@ -29,7 +29,7 @@ os.system('./clean.sh')
 # "output" subdirectory is necessary
 os.chdir("benchmark/output")
 
-OUTPUT_FILE_NAME = "bench_out_append.txt"
+OUTPUT_FILE_NAME = "0bench_out_append.txt"
 
 with open(OUTPUT_FILE_NAME, 'w') as f:
     pass
@@ -289,14 +289,25 @@ def main():
     for file in files:
         handle(exe_path, os.path.join(base_dir, file))
         
-        with open('bench_out_full.txt', 'w') as f:    
+        with open('0bench_out_full.txt', 'w') as f:    
             f.write(json.dumps(results, indent=2))
         
-        # with open('bench_out_summary.txt', 'w') as f:
+        # with open('0bench_out_summary.txt', 'w') as f:
         #     f.write(json.dumps([copy_without(r, ['stdout', 'prover_post', 'disprover_post']) for r in results], indent=2))
 
         with open(OUTPUT_FILE_NAME + '_table.txt', 'w') as f:
             f.writelines(to_table(results))
     print("FINISHED")
+    
+    os.system("""
+        jq -r '[.[] | {
+            file: .file,
+            result: .result,
+            time: .time,
+            prove_iter_count: .data.prover.iter_count,
+            disprove_iter_count: .data.disprover.iter_count,
+            prove_iters: .data.prover_post | map({iter_index: .iter_count, time: .time}),
+            disprove_iters: .data.disprover_post | map({iter_index: .iter_count, time: .time})}]
+            | .[] | "\\(.prove_iter_count)\t\\(.disprove_iter_count)"' 0bench_out_full.txt > """ + OUTPUT_FILE_NAME + "_iter_count.txt")
     
 main()

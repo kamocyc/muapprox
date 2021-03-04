@@ -1,0 +1,17 @@
+converted/add_param/a-checksum.in
+converted/add_param/a-max.in
+converted/add_param/a-test-update.in
+converted/add_param/app-leq.in
+converted/add_param/app-lin-ord2.in
+converted/add_param/app-lin-ord3.in
+converted/add_param/app-nonrec.in
+converted/add_param/app-rec.in
+converted/add_param/app-succ.in
+converted/add_param/app-succ0.in
+converted/add_param/fhnhn.in
+converted/add_param/intro-ord2.in
+converted/add_param/intro-ord3.in
+converted/add_param/l-forall-leq.in
+converted/add_param/l-length-append.in
+converted/add_param/l-sort.in
+converted/add_param/repeat-add.in

@@ -476,7 +476,7 @@ let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : 
           (result, d)))
         solvers
       ) in
-    Deferred.any [deferred_all; deferred_all]
+    Deferred.any [deferred_is_valid; deferred_all]
     >>= (fun result -> kill_processes (Option.map (fun a -> a.mode) debug_context)
     >>= (fun _ ->
         let result, debug_contexts = List.split result in

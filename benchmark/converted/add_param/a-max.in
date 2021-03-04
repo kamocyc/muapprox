@@ -1,0 +1,27 @@
+%HES
+Sentry  =v
+  ∃n_827.
+   ∃x_822.
+    ((n_827 <= 0 \/ x_822 < 0)
+     \/ ARRAY_MAX 0 n_827
+         (\i_851.
+           \k_rand_array_852.
+            ∃n_835.
+             ((0 > n_835 \/ n_835 >= x_822 + 1) \/ k_rand_array_852 n_835)
+             /\ (0 <= n_835 /\ n_835 < x_822 + 1 \/ true))
+         (-1)
+         (\m_808.
+           (m_808 > x_822
+            \/ K_MAIN___220 m_808 n_827 x_822 0 (\x_811.false) 1)
+           /\ (m_808 <= x_822
+               \/ K_MAIN___220 m_808 n_827 x_822 0 (\x_811.false) 0)))
+    /\ (n_827 > 0 /\ x_822 >= 0 \/ false).
+ARRAY_MAX i_9 n_8 ar m_7 k_array_max_85 =v
+  (i_9 < n_8 \/ k_array_max_85 m_7)
+  /\ (i_9 >= n_8
+      \/ ar 0
+          (\x_791.
+            (x_791 <= m_7 \/ ARRAY_MAX (i_9 + 1) n_8 ar x_791 k_array_max_85)
+            /\ (x_791 > m_7 \/ ARRAY_MAX (i_9 + 1) n_8 ar m_7 k_array_max_85))).
+K_MAIN___220 m_229 n_235 x_234 x_3 k_main___168 x_228 =v
+  (x_228 = 0 \/ k_main___168 0) /\ (x_228 != 0 \/ true).

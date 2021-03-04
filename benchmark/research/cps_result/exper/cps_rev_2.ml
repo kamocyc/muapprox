@@ -28,10 +28,10 @@ let () =
   
   (* 使わない値はunit *)
   let aa = init
-    n (* int *)
-    (fun (a : int) (b : int -> (int -> unit) -> unit) ->
-      let d = read_int () in
-      b d (fun c ->
+    n (* int *) (* l.1 *)
+    (fun (a : int) (b : int -> (int -> unit) -> unit) (* l.2  *)->
+      let d = read_int () in (* l.3 *)
+      b d (fun c -> (* l.4 *)
         loop
           (fun (f : int -> (int -> (int -> unit) -> unit) -> unit) ->
             f a (fun (d': int) -> (* d = d' => *) b d')

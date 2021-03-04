@@ -1,0 +1,11 @@
+%HES
+Sentry  =v
+  ∃x_604.
+   APP x_604
+    (\y_591.\k_check_592.(0 != y_591 \/ k_check_592 0) /\ (0 = y_591 \/ true))
+    0 (\x_596.false).
+APP m f x_4 k_app_79 =v
+  (m <= 0
+   \/ APP (m - 1) (\x_611.\k_succ_612.f (x_611 + 1) k_succ_612) (x_4 - 1)
+       k_app_79)
+  /\ (m > 0 \/ f x_4 k_app_79).

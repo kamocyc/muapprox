@@ -1,3 +1,5 @@
 %HES
-Sentry  =v ∃arg1_328.∃x_331.SUM x_331 (\x_323.false).
-SUM n k_sum_20 =v (n > 0 \/ k_sum_20 0) /\ (n <= 0 \/ SUM (n - 1) (\x_334.k_sum_20 (n + x_334))).
+Sentry  =v ∃x_331.SUM x_331 (\x_323.false).
+SUM n k_sum_20 =v
+  (n > 0 \/ k_sum_20 0)
+  /\ (n <= 0 \/ SUM (n - 1) (\x_334.k_sum_20 (n + x_334))).

@@ -1,0 +1,4 @@
+%HES
+Sentry  =v ∃x_570.∃y_565.LOOP x_570 y_565 (\x_558.false).
+LOOP n nn k_loop_95 =v
+  (nn <= 0 \/ LOOP (n + 1) (nn - 1) k_loop_95) /\ (nn > 0 \/ k_loop_95 0).

@@ -1,0 +1,11 @@
+%HES
+Sentry  =v
+  ∃n_616.
+   ∃k_611.
+    ((n_616 < 0 \/ k_611 <= 0)
+     \/ REPEAT (\x2_584.\k_add_585.k_add_585 (n_616 + x2_584)) k_611 0
+         (\x_597.(x_597 < n_616 \/ false) /\ (x_597 >= n_616 \/ true)))
+    /\ (n_616 >= 0 /\ k_611 > 0 \/ false).
+REPEAT f k_4 x_3 k_repeat_59 =v
+  (k_4 > 0 \/ k_repeat_59 x_3)
+  /\ (k_4 <= 0 \/ REPEAT f (k_4 - 1) x_3 (\x_621.f x_621 k_repeat_59)).

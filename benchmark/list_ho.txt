@@ -1,0 +1,10 @@
+research/add_param/array_plus_loop.in
+research/add_param/array_sum.in
+research/add_param/cannot_inlining.in
+research/add_param/forall.in
+research/cps_result/fact_loop.in
+research/cps_result/mult_partial_loop.in
+research/cps_result/square_bound_1.in
+research/cps_result/square_bound_2.in
+research/cps_result/square_bound_3.in
+research/cps_result/square_bound__unsolvable.in
