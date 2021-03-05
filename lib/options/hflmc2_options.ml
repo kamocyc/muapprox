@@ -23,6 +23,7 @@ let always_approximate = ref (Obj.magic())
 let assign_values_for_exists_at_first_iteration = ref (Obj.magic())
 let default_lexicographic_order = ref (Obj.magic())
 let use_simple_encoding_when_lexico_is_one = ref (Obj.magic())
+let disable_lexicographic = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -85,6 +86,8 @@ type params =
   ; default_lexicographic_order: int [@default 1]
   
   ; use_simple_encoding_when_lexico_is_one: bool [@default true]
+  
+  ; disable_lexicographic: bool [@default false]
   }
   [@@deriving cmdliner,show]
 
@@ -107,6 +110,7 @@ let set_up_params params =
   set_ref assign_values_for_exists_at_first_iteration params.instantiate_exists;
   set_ref default_lexicographic_order params.default_lexicographic_order;
   set_ref use_simple_encoding_when_lexico_is_one params.use_simple_encoding_when_lexico_is_one;
+  set_ref disable_lexicographic params.disable_lexicographic;
   params.input
 
 (******************************************************************************)

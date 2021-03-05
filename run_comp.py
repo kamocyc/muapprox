@@ -37,7 +37,7 @@ def main():
     
     print("fptprove_muarith: FINISHED")
     
-    run_command("dune exec bin/muapprox_main.exe -- --hes --first-order-solver --dry-run --no-inlining benchmark/hes/" + bench)
+    run_command("dune exec bin/muapprox_main.exe -- --hes --first-order-solver --dry-run benchmark/hes/" + bench)
     
     print("muapprox: FINISHED")
     

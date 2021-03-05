@@ -1,21 +1,30 @@
 
 %HES
-Sentry =u ∀n. Qs Comp n (\r. true).
+Sentry =u Qs Comp (\k. ∀n. k n) (\r. true).
 
-Qs cmp n k =u
-  (n <= 0 => k 0) /\
-  (n > 0 => ∀m. Par cmp m 0 0 (n - 1) k).
-
-Par cmp x l r xs k =u
-  (xs <= 0 => Qs cmp l (\r'. Qs cmp r (\r''. k (r' + 1 + r'')))) /\
-  (
-    xs > 0 =>
-      ∀m.
-        cmp m x (\r'.
-          ((r' = 1 => Par cmp x (1 + l) r (xs - 1) k) /\
-          (r' != 1 => Par cmp x l (1 + r) (xs - 1) k)))
+Qs cmp fn k =u
+  fn (\n.
+    (n <= 0 => k 0) /\
+    (n > 0 => Par cmp (\k. ∀m. k m) 0 0 (Pred n) k)
   ).
 
-Comp x y k =u
-  (x >= y => k 1) /\
-  (x < y => k 0).
+Pred n k =u k (n - 1).
+
+Par cmp fx l r fxs k =u
+  fxs (\xs.
+    (xs <= 0 => Qs cmp (\k. k l) (\r'. Qs cmp (\k. k r) (\r''. k (r' + 1 + r'')))) /\
+    (
+      xs > 0 =>
+        cmp (\k. ∀m. k m) fx (\r'.
+          ((r' = 1 => Par cmp fx (1 + l) r (Pred xs) k) /\
+          (r' != 1 => Par cmp fx l (1 + r) (Pred xs) k)))
+    )
+  ).
+
+Comp fx fy k =u
+  fx (\x.
+    fy (\y.
+      (x >= y => k 1) /\
+      (x < y => k 0)
+    )
+  ).

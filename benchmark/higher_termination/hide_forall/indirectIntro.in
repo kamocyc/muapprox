@@ -1,5 +1,31 @@
 %HES
-Sentry =u ∀n. F n false (\r. true).
-F x u k =u (x > 0 => ∀m. App m F (x-1) u k) /\ (x <= 0 => G u k).
+Sentry =u F (\k. ∀n. k n) false (\r. true).
+
+F fx u k =u
+  Check1 fx (\b.
+    (b = 0 => App (\k. ∀m. k m) F (Pred fx) u k) /\
+    (b = 1 => G u k)
+  ).
+
 G u k =u k false.
-App i h v u k =u (i >= 0 => App (i-1) h v u k) /\ (i < 0 => h v u k).
+
+App fi h v u k =u
+  fi (\b.
+    (b = 0 => App (Pred fi) h v u k) /\
+    (b = 1 => h v u k)
+  ).
+  
+Pred fi k =u fi (\x. k (x - 1)).
+
+Check1 fx k =u
+  fx (\x.
+    (x >  0 => k 0) /\
+    (x <= 0 => k 1)
+  ).
+
+Check2 fx k =u
+  fx (\x.
+    (x >= 0 => k 0) /\
+    (x <  0 => k 1)
+  ).
+  

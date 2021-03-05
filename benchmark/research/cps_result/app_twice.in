@@ -1,0 +1,43 @@
+
+%HES
+Sentry =u Main F.
+
+Main f =u f (\x1. f (\x2. x1 = x2)).
+
+F k =u ∀x. k x.
+
+
+
+/*
+%HES
+Sentry =u ∀n. Mult n n (\r. Loop (\k. k r)).
+
+Loop f =u
+  f (\r1. f (\r2.
+    (r1  = r2 => true) /\
+    (r1 != r2 => false)
+  )).
+
+Mult n m k =u
+  (
+    (n =  m => (∀m'. k (m' + n))) /\
+    (n != m => (k (n + m)))
+  ).
+*/
+
+/*
+%HES
+Sentry =u ∀n. Loop (Mult n n).
+
+Loop f =u
+  f (\r1. f (\r2.
+    (r1  = r2 => true) /\
+    (r1 != r2 => false)
+  )).
+
+Mult n m k =u
+  (
+    (n =  m => (∀m'. k (m' + n))) /\
+    (n != m => (k (n + m)))
+  ).
+*/

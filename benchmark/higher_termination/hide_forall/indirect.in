@@ -1,5 +1,21 @@
 %HES
-Sentry =u ∀n. F n false (\r. true).
-F x y k =u ((x > 0) => App F (x-1) y k) /\ ((x <= 0) => Id y k).
+Sentry =u F (\k. ∀n. k n) false (\r. true).
+
+F fx y k =u 
+  Check fx (\b. \fn.
+    ((b = 0) => App F (Pred fx) y k) /\
+    ((b = 1) => Id y k)
+  ).
+
+Pred fn k =u fn (\n. k (n - 1)).
+
+Check fn k =u
+  fn (\n.
+    ((n > 0) => k 0 (\k. k n)) /\
+    ((n <= 0) => k 1 (\k. k n))
+  ).
+
+
 App h v u k =u h v u k.
+
 Id x k =u k x.

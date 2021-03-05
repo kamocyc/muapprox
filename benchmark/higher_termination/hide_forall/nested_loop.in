@@ -1,6 +1,11 @@
 %HES
 Sentry =u (\f. f (\k. ∀n. k n)) (\fn. Loop2 fn (\r. true)).
-Loop2 fn2 k =u fn2 (\n2. (n2 > 0 => Loop1 (Id n2) (\r1. Loop2 (Pred n2) (\r2. k (r1 + r2)))) /\ (n2 <= 0 => k 0)).
-Loop1 fn1 k =u fn1 (\n1. (n1 > 0 => Loop1 (Pred n1) k) /\ (n1 <= 0 => k 0)).
-Pred x k =u k (x - 1).
-Id x k =u k x.
+
+Loop2 fn2 k =u Check fn2 (\b. \fn2. (b = 0 => Loop1 fn2 (\r1. Loop2 (Pred fn2) (\r2. k (r1 + r2)))) /\ (b = 1 => k 0)).
+
+Loop1 fn1 k =u Check fn1 (\b. \fn1. (b = 0 => Loop1 (Pred fn1) k) /\ (b = 1 => k 0)).
+
+Pred fx k =u fx (\x. k (x - 1)).
+
+Check fn2 k =u
+  fn2 (\n2. (n2 > 0 => k 0 (\k. k n2)) /\ (n2 <= 0 => k 1 (\k. k n2))).

@@ -1,5 +1,8 @@
 %HES
 Sentry =u (\f. f (\k. ∀n. k n)) (\fn. F fn (Gt 0) (\r. true)).
+
 F fx p k =u fx (\x. p x (\b. ((b = 1) => F (Pred x) p k) /\ ((b = 0) => k false))).
+
 Gt lb n k =u (((n > lb) => k 1) /\ ((n <= lb) => k 0)).
+
 Pred x k =u k (x - 1).

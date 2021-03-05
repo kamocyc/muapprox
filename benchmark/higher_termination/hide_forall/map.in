@@ -1,6 +1,29 @@
 %HES
 Sentry =u Main (\r. true).
-Main k =u ∀l. (l >= 0 => Map (Compose (Add 1) (Add 2)) l k) /\ (l < 0 => k 0).
+
+Main k =u
+  (Main1 k) Main2.
+  
+Main1 k fl =u
+  Check fl (\b. \fl.
+    (b = 1 => Map (Compose (Add 1) (Add 2)) fl k) /\ (b = 0 => k 0)
+  ).
+  
+Main2 k =u ∀x. k x.
+
+Check fl k =u
+  fl (\l.
+    (l >= 0 => k 1 (\k. k l)) /\ (l < 0 => k 0 (\k. k l))
+  ).
+  
 Add x y k =u k (x + y).
-Compose f g x k =u g x (\r. f r k).
-Map f xs k =u (xs = 0 => k 0) /\ (xs != 0 => ∀m. f m (\r. Map f (xs - 1) (\r'. k (r + r')))).
+
+Compose f g fx k =u fx (\x. g x (\r. f r k)).
+
+Map f fxs k =u
+  fxs (\xs.
+    (xs = 0 => k 0) /\
+    (xs != 0 => f (\k. ∀m. k m) (\r. Map f (Pred xs) (\r'. k (r + r'))))
+  ).
+  
+Pred x k =u k (x - 1).

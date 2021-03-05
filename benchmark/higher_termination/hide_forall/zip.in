@@ -1,9 +1,18 @@
 %HES
 Sentry =u Zip (\k. ∀l1. k l1) (\k. ∀l2. k l2) (\r. true).
+
 Zip fxs fys k =u
+  Check fxs fys (\b.
+    ((b = 0) => k 0) /\
+    ((b = 1) => k 0) /\
+    ((b = 2) => Zip (Pred fxs) (Pred fys) (\r. k (1 + r)))
+  ).
+  
+Check fxs fys k =u
   fxs (\xs. fys (\ys.
     ((xs <= 0) => k 0) /\
-    ((xs > 0 /\ ys <= 0) => k 0) /\
-    ((xs > 0 /\ ys > 0) => Zip (Pred xs) (Pred ys) (\r. k (1 + r)))
+    ((xs > 0 /\ ys <= 0) => k 1) /\
+    ((xs > 0 /\ ys > 0) => k 2)
   )).
-Pred n k =u k (n - 1).
+  
+Pred fn k =u fn (\n. k (n - 1)).

@@ -1,12 +1,22 @@
 /* hoiceとz3を併用すると3.5sec。
   hoiceのみでは、0.26sec ~ 35sec */
 %HES
-Sentry =u ∀n. ∀m. F n m (\r. true).
-F m n k =u
+Sentry =u F (\k. ∀n. k n) (\k. ∀m. k m) (\r. true).
+F fm fn k =u
+  Check fm fn (\b. \fm. \fn.
+    (b = 0 => F (Pred fm) fn k) /\
+    (b = 1 => F fm (Pred fn) k) /\
+    (b = 2 => k false)
+  ).
+Check fm fn k =u
   ∀r.
-    (      (r > 0 /\ m > 0)                              => F (m-1) n k) /\
-    (((not (r > 0 /\ m > 0)) /\      (r <= 0 /\ n > 0))  => F m (n-1) k) /\
-    (((not (r > 0 /\ m > 0)) /\ (not (r <= 0 /\ n > 0))) => k false).
+    fm (\m. fn (\n. 
+        (      (r > 0 /\ m > 0)                              => k 0 (\k. k m) (\k. k n)) /\
+        (((not (r > 0 /\ m > 0)) /\      (r <= 0 /\ n > 0))  => k 1 (\k. k m) (\k. k n)) /\
+        (((not (r > 0 /\ m > 0)) /\ (not (r <= 0 /\ n > 0))) => k 2 (\k. k m) (\k. k n))
+      )
+    ).
+Pred fm k =u fm (\m. k m).
 
 /*
 

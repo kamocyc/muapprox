@@ -1,0 +1,67 @@
+%HES
+Sentry =u
+  ∀x.∀y.
+    ∀s1.
+      (s1 >= x /\ s1 >= -x /\ s1 >= y /\ s1 >= -y) =>
+      Make_array s1 (\s2. \ar.
+        ∀s3.
+        (s3 >= x /\ s3 >= -x /\ s3 >= y /\ s3 >= -y /\ s3 >= s2) =>
+        Update s3 ar 0 x s3 (\s4. \ar'.
+          ∀s5.
+          (s5 >= x /\ s5 >= -x /\ s5 >= y /\ s5 >= -y /\ s5 >= s2 /\ s5 >= s4) =>
+          Update s5 ar 1 y s5 (\s6. \ar''.
+            ∀s7.
+            (s7 >= x /\ s7 >= -x /\ s7 >= y /\ s7 >= -y /\ s7 >= s2 /\ s7 >= s4 /\ s7 >= s6) =>
+            Main s7 ar'' s7 (\_. true)
+          )
+        )
+      ).
+
+Main s1 ar s2 k =u 
+  ∀s3.
+    (s3 >= s1 /\ s3 >= s2) => 
+    Loop s3 ar 0 1 s3 (\r. k r).
+
+/* ここでLoopにxとyを渡さないとkatsura-solverで解けない */
+Loop s1 ar i j s2 k =u
+  ∀s3.
+    (s3 >= s1 /\ s3 >= s2 /\ s3 >= i /\ s3 >= -i /\ s3 >= j /\ s3 >= -j) =>
+    ar i s3 (\x.
+      ∀s4.
+        (s4 >= s1 /\ s4 >= s2 /\ s4 >= i /\ s4 >= -i /\ s4 >= j /\ s4 >= -j /\ s4 >= x /\ s4 >= -x) =>
+        ar j s4 (\y.
+          ∀s5.
+            (s5 >= s1 /\ s5 >= s2 /\ s5 >= i /\ s5 >= -i /\ s5 >= j /\ s5 >= -j /\ s5 >= x /\ s5 >= -x /\ s5 >= y /\ s5 >= -y) =>
+            (x + y <= 0 => k false) /\
+            (x + y  > 0 => Pred s5 ar 0 s5 (\s6. \ar'.
+              ∀s7.
+                (s7 >= s1 /\ s7 >= s2 /\ s7 >= i /\ s7 >= -i /\ s7 >= j /\ s7 >= -j /\ s7 >= x /\ s7 >= -x /\ s7 >= y /\ s7 >= -y /\ s7 >= s6) =>
+                Loop s7 ar' 0 1 s7 k
+            ))
+        )
+    ).
+
+/* i番目の要素の値を1減らす */
+Pred s1 ar i s2 k =u
+  ∀s3.
+    (s3 >= s1 /\ s3 >= s2 /\ s3 >= i /\ s3 >= -i) =>
+    ar i s3 (\x.
+      ∀s4.
+        (s4 >= s1 /\ s4 >= s2  /\ s4 >= i /\ s4 >= -i /\ s4 >= x /\ s4 >= -x) => 
+        Update s4 ar i (x - 1) s4 k
+    ).
+  
+Make_array s1 k =u k s1 (\i.\s2.\k'. k' 0).
+
+Update s1 ar i x s2 k =u
+  ∀s3.
+    (s3 >= s1 /\ s3 >= s2  /\ s3 >= i /\ s3 >= -i /\ s3 >= x /\ s3 >= -x) => 
+    k s3 (
+      \j.\s4.\k'.
+      (j = i => k' x) /\
+      (j /= i => (
+        ∀s5.
+          (s5 >= s1 /\ s5 >= s2  /\ s5 >= i /\ s5 >= -i /\ s5 >= x /\ s5 >= -x /\ s5 >= j /\ s5 >= -j /\ s5 >= s4) =>
+          ar j s5 k'
+      ))
+    ).

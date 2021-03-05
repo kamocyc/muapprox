@@ -1,3 +1,14 @@
 %HES
 Sentry =u (\f. f (\k. ∀n. k n)) (\fn. Mc fn (\r. true)).
-Mc fn k =u fn (\n. (n > 100 => k (\kk. kk (n - 10))) /\ (n <= 100 => Mc (\k. k (n + 11)) (\r. Mc r k))).
+Mc fn k =u
+  Check fn (\b. \fn.
+    (b  = 1 => k (Pred fn (-10))) /\
+    (b != 1 => Mc (Pred fn 11) (\r. Mc r k))
+  ).
+Check fn k =u
+  fn (\n.
+    (n > 100  => k 1 (\k. k n)) /\
+    (n <= 100 => k 0 (\k. k n))
+  ).
+Pred fn m k =u
+  fn (\n. k (n + m)).

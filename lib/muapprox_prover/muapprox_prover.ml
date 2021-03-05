@@ -111,9 +111,9 @@ module SolverCommon = struct
       match debug_context with 
       | Some debug_context ->
         let file = Filename.basename debug_context.file ^ "__" ^ debug_context.mode ^ "__" ^ string_of_int debug_context.iter_count ^ ".in" in
-        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:true true hes 
+        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:false true hes 
       | None ->
-        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
+        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
     print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path';
     output_debug debug_context path'
@@ -190,7 +190,7 @@ module KatsuraSolver : BackendSolver = struct
   
   let save_hes_to_file hes debug_context =
     output_pre_debug_info hes debug_context;
-    let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
+    let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
     (* print_endline @@ "FILE: " ^ path; *)
     path
     
@@ -239,7 +239,7 @@ module IwayamaSolver : BackendSolver = struct
   let save_hes_to_file hes debug_context =
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
     output_pre_debug_info hes debug_context;
-    Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes
+    Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes
     
   let solver_command hes_path solver_options =
     let solver_path = get_solver_path () in
@@ -284,7 +284,7 @@ module SuzukiSolver : BackendSolver = struct
     Hflmc2_syntax.Print.global_not_output_zero_minus_as_negative_value := true;
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
     output_pre_debug_info hes debug_context;
-    Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true false hes
+    Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes
     
   let solver_command hes_path solver_options =
     let solver_path = get_solver_path () in
@@ -494,8 +494,14 @@ let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : 
             Status.Unknown
             result in
         let retry coe1 coe2 =
+          (* let (coe1',coe2',lexico_pair_number) =
+            if (coe1,coe2,lexico_pair_number)=(1,1,1) then (1,1,2)
+            else if (coe1,coe2,lexico_pair_number)=(1,1,2) then (1,8,1)
+            else if lexico_pair_number=1 then (coe1,coe2,lexico_pair_number+1)
+            else (2*coe1,2*coe2,1)
+          in *)
           let (coe1',coe2',lexico_pair_number) =
-            if (coe1,coe2,lexico_pair_number)=(1,1,1) 
+            if (coe1,coe2,lexico_pair_number)=(1,1,1) && not solve_options.disable_lexicographic
             then (1,1,2)
             else if (coe1,coe2)=(1,1) 
               then (1,8,solve_options.default_lexicographic_order)

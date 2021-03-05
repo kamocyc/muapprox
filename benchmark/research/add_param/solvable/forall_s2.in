@@ -1,0 +1,19 @@
+/* forallでmaxを取ったもの */
+%HES
+Sentry =u Prepare 1 Main.
+
+Prepare n1 k =u
+  ∀n. ∀n1'.
+    (n1' >= n1 /\ n1' >= n /\ n1' >= -n1 /\ n1' >= -n)
+      => k n1' (\n1''. \k2. k2 n).
+
+Main n1 f =u ∀n1'. (n1' >= n1 /\ n1' >= -n1) => Loop n1' f n1' (\r. true).
+
+Loop n1 f n2 k =u
+  ∀n1'. (n1' >= n1 /\ n1' >= n2 /\ n1' >= -n1 /\ n1' >= -n2) =>
+  f n1' (\r.
+    (r <= 0 => k 0) /\
+    (r >  0 => ∀n1''. (n1'' >= n1 /\ n1'' >= n2 /\ n1'' >= -n1 /\ n1'' >= -n2) => Loop n1'' (Pred r) n1'' k)
+  ).
+
+Pred r n1 k =u k (r - 1).

@@ -3,6 +3,7 @@
 Sentry =u Prepare Main.
 
 Prepare k =u ∀n. k (\k2. k2 n).
+
 Main f =u Loop f (\r. true).
 
 Loop f k =u

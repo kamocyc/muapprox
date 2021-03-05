@@ -1,0 +1,23 @@
+/* square_loop_1.inで、n^2の結果が直接現れないようにしたもの */
+/* boundは解けるものであるが、バックエンドソルバの問題で解けない */
+/* katsura-solverは色々引数を追加してもなお解けない (eldがタイムアウトして型が付かないのかどうかは返ってこないが、意味からしてvalidは明らか) */
+%HES
+Sentry =u
+  ∀n.
+    Init
+      n
+      (\a. \b. b (\c. Loop (\f. f a b) (\_. c = c \/ true))).
+
+Loop f k =u
+  f (\b. \g.
+    (b  = 0 => k 0) /\
+    (b != 0 => Loop (Pred g) k)
+  ).
+
+Init n k =u (n < 0 => Init (n + 1) k) /\ (n >= 0 => Pred (Mult n n) k).
+
+Pred f k =u f (\r. (r <= 0 => k 0 (\k. k (r - 1))) /\ (r > 0 => k 1 (\k. k (r - 1)))).
+
+Mult n m k =u
+  (m <= 0 => k 0) /\
+  (m >  0 => (Mult n (m - 1) (\r. k (n + r)))).
