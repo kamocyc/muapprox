@@ -1,2 +1,0 @@
-higher_termination/notused/sum-invalid.in
-higher_termination/notused/mult-invalid.in

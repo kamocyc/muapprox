@@ -22,12 +22,17 @@ if not is_process_running("python3 memory_watchdog.py"):
     print('########################')
     exit(1)
 
+# set path
 if os.path.basename(os.getcwd()) == 'benchmark':
     os.chdir('..')
 
 os.system('./clean.sh')
-# "output" subdirectory is necessary
-os.chdir("benchmark/output")
+os.chdir("benchmark")
+
+if not os.path.exists("output"):
+    os.mkdir("output")
+
+os.chdir("output")
 
 OUTPUT_FILE_NAME = "0bench_out_append.txt"
 
@@ -39,7 +44,6 @@ def append(text):
         f.write(str(text))
 
 BACKEND_SOLVER_CANDIDATE = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama', 'muapprox_suzuki']
-# BENCHMARK_NAMES = ['first_order', 'higher_nontermination', 'higher_termination', 'higher_fairtermination']
 
 parser = argparse.ArgumentParser(description='benchmarker.')
 parser.add_argument('backend_solver', metavar='backend_solver', type=str, 
@@ -65,17 +69,18 @@ if add_args == None:
 else:
     add_args = add_args.split(" ")
 
-lists_path = '../list_' + benchmark + '.txt'
-base_dir = '/opt/home2/git/muapprox/benchmark/'
+benchmark_dir = os.path.dirname(os.getcwd())
+lists_path = os.path.join(benchmark_dir, 'file_list/' + benchmark + '.txt')
+base_dir = os.path.join(benchmark_dir, 'inputs')
 
 if backend_solver_name == 'sas19':
     # rec-limit (koba-test)
-    exe_path = '/opt/home2/git/muapprox/benchmark/run_sas19.sh'
+    exe_path = os.path.join(benchmark_dir, 'run_sas19.sh')
     nth_last_line = [-1]    # 出力の最後から1行目と2行目のいずれかを結果と解釈
     BENCH_SET = 1
 else:
     # memory_watchdog.py を実行するしておくこと！
-    exe_path = '/opt/home2/git/muapprox/benchmark/run_' + backend_solver_name + '.sh'
+    exe_path = os.path.join(benchmark_dir, 'run_' + backend_solver_name + '.sh')
     nth_last_line = -3
     BENCH_SET = 6
 
@@ -318,7 +323,7 @@ def main():
     
     os.system("paste " + OUTPUT_FILE_NAME + '_table.txt' + ' ' + OUTPUT_FILE_NAME + "_iter_count.txt > " + OUTPUT_FILE_NAME + "_summary.txt")
     
-    print("list: " + os.path.join(os.getcwd(), lists_path))
     print("time: " + os.path.join(os.getcwd(), OUTPUT_FILE_NAME + "_summary.txt"))
+    print("list: " + os.path.join(os.getcwd(), lists_path))
     print("full: " + os.path.join(os.getcwd(), "0bench_out_full.txt"))
 main()

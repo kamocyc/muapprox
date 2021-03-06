@@ -1,0 +1,13 @@
+fairtermination/closure-simple.in
+fairtermination/hofmann-1-simple.in
+fairtermination/hofmann-2-simple.in
+fairtermination/intro-simple.in
+fairtermination/koskinen-1-simple.in
+fairtermination/koskinen-2-simple.in
+fairtermination/koskinen-3-1-simple.in
+fairtermination/koskinen-3-2-simple.in
+fairtermination/koskinen-3-3-simple.in
+fairtermination/koskinen-3-all-simple.in
+fairtermination/koskinen-4-simple.in
+fairtermination/lester.in
+fairtermination/repeat-simple.in
