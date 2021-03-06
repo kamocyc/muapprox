@@ -2,6 +2,7 @@ research/add_param/array_plus_loop.in
 research/add_param/array_sum.in
 research/add_param/cannot_inlining.in
 research/add_param/hidden_forall.in
+research/cps_result/app_twice.in
 research/cps_result/fact_loop.in
 research/cps_result/mult_partial_loop.in
 research/cps_result/square_loop_1.in

@@ -45,11 +45,13 @@ parser = argparse.ArgumentParser(description='benchmarker.')
 parser.add_argument('backend_solver', metavar='backend_solver', type=str, 
                     choices=BACKEND_SOLVER_CANDIDATE,
                     help='backend solver name')
-parser.add_argument('--timeout', dest='timeout', action='store', type=int, default=60,
+parser.add_argument('--timeout', dest='timeout', action='store', type=int, required=True,
                     help='timeout')
-parser.add_argument('--benchmark', dest='benchmark', action='store', type=str,
+parser.add_argument('--benchmark', dest='benchmark', action='store', type=str, required=True,
                     help='benchmark set')
-
+parser.add_argument('--pass-args', dest='pass_args', action='store', type=str,
+                    help='additional arguments to pass them to the Hflz solver')
+                    
 KILL_PROCESS_NAMES = ["hflmc2", "main.exe", "muapprox_main.exe", "z3", "hoice", "eld", "java", "hflmc3.sh", "para_aux.sh", "sh", "hflmc"]
 nth_last_line = -1
 
@@ -57,10 +59,14 @@ args = parser.parse_args()
 backend_solver_name = args.backend_solver
 timeout = float(args.timeout)
 benchmark = args.benchmark
+add_args = args.pass_args
+if add_args == None:
+    add_args = []
+else:
+    add_args = add_args.split(" ")
 
 lists_path = '../list_' + benchmark + '.txt'
 base_dir = '/opt/home2/git/muapprox/benchmark/'
-add_args = []
 
 if backend_solver_name == 'sas19':
     # rec-limit (koba-test)
@@ -114,6 +120,8 @@ def readfile(path):
     
 def run(cmd):
     time.sleep(3.0)
+    print("CMD: ")
+    print(cmd)
     
     st = time.perf_counter()
     elapsed = timeout
@@ -209,13 +217,11 @@ def parse_stdout(full_stdout, stderr):
 def gen_cmd(exe_path, file):
     cmd_template = [exe_path]  # <option> <filename>
     
-    # ags.append('--')
-    for i, _ in enumerate(add_args):
-        cmd_template.append(add_args[i])
-        
-    # if args.no_inline:
-    # ags.append('--no-inlining')
     cmd_template.append(file)
+    
+    for _, add_arg in enumerate(add_args):
+        cmd_template.append(add_arg)
+    
     return cmd_template
 
 def log_file(file):
@@ -310,4 +316,9 @@ def main():
             disprove_iters: .data.disprover_post | map({iter_index: .iter_count, time: .time})}]
             | .[] | "\\(.prove_iter_count)\t\\(.disprove_iter_count)"' 0bench_out_full.txt > """ + OUTPUT_FILE_NAME + "_iter_count.txt")
     
+    os.system("paste " + OUTPUT_FILE_NAME + '_table.txt' + ' ' + OUTPUT_FILE_NAME + "_iter_count.txt > " + OUTPUT_FILE_NAME + "_summary.txt")
+    
+    print("list: " + os.path.join(os.getcwd(), lists_path))
+    print("time: " + os.path.join(os.getcwd(), OUTPUT_FILE_NAME + "_summary.txt"))
+    print("full: " + os.path.join(os.getcwd(), "0bench_out_full.txt"))
 main()
