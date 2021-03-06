@@ -37,9 +37,9 @@ let%expect_test "to_abs" =
   ignore [%expect.output];
   print_endline @@ show_hflz_full res;
   [%expect {|
-    (Hflz.Abs ({ Id.name = "x_3"; id = 3; ty = (Type.TySigma (Type.TyBool ())) },
-       (Hflz.Abs ({ Id.name = "x_2"; id = 4; ty = Type.TyInt },
-          (Hflz.Abs ({ Id.name = "x_1"; id = 5; ty = Type.TyInt },
+    (Hflz.Abs ({ Id.name = "x_3"; id = 4; ty = (Type.TySigma (Type.TyBool ())) },
+       (Hflz.Abs ({ Id.name = "x_2"; id = 5; ty = Type.TyInt },
+          (Hflz.Abs ({ Id.name = "x_1"; id = 6; ty = Type.TyInt },
              (Hflz.Bool true)))
           ))
        )) |}]
@@ -120,9 +120,9 @@ let%expect_test "make_guessed_terms" =
   Util.print_list (fun r -> show_hflz (Arith r)) res;
   [%expect {|
     [ 2 * x_11 + 10;
-    -2 * x_11 + 10;
+    (-2) * x_11 + 10;
     2 * x_22 + 10;
-    -2 * x_22 + 10 ] |}];
+    (-2) * x_22 + 10 ] |}];
   let res = make_guessed_terms 2 10 [] in
   ignore [%expect.output];
   Util.print_list (fun r -> show_hflz (Arith r)) res;
@@ -136,8 +136,8 @@ let%expect_test "make_guessed_terms_simple" =
     [ 10;
     2 * x_11;
     2 * x_22;
-    -2 * x_11;
-    -2 * x_22 ] |}];
+    (-2) * x_11;
+    (-2) * x_22 ] |}];
   let res = make_guessed_terms_simple 2 10 [] in
   ignore [%expect.output];
   Util.print_list (fun r -> show_hflz (Arith r)) res;
@@ -177,8 +177,8 @@ let%expect_test "extract_abstraction" =
   print_endline @@ show_hflz f;
   print_endline @@ Util.fmt_string (Print_syntax.hflz_hes_rule Print_syntax.simple_ty_) rule;
   [%expect {|
-    a_sub67 x_33
-    a_sub67 =ν λx_33:int.λx_11:int.λx_22:bool.x_44 (x_11 + x_22 * x_33) |}]
+    a_sub78 x_33
+    a_sub78 =ν λx_33:int.λx_11:int.λx_22:bool.x_44 (x_11 + x_22 * x_33) |}]
 
 
 let%expect_test "in_forall" =
@@ -245,18 +245,18 @@ let%expect_test "encode_body_exists_formula_sub" =
       ∀x_100100.
        ∀x_300300.
         x_300300 < 10 || x_300300 < 1 * x_33 || x_300300 < 1 * x_55
-        || x_300300 < -1 * x_33
-        || x_300300 < -1 * x_55
+        || x_300300 < (-1) * x_33
+        || x_300300 < (-1) * x_55
         || x_100100 < 10 || x_100100 < 1 * x_33 || x_100100 < 1 * x_55
-           || x_100100 < -1 * x_33
-           || x_100100 < -1 * x_55
-        || Exists8 x_33 x_44 x_55 x_11 x_22 x_100100 x_300300 |}];
+           || x_100100 < (-1) * x_33
+           || x_100100 < (-1) * x_55
+        || Exists9 x_33 x_44 x_55 x_11 x_22 x_100100 x_300300 |}];
   print_endline @@ "fix: " ^ Fixpoint.show rule.fix;
   print_endline @@ "var: " ^ Id.show pp_simple_ty rule.var;
   print_endline @@ "rule: " ^ show_hflz rule.body;
   [%expect {|
     fix: Fixpoint.Greatest
-    var: { Id.name = "Exists8"; id = 8;
+    var: { Id.name = "Exists9"; id = 9;
       ty =
       (Type.TyArrow ({ Id.name = "x_3"; id = 3; ty = Type.TyInt },
          (Type.TyArrow (
@@ -312,8 +312,8 @@ let%expect_test "encode_body_exists_formula_sub" =
                   x_1010 (x_11 + x_33) (-x_300300)
                   && x_22 x_55 && x_44 (-x_100100))
                 x_11 x_22
-            || Exists8 x_33 x_44 x_55 x_11 x_22 (x_100100 - 1) x_300300
-            || Exists8 x_33 x_44 x_55 x_11 x_22 x_100100 (x_300300 - 1))
+            || Exists9 x_33 x_44 x_55 x_11 x_22 (x_100100 - 1) x_300300
+            || Exists9 x_33 x_44 x_55 x_11 x_22 x_100100 (x_300300 - 1))
            && x_100100 >= 0 && x_300300 >= 0 |}];
   (* check well-typedness *)
   let hes = [

@@ -45,25 +45,6 @@ let to_forall args body =
     | [] -> body
     | arg::xs -> Forall(arg, go xs) in
   go args
-
-(* 変数の出現を置換 *)
-let replace_var_occurences : ('ty Id.t -> 'ty Hflz.t) -> 'ty Hflz.t -> 'ty Hflz.t =
-  fun subst hfl -> 
-  (* TODO: IDのeqが正しく判定される？ *)
-  let rec go = function
-    | Var   id -> subst (id)
-    | Bool   b -> Bool b
-    | Or (f1, f2) -> Or (go f1, go f2)
-    | And (f1, f2) -> And (go f1, go f2)
-    | Abs (v, f1) -> Abs (v, go f1)
-    | Forall (v, f1) -> Forall (v, go f1)
-    | Exists (v, f1) -> Exists (v, go f1)
-    | App (f1, f2) -> App (go f1, go f2)
-    | Arith t -> Arith t
-    | Pred (p, t) -> Pred (p, t)
-  in
-  (* predicateはboolean以外を返すことは無い。arithmeticの中にhfl predicateは現れない *)
-  go hfl
   
 (* Abstractionから、それに適用する変数の列を生成 *)
 let to_vars : 'ty Hflz.t -> ('ty Hflz.t -> 'ty Hflz.t) = fun hfl ->

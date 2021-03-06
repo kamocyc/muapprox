@@ -127,22 +127,71 @@ module Subst = struct
             end
         | Op(op, as') -> Op(op, List.map ~f:(arith env) as')
 
-    let rec hflz : 'ty S.Hflz.t env -> 'ty S.Hflz.t -> 'ty S.Hflz.t =
-      fun env phi -> match phi with
+    let rec rename_binding_if_necessary (env : IdSet.t) (phi : 'ty S.Hflz.t): 'ty S.Hflz.t =
+      let open S in
+      let rec subst_new_id x_arg phi =
+        match IdSet.find env ~f:((Id.eq)x_arg) with
+          | Some _ -> begin
+            let new_x = { x_arg with id = Id.gen_id () } in
+            let new_x_term = (
+              match x_arg.ty with
+              | TyInt -> Hflz.Arith (Var { new_x with ty = `Int })
+              | TySigma ty -> Hflz.Var ({ new_x with ty = ty})
+            ) in
+            (* arithの対応 *)
+            let t' = hflz (IdMap.singleton (Id.remove_ty x_arg) new_x_term) phi in
+            ({ new_x with ty = x_arg.ty } , go t')
+          end
+          | None -> (x_arg, go phi)
+      and go (phi : 'ty S.Hflz.t) : 'ty S.Hflz.t = match phi with
+        | Var x -> Var x
+        | Or (phi1, phi2) ->
+          Or (go phi1, go phi2)
+        | And (phi1, phi2) ->
+          And (go phi1, go phi2)
+        | App (phi1, phi2) ->
+          App (go phi1, go phi2)
+        | Abs (x, t) ->
+          let (x, t) = subst_new_id x t in
+          Abs (x, t)
+        | Forall (x, t) ->
+          let (x, t) = subst_new_id x t in
+          Forall (x, t)
+        | Exists (x, t) ->
+          let (x, t) = subst_new_id x t in
+          Exists (x, t)
+        | Arith _ | Pred _ | Bool _ -> phi in
+      go phi
+      
+    and hflz ?(callback) (env_ : 'ty S.Hflz.t env) (phi : 'ty S.Hflz.t) : 'ty S.Hflz.t =
+      let rec hflz_ s_env b_env (phi : 'ty S.Hflz.t): 'ty S.Hflz.t = match phi with
         | Var x ->
-            begin match IdMap.lookup env x with
-            | t -> t
+            begin match IdMap.lookup s_env x with
+            | t -> (
+              (match callback with None -> () | Some f -> f x t);
+              rename_binding_if_necessary b_env t
+            )
             | exception Core.Not_found_s _ -> Var x
             end
-        | Or(phi1,phi2)  -> Or(hflz env phi1, hflz env phi2)
-        | And(phi1,phi2) -> And(hflz env phi1, hflz env phi2)
-        | App(phi1,phi2) -> App(hflz env phi1, hflz env phi2)
-        | Abs(x, t)      -> Abs(x, hflz (IdMap.remove env x) t)
-        | Forall(x, t)   -> Forall(x, hflz (IdMap.remove env x) t)
-        | Exists(x, t)   -> Exists(x, hflz (IdMap.remove env x) t)
-        | Arith a        -> Arith (arith env a)
-        | Pred (p,as')   -> Pred(p, List.map ~f:(arith env) as')
+        | Or(phi1,phi2)  ->
+          Or(hflz_ s_env b_env phi1, hflz_ s_env b_env phi2)
+        | And(phi1,phi2) ->
+          And(hflz_ s_env b_env phi1, hflz_ s_env b_env phi2)
+        | App(phi1,phi2) ->
+          App(hflz_ s_env b_env phi1, hflz_ s_env b_env phi2)
+        | Abs(x, t)      ->
+          Abs(x, hflz_ (IdMap.remove s_env x) (IdSet.add b_env x) t)
+        | Forall(x, t)   ->
+          Forall(x, hflz_ (IdMap.remove s_env x) (IdSet.add b_env x) t)
+        | Exists(x, t)   ->
+          Exists(x, hflz_ (IdMap.remove s_env x) (IdSet.add b_env x) t)
+        | Arith a        ->
+          Arith (arith s_env a)
+        | Pred (p,as')   ->
+          Pred(p, List.map ~f:(arith s_env) as')
         | Bool _         -> phi
+      in
+      hflz_ env_ IdSet.empty phi
 
     (** Invariant: phi must have type TyBool *)
     let reduce_head : 'ty S.Hflz.hes_rule list -> 'ty S.Hflz.t -> 'ty S.Hflz.t =

@@ -23,6 +23,31 @@ let get_pvar_called_counts hes =
 module InlineExpansion (* : sig
   val optimize: 'a Hflz.hes -> 'a Hflz.hes
 end*) = struct
+(* 
+  (* 変数の出現を置換 *)
+  let replace_var_occurences
+      (subst : 'ty Id.t -> 'ty Hflz.t option)
+      (hfl : 'ty Hflz.t): 'ty Hflz.t =
+    (* TODO: IDのeqが正しく判定される？ *)
+    let rec go : 'ty Hflz.t -> 'ty Hflz.t = function
+      | Var   id -> begin
+        match subst (id) with
+        | None -> Var id
+        | Some term -> Trans.Subst.Hflz.rename_binding_if_necessary b_env term
+      end
+      | Bool   b -> Bool b
+      | Or (f1, f2) -> Or (go f1, go f2)
+      | And (f1, f2) -> And (go f1, go f2)
+      | Abs (v, f1) -> Abs (v, go f1)
+      | Forall (v, f1) -> Forall (v, go f1)
+      | Exists (v, f1) -> Exists (v, go f1)
+      | App (f1, f2) -> App (go f1, go f2)
+      | Arith t -> Arith t
+      | Pred (p, t) -> Pred (p, t)
+    in
+    (* predicateはboolean以外を返すことは無い。arithmeticの中にhfl predicateは現れない *)
+    go hfl *)
+    
   let optimize (org_hes : 'a Hflz.hes) =
     let (entry, org_rules) = org_hes in
     let hes_list = (Hflz.mk_entry_rule entry)::org_rules in
@@ -35,17 +60,23 @@ end*) = struct
     |> List.iteri
       (fun i ({Hflz.body;_ } as rule) ->
         let func_id = n - i - 1 in
+        let subst_env =
+          pvar_to_id
+          |> List.filter_map (fun (v', func_id') ->
+            if List.nth called_counts func_id' = 1 && func_id' > func_id then
+              Some (v', hes.(func_id').body)
+            else None
+          )
+          |> IdMap.of_list
+          in
         let body =
-          Hflz_manipulate.replace_var_occurences
-          (fun v ->
+          Trans.Subst.Hflz.hflz ~callback:(fun v _ ->
             match List.find_opt (fun (v', _) -> Id.eq v v') pvar_to_id with
             | Some (_, func_id') -> 
-              if List.nth called_counts func_id' = 1 && func_id' > func_id then (
-                expanded.(func_id') <- true;
-                hes.(func_id').body
-              ) else Var v
-            | None -> Var v
+              expanded.(func_id') <- true
+            | None -> assert false
           )
+          subst_env
           body in
         hes.(func_id) <- { rule with body = Trans.Simplify.hflz body }
       );
