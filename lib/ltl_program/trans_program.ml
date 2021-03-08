@@ -4,78 +4,6 @@ open Itype
 open Common_type
 open Print_syntax
 
-let convert (raw : Raw_program.raw_expression) var_env pred_env : program_expr =
-  let rec go_prog (raw : Raw_program.raw_expression) : program_expr = match raw with
-    | PUnit -> PUnit
-    | PVar id -> begin
-      match List.find_opt (fun p -> p.Id.name = id) pred_env with
-      | Some p -> PVar p
-      | None -> begin
-        match List.find_opt (fun p -> p.Id.name = id) var_env with
-        | Some p -> begin
-          match p.ty with
-          | Type.TySigma t -> PVar { p with ty = t }
-          | _ -> failwith @@ "convert PVar 3. Type-mismatch: should not be int type (name=" ^ id ^ ")"
-        end
-        | None -> failwith @@ "convert PVar 1 (name=" ^ id ^ ")"
-      end
-    end
-    | PIf (p, p1, p2) -> PIf (go_pred p, go_prog p1, go_prog p2)
-    | PEvent (pe, p) -> PEvent (pe, go_prog p)
-    | PNonDet (p1, p2) -> PNonDet (go_prog p1, go_prog p2, None)
-    | PApp (p1, p2) -> begin
-      let p1 = go_prog p1 in
-      try
-        PApp (p1, go_prog p2)
-      with _ -> PAppInt (p1, go_arith p2)
-    end
-    | _ -> failwith "go_prog"
-  and go_pred (raw : Raw_program.raw_expression) : program_predicate = match raw with
-    | Pred (op, ps) -> Pred (op, List.map go_arith ps)
-    | And (p1, p2) -> And (go_pred p1, go_pred p2)
-    | Or (p1, p2) -> Or (go_pred p1, go_pred p2)
-    | Bool b -> Bool b
-    | _ -> failwith "go_pred"
-  and go_arith (raw : Raw_program.raw_expression) : arith_expr = match raw with
-    | AOp (op, ps) -> AOp (op, List.map go_arith ps)
-    | AInt i -> AInt i
-    | PVar v -> begin
-      match List.find_opt (fun p -> p.Id.name = v) var_env with
-      | Some p -> AVar ({ p with ty=`Int })
-      | None -> failwith @@ "convert PVar 2 (name=" ^ v ^ ")"
-    end
-    | ANonDet -> ANonDet None
-    | _ -> failwith "go_arith"
-  in
-  go_prog raw
-
-let to_funty args =
-  let rec go args = match args with
-    | [] -> Type.TyBool ()
-    | x::xs -> Type.TyArrow ({ty=x; name=""; id=0}, go xs) in
-  go args
-    
-let convert_all (raw : Raw_program.raw_program) = 
-  let pred_args =
-    List.map (
-      fun {Raw_program.var; args; body} ->
-        let ty = to_funty (List.map (fun (_, t) -> t) args) in
-        let var_id = Id.gen ~name:var ty in
-        let args = List.map (fun (name, t) -> Id.gen ~name:name t) args in
-        (var_id, args, body)
-     ) raw in
-  let preds = List.map (fun (a, _, _) -> a) pred_args |> List.filter (fun a -> a.Id.name <> "") in
-  let program_funcs =
-    List.map (
-      fun (var, args, body) ->
-        let body = convert body args preds in
-        {var; args; body}
-    ) pred_args in
-  match program_funcs |> List.partition (fun {var;_} -> var.Id.name = "")
-      with
-  | [entry], xs -> entry.body, xs
-  | _ -> failwith "convert_all"
-
 let to_uident v =
   let c = String.get v 0 in
   (Char.uppercase_ascii c |> String.make 1) ^ String.sub v 1 (String.length v - 1)
@@ -195,9 +123,11 @@ let to_hflz prog priority encode_nondet_with_forall =
   if List.length funcs <> List.length priority then failwith "to_hflz";
   let func_names = List.map (fun {var;_} -> var) funcs in
   let funcs = List.map (fun ({var; _} as p) ->
-    match List.find_opt (fun (v, pr) -> Id.eq v var) priority with
-    | None -> failwith "to_hflz (2)"
-    | Some pr -> (snd pr, p)) funcs in
+    match List.find_all (fun (v, pr) -> Id.eq v var) priority with
+    | [pr] -> (snd pr, p)
+    | [] -> failwith "to_hflz (2)"
+    | _ -> failwith "to_hflz (3)") funcs
+  in
   let funcs = List.sort (fun (pr, _) (pr', _) -> compare pr pr') funcs |> List.rev in
   let entry = to_hflz_from_function encode_nondet_with_forall entry func_names in
   let rules =

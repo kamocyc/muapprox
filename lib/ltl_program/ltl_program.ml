@@ -58,7 +58,7 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nonde
     end
     | None -> ());
     
-    let program' = Trans_program.convert_all program in
+    let program' = Trans_raw_program.convert_all program in
     print_endline "program:"; print_endline @@ Print_syntax.show_program program'; print_endline "";
     
     match automaton with
@@ -103,5 +103,5 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nonde
       
       hflz, func_priority
     end
-    | None -> failwith "a"
+    | None -> assert false
   end

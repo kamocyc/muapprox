@@ -96,9 +96,14 @@ let show_program_as_ocaml p =
 
 let show_program ((entry, funcs) : program) = 
   "let () = " ^ show_program entry ^ "\n" ^
-  (List.map (fun {var; args; body} -> "let " ^ Id.to_string ~without_id:true var ^ " " ^ (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^ " = " ^ show_program body) funcs |>
-  String.concat "\n")
-  
+  (
+    List.map (fun {var; args; body} ->
+      "let " ^ Id.to_string ~without_id:true var ^ " " ^
+        (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^
+        " = " ^ show_program body
+    ) funcs |>
+    String.concat "\n"
+  )
 
 let show_program_as_ocaml ((entry, funcs) : program) = 
   "let read_bool () = read_int () != 0\n" ^

@@ -15,12 +15,14 @@ open Raw_program
 %token TRUE FALSE
 %token COLON ":"
 %token SEMICOLON ";"
-%token LET "let"
+%token LET "let" IN "in"
 %token IF "if" THEN "then" ELSE "else" EVENT "event"
 %token UNIT "()"
 
-%token COMMA ","
-%token PLUS  "+" MINUS "-" STAR  "*" SLASH "/" PERCENT "%" NEG
+%token COMMA "," LAMBDA DOT "." 
+%token PLUS  "+" MINUS "-" // NEG
+%token STAR "*"
+//%token SLASH "/" PERCENT "%"
 %token EQ "=" NEQ "<>" LE "<=" GE ">="
 %token AND "&&" OR "||"
 %token ENV PROGRAM
@@ -31,12 +33,12 @@ open Raw_program
 %right OR
 %right AND
 %left PLUS MINUS
-%left STAR
-%nonassoc NEG
+//%left STAR
+//%nonassoc NEG
 
 %type <Raw_program.raw_program * (Itype.itype_env option * Itype.state * Itype.transition_rule list * Itype.priority_rule list) option> main
-%type <Hflmc2_syntax.Type.simple_ty> abstraction_ty
-%type <Hflmc2_syntax.Type.simple_argty> abstraction_argty
+%type <Raw_program.ptype> abstraction_ty
+%type <Raw_program.ptype> abstraction_argty
 %type <Itype.itype_env> env
 %start main
 
@@ -67,61 +69,71 @@ priority_rule:
 (******************************************************************************)
 
 program:
-| PROGRAM hflz_rule+ { $2 }
+| PROGRAM function_definition+ { $2 }
 
-hflz_rule:
-| "let" lvar arg* "=" hflz
-    { { var  = $2
+function_definition:
+| "let" lvar arg* "=" function_body
+    { { var  = $2, None
       ; args = $3
       ; body = $5
       }
     }
-| "let" "()" "=" hflz
-    { { var  = ""
+| "let" "()" "=" function_body
+    { { var  = "", None
       ; args = []
       ; body = $4
       }
     }
 
 arg:
-| "(" lvar ":" argty ")" { mk_arg $2 $4 }
+| lvar { mk_arg $1 None }
+| "(" lvar ":" argty ")" { mk_arg $2 (Some $4) }
 
 argty:
-| abstraction_ty     { Type.TySigma $1 }
+| abstraction_ty     { $1 }
 | abstraction_argty  { $1 }
 
-hflz:
-| and_or_expr { $1 }
+function_body:
+| cps_expr { $1 }
+
+cps_expr:
+| "if" and_or_expr "then" cps_expr "else" cps_expr { mk_if $2 $4 $6 }
+| "if" "*" "then" cps_expr "else" cps_expr { mk_nondet $4 $6 }
+| "event" LIDENT ";" cps_expr { mk_event $2 $4 }
+| "()" { PUnit }
+| "let" lvar "=" arith_expr "in" cps_expr { mk_let ($2, None) $4 $6 }
+| "let" lvar ":" argty "=" arith_expr "in" cps_expr { mk_let ($2, Some $4) $6 $8 }
+| simple_expr { $1 }
+| application { $1 }
+
+application:
+| simple_expr simple_expr+ { mk_apps $1 $2 }
 
 and_or_expr:
 | and_or_expr "&&" and_or_expr  { mk_ands [$1;$3] }
 | and_or_expr "||" and_or_expr  { mk_ors  [$1;$3] }
+| bool                          { mk_bool  $1 }
 | pred_expr                     { $1 }
-| "if" and_or_expr "then" hflz "else" hflz { mk_if $2 $4 $6 }
-| "if" "*" "then" hflz "else" hflz { mk_nondet $4 $6 }
-| "event" LIDENT ";" hflz { mk_event $2 $4 }
-
 
 pred_expr:
-| arith_expr                 { $1               }
 | arith_expr pred arith_expr { mk_pred $2 $1 $3 }
 
-arith_expr:
-| app_expr                 { $1                }
-| arith_expr op arith_expr { mk_op $2  [$1;$3] }
-| "-" arith_expr %prec NEG { mk_op Arith.Sub [mk_int 0;$2] }
-
-app_expr:
-| atom atom* { mk_apps $1 $2 }
-
-atom:
-| "()" { PUnit }
+simple_expr:
 | INT  { mk_int   $1 }
 | "*"  { mk_nondet_int () }
-| bool { mk_bool  $1 }
-| lvar { mk_var   $1 }
-// | uvar { mk_var   $1 }
-| "(" hflz ")" { $2 }
+| lvar { mk_var $1 }
+| "(" LAMBDA arg* DOT cps_expr ")" { mk_lambda $3 $5 }
+| "(" cps_expr ")" { $2 }
+| "(" arith_expr ")" { $2 }
+| "(" "-" arith_expr ")" { mk_op Arith.Sub [mk_int 0;$3] }
+
+arith_expr:
+| simple_expr { $1 }
+| arith_expr op arith_expr { mk_op $2  [$1;$3] }
+
+//atom:
+////| "llet" lvar "=" hflz "in" hflz { mk_let $2 $4 $6 }
+//| "(" cps_expr ")" { $2 }
 
 (******************************************************************************)
 (* Predicate                                                                  *)
@@ -134,10 +146,10 @@ atom:
 // | uvar ":" abstraction_ty DOT { $1, $3 }
 
 abstraction_ty:
-| TUNIT                    { Type.TyBool ()   }
+| TUNIT                    { TUnit   }
 | abstraction_argty "->" abstraction_ty
-    { let x = Id.{ name=""; id=0; ty=$1 } in
-      Type.TyArrow(x, $3)
+    { 
+      TFunc($1, $3)
     }
 // | TBOOL "[" separated_list(";", predicate) "]" { Type.TyBool($3) }
 // | lvar ":" abstraction_argty "->" abstraction_ty
@@ -146,8 +158,8 @@ abstraction_ty:
 //     }
 
 abstraction_argty:
-| TINT                   { Type.TyInt      }
-| "(" abstraction_ty ")" { Type.TySigma $2 }
+| TINT                   { TInt }
+| "(" abstraction_ty ")" { $2   }
 
 // predicate:
 // | and_or_predicate { $1 }
@@ -186,9 +198,9 @@ abstraction_argty:
 %inline op:
 | "+" { Arith.Add  }
 | "-" { Arith.Sub  }
-| "*" { Arith.Mult }
-| "/" { Arith.Div }
-| "%" { Arith.Mod }
+//| "*" { Arith.Mult }
+//| "/" { Arith.Div }
+//| "%" { Arith.Mod }
 
 pred:
 | "="  { Formula.Eq  }

@@ -1,27 +1,10 @@
 open Hflmc2_syntax
 
-(* Syntax of the Env *)
-
-type key
-type elem
-
-let lookupi key env =
-  let rec aux i = function
-    | [] -> raise Not_found
-    | (k, e) :: xs ->
-      if Id.eq k key then e, i
-      else aux (i+1) xs
-  in
-  aux 0 env
-
-let lookupi_ key env =
-  try Some (lookupi key env)
-  with Not_found -> None
-
-let lookup key env =  let e, _ = lookupi key env in e
-let lookup_ key env =
-  try Some(lookup key env)
-  with Not_found -> None
+let lookup (key : 'a Id.t) (env : ('b Id.t * 'c) list) : 'c =
+  match List.find_all (fun (k, e) -> Id.eq k key) env with
+  | [(_, v)] -> v
+  | [] -> raise Not_found
+  | _ -> failwith "multiple found"
 
 let update bounds env = bounds @ env
 

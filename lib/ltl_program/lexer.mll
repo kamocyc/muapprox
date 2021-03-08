@@ -5,8 +5,8 @@ let line_no = ref 1
 let end_of_previousline = ref 0
 }
 
-let space = ['\t' '\n' '\r' ' ']
-let newline = ['\n']
+let space = [' ']
+let newline = ['\t' '\n' '\r']
 let digit = ['0'-'9']
 let lower = ['a'-'z' '_']
 let upper = ['A'-'Z']
@@ -29,6 +29,8 @@ rule token = parse
                            }
 | "/*"                     { comment lexbuf; token lexbuf }
 | eof                      { EOF       }
+| "\\"                     { LAMBDA }
+| "."                      { DOT }
 | "()"                     { UNIT }
 | "("                      { LPAREN    }
 | ")"                      { RPAREN    }
@@ -45,6 +47,7 @@ rule token = parse
 | "unit"                   { TUNIT     }
 | "->"                     { TARROW    }
 | "let"                    { LET }
+| "in"                    { IN }
 | digit digit*             { INT (int_of_string (Lexing.lexeme lexbuf)) }
 (* | upper alphanum*          { UIDENT (Lexing.lexeme lexbuf) } *)
 | lower alphanum*          { LIDENT (Lexing.lexeme lexbuf) }
@@ -52,8 +55,8 @@ rule token = parse
                            | "+"           -> PLUS
                            | "-"           -> MINUS
                            | "*"           -> STAR
-                           | "/"           -> SLASH 
-                           | "%"           -> PERCENT
+                           (*| "/"           -> SLASH *)
+                           (*| "%"           -> PERCENT*)
                            | "="           -> EQ
                            | "!="          -> NEQ
                            | "<>"          -> NEQ
