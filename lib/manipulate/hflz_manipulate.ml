@@ -886,7 +886,7 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number =
       let scoped_rec_tvars =
         Env.create (List.map (fun pvar -> (pvar, (Env.lookup pvar rec_tvars))) outer_pvars) in
       let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars rec_lex_tvars body in
-      Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end;
+      (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
       let formula_type_vars = Hflz_util.get_hflz_type body |> to_args |> List.rev in
       (* 残りに受け取る引数をいったんlambdaで「受ける」 *)
       let rec_tvar_bounds' =

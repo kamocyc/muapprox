@@ -75,6 +75,6 @@ let eliminate_exists_by_assinging max_assign_value (hes : Type.simple_ty Hflz.he
     )
     []
     ruless
-  |> List.rev
+  |> List.map (fun rules -> List.rev rules)
   |> List.map (fun rules -> List.split rules)
   |> List.map (fun (rules, acc) -> decompose_entry_rule rules, List.flatten acc)
