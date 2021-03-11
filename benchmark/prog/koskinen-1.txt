@@ -2,25 +2,23 @@
    一般には、ESOP18 p.16のような変換が必要 */
 /* transitionで非決定性があると、non-determinsitc branchが生成され、disproveを示すときにpCSPになる */
 /* 変換時に --encode-nondet-with-forall, 解くときに --assign-values-for-exists-at-first-iteration で解ける */
+
 %PROGRAM
 let finish = event done; finish
 
-let reduce (x : int) (r : int -> (int -> unit) -> unit) (k : int -> unit) =
+let explore x r =
+  event explore;
+  reduce x r (\y.
+    if y<=0 then finish
+    else explore y r
+  )
+  
+let reduce x r k =
   if x<=0 then k x else r x k
 
-let explore (x : int) (r : int -> (int -> unit) -> unit) =
-  event explore;
-  reduce x r (c r)
-
-let c (r : int -> (int -> unit) -> unit) (y : int) = 
-  if y<=0 then finish
-  else explore y r
-
-let f (x : int) (k : int -> unit) = k (x - 2)
-
 let () =
-  explore * f
-
+  let x = * in
+  explore x (\x k. k (x - 2))
 
 %INITIAL
 q0

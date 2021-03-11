@@ -1,11 +1,6 @@
 module R = Raw_program
 open Hflmc2_syntax
 
-let show_list p ls =
-  "[" ^ (List.map p ls |> String.concat ";\n") ^ "\n]"
-let show_pairs pr1 pr2 ls =
-  show_list (fun (p1, p2) -> "(" ^ pr1 p1 ^ ", " ^ pr2 p2 ^ ")") ls
-
 type tv_expression = R.ptype Id.t R.raw_expression_gen
 [@@deriving eq,ord,show]
 
@@ -204,7 +199,8 @@ let unify (constraints : (R.ptype * R.ptype) list) =
           if is_occur t21 t1 then failwith "occur2";
           compose_subst (t21, t1) (unify (subst xs (t21, t1)))
         end
-        | _ -> failwith "unify"
+        | _ ->
+          failwith @@ "unify (left: " ^ show_ptype t1 ^ " / right: " ^ show_ptype t2 ^ ")"
       end
     end in
   (* print_endline "constraints:";

@@ -1,0 +1,17 @@
+
+
+unify ({}, cond) = [] (残りのcondの左辺はunit)
+unify ({ s=s } :: C, cond) = unify(C, cond)
+unify ({ s->t=s'->t' } :: C, cond) = unify({ s=s', t=t' } :: C, cond)
+unify ({ α=t } :: C, cond) =
+  if t <> α_2 (
+    (* 新たにαがunitではないと分かった *)
+    let C', cond' = extract(α, cond) in
+    unify((C @ C')[α:=t], cond'[α:=t]) \circ [α:=t]
+  ) else (
+    (* TODO: 型変数は？ *)
+    unify(C[α:=α_2], 型変数を統合し、式の右の制約をマージする(cond[α:=α_2])) \circ [α:=α_2]
+  )
+unify ({ t=α } :: C, cond) =
+  (* t /= α *)
+  unify ({ α=t } :: C, cond)

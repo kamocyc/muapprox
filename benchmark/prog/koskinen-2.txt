@@ -1,13 +1,13 @@
 /* Taken from 
    Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014, Figure 10 */
 /* if * でdisjunctionが発生している。 */
-/* 解くときに --assign-values-for-exists-at-first-iteration で解ける */
+/* 解くときに --instantiate-exists で解ける */
 
 %PROGRAM
-let print (x:int) =
+let print x =
   event print; print x
 
-let rumble (x:int) (y:int) (k:int->unit) =
+let rumble x y k =
   event rumble;
   if x < y then (
     if * then
@@ -16,16 +16,9 @@ let rumble (x:int) (y:int) (k:int->unit) =
   ) else k x
 
 let () =
-  c1 * *
-
-let c1 (a:int) (b:int) =
-  rumble a b (c2 c3 a)
-
-let c2 (k:int->unit) (a:int) (r:int) =
-  rumble a r k
-
-let c3 (r:int) =
-  print r
+  let a = * in
+  let b = * in
+  rumble b a (\r. rumble a r (\r2. print r2))
 
 %INITIAL
 q0

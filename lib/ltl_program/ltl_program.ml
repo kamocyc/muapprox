@@ -33,75 +33,81 @@ let set_id_on_env (env : itype_env) program' =
   
 let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nondet_with_forall =
   Print_syntax.show_raw_id_name := show_raw_id_name;
-  Core.In_channel.with_file file ~f:begin fun ch ->
-    let lexbuf = Lexing.from_channel ch in
-    let program, automaton =
+  
+  let program, automaton =
+    Core.In_channel.with_file file ~f:(fun ch ->
+      let lexbuf = Lexing.from_channel ch in
       try
         Parser.main Lexer.token lexbuf
-      with
-    | Parser.Error as b->
+      with Parser.Error as b->
         print_string "Parse error: ";
         print_endline @@ print_location lexbuf;
         raise b
-        in
-      
-    print_endline @@ Raw_program.show_raw_program program;
-    (match automaton with
-    | Some (env, initial_state, trans, priority) -> begin
-      print_endline "env:";
-      (match env with
-      | Some env -> print_endline @@ show_itype_env env
-      | None -> print_endline "None");
-      print_endline "initial:"; print_endline @@ show_state initial_state;
-      print_endline "transition:"; print_endline (List.map show_transition_rule trans |> String.concat "\n");
-      print_endline "priority:"; print_endline (List.map show_priority_rule priority |> String.concat "\n");
-    end
-    | None -> ());
-    
-    let program' = Trans_raw_program.convert_all program in
-    print_endline "program:"; print_endline @@ Print_syntax.show_program program'; print_endline "";
-    
+    ) in
+  let automaton =
     match automaton with
-    | Some (env, initial_state, transition, priority) -> begin
-      let all_states = List.map fst priority in
-      let max_m = List.fold_left (fun a (_, b) -> if a < b then b else a) (-1) priority in
-      let env =
-        match always_use_canonical_type_env, env with
-        | true, _ | _, None ->
-          print_endline "INFO: using the canonical intersection type environment";
-          canonical_it_program program' all_states max_m
-        | _, Some env ->
-          print_endline "INFO: using the given intersection type environemnt";
-          set_id_on_env env program'
-        in
-      print_endline "env:"; print_endline @@ show_itype_env env;
-      
-      let func_priority = get_priority env in
-      let program_ = trans_program env program' (as_multi_function transition) (as_function priority) initial_state all_states in
-      
-      print_endline "program (after):";
-      print_endline @@ Print_syntax.show_program_as_ocaml program_;
-      
-      let oc = open_out "a2.ml" in
-      let fmt = Format.formatter_of_out_channel oc in
-      Format.fprintf fmt "%s" (Print_syntax.show_program_as_ocaml program_);
-      close_out oc;
-      
-      let hflz = Trans_program.to_hflz program_ func_priority encode_nondet_with_forall in
-      
-      Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
-      Manipulate.Hflz_typecheck.type_check hflz;
-      Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
-      Format.print_string "\n=======\n"; Format.print_flush ();
-      
-      let hflz = Manipulate.Hes_optimizer.eliminate_unreachable_predicates hflz in
-      let hflz = Manipulate.Hes_optimizer.simplify hflz in
-      Manipulate.Hflz_typecheck.type_check hflz;
-      
-      Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_cut (); Format.print_flush ();
-      print_endline @@ show_priority func_priority;
-      
-      hflz, func_priority
-    end
-    | None -> assert false
-  end
+    | Some a -> a
+    | None -> assert false in
+
+  let () =
+    print_endline @@ Raw_program.show_raw_program program;
+    let (env, initial_state, trans, priority) = automaton in
+    print_endline "env:";
+    (match env with
+    | Some env -> print_endline @@ show_itype_env env
+    | None -> print_endline "None");
+    print_endline "initial:"; print_endline @@ show_state initial_state;
+    print_endline "transition:"; print_endline (List.map show_transition_rule trans |> String.concat "\n");
+    print_endline "priority:"; print_endline (List.map show_priority_rule priority |> String.concat "\n")
+  in
+  
+  let program' = Trans_raw_program.convert_all program in
+  let () =
+    print_endline "program:"; print_endline @@ Print_syntax.show_program program'; print_endline ""
+  in
+  
+  let (env, initial_state, transition, priority) = automaton in
+  let all_states = List.map fst priority in
+  let max_m = List.fold_left (fun a (_, b) -> if a < b then b else a) (-1) priority in
+  let env =
+    match always_use_canonical_type_env, env with
+    | true, _ | _, None ->
+      print_endline "INFO: using the canonical intersection type environment";
+      canonical_it_program program' all_states max_m
+    | _, Some env ->
+      print_endline "INFO: using the given intersection type environemnt";
+      set_id_on_env env program'
+    in
+  print_endline "env:"; print_endline @@ show_itype_env env;
+  
+  let func_priority = get_priority env in
+  let program_ = trans_program env program' (as_multi_function transition) (as_function priority) initial_state all_states in
+  
+  print_endline "program (after):";
+  print_endline @@ Print_syntax.show_program_as_ocaml program_;
+  
+  (* let () =
+    let oc = open_out "a2.ml" in
+    let fmt = Format.formatter_of_out_channel oc in
+    Format.fprintf fmt "%s" (Print_syntax.show_program_as_ocaml program_);
+    close_out oc in *)
+  
+  let hflz = Trans_program.to_hflz program_ func_priority encode_nondet_with_forall in
+  
+  Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
+  Manipulate.Hflz_typecheck.type_check hflz;
+  Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
+  Format.print_string "\n=======\n"; Format.print_flush ();
+  
+  let hflz = Manipulate.Hes_optimizer.eliminate_unreachable_predicates hflz in
+  let hflz = Manipulate.Hes_optimizer.simplify hflz in
+  Manipulate.Hflz_typecheck.type_check hflz;
+  
+  Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_cut (); Format.print_flush ();
+  print_endline @@ show_priority func_priority;
+  
+  hflz, func_priority
+
+let eliminate_unused_argument = Eliminate_unused_argument.eliminate_unused_argument
+let infer_type = Type_hflz.infer_type
+let abbrev_variable_names = Eliminate_unused_argument_util.abbrev_variable_names

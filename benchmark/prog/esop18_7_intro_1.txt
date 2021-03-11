@@ -1,6 +1,6 @@
 /* this is invalid since "b" may occur only finitely */
 %PROGRAM
-let g (k : unit) = if * then (event a; k) else (event b; k)
+let g k = if * then (event a; k) else (event b; k)
 let f = g f
 let () = f
 

@@ -6,22 +6,19 @@
 %PROGRAM
 let halt = event halt; halt
   
-let bar (x:int) (k:int->unit) =
+let bar x k =
   event bar;
   if x>0 then bar (x-1) k
   else k x
 
-let foo (x:int) =
+let foo x =
   event foo;
   if x<=0 then foo x
   else halt
 
 let () =
   if * then foo 0
-  else bar * c
-
-let c (r:int) =
-  foo r
+  else bar * (\r. foo r)
 
 %INITIAL
 q0

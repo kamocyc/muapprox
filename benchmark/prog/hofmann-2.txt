@@ -7,9 +7,8 @@ Trace(P) \subset L(A)
 */
 
 %PROGRAM
-let f = g h
-let h = event b; f
-let g (k : unit) = if * then (event a; g k) else (event c; k)
+let f = g (\. event b; f)
+let g k = if * then (event a; g k) else (event c; k)
 let () = f
 
 /*

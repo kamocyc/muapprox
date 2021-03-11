@@ -133,3 +133,6 @@ let check_equal_hes = Muapprox_prover.Check_formula_equality.check_equal_hes
 let show_debug_context = Muapprox_prover.show_debug_context
 let abbrev_variable_numbers_hes = Muapprox_prover.Abbrev_variable_numbers.abbrev_variable_numbers_hes
 let convert_ltl = Ltl_program.convert_ltl
+let eliminate_unused_argument = Ltl_program.eliminate_unused_argument
+let infer_type = Ltl_program.infer_type
+let abbrev_variable_names = Ltl_program.abbrev_variable_names

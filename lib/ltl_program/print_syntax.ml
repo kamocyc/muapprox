@@ -3,6 +3,11 @@ open Itype
 open Common_type
 open Program
 
+let show_list p ls =
+  "[" ^ (List.map p ls |> String.concat ";\n") ^ "]"
+let show_pairs pr1 pr2 ls =
+  show_list (fun (p1, p2) -> "(" ^ pr1 p1 ^ ", " ^ pr2 p2 ^ ")") ls
+
 let show_pred (op : Formula.pred) = match op with
   | Formula.Eq  -> "="
   | Formula.Neq -> "<>"

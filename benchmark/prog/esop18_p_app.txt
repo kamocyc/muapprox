@@ -1,7 +1,7 @@
 %PROGRAM
-let fb (x : int) = if x > 0 then (event a; app fa (x-1)) else (event b; app fb 5)
-let fa (x : int) = if x > 0 then (event a; app fa (x-1)) else (event b; app fb 5)
-let app (h : int -> unit) (x : int) = h x
+let fb x = if x > 0 then (event a; app fa (x-1)) else (event b; app fb 5)
+let fa x = if x > 0 then (event a; app fa (x-1)) else (event b; app fb 5)
+let app h x = h x
 let () = fb 5
 
 %INITIAL

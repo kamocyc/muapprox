@@ -1,5 +1,5 @@
 %PROGRAM
-let f (x : int) (y : int) = if x < y then (event a; f x y) else (event b; f x y)
+let f x y = if x < y then (event a; f x y) else (event b; f x y)
 let () = f 2 1
 
 %INITIAL

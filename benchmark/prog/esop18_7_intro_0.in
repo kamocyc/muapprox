@@ -1,4 +1,0 @@
-%HES
-Sentry =v F_qa_0.
-F_qb_1  =v F_qa_0 /\ F_qb_1.
-F_qa_0  =u F_qa_0 /\ F_qb_1.
