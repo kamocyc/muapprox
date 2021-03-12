@@ -1,1 +1,168 @@
+/* \t. \k. ... ではエラーになる（\t k. とする) */
 %PROGRAM
+let loop = event called; loop
+
+let app f x i kk =
+  event called; 
+  f x (\t k.
+    event called;
+    k (t - i)
+  ) kk
+
+let ha1 x =
+  event called;
+  event ha1;
+  loop
+
+let ha2 x =
+  event called;
+  event ha2;
+  loop
+
+let walk x f k =
+  event called;
+  event walk;
+  if x = 0 then k x
+  else f x (\r.
+    event called;
+    walk r f k
+  )
+
+let run x f k =
+  event called;
+  event run;
+  if x = 0 then k x
+  else f x (\r.
+    event called;
+    f r (\r_.
+      event called;
+      run r_ f k
+    )
+  )
+
+let life x =
+  event called;
+  if * then (
+    event p;
+    if x < 0 then app walk x 1 (\r. event called; ha1 r)
+    else app run x 1 (\r. event called; ha2 r)
+  ) else
+    life x
+  
+let () =
+  life *
+
+%INITIAL
+accept_init
+
+/* LTLでは、「各時刻でちょうど1つの命題変数が真になることが常に成り立つ」という条件が必要 */
+/* (G ( ( (p) && (! walk) && (! ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (walk) && (! ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (! run) && (ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (! run) && (! ha2) && (called) ) )) && (G(p -> (X((walk U ha1) || (run U ha2))))) */
+%TRANSITION
+(accept_init, called) -> accept_init
+(accept_init, run) -> accept_init
+(accept_init, walk) -> accept_init
+(accept_init, ha1) -> accept_init
+(accept_init, ha2) -> accept_init
+(accept_init, p) -> t0_s2
+(accept_init, p) -> t1_s3
+
+(t0_s2, walk) -> t0_s2
+(t0_s2, ha1) -> accept_init
+(t0_s2, called) -> qd
+(t0_s2, run) -> qd
+(t0_s2, ha2) -> qd
+(t0_s2, p) -> qd
+
+(t1_s3, run) -> t1_s3
+(t1_s3, ha2) -> accept_init
+(t1_s3, called) -> qd
+(t1_s3, walk) -> qd
+(t1_s3, ha1) -> qd
+(t1_s3, p) -> qd
+
+(qd, run) -> qd
+(qd, ha2) -> qd
+(qd, called) -> qd
+(qd, walk) -> qd
+(qd, ha1) -> qd
+(qd, p) -> qd
+
+%PRIORITY
+accept_init -> 2
+t0_s2 -> 1
+t1_s3 -> 1
+qd -> 1
+
+/*
+/* 変換結果を多少簡単にしたもの */
+%HES
+Sentry =v
+  ∀forall_182. 
+   (forall_182 >= 0 \/ App_124 Walk_116 forall_182 1 Loop_161 Loop_161)
+   /\ (forall_182 < 0 \/ App_124 Run_108 forall_182 1 Loop_126 Loop_126)
+   /\ (forall_182 >= 0 \/ App_124 Walk_116 forall_182 1 Loop_161 Loop_161)
+      /\ (forall_182 < 0 \/ App_124 Run_108 forall_182 1 Loop_126 Loop_126)
+   /\ Life_99 forall_182
+   /\ (forall_182 >= 0 \/ App_160 Walk_152 forall_182 1 Loop_161 Loop_161)
+      /\ (forall_182 < 0 \/ App_160 Run_144 forall_182 1 Loop_126 Loop_126)
+      /\ Life_135 forall_182.
+Life_99 x_191 =u
+  (x_191 >= 0 \/ App_124 Walk_116 x_191 1 Loop_161 Loop_161)
+  /\ (x_191 < 0 \/ App_124 Run_108 x_191 1 Loop_126 Loop_126)
+  /\ (x_191 >= 0 \/ App_124 Walk_116 x_191 1 Loop_161 Loop_161)
+     /\ (x_191 < 0 \/ App_124 Run_108 x_191 1 Loop_126 Loop_126)
+  /\ Life_99 x_191
+  /\ (x_191 >= 0 \/ App_160 Walk_152 x_191 1 Loop_161 Loop_161)
+     /\ (x_191 < 0 \/ App_160 Run_144 x_191 1 Loop_126 Loop_126)
+     /\ Life_135 x_191.
+Run_108 x_392 f_400 f_403 k_412 k_415 =u
+  (x_392 != 0 \/ k_412)
+  /\ (x_392 = 0 \/ f_400 x_392 (Run80_140 f_400 f_403 f_403 k_412))
+  /\ (x_392 != 0 \/ k_412)
+     /\ (x_392 = 0 \/ f_400 x_392 (Run80_140 f_400 f_403 f_403 k_412)).
+Walk_116 x_592 f_600 f_603 k_612 k_615 =u
+  (x_592 != 0 \/ k_615) /\ (x_592 = 0 \/ f_603 x_592 (Walk79_148 f_603 k_615))
+  /\ (x_592 != 0 \/ k_615)
+     /\ (x_592 = 0 \/ f_603 x_592 (Walk79_148 f_603 k_615)).
+App_124 f_758 x_760 i_761 kk_769 kk_772 =u
+  f_758 x_760 (App78_156 i_761) (App78_156 i_761) kk_769 kk_772
+  /\ f_758 x_760 (App78_156 i_761) (App78_156 i_761) kk_769 kk_772.
+Loop_126  =u Loop_126 /\ Loop_161.
+Life_135 x_808 =v
+  (x_808 >= 0 \/ App_160 Walk_152 x_808 1 Loop_161 Loop_161)
+  /\ (x_808 < 0 \/ App_160 Run_144 x_808 1 Loop_126 Loop_126)
+  /\ Life_135 x_808
+  /\ (x_808 >= 0 \/ App_160 Walk_152 x_808 1 Loop_161 Loop_161)
+     /\ (x_808 < 0 \/ App_160 Run_144 x_808 1 Loop_126 Loop_126)
+     /\ Life_135 x_808.
+Run8081_136 f_816 f_819 k_828 r_833 =v Run_166 r_833 f_816 f_819 k_828.
+Run80_140 f_916 f_919 f_920 k_928 r_933 =v
+  f_920 r_933 (Run8081_136 f_916 f_919 k_928).
+Run_144 x_1009 f_1017 f_1020 k_1029 k_1032 =v
+  (x_1009 != 0 \/ k_1029)
+  /\ (x_1009 = 0 \/ f_1017 x_1009 (Run80_140 f_1017 f_1020 f_1020 k_1029))
+  /\ (x_1009 != 0 \/ k_1029)
+     /\ (x_1009 = 0 \/ f_1017 x_1009 (Run80_140 f_1017 f_1020 f_1020 k_1029)).
+Walk79_148 f_1119 k_1131 r_1133 =v Walk_170 r_1133 f_1119 k_1131.
+Walk_152 x_1209 f_1217 f_1220 k_1229 k_1232 =v
+  (x_1209 != 0 \/ k_1232)
+  /\ (x_1209 = 0 \/ f_1220 x_1209 (Walk79_148 f_1220 k_1232))
+  /\ (x_1209 != 0 \/ k_1232)
+     /\ (x_1209 = 0 \/ f_1220 x_1209 (Walk79_148 f_1220 k_1232)).
+App78_156 i_1309 t_1310 k_1321 =v
+  k_1321 (t_1310 - i_1309) /\ k_1321 (t_1310 - i_1309).
+App_160 f_1375 x_1377 i_1378 kk_1386 kk_1389 =v
+  f_1375 x_1377 (App78_156 i_1378) (App78_156 i_1378) kk_1386 kk_1389
+  /\ f_1375 x_1377 (App78_156 i_1378) (App78_156 i_1378) kk_1386 kk_1389.
+Loop_161  =v Loop_161.
+Run_166 x_1491 f_1499 f_1502 k_1511 =u
+  (x_1491 != 0 \/ k_1511)
+  /\ (x_1491 = 0 \/ f_1499 x_1491 (Run80_140 f_1499 f_1502 f_1502 k_1511))
+  /\ (x_1491 != 0 \/ k_1511)
+     /\ (x_1491 = 0 \/ f_1499 x_1491 (Run80_140 f_1499 f_1502 f_1502 k_1511)).
+Walk_170 x_1591 f_1602 k_1614 =u
+  (x_1591 != 0 \/ k_1614)
+  /\ (x_1591 = 0 \/ f_1602 x_1591 (Walk79_148 f_1602 k_1614))
+  /\ (x_1591 != 0 \/ k_1614)
+     /\ (x_1591 = 0 \/ f_1602 x_1591 (Walk79_148 f_1602 k_1614)).
+*/

@@ -153,8 +153,15 @@ let get_arg_type (env : itenv) term states =
               print_endline @@ string_of_int @@ List.length tys;
               print_endline @@ string_of_int @@ List.length tys2;
               assert (List.length tys = List.length tys2);
-              List.mapi (fun i (ty1, _) -> eq_itype' (to_itype' ty1) (List.nth tys2 i)) tys |>
-              List.for_all (fun x -> x)
+              let b =
+                List.mapi (fun i (ty1, _) ->
+                  let b = eq_itype' (to_itype' ty1) (List.nth tys2 i) in
+                  if not b then print_endline @@ "differ i=" ^ string_of_int i ^ ", ty1=" ^ show_itype' (to_itype' ty1) ^ " / ty2=" ^ show_itype' (List.nth tys2 i);
+                  b
+                ) tys |>
+                List.for_all (fun x -> x) in
+              print_endline @@ "term=" ^ show_program_expr term;
+              b
             end
             | _ -> false);
           bodyty

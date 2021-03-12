@@ -15,3 +15,12 @@ unify ({ α=t } :: C, cond) =
 unify ({ t=α } :: C, cond) =
   (* t /= α *)
   unify ({ α=t } :: C, cond)
+
+
+
+## LTL -> parity automataの変換
+1. gen_cond.py "xx,yy" で 同時にちょうど一つの命題のみがTrueという条件式を生成し、元の条件式に && で追加
+2. http://www.lsv.fr/~gastin/ltl2ba/index.php でbuchi automataに変換
+3. 入力形式に書く。終了条件は、accept stateが2で、それ以外は1
+
+spot (Spot is a C++14 library for LTL, ω-automata manipulation and model checking) の ltl2tgba で（上記より最適化は足りないようだが、）変換することができる

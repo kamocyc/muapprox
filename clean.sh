@@ -1,5 +1,6 @@
 #!/bin/bash
 rm -f ./*.{hes,in,txt,smt2,tmp}
+rm -f tmp*.ml
 rm -f pname
 rm -f benchmark/output/bench_out_*
 rm -f benchmark/output/{z3,hoice}*{in,out}.{txt,smt2}

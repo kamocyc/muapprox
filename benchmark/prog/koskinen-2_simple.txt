@@ -1,19 +1,13 @@
-/* 機械的に全て無限パスに変換したもの */
 /* Taken from 
    Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014, Figure 10 */
 /* if * でdisjunctionが発生している。 */
 /* 解くときに --instantiate-exists で解ける */
 
 %PROGRAM
-let loop = event called; loop
-
 let print x =
-  event called;
-  event print;
-  loop
+  event print; print x
 
 let rumble x y k =
-  event called;
   event rumble;
   if x < y then (
     if * then
@@ -24,25 +18,16 @@ let rumble x y k =
 let () =
   let a = * in
   let b = * in
-  rumble b a (\r.
-    event called;
-    rumble a r (\r2.
-      event called;
-      print r2
-    )
-  )
+  rumble b a (\r. rumble a r (\r2. print r2))
 
 %INITIAL
 q0
 
-/* 
-(G((rumble && NOT print && NOT called) || (NOT rumble && print && NOT called) || (NOT rumble && NOT print && called))) && F(print) */
 %TRANSITION
 (q0, rumble) -> q0
-(q0, called) -> q0
+(q0, print) -> q0
 (q0, print) -> q1
 (q1, rumble) -> q1
-(q1, called) -> q1
 (q1, print) -> q1
 
 

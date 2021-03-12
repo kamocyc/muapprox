@@ -1,35 +1,43 @@
-/* 元の問題は有限パスがあるが、この問題は実質的には停止性の検証であるため、finishを再帰呼び出しすることで無限パスに変換できることがわかる。
-   一般には、ESOP18 p.16のような変換が必要 */
-/* transitionで非決定性があると、non-determinsitc branchが生成され、disproveを示すときにpCSPになる */
-/* 変換時に --encode-nondet-with-forall, 解くときに --assign-values-for-exists-at-first-iteration で解ける */
-
+/* 機械的に全て無限パスに変換したもの */
 %PROGRAM
-let finish = event done; finish
+let loop = event called; loop
+
+let finish =
+  event called;
+  event done;
+  loop
 
 let explore x r =
+  event called;
   event explore;
   reduce x r (\y.
+    event called;
     if y<=0 then finish
     else explore y r
   )
   
 let reduce x r k =
+  event called;
   if x<=0 then k x else r x k
 
 let () =
   let x = * in
-  explore x (\x k. k (x - 2))
+  explore x (\x k.
+    event called;
+    k (x - 2)
+  )
 
 %INITIAL
 q0
 
+/* (G((called && NOT done && NOT explore) || (NOT called && done && NOT explore) || (NOT called && NOT done && explore))) && F(done) */
 %TRANSITION
+(q0, called) -> q0
 (q0, explore) -> q0
-(q0, done) -> q0
 (q0, done) -> q1
+(q1, called) -> q1
 (q1, explore) -> q1
 (q1, done) -> q1
-
 
 %PRIORITY
 q0 -> 1

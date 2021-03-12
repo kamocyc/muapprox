@@ -66,6 +66,8 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nonde
     print_endline "program:"; print_endline @@ Print_syntax.show_program program'; print_endline ""
   in
   
+  Check.check_input program' automaton;
+  
   let (env, initial_state, transition, priority) = automaton in
   let all_states = List.map fst priority in
   let max_m = List.fold_left (fun a (_, b) -> if a < b then b else a) (-1) priority in
@@ -86,11 +88,11 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nonde
   print_endline "program (after):";
   print_endline @@ Print_syntax.show_program_as_ocaml program_;
   
-  (* let () =
-    let oc = open_out "a2.ml" in
+  let () =
+    let oc = open_out "tmp.ml" in
     let fmt = Format.formatter_of_out_channel oc in
     Format.fprintf fmt "%s" (Print_syntax.show_program_as_ocaml program_);
-    close_out oc in *)
+    close_out oc in
   
   let hflz = Trans_program.to_hflz program_ func_priority encode_nondet_with_forall in
   
