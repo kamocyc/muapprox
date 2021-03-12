@@ -19,26 +19,26 @@ h : (q0, 0)
 g : ((q0, 0) -> q0, 0)
 */
 
-%INITIAL
-q0
-
 %TRANSITION
-(q0, a) -> q2
-(q0, b) -> q2
-(q0, c) -> q2
-(q0, a) -> q0
-(q0, b) -> q0
-(q0, c) -> q0
-(q0, b) -> q1
-(q1, a) -> q0
-(q1, b) -> q0
-(q1, c) -> q0
-(q2, a) -> q2
-(q2, b) -> q2
-(q2, c) -> qd
-(qd, a) -> qd
-(qd, b) -> qd
-(qd, c) -> qd
+q0 a -> q2
+q0 b -> q2
+q0 c -> q2
+q0 a -> q0
+q0 b -> q0
+q0 c -> q0
+q0 b -> q1
+
+q1 a -> q0
+q1 b -> q0
+q1 c -> q0
+
+q2 a -> q2
+q2 b -> q2
+q2 c -> qd
+
+qd a -> qd
+qd b -> qd
+qd c -> qd
 
 %PRIORITY
 q0 -> 1

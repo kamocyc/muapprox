@@ -32,18 +32,16 @@ let () =
     )
   )
 
-%INITIAL
-q0
-
 /* 
 (G((rumble && NOT print && NOT called) || (NOT rumble && print && NOT called) || (NOT rumble && NOT print && called))) && F(print) */
 %TRANSITION
-(q0, rumble) -> q0
-(q0, called) -> q0
-(q0, print) -> q1
-(q1, rumble) -> q1
-(q1, called) -> q1
-(q1, print) -> q1
+q0 rumble -> q0
+q0 called -> q0
+q0 print -> q1
+
+q1 rumble -> q1
+q1 called -> q1
+q1 print -> q1
 
 
 %PRIORITY

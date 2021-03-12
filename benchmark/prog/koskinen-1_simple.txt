@@ -20,15 +20,12 @@ let () =
   let x = * in
   explore x (\x k. k (x - 2))
 
-%INITIAL
-q0
-
 %TRANSITION
-(q0, explore) -> q0
-(q0, done) -> q0
-(q0, done) -> q1
-(q1, explore) -> q1
-(q1, done) -> q1
+q0 explore -> q0
+q0 done -> q0
+q0 done -> q1
+q1 explore -> q1
+q1 done -> q1
 
 
 %PRIORITY

@@ -3,14 +3,12 @@
 let f = if * then (event a; f) else (event b; f)
 let () = f
 
-%INITIAL
-qa
-
 %TRANSITION
-(qa, a) -> qa
-(qb, a) -> qa
-(qa, b) -> qb
-(qb, b) -> qb
+qa a -> qa
+qa b -> qb
+
+qb a -> qa
+qb b -> qb
 
 %PRIORITY
 qa -> 0

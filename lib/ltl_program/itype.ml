@@ -40,6 +40,8 @@ type transition_rule = (state * symbol) * state
 
 type priority_rule = state * int
 
+type automaton = itype_env option * (state * transition_rule list) * priority_rule list
+
 let show_state (State s) = s
 let show_symbol (Symbol s) = s
 let rec show_itype itype = match itype with
@@ -59,6 +61,11 @@ let show_transition_rule ((state, symbol), target) =
   "(" ^ show_state state ^ ", " ^ show_symbol symbol ^ ") -> " ^ show_state target
   
 let mk_transition_rule a b c = ((State a, Symbol b), State c)
+
+let mk_transition_rules rules =
+  match rules with
+  | [] -> failwith "mk_transition_rules: no transition rule"
+  | ((s, _), _)::_ -> s, rules
 
 let show_priority_rule (state, priority) =
   show_state state ^ " -> " ^ string_of_int priority

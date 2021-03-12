@@ -27,17 +27,15 @@ let () =
     k (x - 2)
   )
 
-%INITIAL
-q0
-
 /* (G((called && NOT done && NOT explore) || (NOT called && done && NOT explore) || (NOT called && NOT done && explore))) && F(done) */
 %TRANSITION
-(q0, called) -> q0
-(q0, explore) -> q0
-(q0, done) -> q1
-(q1, called) -> q1
-(q1, explore) -> q1
-(q1, done) -> q1
+q0 called -> q0
+q0 explore -> q0
+q0 done -> q1
+
+q1 called -> q1
+q1 explore -> q1
+q1 done -> q1
 
 %PRIORITY
 q0 -> 1

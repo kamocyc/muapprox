@@ -26,7 +26,7 @@ open Raw_program
 %token EQ "=" NEQ "<>" LE "<=" GE ">="
 %token AND "&&" OR "||"
 %token ENV PROGRAM
-%token TRANSITION PRIORITY INITIAL
+%token TRANSITION PRIORITY
 
 %token TUNIT TINT TARROW "->"
 
@@ -36,7 +36,7 @@ open Raw_program
 //%left STAR
 //%nonassoc NEG
 
-%type <Raw_program.raw_program * (Itype.itype_env option * Itype.state * Itype.transition_rule list * Itype.priority_rule list) option> main
+%type <Raw_program.raw_program * (Itype.automaton) option> main
 %type <Raw_program.ptype> abstraction_ty
 %type <Raw_program.ptype> abstraction_argty
 %type <Itype.itype_env> env
@@ -46,23 +46,22 @@ open Raw_program
 
 main:
 // | program EOF     { $1, None }
-| program env initial transition priority EOF     { $1, Some (Some $2, $3, $4, $5) }
-| program initial transition priority EOF     { $1, Some (None, $2, $3, $4) }
-
-initial:
-| INITIAL LIDENT { Itype.State $2 }
+| program env transition priority EOF     { $1, Some (Some $2, $3, $4) }
+| program transition priority EOF     { $1, Some (None, $2, $3) }
 
 transition:
-| TRANSITION trans_rule+ { $2 }
+| TRANSITION trans_rule+ { Itype.mk_transition_rules $2 }
 
 trans_rule:
-| "(" LIDENT "," LIDENT ")" "->" LIDENT { Itype.mk_transition_rule $2 $4 $7 }
+| LIDENT LIDENT "->" LIDENT { Itype.mk_transition_rule $1 $2 $4 }
+| LIDENT LIDENT "->" LIDENT DOT { Itype.mk_transition_rule $1 $2 $4 }
 
 priority:
 | PRIORITY priority_rule+ { $2 }
 
 priority_rule:
 | LIDENT "->" INT { Itype.mk_priority_rule $1 $3 }
+| LIDENT "->" INT DOT { Itype.mk_priority_rule $1 $3 }
 
 (******************************************************************************)
 (* PROGRAM                                                                        *)

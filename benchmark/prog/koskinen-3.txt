@@ -29,28 +29,25 @@ let () =
     foo r
   )
 
-%INITIAL
-q0
-
 /* (G((foo && NOT bar && NOT halt && NOT called) || (NOT foo && bar && NOT halt && NOT called) || (NOT foo && NOT bar && halt && NOT called) || (NOT foo && NOT bar && NOT halt && called))) && FG(foo || step) */
 %TRANSITION
-(q0, halt) -> q0
-(q0, foo) -> q0
-(q0, bar) -> q0
-(q0, called) -> q0
+q0 halt -> q0
+q0 foo -> q0
+q0 bar -> q0
+q0 called -> q0
 
-(q0, foo) -> q1
-(q0, called) -> q1
+q0 foo -> q1
+q0 called -> q1
 
-(q1, foo) -> q1
-(q1, bar) -> qd
-(q1, halt) -> qd
-(q1, called) -> q1
+q1 foo -> q1
+q1 bar -> qd
+q1 halt -> qd
+q1 called -> q1
 
-(qd, foo) -> qd
-(qd, bar) -> qd
-(qd, halt) -> qd
-(qd, called) -> qd
+qd foo -> qd
+qd bar -> qd
+qd halt -> qd
+qd called -> qd
 
 %PRIORITY
 q0 -> 1

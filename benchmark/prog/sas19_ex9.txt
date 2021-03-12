@@ -7,15 +7,8 @@ let () = main
 %ENV
 main : (qa, 0)
 
-%INITIAL
-qa
-
 %TRANSITION
-(qa, a) -> qa
-(qa, b) -> qb
-(qb, a) -> qa
-(qb, b) -> qb
+qa a -> qa
 
 %PRIORITY
 qa -> 0
-qb -> 1

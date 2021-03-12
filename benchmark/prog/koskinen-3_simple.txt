@@ -20,20 +20,17 @@ let () =
   if * then foo 0
   else bar * (\r. foo r)
 
-%INITIAL
-q0
-
 %TRANSITION
-(q0, foo) -> q0
-(q0, bar) -> q0
-(q0, halt) -> q0
-(q0, foo) -> q1
-(q1, foo) -> q1
-(q1, bar) -> qd
-(q1, halt) -> qd
-(qd, foo) -> qd
-(qd, bar) -> qd
-(qd, halt) -> qd
+q0 foo -> q0
+q0 bar -> q0
+q0 halt -> q0
+q0 foo -> q1
+q1 foo -> q1
+q1 bar -> qd
+q1 halt -> qd
+qd foo -> qd
+qd bar -> qd
+qd halt -> qd
 
 %PRIORITY
 q0 -> 1

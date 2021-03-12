@@ -52,40 +52,37 @@ let life x =
 let () =
   life *
 
-%INITIAL
-accept_init
-
 /* LTLでは、「各時刻でちょうど1つの命題変数が真になることが常に成り立つ」という条件が必要 */
 /* (G ( ( (p) && (! walk) && (! ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (walk) && (! ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (! run) && (ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (! run) && (! ha2) && (called) ) )) && (G(p -> (X((walk U ha1) || (run U ha2))))) */
 %TRANSITION
-(accept_init, called) -> accept_init
-(accept_init, run) -> accept_init
-(accept_init, walk) -> accept_init
-(accept_init, ha1) -> accept_init
-(accept_init, ha2) -> accept_init
-(accept_init, p) -> t0_s2
-(accept_init, p) -> t1_s3
+accept_init called -> accept_init
+accept_init run -> accept_init
+accept_init walk -> accept_init
+accept_init ha1 -> accept_init
+accept_init ha2 -> accept_init
+accept_init p -> t0_s2
+accept_init p -> t1_s3
 
-(t0_s2, walk) -> t0_s2
-(t0_s2, ha1) -> accept_init
-(t0_s2, called) -> qd
-(t0_s2, run) -> qd
-(t0_s2, ha2) -> qd
-(t0_s2, p) -> qd
+t0_s2 walk -> t0_s2
+t0_s2 ha1 -> accept_init
+t0_s2 called -> qd
+t0_s2 run -> qd
+t0_s2 ha2 -> qd
+t0_s2 p -> qd
 
-(t1_s3, run) -> t1_s3
-(t1_s3, ha2) -> accept_init
-(t1_s3, called) -> qd
-(t1_s3, walk) -> qd
-(t1_s3, ha1) -> qd
-(t1_s3, p) -> qd
+t1_s3 run -> t1_s3
+t1_s3 ha2 -> accept_init
+t1_s3 called -> qd
+t1_s3 walk -> qd
+t1_s3 ha1 -> qd
+t1_s3 p -> qd
 
-(qd, run) -> qd
-(qd, ha2) -> qd
-(qd, called) -> qd
-(qd, walk) -> qd
-(qd, ha1) -> qd
-(qd, p) -> qd
+qd run -> qd
+qd ha2 -> qd
+qd called -> qd
+qd walk -> qd
+qd ha1 -> qd
+qd p -> qd
 
 %PRIORITY
 accept_init -> 2

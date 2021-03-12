@@ -18,7 +18,6 @@ rule token = parse
 | "%ENV"                   { ENV }
 (* | "%STATE"                 { STATE }
 | "%ALPHABET"              { ALPHABET } *)
-| "%INITIAL"               { INITIAL }
 | "%TRANSITION"            { TRANSITION }
 | "%PRIORITY"              { PRIORITY }
 | "\n"                     { Lexing.new_line lexbuf; token lexbuf }

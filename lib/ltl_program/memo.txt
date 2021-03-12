@@ -24,3 +24,8 @@ unify ({ t=α } :: C, cond) =
 3. 入力形式に書く。終了条件は、accept stateが2で、それ以外は1
 
 spot (Spot is a C++14 library for LTL, ω-automata manipulation and model checking) の ltl2tgba で（上記より最適化は足りないようだが、）変換することができる
+
+# https://spot.lrde.epita.fr/ltl2tgba.html
+ltl2tgba --ba  -P -f '<formula>'
+
+stateの後の{0} はparityを表す

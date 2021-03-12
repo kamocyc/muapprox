@@ -51,7 +51,7 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nonde
 
   let () =
     print_endline @@ Raw_program.show_raw_program program;
-    let (env, initial_state, trans, priority) = automaton in
+    let (env, (initial_state, trans), priority) = automaton in
     print_endline "env:";
     (match env with
     | Some env -> print_endline @@ show_itype_env env
@@ -68,7 +68,7 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nonde
   
   Check.check_input program' automaton;
   
-  let (env, initial_state, transition, priority) = automaton in
+  let (env, (initial_state, transition), priority) = automaton in
   let all_states = List.map fst priority in
   let max_m = List.fold_left (fun a (_, b) -> if a < b then b else a) (-1) priority in
   let env =

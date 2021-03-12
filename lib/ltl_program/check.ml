@@ -32,8 +32,8 @@ let group_by f l1 =
 
 let id x = x
 
-let check_input (program : program) (automaton : itype_env option * state * transition_rule list * priority_rule list) =
-  let (env, State initial_state, trans, priority) = automaton in
+let check_input (program : program) (automaton : automaton) =
+  let (env, (State initial_state, trans), priority) = automaton in
   (* TODO: check environment? *)
   
   let all_symbols = get_events program in

@@ -11,14 +11,12 @@ f : (int -> qa, 0)
 f : (int -> qb, 1)
 */
 
-%INITIAL
-qa
-
 %TRANSITION
-(qa, a) -> qa
-(qb, a) -> qa
-(qa, b) -> qb
-(qb, b) -> qb
+qa a -> qa
+qa b -> qb
+
+qb a -> qa
+qb b -> qb
 
 %PRIORITY
 qa -> 0
