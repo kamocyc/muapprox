@@ -102,7 +102,6 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nonde
   Format.print_string "\n=======\n"; Format.print_flush ();
   
   let hflz = Manipulate.Hes_optimizer.eliminate_unreachable_predicates hflz in
-  let hflz = Manipulate.Hes_optimizer.simplify hflz in
   Manipulate.Hflz_typecheck.type_check hflz;
   
   Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_cut (); Format.print_flush ();

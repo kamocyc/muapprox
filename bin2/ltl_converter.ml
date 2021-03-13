@@ -15,7 +15,9 @@ let main filepath show_style disable_optimization solve always_use_canonical_typ
   let phi, _ = Muapprox.convert_ltl filepath show_raw_id_name always_use_canonical_type_env encode_nondet_with_forall in
   let phi =
     if not disable_optimization then
-      Muapprox.eliminate_unused_argument phi
+      let phi = Manipulate.Hes_optimizer.simplify phi in
+      let hflz = Muapprox.eliminate_unused_argument phi in
+      Manipulate.Hes_optimizer.simplify hflz
     else phi in
   let phi =
     match show_style with
