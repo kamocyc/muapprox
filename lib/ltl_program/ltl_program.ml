@@ -2,12 +2,6 @@ open Program
 open Itype
 open Trans_ltl
 
-let print_location lexbuf =
-  let open Lexing in
-  let pos = lexbuf.lex_curr_p in
-  Printf.sprintf "file: %s, line %d, column %d" pos.pos_fname
-    pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
-
 let as_function assoc key =
   match List.find_opt (fun (k, s) -> k = key) assoc with
   | None -> failwith @@ "as_function: Not_found (key=" ^ show_state key ^ ")"
@@ -34,16 +28,7 @@ let set_id_on_env (env : itype_env) program' =
 let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nondet_with_forall =
   Print_syntax.show_raw_id_name := show_raw_id_name;
   
-  let program, automaton =
-    Core.In_channel.with_file file ~f:(fun ch ->
-      let lexbuf = Lexing.from_channel ch in
-      try
-        Parser.main Lexer.token lexbuf
-      with Parser.Error as b->
-        print_string "Parse error: ";
-        print_endline @@ print_location lexbuf;
-        raise b
-    ) in
+  let program, automaton = Parse.parse_file file in
   let automaton =
     match automaton with
     | Some a -> a

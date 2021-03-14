@@ -5,6 +5,7 @@
     hflmc2_options
     hflmc2_syntax
     ltl_program
+    branching_time_program
     muapprox.muapprox_prover
     )
   (flags (-cclib -lstdc++)))
