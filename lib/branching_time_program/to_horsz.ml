@@ -91,7 +91,6 @@ let to_horsz (terminals : (terminal * int) list) (raw : Raw_horsz.raw_program) =
   let (first, rules) =
     match raw with
     | first::rules -> begin
-      (* (first, rules) *)
       let {R.var; args; body} = first in
       if List.length args <> 0 then failwith "first rule should not have arguments";
       (body, rules)

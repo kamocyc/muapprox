@@ -53,8 +53,6 @@ let mk_apps t ts = Core.List.fold_left ts ~init:t ~f:mk_app
 let mk_if p t e = PIf (p, t, e)
 
 
-
-
 (* automaton *)
 type preformula = FConst of string 
                 | FVar of int * string 
@@ -116,9 +114,3 @@ let string_of_automaton (rs, trs, prs) =
   "%ENDR\n"^
   "%BEGINATA\n"^(string_of_ata_rules_aux trs)^"%ENDATA\n" ^
   "%BEGINP\n"^(string_of_priorities_aux prs)^"%ENDP\n"    
-
-let ntid = ref 0
-let new_ntname() =
-   let x = !ntid in
-   let _ = (ntid := !ntid + 1) in
-     ("$FUN"^(string_of_int x))

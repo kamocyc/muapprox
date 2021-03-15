@@ -24,6 +24,7 @@ let rec make_ors : 'a Hflz.t list -> 'a Hflz.t = function
   | [x] -> x
   | x::xs -> Or (x, make_ors xs)
 
+(* translate type *)
 let trans_ty all_states max_priority ty =
   let states_times_prs = get_states_times_prs all_states max_priority in
   let rec trans_argty ty = match ty with
@@ -87,13 +88,13 @@ let trans_body automaton all_states max_priority global_env rule_args current_st
       let cond = go_formula env p1 in
       let p2 = go env state pr_m p2 in
       let p3 = go env state pr_m p3 in
-      Or (
-        And (
-          cond,
+      And (
+        Or (
+          Hflz.negate_formula cond,
           p2
         ),
-        And (
-          Hflz.negate_formula cond,
+        Or (
+          cond,
           p3
         )
       )
@@ -120,7 +121,6 @@ let trans_body automaton all_states max_priority global_env rule_args current_st
                         "terminal not found: symbol=" ^ c ^ ", " ^
                         "index=" ^ string_of_int (d' - 1) ^ "," ^
                         "term=" ^ Horsz.show_horsz_expr_s phi
-                    (* go env q' m' ps *)
                   )
                   clause
                 |> make_ands
@@ -191,6 +191,7 @@ let trans_horsz automaton horsz =
       (upto max_priority |> List.rev)
       |> List.flatten in
   let global_env = List.map (fun ({Horsz.var}, _, _) -> var) rules in
+  (* translate bodies *)
   let entry = trans_body automaton all_states max_priority global_env [] initial_state entry in
   let rules =
     List.map (fun ({Horsz.var; body; args}, m, q) ->

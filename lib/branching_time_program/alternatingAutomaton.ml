@@ -53,6 +53,20 @@ let to_dnf (fml : Raw_horsz.preformula) =
     | FConst s -> failwith @@ "to_dnf: illegal const (" ^ s ^ ")"
   in
   go fml
+(*
+true: [[]]
+false: []
+で表現.
+
+処理メモ:
+親でdisjunctionのとき
+true:  [[]] @ [[a; b]] = [ []; [a; b] ]
+false: [] @ [[a; b]] = [[a; b]]
+
+親でconjunctionのとき
+true:  [[]] /\ [[a; b]; [c; d]] = [[a; b]; [c; d]]
+false: [] /\ [[a; b]; [c; d]] = [] *)
+
 
 let get_transition automaton state symbol =
   let { delta } = automaton in
@@ -111,4 +125,5 @@ let from_transitions (ranks,transitions,prs) =
   let st = states_in_transitions transitions in
   (* TODO: check *)
   let delta = List.map (fun (k, v) -> (k, to_dnf v)) transitions in
+  (* TODO: priorities are more than or equal to zero *)
   { alpha = alpha; st = st; delta = delta; init = init; omega = prs };;
