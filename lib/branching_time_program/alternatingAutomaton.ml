@@ -25,6 +25,7 @@ let show_dnf (dnf : dnf) =
   |> String.concat " \\/ "
 
 let to_dnf (fml : Raw_horsz.preformula) =
+  (* do optimization? *)
   let distribute f1 f2 =
     list_product f1 f2
     |> List.map (fun (c1, c2) ->
@@ -45,7 +46,11 @@ let to_dnf (fml : Raw_horsz.preformula) =
       let f1 = go f1 in
       let f2 = go f2 in
       distribute f1 f2
-    | _ -> failwith "to_dnf"
+    | FConst "true" ->
+      [[]]
+    | FConst "false" ->
+      []
+    | FConst s -> failwith @@ "to_dnf: illegal const (" ^ s ^ ")"
   in
   go fml
 

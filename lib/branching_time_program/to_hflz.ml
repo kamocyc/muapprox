@@ -33,13 +33,15 @@ let trans_ty all_states max_priority ty =
     | Type.TyArrow (arg, body) ->
       let body = trans_ty body in
       let args =
-        List.map (fun _ ->
-          trans_argty arg.ty
-        ) states_times_prs in
+        match arg.ty with
+        | Type.TyInt -> [arg.ty]
+        | Type.TySigma _ -> 
+          List.map (fun _ ->
+            trans_argty arg.ty
+          ) states_times_prs in
       let rec go body args = match args with
         | [] -> body
-        | arg::args ->
-          Type.TyArrow ({name=""; id=0; ty=arg}, go body args)
+        | arg::args -> Type.TyArrow ({name=""; id=0; ty=arg}, go body args)
       in
       go body args
     | Type.TyBool a -> Type.TyBool a
@@ -77,18 +79,12 @@ let trans_body automaton all_states max_priority global_env rule_args current_st
       make_apps p1 args
     end
     | AppInt (p1, p2) -> begin
-      let args =
-        List.map
-          (fun (st, m) -> (st, max pr_m m)) states_times_prs
-        |> List.map (fun (st, m) ->
-          Hflz.Arith (go_arith env st m p2)
-        )
-        in
       let p1 = go env state pr_m p1 in
-      make_apps p1 args
+      let p2 = Hflz.Arith (go_arith env p2) in
+      App (p1, p2)
     end
     | If (p1, p2, p3) -> begin
-      let cond = go_formula env state pr_m p1 in
+      let cond = go_formula env p1 in
       let p2 = go env state pr_m p2 in
       let p3 = go env state pr_m p3 in
       Or (
@@ -104,46 +100,52 @@ let trans_body automaton all_states max_priority global_env rule_args current_st
     end
     | Terminal (c, ts) -> begin
       let transitions = A.get_transition automaton state c in
-      (* 各枝に合わせる *)
-      let a = List.map
-        (fun clause ->
-          (* clause is conjunction of literals *)
+      let f =
+        match transitions with
+        | [] -> Hflz.Bool false
+        | transitions -> begin
           List.map
-            (fun (A.CVar (d', q')) ->
-              let m' = max pr_m (A.get_prioirty automaton q')in
-              match List.nth_opt ts (d' - 1) with
-              | Some t -> go env q' m' t
-              | None ->
-                failwith @@
-                  "terminal not found: symbol=" ^ c ^ ", " ^
-                  "index=" ^ string_of_int (d' - 1) ^ "," ^
-                  "term=" ^ Horsz.show_horsz_expr_s phi
-              (* go env q' m' ps *)
+            (fun clause ->
+              (* clause is conjunction of literals *)
+              match clause with
+              | [] -> Hflz.Bool true
+              | clause ->
+                List.map
+                  (fun (A.CVar (d', q')) ->
+                    let m' = max pr_m (A.get_prioirty automaton q')in
+                    match List.nth_opt ts (d' - 1) with
+                    | Some t -> go env q' m' t
+                    | None ->
+                      failwith @@
+                        "terminal not found: symbol=" ^ c ^ ", " ^
+                        "index=" ^ string_of_int (d' - 1) ^ "," ^
+                        "term=" ^ Horsz.show_horsz_expr_s phi
+                    (* go env q' m' ps *)
+                  )
+                  clause
+                |> make_ands
             )
-            clause
-          |> make_ands
-        )
-        transitions 
-        |> make_ors in
-      a
+            transitions
+            |> make_ors
+        end in
+      f
     end
-  and go_formula env state pr_m phi = match phi with
+  and go_formula env phi = match phi with
     | Bool b -> Hflz.Bool b
-    | Or (p1, p2) -> Or (go_formula env state pr_m p1, go_formula env state pr_m p2)
-    | And (p1, p2) -> And (go_formula env state pr_m p1, go_formula env state pr_m p2)
-    | Pred (p, ps) -> Pred (p, List.map (go_arith env state pr_m) ps)
-  and go_arith env state pr_m phi = match phi with
+    | Or (p1, p2) -> Or (go_formula env p1, go_formula env p2)
+    | And (p1, p2) -> And (go_formula env p1, go_formula env p2)
+    | Pred (p, ps) -> Pred (p, List.map (go_arith env) ps)
+  and go_arith env phi = match phi with
     | Int i -> Arith.Int i
     | AVar v -> begin
-      let name = make_name v.Id.name state pr_m in
-      match List.find_all (fun id -> id.Id.name = name) env with
+      match List.find_all (fun id -> id.Id.name = v.Id.name) env with
       | [id] -> begin
         Var { id with ty = `Int }
       end
-      | [] -> failwith @@ "not found: " ^ name
+      | [] -> failwith @@ "not found: " ^ v.Id.name
       | _ -> assert false
     end
-    | Op (o, ps) -> Op (o, List.map (go_arith env state pr_m) ps)
+    | Op (o, ps) -> Op (o, List.map (go_arith env) ps)
   in
   let env = (List.map (fun id -> { id with Id.ty = Type.TySigma id.Id.ty }) global_env) @ rule_args in
   (* state pr_m *)
@@ -164,13 +166,17 @@ let trans_horsz automaton horsz =
             (* arguments *)
             let args =
               List.map (fun arg ->
-                List.map
-                  (fun (a, b) ->
-                    let name = make_name arg.Id.name a b in
-                    let ty = trans_argty all_states max_priority (arg.Id.ty) in
-                    Id.gen ~name:name ty
-                  )
-                  states_times_prs
+                match arg.Id.ty with
+                | Type.TyInt ->
+                  [Id.gen ~name:arg.Id.name arg.Id.ty]
+                | Type.TySigma _ ->
+                  List.map
+                    (fun (a, b) ->
+                      let name = make_name arg.Id.name a b in
+                      let ty = trans_argty all_states max_priority (arg.Id.ty) in
+                      Id.gen ~name:name ty
+                    )
+                    states_times_prs
               ) args 
               |> List.flatten in
             let name = make_name var.Id.name q m in

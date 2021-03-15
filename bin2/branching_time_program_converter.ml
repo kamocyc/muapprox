@@ -11,7 +11,13 @@ let map_file_path path converter =
   Stdlib.Filename.concat dir (base ^ ext)
 
 let main filepath =
-  Muapprox.branching_time_program filepath
+  let hes = Muapprox.branching_time_program filepath in
+  ignore @@ Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:"aaa.txt" ~without_id:true true hes;
+  let hes = Muapprox.eliminate_unused_argument hes in
+  ignore @@ Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:"bbb.txt" ~without_id:true true hes;
+  let hes = Manipulate.Hes_optimizer.simplify hes in
+  ignore @@ Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:"ccc.txt" ~without_id:true true hes;
+  ()
   
 let command =
   Command.basic

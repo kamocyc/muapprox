@@ -113,6 +113,7 @@ abstraction_ty:
   
 abstraction_argty:
 | TINT                   { Type.TyInt }
+| TUNIT                  { Type.TySigma (Type.TyBool ()) }
 | "(" abstraction_ty ")" { Type.TySigma ($2)   }
 
 
