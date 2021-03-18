@@ -1,0 +1,24 @@
+%HES
+Sentry =v FibAux_236 S_233.
+S_233 f_269 f_270 g_272 g_273 =v f_269 true false.
+FibAux_236 k_284 =v
+  k_284 I_260 I_261 S_239 S_240 /\ FibAux_245 (FibAux_242 k_284).
+S_239 y_293 y_294 =v true /\ y_294.
+S_240 y_296 y_297 =v true /\ y_296.
+FibAux_242 k_308 f_311 f_312 g_314 g_315 =v
+  k_308 (Concat_257 f_311 g_314 g_315) (Concat_258 f_312 g_314 g_315) f_311
+   f_312.
+FibAux_245 k_329 =v FibAux_251 (FibAux_248 k_329).
+FibAux_248 k_344 f_347 f_348 g_350 g_351 =v
+  k_344 (Concat_257 f_347 g_350 g_351) (Concat_258 f_348 g_350 g_351) f_347
+   f_348.
+FibAux_251 k_365 =v FibAux_236 (FibAux_254 k_365).
+FibAux_254 k_380 f_383 f_384 g_386 g_387 =v
+  k_380 (Concat_257 f_383 g_386 g_387) (Concat_258 f_384 g_386 g_387) f_383
+   f_384.
+Concat_257 f_407 g_410 g_411 x_413 x_414 =v
+  f_407 (g_410 x_413 x_414) (g_411 x_413 x_414).
+Concat_258 f_417 g_419 g_420 x_422 x_423 =v
+  f_417 (g_419 x_422 x_423) (g_420 x_422 x_423).
+I_260 x_428 x_429 =v x_428.
+I_261 x_431 x_432 =v x_432.

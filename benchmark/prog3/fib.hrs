@@ -1,0 +1,43 @@
+/* Taken from an example of MFT verification by Kazuhiro Abe */
+/* The example uses _fun expressions (a la fun expressions in Ocaml), which are supported from
+   version 0.94 
+*/
+
+%RANK
+b -> 2.
+br -> 2.
+nil -> 0.
+
+%GRAMMAR
+/* main x = let (f,g)=(Fib x, Aux x) in f */
+S -> FibAux_In3x0 S_1.
+S_1 (f: unit -> unit) (g: unit -> unit) -> f nil.
+FibAux_In3x0 (k : (unit -> unit) -> (unit -> unit) -> unit) -> br (k I (S_2)) (FibAux_In3x2 (FibAux_In3x0_1 k)).
+S_2 (y: unit) -> b nil y.
+FibAux_In3x0_1 (k : (unit -> unit) -> (unit -> unit) -> unit) (f: unit -> unit) (g: unit -> unit) -> k (Concat f g) f.
+FibAux_In3x2 (k : (unit -> unit) -> (unit -> unit) -> unit) -> FibAux_In3x1 (FibAux_In3x2_1 k).
+FibAux_In3x2_1 (k : (unit -> unit) -> (unit -> unit) -> unit) (f: unit -> unit) (g: unit -> unit) -> k (Concat f g) f.
+FibAux_In3x1 (k : (unit -> unit) -> (unit -> unit) -> unit) -> FibAux_In3x0 (FibAux_In3x1_1 k).
+FibAux_In3x1_1 (k : (unit -> unit) -> (unit -> unit) -> unit) (f: unit -> unit) (g: unit -> unit) -> k (Concat f g) f.
+Concat (f: unit -> unit) (g: unit -> unit) (x: unit) -> f (g x).
+/* empty sequence () */
+I (x: unit) -> x.
+
+/* b[], b[], ... is represented as
+  b end (b end (b end ... (b end end)...))
+*/
+%TRANSITION
+q0 b -> (1, nil)/\(2, q1).
+q0 br -> (1, q0)/\(2, q0).
+q0 nil -> true.
+q1 b -> (1, nil)/\(2, q0).
+q1 br -> false.
+q1 nil -> false.
+nil b -> false.
+nil br -> false.
+nil nil -> true.
+
+%PRIORITY
+nil -> 0.
+q0 -> 0.
+q1 -> 0.

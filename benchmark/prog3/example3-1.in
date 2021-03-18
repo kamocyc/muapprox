@@ -1,0 +1,4 @@
+%HES
+Sentry =v F__q0__0 (F__q0__0 true).
+F__q0__0 x__q0__0 =v x__q0__0 /\ F__q1__0.
+F__q1__0  =v false.

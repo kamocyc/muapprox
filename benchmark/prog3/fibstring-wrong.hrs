@@ -1,0 +1,66 @@
+%RANK
+a -> 1.
+b -> 1.
+e -> 0.
+
+%GRAMMAR
+S -> Twice (Twice (Twice (Twice F))) Fst b a.
+Fst x y -> x e.
+F k x y -> k y (Concat y x).
+Twice f k x y -> f (f k) x y.
+Concat x y c -> x(y c).
+
+/* contains no ab?  */
+%TRANSITION
+q0 a -> (1, q1).
+q0 b -> (1, q0).
+q1 a -> (1, q1).
+q1 b -> (1, q2).
+q2 a -> (1, q2).
+q2 b -> (1, q2).
+q0 e -> true.
+q1 e -> true.
+
+/* contains bb? 
+%TRANSITION
+q0 a -> (1, q0).
+q0 b -> (1, q1).
+q1 a -> (1, q0).
+q1 b -> (1, q2).
+q2 a -> (1, q2).
+q2 b -> (1, q2).
+q2 e -> true.
+*/
+
+/* does not contain bb? 
+%TRANSITION
+q0 a -> (1, q0).
+q0 b -> (1, q1).
+q1 a -> (1, q0).
+q1 b -> (1, q2).
+q2 a -> (1, q2).
+q2 b -> (1, q2).
+q0 e -> true.
+q1 e -> true.
+*/
+
+/* does not contain aaa?  
+%TRANSITION
+q0 a -> (1, q1).
+q0 b -> (1, q0).
+q1 a -> (1, q2).
+q1 b -> (1, q0).
+q2 a -> (1, q3).
+q2 b -> (1, q0).
+q3 a -> (1, q0).
+q3 b -> (1, q0).
+q0 e -> true.
+q1 e -> true.
+q2 e -> true.
+*/
+
+%PRIORITY
+q0 -> 0.
+q1 -> 0.
+q2 -> 0.
+
