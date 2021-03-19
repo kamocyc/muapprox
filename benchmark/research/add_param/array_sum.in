@@ -1,6 +1,5 @@
 %HES
 Sentry =u
-  ∀arg1_1094. 
    ∀n_1097. 
     SET (\i_1109. \k_make_array_1110. k_make_array_1110 0) n_1097
      (\ar_1081. LOOP SUM ar_1081 n_1097 0 (\x_1074. true)).

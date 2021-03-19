@@ -10,12 +10,14 @@ let map_file_path path converter =
   let dir, base, ext = converter (dir, base, ext) in
   Stdlib.Filename.concat dir (base ^ ext)
 
-let main filepath disable_optimization show_style =
+let main filepath disable_optimization disable_inlining show_style =
   let phi = Muapprox.branching_time_program filepath in
   let phi =
     if not disable_optimization then
       let phi = Muapprox.eliminate_unused_argument phi in
-      Manipulate.Hes_optimizer.simplify phi
+      if not disable_inlining then
+        Manipulate.Hes_optimizer.simplify phi
+      else phi
     else phi in
   let phi =
     match show_style with
@@ -39,10 +41,11 @@ let command =
       let%map_open
         filepath = anon ("filepath" %: string)
       and disable_optimization = flag "--disable-optimization" no_arg ~doc:"disable elimination of unused arguments"
+      and disable_inlining = flag "--disable-inlining" no_arg ~doc:"disable inlining"
       and show_style =
         flag "--show-style" (optional_with_default Asis_id read_show_style) ~doc:"output id without escaping (for debug)"
       in
-      (fun () -> main filepath disable_optimization show_style)
+      (fun () -> main filepath disable_optimization disable_inlining show_style)
     )
 
 let () = Command.run command

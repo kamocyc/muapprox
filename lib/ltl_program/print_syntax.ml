@@ -99,6 +99,34 @@ let show_program_as_ocaml p =
   in
   go_program p
 
+let show_program_expression_as_hors p =
+  let rec go_program p = match p with
+    | PUnit -> "()"
+    | PVar s ->
+      let name = replace_var_name (Id.to_string ~without_id:true s) in
+      name
+    | PIf _ | PEvent _ | PNonDet _ -> failwith "show_program_as_hors"
+    | PApp (p1, p2) -> "(" ^ go_program p1 ^ " " ^ go_program p2 ^ ")"
+    | PAppInt (p1, p2) -> "(" ^ go_program p1 ^ " " ^ go_arith p2 ^ ")"
+  and go_arith p = match p with
+    | AVar v -> replace_var_name (Id.to_string ~without_id:true v)
+    | AInt i -> string_of_int i
+    | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ show_op op ^ go_arith arg2 ^ ")"
+    | _ -> failwith "show_program_as_hors"
+  in
+  go_program p
+
+let show_program_as_hors ((entry, funcs) : program) =
+  "s -> " ^ show_program_expression_as_hors entry ^ ".\n" ^
+  (
+    List.map (fun {var; args; body} ->
+      Id.to_string ~without_id:true var ^ " " ^
+        (String.concat " " (List.map (fun {Id.name; ty} -> "(" ^ name ^ ": " ^ show_simple_argty ty ^ ")") args)) ^
+        " -> " ^ show_program body ^ ".\n"
+    ) funcs |>
+    String.concat ""
+  )
+    
 let show_program ((entry, funcs) : program) = 
   "let () = " ^ show_program entry ^ "\n" ^
   (

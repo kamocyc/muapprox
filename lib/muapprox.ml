@@ -2,6 +2,7 @@ module Util        = Hflmc2_util
 module Syntax      = Hflmc2_syntax
 module Options     = Hflmc2_options
 module Manipulate  = Manipulate
+module Ltl_print_syntax = Ltl_program.Print_syntax
 
 open Util
 open Syntax
@@ -133,6 +134,8 @@ let check_equal_hes = Muapprox_prover.Check_formula_equality.check_equal_hes
 let show_debug_context = Muapprox_prover.show_debug_context
 let abbrev_variable_numbers_hes = Muapprox_prover.Abbrev_variable_numbers.abbrev_variable_numbers_hes
 let convert_ltl = Ltl_program.convert_ltl
+let convert_all = Ltl_program.convert_all
+let ltl_parse_file = Ltl_program.parse_file
 let eliminate_unused_argument = Ltl_program.eliminate_unused_argument
 let infer_type = Ltl_program.infer_type
 let abbrev_variable_names = Ltl_program.abbrev_variable_names

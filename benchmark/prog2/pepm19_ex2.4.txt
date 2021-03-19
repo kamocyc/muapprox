@@ -5,6 +5,7 @@ c -> 1.
 d -> 2.
 
 %GRAMMAR
+/* 3 should be an arbitary integer */
 S -> Input 0 (G 3).
 Repeat (f : int -> (int -> unit) -> unit) (x : int) -> if x <= 0 then Fin else
               d (f x (Repeat f)) (Repeat f (x - 1)).

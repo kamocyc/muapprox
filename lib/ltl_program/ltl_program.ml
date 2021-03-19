@@ -2,6 +2,8 @@ open Program
 open Itype
 open Trans_ltl
 
+module Print_syntax = Print_syntax
+
 let as_function assoc key =
   match List.find_opt (fun (k, s) -> k = key) assoc with
   | None -> failwith @@ "as_function: Not_found (key=" ^ show_state key ^ ")"
@@ -97,3 +99,5 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nonde
 let eliminate_unused_argument = Eliminate_unused_argument.eliminate_unused_argument
 let infer_type = Type_hflz.infer_type
 let abbrev_variable_names = Eliminate_unused_argument_util.abbrev_variable_names
+let convert_all = Trans_raw_program.convert_all
+let parse_file = Parse.parse_file

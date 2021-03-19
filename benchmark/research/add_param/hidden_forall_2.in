@@ -1,0 +1,17 @@
+%HES
+Sentry =u Prepare Main.
+
+Prepare k =u ∀n. k (\k2. k2 n).
+
+Main f =u Loop f (\r. true).
+
+Loop f k =u
+  Check f (\b.
+    (b = 1 => k 0) /\
+    (b = 0 => Loop (Pred f) k)
+  ).
+
+Check f k =u
+  f (\x. (x <= 0 => k 1) /\ (x > 0 => k 0)).
+
+Pred f k =u f (\x. k (x - 1)).
