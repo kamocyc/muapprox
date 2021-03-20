@@ -6,10 +6,10 @@ e -> 0.
 
 %GRAMMAR
 S -> F One Three.
-F (x: unit -> unit) (y: unit -> unit) -> br (x e) (F y (Plus x y)).
-Plus (x: unit -> unit) (y: unit -> unit) (z: unit) -> x(y z).
-One (z: unit) -> s(z).
-Three (z: unit) -> s(s(s(z))).
+F x y -> br (x e) (F y (Plus x y)).
+Plus x y z -> x(y z).
+One z -> s(z).
+Three z -> s(s(s(z))).
 
 %TRANSITION
 q0 br -> (1,odd) /\ (2,q0).

@@ -85,7 +85,7 @@ let show_formula a =
 
 let show_horsz_expr expr = 
   let rec go expr = match expr with
-    | PVar v -> Id.to_string ~without_id:false v
+    | PVar v -> Id.to_string ~without_id:true v
     | App (p1, p2) -> "(" ^ go p1 ^ " " ^ go p2 ^ ")"
     | AppInt (p1, a) -> "(" ^ go p1 ^ " " ^ show_arith a ^ ")"
     | If (c, p1, p2) -> "(if " ^ show_formula c ^ " then " ^ go p1 ^ " else " ^ go p2
@@ -93,14 +93,30 @@ let show_horsz_expr expr =
   in
   go expr
 
-let show_horsz (g : Type.simple_ty horsz) =
+
+let rec show_simple_ty (ty : Type.simple_ty) = match ty with
+  | TyBool _ -> "unit"
+  | TyArrow (a, b) -> "(" ^ show_simple_argty a.ty ^ " -> " ^ show_simple_ty b ^ ")"
+and show_simple_argty (ty : Type.simple_argty) = match ty with
+  | TyInt -> "int"
+  | TySigma ty -> show_simple_ty ty
+
+let show_horsz (g : Type.simple_ty horsz) with_type =
   let (entry, rules) = g in
   "S -> " ^ show_horsz_expr entry ^ ".\n" ^
   (List.map (fun {var; args; body} ->
     Id.to_string ~without_id:true var ^ " " ^
-    ((List.map (fun id -> Id.to_string ~without_id:true id) args) |> String.concat " ") ^
+    (
+      (List.map
+        (fun id ->
+          let id_str = Id.to_string ~without_id:true id in
+          if with_type then "(" ^ id_str ^ " : " ^ show_simple_argty id.Id.ty ^ ")"
+          else id_str
+        ) args)
+      |> String.concat " "
+    ) ^
     " -> " ^ show_horsz_expr body ^ ".\n"
   ) rules
   |> String.concat "")
   
-let print (g : Type.simple_ty horsz) = print_endline @@ show_horsz g
+let print (g : Type.simple_ty horsz) with_type = print_endline @@ show_horsz g with_type

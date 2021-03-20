@@ -8,6 +8,24 @@ b -> 2.
 br -> 2.
 nil -> 0.
 
+
+%GRAMMAR
+/* main x = let (f,g)=(Fib x, Aux x) in f */
+S -> FibAux_In3x0 S_1.
+S_1 f g -> f nil.
+FibAux_In3x0 k -> br (k I (S_2)) (FibAux_In3x2 (FibAux_In3x0_1 k)).
+S_2 y -> b nil y.
+FibAux_In3x0_1 k f g -> k (Concat f g) f.
+FibAux_In3x2 k -> FibAux_In3x1 (FibAux_In3x2_1 k).
+FibAux_In3x2_1 k f g -> k (Concat f g) f.
+FibAux_In3x1 k -> FibAux_In3x0 (FibAux_In3x1_1 k).
+FibAux_In3x1_1 k f g -> k (Concat f g) f.
+Concat f g x -> f (g x).
+/* empty sequence () */
+I x -> x.
+
+
+/*
 %GRAMMAR
 /* main x = let (f,g)=(Fib x, Aux x) in f */
 S -> FibAux_In3x0 S_1.
@@ -22,6 +40,7 @@ FibAux_In3x1_1 (k : (unit -> unit) -> (unit -> unit) -> unit) (f: unit -> unit) 
 Concat (f: unit -> unit) (g: unit -> unit) (x: unit) -> f (g x).
 /* empty sequence () */
 I (x: unit) -> x.
+*/
 
 /* b[], b[], ... is represented as
   b end (b end (b end ... (b end end)...))

@@ -1,10 +1,10 @@
-/*** A flawed variant of twofiles.hrs: The second file is not closed. ***/
-/*** let rec f x y = if * then close x
+/* ** A flawed variant of twofiles.hrs: The second file is not closed. ** */
+/* ** let rec f x y = if * then close x
  ***                 else read x; write y in
  *** let x = open_in "foo" in
  *** let y = open_out "bar" in
  ***   f x y
- ***/
+ ** */
 
 %RANK
 br -> 2.

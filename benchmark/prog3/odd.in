@@ -1,13 +1,15 @@
 %HES
-Sentry =v F_90 One_94 One_95 Three_97 Three_98.
-F_90 x_112 x_113 y_115 y_116 =v
-  x_113 true false
-  /\ F_90 y_115 y_116 (Plus_91 x_112 y_115 y_116) (Plus_92 x_113 y_115 y_116).
-Plus_91 x_118 y_121 y_122 z_124 z_125 =v
-  x_118 (y_121 z_124 z_125) (y_122 z_124 z_125).
-Plus_92 x_128 y_130 y_131 z_133 z_134 =v
-  x_128 (y_130 z_133 z_134) (y_131 z_133 z_134).
-One_94 z_145 z_146 =v z_146.
-One_95 z_148 z_149 =v z_148.
-Three_97 z_154 z_155 =v z_155.
-Three_98 z_157 z_158 =v z_157.
+Sentry =v F__q0__0 One__even__0 One__odd__0 Three__even__0 Three__odd__0.
+F__q0__0 x__even__0 x__odd__0 y__even__0 y__odd__0 =v
+  x__odd__0 true false
+  /\ F__q0__0 y__even__0 y__odd__0
+      (Plus__even__0 x__even__0 y__even__0 y__odd__0)
+      (Plus__odd__0 x__odd__0 y__even__0 y__odd__0).
+Plus__even__0 x__even__0 y__even__0 y__odd__0 z__even__0 z__odd__0 =v
+  x__even__0 (y__even__0 z__even__0 z__odd__0) (y__odd__0 z__even__0 z__odd__0).
+Plus__odd__0 x__odd__0 y__even__0 y__odd__0 z__even__0 z__odd__0 =v
+  x__odd__0 (y__even__0 z__even__0 z__odd__0) (y__odd__0 z__even__0 z__odd__0).
+One__even__0 z__even__0 z__odd__0 =v z__odd__0.
+One__odd__0 z__even__0 z__odd__0 =v z__even__0.
+Three__even__0 z__even__0 z__odd__0 =v z__odd__0.
+Three__odd__0 z__even__0 z__odd__0 =v z__even__0.

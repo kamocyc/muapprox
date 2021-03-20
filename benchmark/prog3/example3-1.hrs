@@ -6,7 +6,7 @@ c -> 0.
 
 %GRAMMAR
 S -> F (F c).
-F (x : unit) -> a x (b (F x)).
+F x -> a x (b (F x)).
 
 %TRANSITION
 q0 a -> ((1,q0) /\ (2,q0)).

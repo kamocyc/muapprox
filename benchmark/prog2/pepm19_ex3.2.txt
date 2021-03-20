@@ -6,9 +6,9 @@ c -> 1.
 
 %GRAMMAR
 S -> F 0.
-F (x : int) -> a (F (x + 1)) (G x H).
-G (x : int) (y : unit -> unit) -> if x = 0 then y (G 0 y) else b (G (x - 1) y).
-H (z : unit) -> c z.
+F x -> a (F (x + 1)) (G x H).
+G x y -> if x = 0 then y (G 0 y) else b (G (x - 1) y).
+H z -> c z.
 
 %TRANSITION
 q0 a -> (1, q0) \/ (2, q0).

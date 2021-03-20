@@ -7,12 +7,12 @@ d -> 2.
 %GRAMMAR
 /* 3 should be an arbitary integer */
 S -> Input 0 (G 3).
-Repeat (f : int -> (int -> unit) -> unit) (x : int) -> if x <= 0 then Fin else
-              d (f x (Repeat f)) (Repeat f (x - 1)).
+Repeat f x -> if x <= 0 then Fin else
+            d (f x (Repeat f)) (Repeat f (x - 1)).
 Fin -> c Fin.
-Sub (x : int) (y : int) (k : int -> unit) -> k (y - x).
-G (z : int) (x : int) -> Repeat (Sub x) z.
-Input (x : int) (k : int -> unit) -> a (k x) (Input (x + 1) k).
+Sub x y k -> k (y - x).
+G z x -> Repeat (Sub x) z.
+Input x k -> a (k x) (Input (x + 1) k).
 
 %TRANSITION
 q0 a -> (1, q0) \/ (2, q0).

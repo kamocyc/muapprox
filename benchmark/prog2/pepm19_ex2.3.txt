@@ -6,8 +6,8 @@ c -> 1.
 
 %GRAMMAR
 S -> F 0.
-F (x : int) -> a (F (x + 1)) (G x).
-G (x : int) -> if x = 0 then c (G 0) else b (G (x - 1)).
+F x -> a (F (x + 1)) (G x).
+G x -> if x = 0 then c (G 0) else b (G (x - 1)).
 
 %TRANSITION
 q0 a -> (1, q0) \/ (2, q0).

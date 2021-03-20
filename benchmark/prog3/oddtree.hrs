@@ -5,8 +5,8 @@ e -> 0.
 
 %GRAMMAR
 S -> F One Three.
-F (x: unit) (y: unit) -> br x (F y (Plus x y)).
-Plus (x: unit) (y: unit) -> s x y.
+F x y -> br x (F y (Plus x y)).
+Plus x y -> s x y.
 One -> e.
 Three -> s (s e e) e.
 

@@ -1,4 +1,40 @@
+## demonic / angelic non-determinismの表現方法
+* pepm19_ex2.4_(a|b).txt が例
 
+q d -> (1, q) /\ (2, q).
+q d2 -> (1, q) /\ (2, qd).
+qd d2 -> (1, q) /\ (2, qd).
+qd * -> false. (他のイベントが入ることはない)
+
+q a -> (1, q) \/ (2, q).
+q a2 -> (1, q) \/ (2, qa).
+qa a2 -> (1, q) \/ (2, qa).
+qa * -> false. (他のイベントが入ることはない)
+
+qd -> large (original max + 1 以上) even priority (これが無限に続く場合は受理するようにする)
+qa -> large (original max + 1 以上) odd  priority (これが無限に続く場合は受理しないようにする（いずれかの分岐で受理する必要があるので）)
+
+
+
+## HORS model checkingのresource usageの検証の例
+* 各resourceをnewするときに、(下記のnew_roのように)非決定分岐でopenするものとしないものに分岐する
+* automatonは、resourceをちょうど1回だけnewするパスのみを検査するようにする（0回や2回以上のnewがあるパスは、無条件で受理）
+  * resource automatonはtrivialで足りる
+
+let () = new_ro g
+let g z1 = new_wo (f () z1)
+let f k x y = if * then (acc_close x (acc_close y k)) else (acc_read x (acc_write y (f k x y)))
+let new_ro k = if * then (event open; k (\f k. f k)) else (k (\f k. k))
+let acc_close x k = x (\k2. event close; k2) k
+
+二重のオープンや、1回もオープンしていない状態での資源の使用が無いことは、（単純型付け）プログラミング言語の性質から示せる
+* 1回openしたファイルは、read*closeの順にアクセスされる
+* close/read/writeの前には、openがある (無いと、そもそも型が付かない)
+* 2重のopen: 「同じファイルに対して」とかはもちろん検査されない. immutableなので、同じ変数に上書きということはない。closeがあるということで検査される
+
+
+
+## 述語の簡単化の案
 下からinling可能なものを見ていけばいいはず
 
 無駄な述語を統合

@@ -65,6 +65,7 @@ grammar_definition:
 
 arg:
 | "(" var ":" argty ")" { mk_arg $2 (Some $4) }
+| var { mk_arg $1 None }
 
 argty:
 | abstraction_ty     { Type.TySigma ($1) }
