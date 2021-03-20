@@ -1,6 +1,42 @@
 type process_status = Unix.process_status
 let partition = List.partition
 
+let contains_duplicates ls = (List.length @@ List.sort_uniq compare ls) <> List.length ls
+
+let group_by f l1 =
+  List.fold_left
+    (fun acc e ->
+      let key = f e in
+      let mem = try Hashtbl.find acc key with Not_found -> [] in
+      Hashtbl.replace acc key (e::mem);
+      acc
+    )
+    (Hashtbl.create 100)
+    l1
+
+let list_product l1 l2 =
+  List.map (fun e1 -> List.map (fun e2 -> (e1, e2)) l2) l1
+  |> List.flatten
+
+let rec merge_and_unify comp l1 l2 =
+  match (l1, l2) with
+    (_,[]) -> l1
+  | ([], _)->l2
+  | (x::l1',y::l2') -> 
+        let c = comp x y in
+         if c=0 then x::(merge_and_unify comp l1' l2')
+         else if c<0 then x::(merge_and_unify comp l1' l2)
+         else y::(merge_and_unify comp l1 l2');;
+let rec merge_and_unify_list comp ll =
+  List.fold_left
+  (fun l1 l2 -> merge_and_unify comp l1 l2)
+  [] ll
+
+let upto m =
+  let rec go m = if m = 0 then [0] else m :: (go (m - 1)) in    
+  go m |> List.rev
+
+
 module Core = Core
 open Core
 
@@ -357,10 +393,6 @@ let bytes_of_sexp     = bytes_of_sexp
 let sexp_of_bytes     = sexp_of_bytes
 let unit_of_sexp      = unit_of_sexp
 let sexp_of_unit      = sexp_of_unit
-
-module Logs     = Logs
-module Logs_cli = Logs_cli
-module Logs_fmt = Logs_fmt
 
 type ('a, 'b) result = Ok of 'a | Error of 'b
 

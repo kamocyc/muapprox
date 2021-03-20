@@ -14,11 +14,6 @@ let alphanum = ['0'-'9' 'a'-'z' 'A'-'Z' '_']
 let ope_symbols = [ '=' '<' '>' '+' '-' '*' '&' '|' '\\' '/' '!' ]
 
 rule token = parse
-| "%ENV"                   { ENV }
-(* | "%STATE"                 { STATE }
-| "%ALPHABET"              { ALPHABET } *)
-| "%TRANSITION"            { TRANSITION }
-| "%PRIORITY"              { PRIORITY }
 | "\n"                     { Lexing.new_line lexbuf; token lexbuf }
 | space+                   { token lexbuf }
 | newline                  { end_of_previousline := Lexing.lexeme_end lexbuf
@@ -27,14 +22,42 @@ rule token = parse
                            }
 | "/*"                     { comment lexbuf; token lexbuf }
 | eof                      { EOF       }
+| "\\"                     { LAMBDA }
 | "."                      { DOT }
+| "()"                     { UNIT }
 | "("                      { LPAREN    }
 | ")"                      { RPAREN    }
+| "true"                   { TRUE      }
+| "false"                  { FALSE     }
+| "event"                  { EVENT }
+| ";"                      { SEMICOLON }
+| "if"                     { IF }
+| "then"                   { THEN }
+| "else"                   { ELSE }
+| ":"                      { COLON     }
+| ","                      { COMMA }
+| "int"                    { TINT      }
+| "unit"                   { TUNIT     }
 | "->"                     { TARROW    }
+| "let"                    { LET }
+| "in"                    { IN }
 | digit digit*             { INT (int_of_string (Lexing.lexeme lexbuf)) }
-(* | upper alphanum*          { UIDENT (Lexing.lexeme lexbuf) } *)
 | lower alphanum*          { LIDENT (Lexing.lexeme lexbuf) }
 | ope_symbols ope_symbols* { match Lexing.lexeme lexbuf with
+                           | "+"           -> PLUS
+                           | "-"           -> MINUS
+                           | "*"           -> STAR
+                           (*| "/"           -> SLASH *)
+                           (*| "%"           -> PERCENT*)
+                           | "="           -> EQ
+                           | "!="          -> NEQ
+                           | "<>"          -> NEQ
+                           | "<="          -> LE
+                           | ">="          -> GE
+                           | "<"           -> LANGRE
+                           | ">"           -> RANGRE
+                           | ("&&"|"/\\")  -> AND
+                           | ("||"|"\\/")  -> OR
                            | s -> failwith ("unknown operater " ^ s)
                            }
 

@@ -5,12 +5,19 @@
  (modules lexer))
 
 (library
- (public_name hflmc2_syntax)
- (inline_tests)
+ (public_name raw_program)
  (libraries
+   muapprox.manipulate
+   hflmc2_syntax
+   hflmc2_util
+   str
+   core
+   fmt
    logs
    logs.fmt
-   hflmc2_util
+   lwt
+   lwt.unix
    menhirLib)
+   (flags (-cclib -lstdc++))
  (preprocess (pps ppx_deriving.std ppx_compare ppx_sexp_conv ppx_inline_test ppx_expect)))
 (env (dev (flags (:standard -warn-error -A -w -3-26-27-33))))

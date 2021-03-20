@@ -1,4 +1,4 @@
-open Util
+module Util = Hflmc2_util
 
 type state = string;;
 type index = int;;
@@ -27,7 +27,7 @@ let show_dnf (dnf : dnf) =
 let to_dnf (fml : Raw_horsz.preformula) =
   (* do optimization? *)
   let distribute f1 f2 =
-    list_product f1 f2
+    Util.list_product f1 f2
     |> List.map (fun (c1, c2) ->
       c1 @ c2
     )
@@ -110,14 +110,14 @@ let states_in_preformula fml =
     | Raw_horsz.FConst _ -> []
     | FVar (i,q) -> [q]
     | FAnd (f1,f2) | FOr (f1,f2) ->
-        merge_and_unify compare (go f1) (go f2)
+        Util.merge_and_unify compare (go f1) (go f2)
   in go fml;;
 
 let states_in_tr ((q, a), fml) =
-  merge_and_unify compare [q] (states_in_preformula fml);;
+  Util.merge_and_unify compare [q] (states_in_preformula fml);;
 
 let states_in_transitions transitions =
-  merge_and_unify_list compare (List.map states_in_tr transitions);;
+  Util.merge_and_unify_list compare (List.map states_in_tr transitions);;
 
 let from_transitions (ranks,transitions,prs) =
   let alpha = ranks in

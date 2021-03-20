@@ -1,3 +1,4 @@
+open Raw_program
 open Program
 open Itype
 open Trans_ltl
@@ -17,19 +18,6 @@ let get_events (program : program) =
   (List.map (fun {body} -> go body) rules |> List.flatten))
   |> List.sort_uniq compare
 
-let contains_duplicates ls = (List.length @@ List.sort_uniq compare ls) <> List.length ls
-
-let group_by f l1 =
-  List.fold_left
-    (fun acc e ->
-      let key = f e in
-      let mem = try Hashtbl.find acc key with Not_found -> [] in
-      Hashtbl.replace acc key (e::mem);
-      acc
-    )
-    (Hashtbl.create 100)
-    l1
-
 let id x = x
 
 let check_input (program : program) (automaton : automaton) =
@@ -44,7 +32,7 @@ let check_input (program : program) (automaton : automaton) =
     failwith @@ "initial_state " ^ initial_state ^ " does not exist in the transition rules";
   
   let grouped_trans =
-    let ht = group_by (fun ((State a, _), _) -> a) trans in
+    let ht = Hflmc2_util.group_by (fun ((State a, _), _) -> a) trans in
     Hashtbl.fold (fun k v acc -> (k, List.map (fun ((_, Symbol a), _) -> a) v)::acc) ht [] in
   
   List.iter (fun (state, targets) ->

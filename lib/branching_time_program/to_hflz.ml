@@ -1,11 +1,11 @@
 open Hflmc2_syntax
-open Util
+module Util = Hflmc2_util
 module A = AlternatingAutomaton
 
 let make_name org_name state priority =
   org_name ^ "__" ^ state ^ "__" ^ string_of_int priority
 
-let get_states_times_prs all_states max_priority = list_product all_states (upto max_priority)
+let get_states_times_prs all_states max_priority = Util.list_product all_states (Util.upto max_priority)
 
 let make_apps p1 args =
   let rec go = function
@@ -188,7 +188,7 @@ let trans_horsz automaton horsz =
         rules
         |> List.flatten
       )
-      (upto max_priority |> List.rev)
+      (Util.upto max_priority |> List.rev)
       |> List.flatten in
   let global_env = List.map (fun ({Horsz.var}, _, _) -> var) rules in
   (* translate bodies *)

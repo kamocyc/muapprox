@@ -6,6 +6,7 @@
    fmt.tty
    logs
    logs.cli
+   logs.fmt
    cmdliner
    hflmc2_util)
  (preprocess (pps ppx_deriving.std ppx_compare ppx_sexp_conv ppx_deriving_cmdliner ppx_let)))

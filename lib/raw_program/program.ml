@@ -1,5 +1,4 @@
 open Hflmc2_syntax
-open Itype
 open Common_type
 
 type program_expr =

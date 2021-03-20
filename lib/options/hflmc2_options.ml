@@ -120,6 +120,10 @@ let set_up_params params =
 let term_set_up_params () =
   Cmdliner.Term.(const set_up_params $ params_cmdliner_term ())
 
+module Logs     = Logs
+module Logs_cli = Logs_cli
+module Logs_fmt = Logs_fmt
+
 (* Log *)
 let term_setup_log () =
   (*{{{*)

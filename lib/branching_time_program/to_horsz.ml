@@ -1,6 +1,5 @@
 open Hflmc2_syntax
 open Horsz
-open Util
 
 module R = Raw_horsz
 
@@ -56,10 +55,11 @@ let to_hors_expr env terminals body =
       | [] -> begin
         match List.find_all (fun (n', i) -> s = n') terminals with
         | [(t, i)] -> begin
-          if i <> 0 then failwith "illegal use of terminal";
+          (* TODO: terminalの部分適用 *)
+          if i <> 0 then failwith @@ "illegal use of terminal: " ^ s;
           Terminal (t, [])
         end
-        | [] -> failwith @@ "unbounded: " ^ s
+        | [] -> failwith @@ "unbounded: " ^ s ^ "/ " ^ (List.map (fun (s, i) -> s ^ "->" ^ string_of_int i) terminals |> String.concat ", ")
         | _ -> assert false
       end
       | _ -> assert false
@@ -68,6 +68,7 @@ let to_hors_expr env terminals body =
       If (go_formula p1, go p2, go p3)
     end
     | PApp (p1, p2) -> begin
+      (* terminal + arguments *)
       let r =
         let rec agg_args acc p = match p with
           | R.PApp (p1, p2) -> (agg_args (p2 :: acc) p1)
@@ -78,8 +79,9 @@ let to_hors_expr env terminals body =
         | Some ((s, n), args) -> begin
           assert (n = None);
           (match List.find_all (fun (n', i) -> s = n') terminals with
-          | [(t, _)] -> begin
-            (* TODO:  *)
+          | [(t, ti)] -> begin
+            assert (ti = List.length args);
+            (* TODO: terminalの部分適用 *)
             let args = List.map go args in
             Some (Terminal (t, args))
           end
@@ -89,10 +91,23 @@ let to_hors_expr env terminals body =
       in
       match r with
       | None -> begin
+        (* argument is integer? *)
         let p1 = go p1 in
-        try
-          App (p1, go p2)
-        with _ -> AppInt (p1, go_arith p2)
+        if (
+          match p2 with
+          | AInt _ | AOp _ -> true
+          | PVar (s, n) -> begin
+            match List.find_all (fun n -> s = n.Id.name) env with
+            | [id] -> begin
+              match id.ty with
+              | Type.TyInt -> true
+              | _ -> false
+            end
+            | _ -> false
+          end
+          | _ -> false)
+        then AppInt (p1, go_arith p2)
+        else App (p1, go p2)
       end
       | Some r -> r
     end
@@ -347,7 +362,7 @@ let to_horsz (terminals : (terminal * int) list) (raw : R.raw_program) =
   let rules =
     List.map (fun (v, args, body) ->
       let env = global_env @ args in
-      if contains_duplicates (List.map (fun id -> id.Id.name) env @ (List.map fst terminals)) then
+      if Hflmc2_util.contains_duplicates (List.map (fun id -> id.Id.name) env @ (List.map fst terminals)) then
         failwith "arguments, terminal and nonterminal name conflict";
       let body = to_hors_expr env terminals body in
       {var = v; args; body}

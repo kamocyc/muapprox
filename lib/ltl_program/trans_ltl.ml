@@ -1,5 +1,6 @@
 open Hflmc2_syntax
 open Itype
+open Raw_program
 open Program
 
 module Program2 = Program

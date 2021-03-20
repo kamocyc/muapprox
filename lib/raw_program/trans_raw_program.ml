@@ -1,4 +1,4 @@
-module R = Raw_program
+module R = Program_raw
 open Hflmc2_syntax
 
 type tv_expression = R.ptype Id.t R.raw_expression_gen
@@ -275,7 +275,7 @@ let generate_constraints (raw : tv_program) : (R.ptype * R.ptype) list =
     |> List.flatten in
   constraints
 
-let subst_program (raw : tv_program) (subst : (unit Id.t * Raw_program.ptype) list) : tv_program =
+let subst_program (raw : tv_program) (subst : (unit Id.t * Program_raw.ptype) list) : tv_program =
   let open R in
   let rec go (raw : tv_expression) = match raw with
     | PUnit -> PUnit

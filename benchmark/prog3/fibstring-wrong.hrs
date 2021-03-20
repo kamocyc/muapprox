@@ -4,7 +4,9 @@ b -> 1.
 e -> 0.
 
 %GRAMMAR
-S -> Twice (Twice (Twice (Twice F))) Fst b a.
+S -> Twice (Twice (Twice (Twice F))) Fst B A.
+B x -> b x.
+A x -> a x.
 Fst x y -> x e.
 F k x y -> k y (Concat y x).
 Twice f k x y -> f (f k) x y.
@@ -20,6 +22,7 @@ q2 a -> (1, q2).
 q2 b -> (1, q2).
 q0 e -> true.
 q1 e -> true.
+q2 e -> false.
 
 /* contains bb? 
 %TRANSITION

@@ -352,9 +352,9 @@ let rec subst_ctype ctype subst =
 
 let show_constraints con =
   let con = M.to_list con in
-  Print_syntax.show_pairs
+  Raw_program.Print_syntax.show_pairs
     (fun id -> "a_" ^ Id.to_string id)
-    (fun l -> Print_syntax.show_pairs show_ctype show_ctype l)
+    (fun l -> Raw_program.Print_syntax.show_pairs show_ctype show_ctype l)
     con
     
 let compose_subst (ty1, ty) subst =
