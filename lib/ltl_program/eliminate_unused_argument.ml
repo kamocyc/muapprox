@@ -95,10 +95,10 @@ let solve equals cond =
   let rec unify (equals : (ctype * ctype) list) cond =
     (* save_to_file
       "unify.txt"
-      (show_constraints cond ^ "\n" ^ Print_syntax.show_pairs show_ctype show_ctype equals);
+      (show_constraints cond ^ "\n" ^ Hflmc2_util.show_pairs show_ctype show_ctype equals);
     print_endline "unify";
     print_endline @@ show_constraints cond;
-    print_endline @@ Print_syntax.show_pairs show_ctype show_ctype equals; *)
+    print_endline @@ Hflmc2_util.show_pairs show_ctype show_ctype equals; *)
     match equals with
     | [] -> begin
       remaining_cond := cond;
@@ -181,9 +181,9 @@ let replace_erasable_subtrees (rules : Type.simple_ty thes_rule list) elasables 
   (* print_endline @@ show_s_thes_rules rules; *)
   (* let remains = List.filter (fun e -> not @@ List.exists (fun u -> Id.eq u e) !used ) elasables in
   print_endline "used";
-  print_endline @@ Print_syntax.show_list Id.to_string !used;
+  print_endline @@ Hflmc2_syntax.show_list Id.to_string !used;
   print_endline "remains";
-  print_endline @@ Print_syntax.show_list Id.to_string remains; *)
+  print_endline @@ Hflmc2_syntax.show_list Id.to_string remains; *)
   (* assert (List.length remains = 0); *)
   rules
   
@@ -208,7 +208,7 @@ let eliminate_unused_argument (hes : Type.simple_ty Hflz.hes) =
   Print_temp.print_hes rules;
   print_endline @@ show_s_thes_rules rules;
   print_endline @@ show_constraints constraints;
-  print_endline @@ Print_syntax.show_pairs show_ctype show_ctype unified; *)
+  print_endline @@ Hflmc2_util.show_pairs show_ctype show_ctype unified; *)
   let rules = remove_id_form_subterm rules in
   let hes = Type_hflz.infer_and_eliminate_unit_type_terms (Hflz.decompose_entry_rule rules) in
   (* let () =

@@ -36,6 +36,24 @@ let upto m =
   let rec go m = if m = 0 then [0] else m :: (go (m - 1)) in    
   go m |> List.rev
 
+let read_file file = Core.In_channel.(with_file file ~f:input_all)
+
+let write_file file buf = Core.Out_channel.write_all file ~data:buf
+
+let count_substring str sub =
+  let sub_len = String.length sub in
+  let len_diff = (String.length str) - sub_len
+  and reg = Str.regexp_string sub in
+  let rec aux i n =
+    if i > len_diff then n else
+      try
+        let pos = Str.search_forward reg str i in
+        aux (pos + sub_len) (succ n)
+      with Not_found -> n
+  in
+  aux 0 0
+
+module Parse = Parse
 
 module Core = Core
 open Core
@@ -397,6 +415,8 @@ let sexp_of_unit      = sexp_of_unit
 type ('a, 'b) result = Ok of 'a | Error of 'b
 
 let show_list f ls = "[ " ^ (List.map ~f:f ls |> String.concat ~sep:"; \n") ^ " ]"
+let show_pairs pr1 pr2 ls =
+  show_list (fun (p1, p2) -> "(" ^ pr1 p1 ^ ", " ^ pr2 p2 ^ ")") ls
 let print_list f ls = print_endline @@ show_list f ls
 let fmt_string (outputter : Format.formatter -> 'a -> unit) ?margin (data : 'a): string =
   let buf = Buffer.create 100 in

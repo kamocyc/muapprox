@@ -25,44 +25,18 @@ let set_id_on_env (env : itype_env) program' =
     | None -> failwith "set_id_on_env"
   ) env
   
-
-let read_file file = Core.In_channel.(with_file file ~f:input_all)
-let write_file file buf = Core.Out_channel.write_all file ~data:buf
-
-(* TODO: test *)
-let split_with file separator =
-  let buf = read_file file in
-  let re = Str.regexp @@ "^" ^ separator ^ "$" in
-  let found_index =
-    try
-      Str.search_forward re buf 0
-    with Not_found -> failwith @@ "split_with: not found " ^ separator in
-  let before_text = String.sub buf 0 found_index in
-  let found_index = found_index + String.length separator in
-  let (extracted, after_text) =
-    try
-      let re = Str.regexp @@ "^%[A-Za-z_]+$" in
-      let next_separator_index = Str.search_forward re buf (found_index + 1) in
-      let extracted = String.sub buf found_index (next_separator_index - found_index) in
-      let after_text = String.sub buf next_separator_index (String.length buf - next_separator_index) in
-      (extracted, after_text)
-    with Not_found ->
-      let extracted = String.sub buf found_index (String.length buf - found_index) in
-      (extracted, "") in
-  (extracted, before_text ^ "\n" ^ after_text)
-  
 let parse_file file =
   let get_random_file_name () = Printf.sprintf "/tmp/%d.tmp" (Random.self_init (); Random.int 0x10000000) in
-  let extracted, remaining = split_with file "%PROGRAM" in
+  let extracted, extracted_line_numbers, remaining, remaining_line_numbers = Raw_program.Program_main.split_with file "%PROGRAM" in
   let extracted_file = get_random_file_name () in
   let remaining_file = get_random_file_name () in
-  write_file extracted_file extracted;
-  write_file remaining_file remaining;
+  Hflmc2_util.write_file extracted_file extracted;
+  Hflmc2_util.write_file remaining_file remaining;
   print_endline "parse_file";
   print_endline @@ extracted_file;
   print_endline @@ remaining_file;
-  let program = Raw_program.Parse.parse_file extracted_file in
-  let automaton = Parse.parse_file remaining_file in
+  let program = Raw_program.Program_main.parse_file extracted_line_numbers extracted_file in
+  let automaton = Hflmc2_util.Parse.parse_file Lexer.token Parser.main remaining_line_numbers remaining_file in
   program, automaton
 
 let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nondet_with_forall =
@@ -139,4 +113,4 @@ let eliminate_unused_argument = Eliminate_unused_argument.eliminate_unused_argum
 let infer_type = Type_hflz.infer_type
 let abbrev_variable_names = Eliminate_unused_argument_util.abbrev_variable_names
 let convert_all = Raw_program.Trans_raw_program.convert_all
-let parse_file = Parse.parse_file
+let parse_file = Raw_program.Program_main.parse_file

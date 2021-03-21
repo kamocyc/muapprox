@@ -3,10 +3,7 @@
  (inline_tests)
  (libraries
    fmt
-   ; logs
-   ; logs.fmt
-   ; lwt
-   ; lwt.unix
+   str
    core)
   (preprocess (pps ppx_inline_test ppx_expect)))
 

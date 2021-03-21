@@ -20,15 +20,15 @@ let print_location original_line_numbers lexbuf =
   let open Lexing in
   let pos = lexbuf.lex_curr_p in
   Printf.sprintf "file: %s, line %d, column %d" pos.pos_fname
-    pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+    (translate_line_number original_line_numbers pos.pos_lnum) (pos.pos_cnum - pos.pos_bol + 1)
 
-let parse_file file =
+let parse_file tokenizer parser original_line_numbers file =
   Core.In_channel.with_file file ~f:(fun ch ->
     let lexbuf = Lexing.from_channel ch in
     try
-      Parser.main Lexer.token lexbuf
-    with Parser.Error as b->
+      parser tokenizer lexbuf
+    with _ as b ->
       print_string "Parse error: ";
-      print_endline @@ print_location [] lexbuf;
+      print_endline @@ print_location original_line_numbers lexbuf;
       raise b
   )

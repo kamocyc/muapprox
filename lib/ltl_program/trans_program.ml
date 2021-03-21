@@ -2,7 +2,6 @@ open Raw_program
 open Program
 open Hflmc2_syntax
 open Itype
-open Common_type
 open Print_syntax
 
 let to_uident v =

@@ -1,5 +1,3 @@
-open Common_type
-
 type state = State of string
 [@@deriving show]
 
@@ -17,14 +15,14 @@ and iarg =
   | IAInter of (itype * int) list (* (theta_i, m_i) < (theta_j, m_j) for each i < j *)
 [@@deriving show]
 
-type itype_env =(unit id * (itype * int)) list
+type itype_env =(unit Hflmc2_syntax.Id.t * (itype * int)) list
 [@@deriving show]
 
 (* type of intersection type environment *)
 type itenv_type = ITEInt | ITEInter of itype * int * int
 [@@deriving show]
 
-type itenv_item = (unit id) * itenv_type
+type itenv_item = (unit Hflmc2_syntax.Id.t) * itenv_type
 [@@deriving show]
 
 type itenv = itenv_item list

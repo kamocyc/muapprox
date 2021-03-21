@@ -1,30 +1,13 @@
 open Raw_program
-open Program
 open Itype
-open Trans_ltl
-
-let get_events (program : program) =
-  let rec go (program : program_expr) = match program with
-    | PUnit -> []
-    | PVar _ -> []
-    | PIf (_, p1, p2) -> go (p1) @ go (p2)
-    | PEvent (e, p) -> e :: (go p)
-    | PNonDet (p1, p2, _) -> go (p1) @ go (p2)
-    | PApp (p1, p2) -> go (p1) @ go (p2)
-    | PAppInt (p1, a) -> go p1
-  in
-  let entry, rules = program in
-  ((go entry) @
-  (List.map (fun {body} -> go body) rules |> List.flatten))
-  |> List.sort_uniq compare
 
 let id x = x
 
-let check_input (program : program) (automaton : automaton) =
+let check_input (program : Raw_program.Program.program) (automaton : automaton) =
   let (env, (State initial_state, trans), priority) = automaton in
   (* TODO: check environment? *)
   
-  let all_symbols = get_events program in
+  let all_symbols = Program.get_events program in
   
   let all_states = List.map (fun ((State s, _), _) -> s) trans |> List.sort_uniq compare in
   
@@ -38,10 +21,10 @@ let check_input (program : program) (automaton : automaton) =
   List.iter (fun (state, targets) ->
     let targets = List.sort_uniq compare targets in
     if all_symbols <> targets then
-      failwith @@ "some transition states are missing (state=" ^ state ^ ", all_symbols=" ^ Print_syntax.show_list id all_symbols ^ " / targets=" ^ Print_syntax.show_list id targets ^ ")"
+      failwith @@ "some transition states are missing (state=" ^ state ^ ", all_symbols=" ^ Hflmc2_util.show_list id all_symbols ^ " / targets=" ^ Hflmc2_util.show_list id targets ^ ")"
   ) grouped_trans;
   
   if (List.map (fun (State s, _) -> s) priority |> List.sort compare) <> all_states then
-    failwith @@ "priority rules are not matched (all_states=" ^ Print_syntax.show_list id all_states ^ " / priority=" ^ (Print_syntax.show_list id (List.map (fun (State s, _) -> s) priority)) ^ ")"
+    failwith @@ "priority rules are not matched (all_states=" ^ Hflmc2_util.show_list id all_states ^ " / priority=" ^ (Hflmc2_util.show_list id (List.map (fun (State s, _) -> s) priority)) ^ ")"
   
 

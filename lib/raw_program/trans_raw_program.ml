@@ -204,10 +204,10 @@ let unify (constraints : (R.ptype * R.ptype) list) =
       end
     end in
   (* print_endline "constraints:";
-  print_endline @@ (show_pairs show_ptype show_ptype constraints); *)
+  print_endline @@ (Hflmc2_util.show_pairs show_ptype show_ptype constraints); *)
   let r = unify constraints in
   (* print_endline "unify:";
-  print_endline @@ (show_pairs Id.to_string show_ptype r); *)
+  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_ptype r); *)
   r
 
 let generate_constraints (raw : tv_program) : (R.ptype * R.ptype) list =

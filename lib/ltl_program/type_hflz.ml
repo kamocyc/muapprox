@@ -65,7 +65,7 @@ let unify (constraints : (ptype * ptype) list) =
       then unify xs
       else begin
         (* print_endline "unify2";
-        print_endline @@ Print_syntax.show_pairs show_ptype show_ptype (constraints); *)
+        print_endline @@ Hflmc2_util.show_pairs show_ptype show_ptype (constraints); *)
         match t1, t2 with
         | TFunc (t11, t12), TFunc (t21, t22) ->
           unify ((t11, t21) :: (t12, t22) :: constraints)
@@ -82,10 +82,10 @@ let unify (constraints : (ptype * ptype) list) =
       end
     end in
   (* print_endline "constraints:";
-  print_endline @@ (show_pairs show_ptype show_ptype constraints); *)
+  print_endline @@ (Hflmc2_util.show_pairs show_ptype show_ptype constraints); *)
   let r = unify constraints in
   (* print_endline "unify:";
-  print_endline @@ (show_pairs Id.to_string show_ptype r); *)
+  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_ptype r); *)
   r
 
 let to_thflzs hes dummy_unit_var_name =
