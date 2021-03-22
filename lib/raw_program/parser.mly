@@ -19,7 +19,7 @@ open Program_raw
 %token IF "if" THEN "then" ELSE "else" EVENT "event"
 %token UNIT "()"
 
-%token COMMA "," LAMBDA DOT "." 
+%token LAMBDA DOT "." 
 %token PLUS  "+" MINUS "-" // NEG
 %token STAR "*"
 //%token SLASH "/" PERCENT "%"
@@ -71,7 +71,8 @@ function_body:
 
 cps_expr:
 | "if" and_or_expr "then" cps_expr "else" cps_expr { mk_if $2 $4 $6 }
-| "if" "*" "then" cps_expr "else" cps_expr { mk_nondet $4 $6 }
+| "if" "*" "then" cps_expr "else" cps_expr { mk_nondet $4 $6 None }
+| "if" LANGRE LIDENT RANGRE "*" "then" cps_expr "else" cps_expr { mk_nondet $7 $9 (Some $3) }
 | "event" LIDENT ";" cps_expr { mk_event $2 $4 }
 | "()" { PUnit }
 | "let" lvar "=" arith_expr "in" cps_expr { mk_let ($2, None) $4 $6 }
@@ -93,7 +94,8 @@ pred_expr:
 
 simple_expr:
 | INT  { mk_int   $1 }
-| "*"  { mk_nondet_int () }
+| "*"  { mk_nondet_int None }
+| LANGRE LIDENT RANGRE "*"  { mk_nondet_int (Some $2) }
 | lvar { mk_var $1 }
 | "(" LAMBDA arg* DOT cps_expr ")" { mk_lambda $3 $5 }
 | "(" cps_expr ")" { $2 }

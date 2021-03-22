@@ -27,3 +27,37 @@ q1 c -> false.
 %PRIORITY
 q0 -> 1.
 q1 -> 2.
+
+/*
+app int  /  ifのpred
+
+*が複数あった場合 -> その分だけinputをつくる
+
+if phi(*, *) then ... else ...
+(input 0) (\x1. input 0 (\x2. if phi (x1, x2)))
+
+if phi(*) then ... else ...
+
+...
+
+... input 0 (\x. if phi(x) then ... else ...) ...
+let input x k = d2 (k x) (Input (x + 1) k) (Input (x - 1) k) (* HORS *)
+
+...
+
+... input 0 (expr01 x~) ...
+let expr01 x~ x = if phi(x) then ... else ...
+let input x k = d2 (k x) (Input (x + 1) k) (Input (x - 1) k) (* HORS *)
+
+
+free variableを入れて、展開
+プログラムにおける変形なのでいけるはず。。
+
+
+
+*
+-> 
+let a = input 0 in
+input x k -> d2 (k x) (Input (x + 1) k) (Input (x - 1) k)
+
+*/

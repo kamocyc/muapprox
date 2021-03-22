@@ -27,7 +27,7 @@ let convert (raw : tv_expression) (var_env : Type.simple_argty Env.t) (pred_env 
     end
     | PIf (p, p1, p2) -> PIf (go_pred p, go_prog p1, go_prog p2)
     | PEvent (pe, p) -> PEvent (pe, go_prog p)
-    | PNonDet (p1, p2) -> PNonDet (go_prog p1, go_prog p2, None)
+    | PNonDet (p1, p2, e) -> PNonDet (go_prog p1, go_prog p2, None, e)
     | PApp (p1, p2) -> begin
       let p1 = go_prog p1 in
       try
@@ -47,7 +47,7 @@ let convert (raw : tv_expression) (var_env : Type.simple_argty Env.t) (pred_env 
     | PVar v ->
       let p = Env.lookup v var_env in
       AVar ({ p with ty=`Int })
-    | ANonDet -> ANonDet None
+    | ANonDet e -> ANonDet (None, e)
     | _ -> failwith @@ "go_arith: " ^ show_tv_expression raw
   in
   go_prog raw
@@ -60,11 +60,11 @@ let to_funty args =
   
 let get_free_variables (phi : tv_expression) : R.ptype Env.t =
   let rec go_expr (phi : tv_expression) = match phi with
-    | PUnit | AInt _ | Bool _ | ANonDet -> Env.create []
+    | PUnit | AInt _ | Bool _ | ANonDet _ -> Env.create []
     | PVar v -> Env.create [v]
     | PIf (p, p1, p2) -> Env.merge [go_expr p; go_expr p1; go_expr p2]
     | PEvent (_, p1) -> go_expr p1
-    | PNonDet (p1, p2) -> Env.merge [go_expr p1; go_expr p2]
+    | PNonDet (p1, p2, _) -> Env.merge [go_expr p1; go_expr p2]
     | PApp (p1, p2) -> Env.merge [go_expr p1; go_expr p2]
     | AOp (_, ps) -> Env.merge (List.map go_expr ps)
     | Pred (_, ps) -> Env.merge (List.map go_expr ps)
@@ -107,10 +107,10 @@ let lambda_lift_sub
         | x::xs -> PApp (g xs, PVar x) in
       g (free_variables |> List.rev)
     end
-    | PUnit | AInt _ | Bool _ | ANonDet | PVar _ -> phi
+    | PUnit | AInt _ | Bool _ | ANonDet _ | PVar _ -> phi
     | PIf (p, p1, p2) -> PIf (go p, go p1, go p2)
     | PEvent (e, p1) -> PEvent (e, go p1)
-    | PNonDet (p1, p2) -> PNonDet (go p1, go p2)
+    | PNonDet (p1, p2, e) -> PNonDet (go p1, go p2, e)
     | PApp (p1, p2) -> PApp (go p1, go p2)
     | AOp (e, ps) -> AOp (e, List.map go ps)
     | Pred (e, ps) -> Pred (e, List.map go ps)
@@ -138,11 +138,11 @@ let rec lambda_lift
 
 let convert_let (phi : tv_expression) =
   let rec go (phi : tv_expression) = match phi with
-    | PUnit | AInt _ | Bool _ | ANonDet | PVar _ -> phi
+    | PUnit | AInt _ | Bool _ | ANonDet _ | PVar _ -> phi
     | PLambda (args, body) -> PLambda (args, go body)
     | PIf (p, p1, p2) -> PIf (go p, go p1, go p2)
     | PEvent (e, p1) -> PEvent (e, go p1)
-    | PNonDet (p1, p2) -> PNonDet (go p1, go p2)
+    | PNonDet (p1, p2, e) -> PNonDet (go p1, go p2, e)
     | PApp (p1, p2) -> PApp (go p1, go p2)
     | AOp (e, ps) -> AOp (e, List.map go ps)
     | Pred (e, ps) -> Pred (e, List.map go ps)
@@ -216,10 +216,11 @@ let generate_constraints (raw : tv_program) : (R.ptype * R.ptype) list =
       ptype * (ptype * ptype) list
        = match raw with
     | PIf (p1, p2, p3) ->
+      (* if-body should unit type *)
       let t1, c1 = gen env p1 in
       let t2, c2 = gen env p2 in
       let t3, c3 = gen env p3 in
-      (t2, [(t1, TBool); (t2, t3)] @ c1 @ c2 @ c3)
+      (t2, [(t1, TBool); (t2, TUnit); (t3, TUnit)] @ c1 @ c2 @ c3)
     | PLambda (args, body) ->
       let t, c = gen (Env.update args env) body in
       let rec go base ls = match ls with
@@ -234,7 +235,7 @@ let generate_constraints (raw : tv_program) : (R.ptype * R.ptype) list =
     | PUnit -> (TUnit, [])
     | AInt _ -> (TInt, [])
     | Bool _ -> (TBool, [])
-    | ANonDet -> (TInt, [])
+    | ANonDet _ -> (TInt, [])
     | PVar v ->
       let id = Env.lookup v env in
       (id.ty, [])
@@ -245,10 +246,11 @@ let generate_constraints (raw : tv_program) : (R.ptype * R.ptype) list =
     | PEvent (_, p) ->
       let t, c = gen env p in
       (t, c)
-    | PNonDet (p1, p2) ->
+    | PNonDet (p1, p2, _) ->
+      (* non-deterministic branch should have unit type *)
       let t1, c1 = gen env p1 in
       let t2, c2 = gen env p2 in
-      (t1, (t1, t2) :: c1 @ c2)
+      (t1, (t1, TUnit) :: (t2, TUnit) :: c1 @ c2)
     | AOp (e, ps) ->
       let results = List.map (gen env) ps in
       let tys, cs = List.split results in
@@ -284,7 +286,7 @@ let subst_program (raw : tv_program) (subst : (unit Id.t * Program_raw.ptype) li
     | PVar v -> PVar { v with ty = subst_ptype v.ty subst }
     | PIf (p1, p2, p3) -> PIf (go p1, go p2, go p3)
     | PEvent (e, p1) -> PEvent (e, go p1)
-    | PNonDet (p1, p2) -> PNonDet (go p1, go p2)
+    | PNonDet (p1, p2, e) -> PNonDet (go p1, go p2, e)
     | PApp (p1, p2) -> PApp (go p1, go p2)
     | AOp (o, ps) -> AOp (o, List.map go ps)
     | Pred (o, ps) -> Pred (o, List.map go ps)
@@ -294,7 +296,7 @@ let subst_program (raw : tv_program) (subst : (unit Id.t * Program_raw.ptype) li
       PLambda (List.map (fun v -> { v with Id.ty = subst_ptype v.Id.ty subst }) args, go body)
     | PLet (v, p1, p2) ->
       PLet ({ v with ty = subst_ptype v.Id.ty subst }, go p1, go p2)
-    | ANonDet -> ANonDet in
+    | ANonDet e -> ANonDet e in
   List.map (fun {var; args; body} ->
     let var = { var with Id.ty = subst_ptype var.Id.ty subst } in
     let args = List.map (fun v -> { v with Id.ty = subst_ptype v.Id.ty subst }) args in
@@ -337,10 +339,10 @@ let assign_id (raw : R.raw_program) : tv_program =
     | PUnit -> PUnit
     | AInt i -> AInt i
     | Bool b -> Bool b
-    | ANonDet -> ANonDet
+    | ANonDet e -> ANonDet e
     | PIf (p1, p2, p3) -> PIf (go env p1, go env p2, go env p3)
     | PEvent (e, p1) -> PEvent (e, go env p1)
-    | PNonDet (p1, p2) -> PNonDet (go env p1, go env p2)
+    | PNonDet (p1, p2, e) -> PNonDet (go env p1, go env p2, e)
     | PApp (p1, p2) -> PApp (go env p1, go env p2)
     | AOp (e, ps) -> AOp (e, List.map (go env) ps)
     | Pred (e, ps) -> Pred (e, List.map (go env) ps)

@@ -72,15 +72,15 @@ let get_transition automaton state symbol =
   let { delta } = automaton in
   match List.find_all (fun ((state', symbol'), trans) -> state = state' && symbol = symbol') delta with
   | [(_, t)] -> t
-  | [] -> failwith "get_transition"
-  | _ -> assert false
+  | [] -> failwith @@ "get_transition: rule not found (state=" ^ state ^ ", symbol=" ^ symbol ^ ")"
+  | _ -> failwith @@ "get_transition: multiple rules found (state=" ^ state ^ ", symbol=" ^ symbol ^ ")"
   
 let get_prioirty automaton state =
   let { omega } = automaton in
   match List.find_all (fun (s, i) -> s = state) omega with
   | [(_, x)] -> x
-  | [] -> failwith "get_priority"
-  | _ -> assert false
+  | [] -> failwith @@ "get_priority: priority not found (state=" ^ state ^ ")"
+  | _ -> failwith @@ "get_priority: multiple priorities found (state=" ^ state ^ ")"
 
 let print m =
   print_string "alpha:\n";

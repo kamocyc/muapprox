@@ -66,7 +66,7 @@ type 'ty horsz = ('ty horsz_expr * 'ty horsz_rule list)
 let show_arith a =
   let rec go a = match a with
     | Int i -> string_of_int i
-    | AVar s -> Id.to_string ~without_id:false s
+    | AVar s -> Id.to_string ~without_id:true s
     | Op (op, [a1; a2]) -> 
       "(" ^ go a1 ^ " " ^ show_op op ^ " " ^ go a2 ^ ")"
     | Op _ -> assert false

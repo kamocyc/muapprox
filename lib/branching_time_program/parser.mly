@@ -27,7 +27,7 @@
 %right AND
 %left PLUS MINUS
 
-%type <(string * int) list * Raw_horsz.raw_program * Raw_horsz.automaton> main
+%type <((string * int) list * Raw_horsz.raw_program) option * Raw_horsz.automaton> main
 %type <(string * int) list> ranks_entry
 %type <Raw_horsz.raw_program> grammar
 %type <Raw_horsz.ata_trans> ata_rule
@@ -40,8 +40,9 @@
 %%
 
 main:
-| ranks_entry grammar automaton EOF     { ($1, $2, $3) }
-  
+| ranks_entry grammar automaton EOF     { (Some ($1, $2), $3) }
+| automaton EOF     { (None, $1) }
+
 (******************************************************************************)
 (* GRAMMAR                                                                        *)
 (******************************************************************************)

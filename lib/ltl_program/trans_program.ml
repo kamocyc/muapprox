@@ -31,17 +31,17 @@ let to_hflz_from_function encode_nondet_with_forall program func_names =
     | PUnit | PVar _ -> prog
     | PIf (p, p1, p2) -> PIf (p, get_forall_vars p1, get_forall_vars p2)
     | PEvent (p, p1) -> PEvent (p, get_forall_vars p1)
-    | PNonDet (p1, p2, n) ->
+    | PNonDet (p1, p2, n, e) ->
       if encode_nondet_with_forall then begin
         let id = Id.gen ~name:"forall_nd_x" Type.TyInt in
         Hashtbl.add idMap id.id id;
-        PNonDet (get_forall_vars p1, get_forall_vars p2, Some id.id)
-      end else PNonDet (get_forall_vars p1, get_forall_vars p2, n)
+        PNonDet (get_forall_vars p1, get_forall_vars p2, Some id.id, e)
+      end else PNonDet (get_forall_vars p1, get_forall_vars p2, n, e)
     | PApp (p1, p2) -> PApp (get_forall_vars p1, get_forall_vars p2)
-    | PAppInt (p1, ANonDet _) ->
+    | PAppInt (p1, ANonDet (_, e)) ->
       let id = Id.gen ~name:"forall_x" Type.TyInt in
       Hashtbl.add idMap id.id id;
-      PAppInt (get_forall_vars p1, ANonDet (Some id.id))
+      PAppInt (get_forall_vars p1, ANonDet (Some id.id, e))
     | PAppInt (p1, p2) -> PAppInt (get_forall_vars p1, p2)
   in
   let program = get_forall_vars program in
@@ -60,7 +60,7 @@ let to_hflz_from_function encode_nondet_with_forall program func_names =
         )
       )
     | PEvent (_, p) -> go_program p
-    | PNonDet (p1, p2, idn_opt) ->
+    | PNonDet (p1, p2, idn_opt, _) ->
       if encode_nondet_with_forall then begin
         match idn_opt with
         | Some idn ->
@@ -83,7 +83,7 @@ let to_hflz_from_function encode_nondet_with_forall program func_names =
         )
     | PApp (p1, p2) ->
       App (go_program p1, go_program p2)
-    | PAppInt (p1, ANonDet idn_opt) -> begin
+    | PAppInt (p1, ANonDet (idn_opt, _)) -> begin
       match idn_opt with
       | Some idn ->
         let id = Hashtbl.find idMap idn in

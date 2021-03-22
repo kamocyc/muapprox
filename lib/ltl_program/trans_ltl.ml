@@ -85,8 +85,8 @@ let make_nondet terms =
   let rec go : Program2.program_expr list -> Program2.program_expr = function 
     | [] -> failwith "make_nondet"
     | [x1] -> x1
-    | [x1; x2] -> PNonDet (x1, x2, None)
-    | x::xs -> PNonDet(x, go xs, None) in
+    | [x1; x2] -> PNonDet (x1, x2, None, None)
+    | x::xs -> PNonDet(x, go xs, None, None) in
   go terms
     
 let intersect l1 l2 =
@@ -188,7 +188,7 @@ let get_arg_type (env : itenv) term states =
       assert (List.for_all2 eq_itype' ty1 ty2);
       ty1
     end
-    | PNonDet (p1, p2, _) -> begin
+    | PNonDet (p1, p2, _, _) -> begin
       let ty1 = go env p1 in
       let ty2 = go env p2 in
       assert (List.for_all2 eq_itype' ty1 ty2);
@@ -225,7 +225,7 @@ let trans
       | None -> failwith @@ "PVar: not found (" ^ Id.show Type.pp_simple_ty x ^ ": (" ^ show_itype ty ^ ", " ^ string_of_int 0 ^ ")"
       | Some (v, m) -> PVar ({x with name = make_var_name x.Id.name v m})
     end
-    | PNonDet (p1, p2, n) -> PNonDet (go_prog env p1 ty, go_prog env p2 ty, n)
+    | PNonDet (p1, p2, n, e) -> PNonDet (go_prog env p1 ty, go_prog env p2 ty, n, e)
     | PIf (pred, pthen, pelse) -> PIf (go_pred env pred, go_prog env pthen ty, go_prog env pelse ty)
     | PEvent (ev, p) -> begin
       let states = transition_function ty (Symbol ev) in
@@ -288,7 +288,7 @@ let trans
     match term with
     | AVar x -> AVar x
     | AInt n -> AInt n
-    | ANonDet n -> ANonDet n
+    | ANonDet (n, e) -> ANonDet (n, e)
     | AOp (op, exprs) ->
       AOp (op, List.map (go_arith env) exprs) in
   go_prog env term
@@ -320,7 +320,7 @@ let substitute env phi =
     | PIf (p1, p2, p3) ->
       PIf (pred p1, hflz p2, hflz p3)
     | PEvent (e, p) -> PEvent (e, hflz p)
-    | PNonDet (p1, p2, n) -> PNonDet (hflz p1, hflz p2, n)
+    | PNonDet (p1, p2, n, e) -> PNonDet (hflz p1, hflz p2, n, e)
     | PApp (p1, p2) -> PApp (hflz p1, hflz p2)
     | PAppInt (p1, p2) -> PAppInt (hflz p1, arith p2)
   and pred (phi : program_predicate) = match phi with
@@ -336,7 +336,7 @@ let substitute env phi =
         | exception Core.Not_found_s _ -> AVar v
       end *)
     | AInt _ -> phi
-    | ANonDet n -> ANonDet n
+    | ANonDet (n, e) -> ANonDet (n, e)
     | AOp (op, ps) -> AOp (op, List.map arith ps) in
   hflz phi
 

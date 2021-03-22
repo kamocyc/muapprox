@@ -1,6 +1,6 @@
 open Hflmc2_syntax
 module Util = Hflmc2_util
-module A = AlternatingAutomaton
+module A = Alternating_automaton
 
 let make_name org_name state priority =
   org_name ^ "__" ^ state ^ "__" ^ string_of_int priority

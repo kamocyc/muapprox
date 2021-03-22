@@ -15,7 +15,7 @@ type 'a raw_expression_gen =
   | PVar of 'a
   | PIf of 'a raw_expression_gen * 'a raw_expression_gen * 'a raw_expression_gen
   | PEvent of program_event * 'a raw_expression_gen
-  | PNonDet of 'a raw_expression_gen * 'a raw_expression_gen
+  | PNonDet of 'a raw_expression_gen * 'a raw_expression_gen * program_event option
   | PApp of 'a raw_expression_gen * 'a raw_expression_gen
   | AInt of int
   | AOp of arith_op * 'a raw_expression_gen list
@@ -25,7 +25,7 @@ type 'a raw_expression_gen =
   | Bool of bool
   | PLambda of 'a list * 'a raw_expression_gen
   | PLet of 'a * 'a raw_expression_gen * 'a raw_expression_gen
-  | ANonDet
+  | ANonDet of program_event option
   [@@deriving eq,ord,show]
 
 type raw_expression = (string * ptype option) raw_expression_gen
@@ -50,12 +50,12 @@ type raw_program = (string * ptype option) raw_program_gen
 let make_predicate p args = Pred (p, args)
 
 let mk_int n  = AInt n
-let mk_nondet_int () = ANonDet
+let mk_nondet_int e = ANonDet e
 let mk_bool b = Bool b
 let mk_var x     = PVar (x, None)
 let mk_op op as' = AOp(op, as')
 
-let mk_nondet p1 p2 = PNonDet (p1, p2)
+let mk_nondet p1 p2 e = PNonDet (p1, p2, e)
 
 let mk_ands = function
   | [] -> Bool true

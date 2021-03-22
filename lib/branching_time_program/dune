@@ -10,6 +10,7 @@
    muapprox.manipulate
    hflmc2_syntax
    hflmc2_util
+   raw_program
    str
    core
    fmt

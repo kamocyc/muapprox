@@ -29,7 +29,8 @@ let show_program p =
     | PVar s -> Id.to_string ~without_id:true s
     | PIf (p, p1, p2) -> "if " ^ go_predicate p ^ " then (" ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PEvent (pe, p) -> "event " ^ pe ^ "; " ^ go_program p
-    | PNonDet (p1, p2, _) -> "if * then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
+    | PNonDet (p1, p2, _, e) ->
+      "if" ^ (match e with None -> "" | Some e -> " <" ^ e ^ ">") ^ " * then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PApp (p1, p2) -> "(" ^ go_program p1 ^ " " ^ go_program p2 ^ ")"
     | PAppInt (p1, a) -> "(" ^ go_program p1 ^ " " ^ go_arith a ^ ")"
   and go_arith p = match p with
@@ -37,7 +38,7 @@ let show_program p =
     | AInt i -> string_of_int i
     | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ " " ^ show_op op ^ " " ^ go_arith arg2 ^ ")"
     | AOp _ -> failwith "show_program: go_arith"
-    | ANonDet _ -> "*"
+    | ANonDet (_, e) -> (match e with None -> "" | Some e -> " <" ^ e ^ ">") ^ "*"
   and go_predicate p = match p with
     | Pred (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ " " ^ show_pred op ^ " " ^ go_arith arg2 ^ ")"
     | Pred _ -> failwith "show_program: go_predicate"
@@ -74,14 +75,14 @@ let show_program_as_ocaml p =
     end
     | PIf (p, p1, p2) -> "if " ^ go_predicate p ^ " then (" ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PEvent (pe, p) -> "event \"" ^ pe ^ "\"; " ^ go_program p
-    | PNonDet (p1, p2, _) -> "if read_bool () then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
+    | PNonDet (p1, p2, _, e) -> "if" ^ (match e with None -> "" | Some e -> " (*" ^ e ^ "*)") ^ " read_bool () then ("  ^ go_program p1 ^ ") else (" ^ go_program p2 ^ ")"
     | PApp (p1, p2) -> "(" ^ go_program p1 ^ " " ^ go_program p2 ^ ")"
     | PAppInt (p1, a) -> "(" ^ go_program p1 ^ " " ^ go_arith a ^ ")"
   and go_arith p = match p with
     | AVar v -> replace_var_name (Id.to_string ~without_id:true v)
     | AInt i -> string_of_int i
     | AOp (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ show_op op ^ go_arith arg2 ^ ")"
-    | ANonDet _ -> "(read_int ())"
+    | ANonDet (_, e) -> "(" ^ (match e with None -> "" | Some e -> "(*" ^ e ^ "*)") ^ "read_int ())"
     | AOp _ -> failwith "show_program: go_arith"
   and go_predicate p = match p with
     | Pred (op, [arg1; arg2]) -> "(" ^ go_arith arg1 ^ show_pred op ^ go_arith arg2 ^ ")"

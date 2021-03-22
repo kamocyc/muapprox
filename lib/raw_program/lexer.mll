@@ -35,7 +35,6 @@ rule token = parse
 | "then"                   { THEN }
 | "else"                   { ELSE }
 | ":"                      { COLON     }
-| ","                      { COMMA }
 | "int"                    { TINT      }
 | "unit"                   { TUNIT     }
 | "->"                     { TARROW    }
