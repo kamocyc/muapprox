@@ -1,0 +1,51 @@
+/* invalid */
+%PROGRAM
+let () = new_ro (g (\. event fin; ()))
+
+let g k file =
+  if <d> * then k
+  else (acc_read file (\. g k file))
+
+let new_ro k =
+  if <d> * then (event open; k (\f k. f k))
+  else (k (\f k. k))
+  
+let acc_read x k = x (\k2. event read; k2) k
+
+/* let acc_close x k = x (\k2. event close; k2) k */
+
+/*
+let rec g x = if _ then read(x) else (close(x); g(x)) in
+let d = open_in "foo" in g(d)
+*/
+
+%TRANSITION
+q_untracked open -> (1, q_ro).
+q_untracked d -> (1, q_untracked) /\ (2, q_untracked).
+q_untracked read -> false.
+q_untracked close -> false.
+q_untracked fin -> true.
+
+q_ro open -> (1, q_any).
+q_ro d -> (1, q_ro) /\ (2, q_ro).
+q_ro read -> (1, q_ro).
+q_ro close -> (1, q_closed).
+q_ro fin -> false.
+
+q_any open -> (1, q_any).
+q_any d -> (1, q_any) /\ (2, q_any).
+q_any read -> (1, q_any).
+q_any close -> (1, q_any).
+q_any fin -> true.
+
+q_closed open -> false.
+q_closed d -> (1, q_closed) /\ (2, q_closed).
+q_closed read -> false.
+q_closed close -> false.
+q_closed fin -> true.
+
+%PRIORITY
+q_untracked -> 2.
+q_ro -> 2.
+q_any -> 2.
+q_closed -> 2.

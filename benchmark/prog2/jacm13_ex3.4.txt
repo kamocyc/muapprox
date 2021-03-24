@@ -1,0 +1,68 @@
+%PROGRAM
+let () = new_ro (\x. new_wo (\y. f (\. event fin; ()) x y))
+
+let f k x y =
+  if <d> * then acc_close x (\. acc_close y k)
+  else (acc_read x (\. acc_write y (\. f k x y)))
+
+let new_ro k =
+  if <d> * then (event open_ro; k (\f k. f k))
+  else (k (\f k. k))
+
+let new_wo k =
+  if <d> * then (event open_wo; k (\f k. f k))
+  else (k (\f k. k))
+
+let acc_read x k = x (\k2. event read; k2) k
+
+let acc_write x k = x (\k2. event write; k2) k
+
+let acc_close x k = x (\k2. event close; k2) k
+
+%TRANSITION
+q_untracked open_ro -> (1, q_ro).
+q_untracked open_wo -> (1, q_wo).
+q_untracked d -> (1, q_untracked) /\ (2, q_untracked).
+q_untracked read -> false.
+q_untracked write -> false.
+q_untracked close -> false.
+q_untracked fin -> true.
+
+q_ro open_ro -> (1, q_any).
+q_ro open_wo -> (1, q_any).
+q_ro d -> (1, q_ro) /\ (2, q_ro).
+q_ro read -> (1, q_ro).
+q_ro write -> false.
+q_ro close -> (1, q_closed).
+q_ro fin -> false.
+
+q_wo open_ro -> (1, q_any).
+q_wo open_wo -> (1, q_any).
+q_wo d -> (1, q_wo) /\ (2, q_wo).
+q_wo read -> false.
+q_wo write -> (1, q_wo).
+q_wo close -> (1, q_closed).
+q_wo fin -> false.
+
+q_any open_ro -> (1, q_any).
+q_any open_wo -> (1, q_any).
+q_any d -> (1, q_any) /\ (2, q_any).
+q_any read -> (1, q_any).
+q_any write -> (1, q_any).
+q_any close -> (1, q_any).
+q_any fin -> true.
+
+q_closed open_ro -> false.
+q_closed open_wo -> false.
+q_closed d -> (1, q_closed) /\ (2, q_closed).
+q_closed read -> false.
+q_closed write -> false.
+q_closed close -> false.
+q_closed fin -> true.
+
+%PRIORITY
+q_untracked -> 2.
+q_ro -> 2.
+q_wo -> 2.
+q_any -> 2.
+q_closed -> 2.
