@@ -1,6 +1,16 @@
 open Hflmc2_syntax
 open Hflz
 
+let string_of_id id =  
+  let replace_apos s =
+    s
+    |> Str.global_replace (Str.regexp "'") "_ap_"
+    |> Str.global_replace (Str.regexp "!") "_exc_"
+    |> Str.global_replace (Str.regexp "#") "_sha_"
+  in
+  Id.to_string id
+  |> replace_apos
+ 
 let convert_to_smt2 (exprs : 'a t list) =
   let used_variables = ref [] in
   let trans_op op = match op with
@@ -14,7 +24,7 @@ let convert_to_smt2 (exprs : 'a t list) =
     | Var v ->
       used_variables := v :: !used_variables;
       (* with id *)
-      Id.to_string v
+      string_of_id v
     | Op (op, [a1; a2]) -> "(" ^ trans_op op ^ " " ^ trans_arith a1 ^ " " ^ trans_arith a2 ^ ")"
     | Op _ -> failwith "trans_arith"
   in
@@ -44,15 +54,20 @@ let convert_to_smt2 (exprs : 'a t list) =
       exprs
     |> List.partition (fun (b, e, s) -> b)
   in
-  let body = "(or\n" ^ (List.map (fun (_, _, s) -> "  " ^ s ^ "") preds |> String.concat "\n") ^ ")" in
-  let variables = Hflmc2_util.remove_duplicates (=) !used_variables in
-  (variables
-  |> List.map Id.to_string
-  |> List.map (fun v -> "(declare-const " ^ v ^ " Int)\n")
-  |> String.concat "") ^ "\n" ^
-  "(assert " ^ body ^ ")\n(apply (then ctx-solver-simplify simplify))\n",
-  variables,
-  List.map (fun (_, e, _) -> e) not_useds
+  let not_useds = List.map (fun (_, e, _) -> e) not_useds in
+  match preds with
+  | [] -> None, [], not_useds
+  | preds -> begin
+    let body = "(or\n" ^ (List.map (fun (_, _, s) -> "  " ^ s ^ "") preds |> String.concat "\n") ^ ")" in
+    let variables = Hflmc2_util.remove_duplicates (=) !used_variables in
+    Some ((variables
+    |> List.map string_of_id
+    |> List.map (fun v -> "(declare-const " ^ v ^ " Int)\n")
+    |> String.concat "") ^ "\n" ^
+    "(assert " ^ body ^ ")\n(apply (then ctx-solver-simplify simplify))\n"),
+    variables,
+    not_useds
+  end
 
 let parse_sexp s =
   let open Core in
@@ -132,7 +147,7 @@ let to_hflz const_bounds variables parsed =
       ~f:(fun (v, i) -> Pred (Lt, [Var v; Int i]))
   in
   let get_var_id x =
-    match List.filter ~f:(fun id -> Stdlib.(=) (id.Id.name ^ string_of_int id.id) x) variables with
+    match List.filter ~f:(fun id -> String.(=) (string_of_id id) x) variables with
     | [x] -> x
     | [] -> failwith @@ "get_var_id: not found (" ^ x ^ ")"
     | _ -> failwith @@ "get_var_id: many found (" ^ x ^ ")" in
@@ -253,20 +268,25 @@ let get_const_bound exprs =
 let simplify_bound_with_z3 (exprs : 'a t list) =
   let const_bounds = get_const_bound exprs in
   let buf, variables, not_useds = convert_to_smt2 exprs in
-  let get_random_file_name () = Printf.sprintf "/tmp/%d.tmp" (Random.self_init (); Random.int 0x10000000) in
-  let file_name = get_random_file_name () in
-  print_endline "simplify_bound_with_z3";
-  print_endline "input file_name";
-  print_endline file_name;
-  Hflmc2_util.write_file file_name buf;
-  let output_path = get_random_file_name () in
-  ignore @@ Unix.system @@ "z3 " ^ file_name ^ " pp.max_depth=10000 pp.min-alias-size=10000 > " ^ output_path;
-  print_endline "output file_name";
-  print_endline output_path;
-  let s = Hflmc2_util.read_file output_path in
-  let parsed = parse_sexp s in
-  let exprs = to_hflz const_bounds variables parsed in
-  (* print_endline (Hflmc2_util.show_list Hflz_util.show_hflz exprs); *)
-  print_endline (Hflmc2_util.show_list Print_syntax.show_hflz exprs);
-  print_endline "";
-  exprs @ not_useds
+  match buf with
+  | None -> exprs
+  | Some buf -> begin
+    let get_random_file_name () = Printf.sprintf "/tmp/%d.tmp" (Random.self_init (); Random.int 0x10000000) in
+    let file_name = get_random_file_name () in
+    print_endline "simplify_bound_with_z3";
+    print_endline "input file_name";
+    print_endline file_name;
+    Hflmc2_util.write_file file_name buf;
+    let output_path = get_random_file_name () in
+    ignore @@ Unix.system @@ "z3 " ^ file_name ^ " pp.max_depth=10000 pp.min-alias-size=10000 > " ^ output_path;
+    print_endline "output file_name";
+    print_endline output_path;
+    let s = Hflmc2_util.read_file output_path in
+    let parsed = parse_sexp s in
+    let exprs = to_hflz const_bounds variables parsed in
+    (* print_endline (Hflmc2_util.show_list Hflz_util.show_hflz exprs); *)
+    print_endline (Hflmc2_util.show_list Print_syntax.show_hflz exprs);
+    print_endline "";
+    exprs @ not_useds
+  end
+  
