@@ -7,6 +7,8 @@ open Hflz_typecheck
 open Hflz
 (* module Util = Hflmc2_util *)
 
+let simplify_bound = ref false
+
 let show_hflz = Print.show_hflz
 let show_hflz_full = Print.show_hflz_full
 
@@ -325,6 +327,8 @@ let var_as_arith v = {v with Id.ty=`Int}
 let rec to_tree seq f b = match seq with
   | [] -> b
   | x::xs -> f x (to_tree xs f b)
+
+
   
 let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl = 
   let open Type in
@@ -370,7 +374,14 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
     { Id.name = name; ty = ty; id = i } in
   let body =
     let guessed_terms = make_guessed_terms_simple coe1 coe2 (free_vars |> filter_int_variable) in
-    let approx_formulas = bound_vars |> List.rev |> List.map (fun bound_var -> make_approx_formula ({bound_var with ty=`Int}) guessed_terms) in
+    let approx_formulas =
+      bound_vars
+      |> List.rev
+      |> List.map (fun bound_var ->
+        make_approx_formula
+          {bound_var with ty=`Int}
+          guessed_terms
+      ) in
     rev_abs (
       (formula_type_vars |> List.rev |> to_abs') @@
         to_tree
@@ -788,7 +799,8 @@ let replace_occurences
             (List.map (fun tvar -> Arith.Var{tvar with Id.ty=`Int}) new_tvars_lex)
             guessed_terms)
           |> List.map (fun (t1, t2) -> Pred (Lt, [t1; t2]))
-          |> formula_fold (fun acc t -> Or (acc, t)) in
+          |> formula_fold (fun acc t -> Or (acc, t))
+          in
         (to_abs'
           formula_type_ids
           (to_forall
@@ -824,7 +836,7 @@ let remove_duplicate_bounds (phi : Type.simple_ty Hflz.t) =
     | Or (p1, p2) -> begin
       (* remove duplicate of the form "pred_1 || pred_2 || ... || pred_n" *)
       let rec sub phi = match phi with
-        | Pred _ -> [phi]
+        | Pred (_, [_; _]) -> [phi]
         | Or (p1, p2) -> begin
           let a1 = sub p1 in
           let a2 = sub p2 in
@@ -838,8 +850,13 @@ let remove_duplicate_bounds (phi : Type.simple_ty Hflz.t) =
       match sub phi with
       | [] -> Or (go p1, go p2)
       | xs -> begin
-        Hflmc2_util.remove_duplicates (=) xs |>
-        formula_fold (fun acc f -> Or (acc, f))
+        let xs =
+          if !simplify_bound then
+            Simplify_bound.simplify_bound_with_z3 xs
+          else
+            Hflmc2_util.remove_duplicates (=) xs
+        in
+        formula_fold (fun acc f -> Or (acc, f)) xs
       end
     end
     | And (p1, p2) -> And (go p1, go p2)

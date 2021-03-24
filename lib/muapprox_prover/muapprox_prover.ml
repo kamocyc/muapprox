@@ -426,7 +426,8 @@ let elim_mu_exists coe1 coe2 lexico_pair_number debug_output assign_values_for_e
 exception Exit
 
 (* これ以降、本プログラム側での近似が入る *)
-let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : Solve_options.options) debug_output hes mode_name = 
+let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : Solve_options.options) debug_output hes mode_name =
+  Hflz_mani.simplify_bound := solve_options.simplify_bound;
   let nu_only_heses = elim_mu_exists coe1 coe2 lexico_pair_number debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
   let debug_context = Some {
     mode = mode_name;

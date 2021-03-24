@@ -85,6 +85,7 @@ let get_solve_options file =
     always_approximate = !Options.always_approximate;
     assign_values_for_exists_at_first_iteration = !Options.assign_values_for_exists_at_first_iteration;
     default_lexicographic_order = !Options.default_lexicographic_order;
+    simplify_bound = !Options.simplify_bound;
     use_simple_encoding_when_lexico_is_one  = !Options.use_simple_encoding_when_lexico_is_one;
     disable_lexicographic = !Options.disable_lexicographic;
   }

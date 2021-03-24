@@ -346,11 +346,11 @@ let infer_thflz_type (rules : ptype thes_rule list): ptype thes_rule list =
   let rules = subst_program rules substitution in
   rules
   
-(* TODO: debug *)
 let infer_type (hes : 'a Hflz.hes) =
   let entry, rules = hes in
   let rules = (Hflz.mk_entry_rule entry)::rules in
   let rules = to_thflzs rules dummy_unit_var_name in
+  (* print_endline @@ show_s_thes_rules rules; *)
   let rules = infer_thflz_type rules in
   let rules = to_hflz rules in
   let hes = Hflz.decompose_entry_rule rules in

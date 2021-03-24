@@ -306,9 +306,11 @@ let subst_program (raw : tv_program) (subst : (unit Id.t * Program_raw.ptype) li
      
      
 let infer_type (raw : tv_program) =
+  (* print_endline @@ show_tv_program raw; *)
   let constraints = generate_constraints raw in
   let substitution = unify constraints in
   let raw = subst_program raw substitution in
+  print_endline @@ show_tv_program raw;
   raw
 
 let assign_id (raw : R.raw_program) : tv_program =
@@ -376,12 +378,14 @@ let assign_id (raw : R.raw_program) : tv_program =
     )
     pred_args
 
+exception ETVar
+
 let rec to_ty = function
   | R.TFunc (arg, body) -> Type.TyArrow ({name = ""; id = 0; ty = to_argty arg}, to_ty body)
   | R.TBool -> Type.TyBool ()
   | R.TUnit -> Type.TyBool ()
   | R.TInt -> assert false
-  | R.TVar _ -> assert false
+  | R.TVar _ -> raise ETVar
 and to_argty = function
   | R.TInt -> Type.TyInt
   | t -> Type.TySigma (to_ty t)
@@ -403,7 +407,11 @@ let convert_all (program : R.raw_program) =
     |> List.flatten in
   let program_funcs =
     let preds =
-      List.map (fun {R.var} -> { var with Id.ty = to_ty var.Id.ty }) pred_args |> List.filter (fun a -> a.Id.name <> "")
+      List.map (fun {R.var} ->
+        try
+          { var with Id.ty = to_ty var.Id.ty }
+        with ETVar -> failwith @@ "type variable in " ^ var.name ^ " (maybe unused predicate?)"
+      ) pred_args |> List.filter (fun a -> a.Id.name <> "")
       |> Env.create in
     List.map (
       fun {R.var; args; body} ->
