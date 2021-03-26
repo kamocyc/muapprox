@@ -64,7 +64,7 @@ let convert_to_smt2 (exprs : 'a t list) =
     |> List.map string_of_id
     |> List.map (fun v -> "(declare-const " ^ v ^ " Int)\n")
     |> String.concat "") ^ "\n" ^
-    "(assert " ^ body ^ ")\n(apply (then ctx-solver-simplify simplify))\n"),
+    "(assert " ^ body ^ ")\n(apply (then ctx-solver-simplify ctx-solver-simplify simplify))\n"),
     variables,
     not_useds
   end

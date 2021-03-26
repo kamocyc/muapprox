@@ -852,7 +852,8 @@ let remove_duplicate_bounds (phi : Type.simple_ty Hflz.t) =
       | xs -> begin
         let xs =
           if !simplify_bound then
-            Simplify_bound.simplify_bound_with_z3 xs
+            Hflmc2_util.remove_duplicates (=) xs
+            |> Simplify_bound.simplify_bound_with_z3
           else
             Hflmc2_util.remove_duplicates (=) xs
         in

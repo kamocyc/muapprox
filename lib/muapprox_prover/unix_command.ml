@@ -15,7 +15,7 @@ let kill_processes mode =
   match mode with
   | None -> Deferred.return ()
   | Some mode -> begin
-    (* eld and java are not executed when ran with --no-disprove because they are used only for proving unsat *)
+    (* eld and java are not executed when ran with --no-disprove because they are used only to prove invalid *)
     (* TODO: main.exe should be renamed *)
     match Hashtbl.find_opt pids mode with
     | None -> Deferred.return ()

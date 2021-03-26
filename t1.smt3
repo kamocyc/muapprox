@@ -1,0 +1,15 @@
+; x < 0 \/ X x
+
+(declare-fun X1 (Int) Bool)
+(declare-fun X2 (Int) Bool)
+
+(assert (forall ((x Int))
+  (=
+    (or (< x 0) (< x 1) (and (X2 x) (X1 x)))
+    (or (< x 0) (< x 1) (X1 x))
+  )
+))
+(assert (forall ((x Int)) (= true (X1 x))))
+(assert (exists ((x Int)) (not (= (X1 x) (X2 x)))))
+(check-sat)
+(get-model)
