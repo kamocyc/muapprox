@@ -141,3 +141,4 @@ let eliminate_unused_argument = Ltl_program.eliminate_unused_argument
 let infer_type = Ltl_program.infer_type
 let abbrev_variable_names = Ltl_program.abbrev_variable_names
 let branching_time_program = Branching_time_program.branching_time_program
+let main1 = Raw_program_2.Program_main.main1
