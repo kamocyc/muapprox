@@ -1,3 +1,8 @@
+module Alternating_automaton = Alternating_automaton
+module Trans_program = Trans_program
+module Horsz = Horsz
+module To_hflz = To_hflz
+
 let parse_file_horsz file =
   let buf = Hflmc2_util.read_file file in
   let line_number = Hflmc2_util.count_substring buf "\n" in

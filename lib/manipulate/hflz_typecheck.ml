@@ -96,7 +96,18 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
   end
   | Arith _ -> failwith @@ "Illegal Arith: " ^ (show_fm hfl) in
   go env hfl
-  
+
+let get_duplicates cmp ls =
+  List.filter_map
+    (fun var ->
+      match List.filter (fun var' -> cmp var' var) ls with
+      | [x] -> None
+      | (x::_) as xs ->
+        Some (x, List.length xs)
+      | [] -> assert false
+    )
+    ls
+        
 let type_check (hes : Type.simple_ty hes) : unit =
   (* let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
   print_endline @@ "Not checked HES path: " ^ path; *)
@@ -105,6 +116,24 @@ let type_check (hes : Type.simple_ty hes) : unit =
   let show_ty = Type.show_ty Fmt.nop in
   let (entry, rules) = hes in
   let env = List.map (fun {var={ty;_} as var;_} -> {var with ty=Type.TySigma ty}) rules in
+  let () =
+    let pred_count = get_duplicates (fun a b -> a.Id.name = b.Id.name) env in
+    match pred_count with
+    | [] -> ()
+    | xs -> failwith @@ "duplicated predicates (comparing only names of predicates) (" ^ (List.map (fun (var, _) -> Id.to_string var) xs |> String.concat ", ") ^ ")" in
+  let () =
+    List.iter
+      (fun {body; var; _} ->
+        let rec f = function
+          | Abs (x, b) -> x :: (f b)
+          | _ -> [] in
+        let args = f body in
+        let counts = get_duplicates (fun a b -> a.Id.name = b.Id.name) args in
+        match counts with
+        | [] -> ()
+        | xs -> failwith @@ "duplicated arguments (comparing only names of predicates) (predicate: " ^ Id.to_string var ^ ", args: " ^ (List.map (fun (var, _) -> Id.to_string var) xs |> String.concat ", ") ^ ")"
+      )
+      rules in
   let ty' = get_hflz_type env entry in
   if not @@ Type.eq_modulo_arg_ids ty' (TyBool ()) then failwith @@ "rule type mismatch (Checked type: " ^ show_ty ty' ^ " / Env type: " ^ show_ty (TyBool ()) ^ ")";
   List.iter (fun ({var={ty;_}; body; _}) -> 

@@ -9,6 +9,7 @@
  (libraries
    raw_program
    muapprox.manipulate
+   branching_time_program
    hflmc2_syntax
    hflmc2_util
    str

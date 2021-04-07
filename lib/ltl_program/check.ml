@@ -20,8 +20,13 @@ let check_input (program : Raw_program.Program.program) (automaton : automaton) 
   
   List.iter (fun (state, targets) ->
     let targets = List.sort_uniq compare targets in
-    if all_symbols <> targets then
-      failwith @@ "some transition states are missing (state=" ^ state ^ ", all_symbols=" ^ Hflmc2_util.show_list id all_symbols ^ " / targets=" ^ Hflmc2_util.show_list id targets ^ ")"
+    match List.filter_map (fun s -> match List.find_opt (fun t -> s = t) targets with Some t -> None | None -> Some ()) all_symbols with
+    | [] -> ()
+    | xs -> begin
+      (* print_endline @@ Hflmc2_util.show_list id xs; *)
+      if all_symbols <> targets then
+        failwith @@ "some transition states are missing or mismatched (state=" ^ state ^ ", all_symbols=" ^ Hflmc2_util.show_list id all_symbols ^ " / targets=" ^ Hflmc2_util.show_list id targets ^ ")"
+    end
   ) grouped_trans;
   
   if (List.map (fun (State s, _) -> s) priority |> List.sort compare) <> all_states then

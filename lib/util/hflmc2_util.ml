@@ -14,6 +14,8 @@ let group_by f l1 =
     (Hashtbl.create 100)
     l1
 
+let list_of_hashtbl ht = Hashtbl.fold (fun k v acc -> (k, v)::acc) ht []
+
 let list_product l1 l2 =
   List.map (fun e1 -> List.map (fun e2 -> (e1, e2)) l2) l1
   |> List.flatten

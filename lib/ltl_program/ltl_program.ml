@@ -39,7 +39,8 @@ let parse_file file =
   let automaton = Hflmc2_util.Parse.parse_file Lexer.token Parser.main remaining_line_numbers remaining_file in
   program, automaton
 
-let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nondet_with_forall =
+
+let convert_ltl file show_raw_id_name always_use_canonical_type_env use_branching_time =
   let open Raw_program in
   Print_syntax.show_raw_id_name := show_raw_id_name;
   
@@ -68,46 +69,50 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env encode_nonde
   
   Check.check_input program' automaton;
   
-  let (env, (initial_state, transition), priority) = automaton in
-  let all_states = List.map fst priority in
-  let max_m = List.fold_left (fun a (_, b) -> if a < b then b else a) (-1) priority in
-  let env =
-    match always_use_canonical_type_env, env with
-    | true, _ | _, None ->
-      print_endline "INFO: using the canonical intersection type environment";
-      canonical_it_program program' all_states max_m
-    | _, Some env ->
-      print_endline "INFO: using the given intersection type environemnt";
-      set_id_on_env env program'
-    in
-  print_endline "env:"; print_endline @@ show_itype_env env;
-  
-  let func_priority = get_priority env in
-  let program_ = trans_program env program' (as_multi_function transition) (as_function priority) initial_state all_states in
-  
-  print_endline "program (after):";
-  print_endline @@ Print_syntax.show_program_as_ocaml program_;
-  
-  let () =
-    let oc = open_out "tmp.ml" in
-    let fmt = Format.formatter_of_out_channel oc in
-    Format.fprintf fmt "%s" (Print_syntax.show_program_as_ocaml program_);
-    close_out oc in
-  
-  let hflz = Trans_program.to_hflz program_ func_priority encode_nondet_with_forall in
-  
-  Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
-  Manipulate.Hflz_typecheck.type_check hflz;
-  Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
-  Format.print_string "\n=======\n"; Format.print_flush ();
-  
-  let hflz = Manipulate.Hes_optimizer.eliminate_unreachable_predicates hflz in
-  Manipulate.Hflz_typecheck.type_check hflz;
-  
-  Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_cut (); Format.print_flush ();
-  print_endline @@ show_priority func_priority;
-  
-  hflz, func_priority
+  if use_branching_time then
+    Convert_as_branching_time.convert program' automaton, None
+  else begin
+    let (env, (initial_state, transition), priority) = automaton in
+    let all_states = List.map fst priority in
+    let max_m = List.fold_left (fun a (_, b) -> if a < b then b else a) (-1) priority in
+    let env =
+      match always_use_canonical_type_env, env with
+      | true, _ | _, None ->
+        print_endline "INFO: using the canonical intersection type environment";
+        canonical_it_program program' all_states max_m
+      | _, Some env ->
+        print_endline "INFO: using the given intersection type environemnt";
+        set_id_on_env env program'
+      in
+    print_endline "env:"; print_endline @@ show_itype_env env;
+    
+    let func_priority = get_priority env in
+    let program_ = trans_program env program' (as_multi_function transition) (as_function priority) initial_state all_states in
+    
+    print_endline "program (after):";
+    print_endline @@ Print_syntax.show_program_as_ocaml program_;
+    
+    let () =
+      let oc = open_out "tmp.ml" in
+      let fmt = Format.formatter_of_out_channel oc in
+      Format.fprintf fmt "%s" (Print_syntax.show_program_as_ocaml program_);
+      close_out oc in
+    
+    let hflz = Trans_program.to_hflz program_ func_priority in
+    
+    Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
+    Manipulate.Hflz_typecheck.type_check hflz;
+    Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_flush ();
+    Format.print_string "\n=======\n"; Format.print_flush ();
+    
+    let hflz = Manipulate.Hes_optimizer.eliminate_unreachable_predicates hflz in
+    Manipulate.Hflz_typecheck.type_check hflz;
+    
+    Format.printf "%a" Hflmc2_syntax.Print.(hflz_hes simple_ty_) hflz; Format.print_cut (); Format.print_flush ();
+    print_endline @@ show_priority func_priority;
+    
+    hflz, Some func_priority
+  end
 
 let eliminate_unused_argument = Eliminate_unused_argument.eliminate_unused_argument
 let infer_type = Type_hflz.infer_type

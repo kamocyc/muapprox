@@ -97,4 +97,5 @@ let abbrev_variable_numbers_hes ((entry, rules) : Type.simple_ty Hflz.hes) =
     List.map (fun rule -> {
       rule with
       Hflz.body = abbrev_variable_numbers env rule.Hflz.body}) rules in
+  Manipulate.Hflz_typecheck.type_check (entry, rules);
   entry, rules

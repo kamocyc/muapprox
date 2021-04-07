@@ -7,6 +7,9 @@ module Program2 = Program
 
 let show_id_st id = Id.show Type.pp_simple_ty id
 
+let nondet_demonic_event = "demonic_non_determinism"
+let nondet_angelic_event = "angelic_non_determinism"
+
 let upto m =
   let rec go m = if m = 0 then [0] else m :: (go (m - 1)) in    
   go m
@@ -85,8 +88,8 @@ let make_nondet terms =
   let rec go : Program2.program_expr list -> Program2.program_expr = function 
     | [] -> failwith "make_nondet"
     | [x1] -> x1
-    | [x1; x2] -> PNonDet (x1, x2, None, None)
-    | x::xs -> PNonDet(x, go xs, None, None) in
+    | [x1; x2] -> PNonDet (x1, x2, None, Some nondet_angelic_event)
+    | x::xs -> PNonDet(x, go xs, None, Some nondet_angelic_event) in
   go terms
     
 let intersect l1 l2 =
@@ -225,7 +228,7 @@ let trans
       | None -> failwith @@ "PVar: not found (" ^ Id.show Type.pp_simple_ty x ^ ": (" ^ show_itype ty ^ ", " ^ string_of_int 0 ^ ")"
       | Some (v, m) -> PVar ({x with name = make_var_name x.Id.name v m})
     end
-    | PNonDet (p1, p2, n, e) -> PNonDet (go_prog env p1 ty, go_prog env p2 ty, n, e)
+    | PNonDet (p1, p2, n, _) -> PNonDet (go_prog env p1 ty, go_prog env p2 ty, n, Some nondet_demonic_event)
     | PIf (pred, pthen, pelse) -> PIf (go_pred env pred, go_prog env pthen ty, go_prog env pelse ty)
     | PEvent (ev, p) -> begin
       let states = transition_function ty (Symbol ev) in

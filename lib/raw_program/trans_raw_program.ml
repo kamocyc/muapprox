@@ -310,7 +310,7 @@ let infer_type (raw : tv_program) =
   let constraints = generate_constraints raw in
   let substitution = unify constraints in
   let raw = subst_program raw substitution in
-  print_endline @@ show_tv_program raw;
+  print_endline @@ "tv_program (infer_type)"; print_endline @@ show_tv_program raw;
   raw
 
 let assign_id (raw : R.raw_program) : tv_program =
