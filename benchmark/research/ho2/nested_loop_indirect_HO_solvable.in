@@ -1,0 +1,36 @@
+/* iwayama-solver: 90秒程度かかってvalid. katsura-solver: z3がerror, hoiceはunsatを返すがeldがtimeout */
+%HES
+Sentry =v
+       r < 1 + 1 * n6
+    \/ r < 1 + (-1) * n6
+    \/ r < 2
+    /* \/ r < 1 + 1 * 1
+    \/ r < 1 + (- 1) * 1
+    \/ r < 1 */
+    \/ Mult r (\k7. k7 0) (\k8. k8 1) (\k9. k9 n6)
+        (\g36.
+              r < 1 + 1 * n6
+           \/ r < 1 + (-1) * n6
+           \/ r < 1
+           \/ Main r n6 (\r10. true) g36).
+
+Main r n11 k12 g13 =v
+  r > 0
+  /\ Check g13
+      (\b14. 
+        (b14 != 0 \/ k12 0)
+        /\ (b14 = 0 \/ Main (r - 1) n11 k12 (Pred g13))).
+
+Mult r acc15 f16 g17 k18 =v
+  r > 0
+  /\ Check f16
+      (\b19. 
+        (b19 != 0 \/ k18 acc15)
+        /\ (b19 != 1
+            \/ Mult (r - 1) (Add acc15 g17) (Pred f16) g17 k18)).
+
+Add f20 g21 k22 =v f20 (\fx23. g21 (\gx24. k22 (fx23 + gx24))).
+
+Pred f25 k26 =v f25 (\r27. k26 (r27 - 1)).
+
+Check f28 k29 =v f28 (\n30. (n30 > 0 \/ k29 0) /\ (n30 <= 0 \/ k29 1)).

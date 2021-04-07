@@ -1,0 +1,43 @@
+/* 符号反転回数の限度を表すsign_nを追加. これはvalidの場合に解くのにz3で130sec程度かかって遅い */
+%HES
+Sentry =v
+  ∀x1. ∀x2. ∀x3. ∀x4. ∀x5.
+  ∀s.
+    x1 < 8 \/
+    x2 < 8 \/
+    x3 < 8 \/
+    x4 < 8 \/
+    x5 < 8 \/
+    s < 5 \/
+    Exists67 s x1 x2 x3 x4 x5.
+
+Exists67 sign_n x1 x2 x3 x4 x5 =v
+  (
+    A x1 x2 x3 x4 x5 \/
+    /* x_i がすべて正のときのみ、値を減少させることを許す. (さもないと、負の無限減少列が生じる) */
+    (
+      sign_n >= 5 /\
+        (
+          Exists67 sign_n (x1-1) x2 x3 x4 x5 \/
+          Exists67 sign_n x1 (x2-1) x3 x4 x5 \/
+          Exists67 sign_n x1 x2 (x3-1) x4 x5 \/
+          Exists67 sign_n x1 x2 x3 (x4-1) x5 \/
+          Exists67 sign_n x1 x2 x3 x4 (x5-1)
+        )
+    ) \/
+    Exists67 (sign_n - 1) (-x1) x2 x3 x4 x5 \/
+    Exists67 (sign_n - 1) x1 (-x2) x3 x4 x5 \/
+    Exists67 (sign_n - 1) x1 x2 (-x3) x4 x5 \/
+    Exists67 (sign_n - 1) x1 x2 x3 (-x4) x5 \/
+    Exists67 (sign_n - 1) x1 x2 x3 x4 (-x5)
+  )
+  /* 負も許すため、x_i >= 0 から変更 */
+  /\ x1 != 0
+  /\ x2 != 0
+  /\ x3 != 0
+  /\ x4 != 0
+  /\ x5 != 0
+  /\ sign_n >= 0.
+
+A x1 x2 x3 x4 x5 =v
+  x1 = -2 /\ x2 = -8.

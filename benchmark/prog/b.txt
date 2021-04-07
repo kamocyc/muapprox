@@ -1,0 +1,20 @@
+%PROGRAM
+let g = event b; g
+
+let f =
+  event a;
+  if <d> * then f else g
+
+let () = f
+
+%TRANSITION
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa d -> (1, qa) /\ (2, qa).
+qb a -> (1, qb).
+qb b -> (1, qb).
+qb d -> (1, qb) /\ (2, qb).
+
+%PRIORITY
+qa -> 0.
+qb -> 1.

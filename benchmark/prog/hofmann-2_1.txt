@@ -1,4 +1,4 @@
-/* これはinvalidになってほしいがvalidである */
+/* これはinvalidになってほしいがvalidである. unsatなパスを表示するとかで原因を見たい */
 /*
 Example 1 of Hofmann and Chen, "Buchi Types for Infinite Traces and Liveness", CSL-LICS 2014
 

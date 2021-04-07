@@ -1,0 +1,12 @@
+%HES
+Sentry =u ∀n. Main (\r. r = n \/ true) (\k. k n).
+
+Main k g =u
+  Check g (\b.
+    (b =  0 => k 0) /\
+    (b != 0 => Main k (Pred g))
+  ).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).

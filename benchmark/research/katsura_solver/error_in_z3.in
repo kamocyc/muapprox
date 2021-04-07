@@ -1,0 +1,30 @@
+/* どこからが定数倍になっていないのでは？ */
+%HES
+Sentry =v
+  ∀n.
+    ∀r. r < 2 \/ r < 2 + n \/ r < 2 - n \/
+     (Mult r n (\k7. k7 0) (\k8. k8 1) (\k9. k9 n)
+         (\g36.
+          ∀r1. r1 < 2 \/ r1 < 2 + n \/ r1 < 2 - n \/
+             Main r1 n (\r10. true)
+                 g36)).
+Main recMain318318 n11 k12 g13 =v
+  recMain318318 > 0
+  /\ Check g13
+      (\b14. 
+        (b14 != 0 \/ k12 0)
+        /\ (b14 = 0
+            \/ (Main (recMain318318 - 1) n11 k12
+                      (\k155. Pred g13 k155)))).
+Mult recMult319319 n acc15 f16 g17 k18 =v
+  recMult319319 > 0
+  /\ Check f16
+      (\b19. 
+        (b19 != 0 \/ k18 acc15)
+        /\ (b19 != 1
+            \/ (Mult (recMult319319 - 1) n
+                      (\k140. Add acc15 g17 k140) (\k155. Pred f16 k155) g17
+                      k18))).
+Add f20 g21 k22 =v f20 (\fx23. g21 (\gx24. k22 (fx23 + gx24))).
+Pred f25 k26 =v f25 (\r27. k26 (r27 - 1)).
+Check f28 k29 =v f28 (\n30. (n30 > 0 \/ k29 0) /\ (n30 <= 0 \/ k29 1)).

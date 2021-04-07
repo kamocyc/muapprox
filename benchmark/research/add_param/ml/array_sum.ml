@@ -23,7 +23,6 @@ let rec sum ar n =
     let r = sum ar (n - 1) in
     r + e
 
-(* invalid *)
 (* input 10 -> output 55 *)
 let main () =
   let n = read_int () in  

@@ -1,0 +1,119 @@
+
+量化された変数に値を代入
+
+## Loop2'
+
+Main =u ∀n. ∀m. F n m (\r. true).
+F m n k =u
+  (      (m > 0)                    => F (m-1) n k) /\
+  (((not (m > 0)) /\      (n > 0))  => F m (n-1) k) /\
+  (((not (m > 0)) /\ (not (n > 0))) => k false).
+
+
+
+# n = 0, m = 0 のとき
+
+Main =
+  (      (0 > 0)                    => F (0-1) 0 (\r. true)) /\
+  (((not (0 > 0)) /\      (0 > 0))  => F 0 (0-1) (\r. true)) /\
+  (((not (0 > 0)) /\ (not (0 > 0))) => (\r. true) false)
+↓
+Main = (\r. true) false
+↓
+Main = true
+（展開回数: 1回）
+
+
+# n = 1, m = 0 のとき
+
+Main =
+  (      (0 > 0)                    => F (0-1) 1 (\r. true)) /\
+  (((not (0 > 0)) /\      (1 > 0))  => F 0 (1-1) (\r. true)) /\
+  (((not (0 > 0)) /\ (not (1 > 0))) => (\r. true) false)
+↓
+Main = F 0 (1-1) (\r. true)
+↓ (展開)
+Main = (\r. true) false
+↓
+Main = true
+（展開回数: 2回）
+
+
+n m expansions
+0	0	1
+0	1	2
+0	4	5
+0	8	9
+1	0	2
+1	1	3
+1	4	6
+1	8	10
+2	0	3
+2	1	4
+2	4	7
+2	8	11
+4	0	5
+4	1	6
+4	4	9
+4	8	13
+8	0	9
+8	1	10
+8	4	13
+8	8	17
+
+linear regressionで、展開回数は 1 * n + 1 * m + 1 と求まる
+
+
+##
+
+Main =u Prepare Run.
+
+Prepare k =u ∀n. k (\k2. k2 n).
+
+Run f =u Loop f (\r. true).
+
+Loop f k =u
+  Check f (\b.
+    (b = 1 => k 0) /\
+    (b = 0 => Loop (Pred f) k)
+  ).
+
+Check f k =u
+  f (\r.
+    (r <= 0 => k 1) /\
+    (r >  0 => k 0)
+  ).
+
+Pred f k =u f (\r. k (r - 1)).
+
+
+# n = 0
+
+Main = (\k. k (\k2. k2 0)) (\f. Loop f (\r. true)).
+↓
+Main =
+  Check (\k2. k2 0) (\b.
+    (b = 1 => (\r. true) 0) /\
+    (b = 0 => Loop (Pred (\k2. k2 0)) (\r. true))
+  ).
+↓
+Main = (\r. true) 1.
+↓
+Main = true.
+(展開回数: 1回)
+
+# n = 1
+Main = (\k. k (\k2. k2 1)) (\f. Loop f (\r. true)).
+↓
+Main =
+  Check (\k2. k2 1) (\b.
+    (b = 1 => (\r. true) 0) /\
+    (b = 0 => Loop (Pred (\k2. k2 1)) (\r. true))
+  ).
+↓
+Loop (\k2. k2 0) (\r. true).
+↓
+...
+↓
+Main = true.
+(展開回数: 2回)

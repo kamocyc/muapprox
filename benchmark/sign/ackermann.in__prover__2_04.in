@@ -1,0 +1,54 @@
+%HES
+Sentry =v
+  ∀m2. 
+   ∀n3. 
+    ∀recAck7676. 
+     ∀recAck76_277. 
+      recAck7676 < 1 + 1 * n3
+      \/ recAck7676 < 1 + (-1) * n3
+      \/ recAck7676 < 1 + 1 * m2
+      \/ recAck7676 < 1 + (-1) * m2
+      \/ recAck7676 < 1
+      \/ recAck76_277 < 1 + 1 * n3
+      \/ recAck76_277 < 1 + (-1) * n3
+      \/ recAck76_277 < 1 + 1 * m2
+      \/ recAck76_277 < 1 + (-1) * m2
+      \/ recAck76_277 < 1
+      \/ Ack recAck7676 recAck76_277 m2 n3 (\replaced_exc_4. true).
+Ack recAck7676 recAck76_277 m5 n6 k7 =v
+  recAck7676 > 0 /\ recAck76_277 > 0
+  /\ (m5 > 0 \/ k7 (n6 + 1))
+     /\ (m5 <= 0
+         \/ (n6 > 0
+             \/ (∀recAck76_n82. 
+                  ∀recAck76_2_n83. 
+                   (recAck7676 <= 1 \/ recAck76_n82 < recAck7676 - 1
+                    \/ recAck76_2_n83 < recAck76_277)
+                   /\ (recAck7676 > 1
+                       \/ recAck76_n82 < 1 + 1 * (m5 - 1)
+                       \/ recAck76_n82 < 2
+                       \/ recAck76_2_n83 < recAck76_277 - 1)
+                   \/ Ack recAck76_n82 recAck76_2_n83 (m5 - 1) 1 k7))
+            /\ (n6 <= 0
+                \/ (∀recAck76_n80. 
+                     ∀recAck76_2_n81. 
+                      (recAck7676 <= 1 \/ recAck76_n80 < recAck7676 - 1
+                       \/ recAck76_2_n81 < recAck76_277)
+                      /\ (recAck7676 > 1
+                          \/ recAck76_n80 < 1 + 1 * (n6 - 1)
+                          \/ recAck76_n80 < 1 + 1 * m5
+                          \/ recAck76_n80 < 1
+                          \/ recAck76_2_n81 < recAck76_277 - 1)
+                      \/ Ack recAck76_n80 recAck76_2_n81 m5 (n6 - 1)
+                          (\r8. 
+                            ∀recAck76_n78. 
+                             ∀recAck76_2_n79. 
+                              (recAck7676 <= 1 \/ recAck76_n78 < recAck7676 - 1
+                               \/ recAck76_2_n79 < recAck76_277)
+                              /\ (recAck7676 > 1
+                                  \/ recAck76_n78 < 1 + 1 * r8
+                                  \/ recAck76_n78 < 1 + (-1) * r8
+                                  \/ recAck76_n78 < 1 + 1 * (m5 - 1)
+                                  \/ recAck76_n78 < 1
+                                  \/ recAck76_2_n79 < recAck76_277 - 1)
+                              \/ Ack recAck76_n78 recAck76_2_n79 (m5 - 1) r8 k7)))).

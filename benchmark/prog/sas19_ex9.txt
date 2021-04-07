@@ -4,8 +4,8 @@
 let main = event a; main
 let () = main
 
-%ENV
-main : (qa, 0)
+/* %ENV
+main : (qa, 0) */
 
 %TRANSITION
 qa a -> qa

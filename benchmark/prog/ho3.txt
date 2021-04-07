@@ -1,0 +1,59 @@
+/* 機械的に全て無限パスに変換したもの */
+/* Taken from 
+   Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014, Figure 10 */
+/* 元の性質は FG(step \/ phi) なので、本来は、各関数の入り口にstepを挿入するなど変換が必要 */
+/* FG(phi) なので、F(phi) とは異なり、parity がevenのstateからphiを満たさないイベントが生成されたときにdead-stateに遷移する */
+
+%PROGRAM
+let halt =
+  event called;
+  event halt;
+  halt
+  
+let bar x k =
+  event called;
+  event bar;
+  if x>1 then bar (x-1) k
+  else k x
+
+let foo x =
+  event called;
+  event foo;
+  if x<=0 then foo x
+  else halt
+
+let () =
+  if * then foo 1 else foo 0
+  /*
+  let x = * in
+  if x >= 1 then foo x else foo 0 */
+  /* if * then foo 0
+  else bar * (\r.
+    event called;
+    foo r
+  )*/
+
+/* (G((foo && NOT bar && NOT halt && NOT called) || (NOT foo && bar && NOT halt && NOT called) || (NOT foo && NOT bar && halt && NOT called) || (NOT foo && NOT bar && NOT halt && called))) && FG(foo || step) */
+%TRANSITION
+q0 halt -> q0
+q0 foo -> q0
+q0 bar -> q0
+q0 called -> q0
+
+q0 foo -> q1
+q0 called -> q1
+
+q1 foo -> q1
+q1 bar -> qd
+q1 halt -> qd
+q1 called -> q1
+
+qd foo -> qd
+qd bar -> qd
+qd halt -> qd
+qd called -> qd
+
+%PRIORITY
+q0 -> 1
+q1 -> 2
+qd -> 1

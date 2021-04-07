@@ -1,0 +1,64 @@
+/* simplify-boundするとhoiceで13sec程度で解ける */
+%HES
+Sentry =u
+  ∀n.
+    Fact
+      1
+      n
+      (\k. k 1)
+      (\k. k n)
+      (\i g. ∀r2. r2 >= 1 + i => Main (\r. true) i g).
+
+Main k i g =u
+  Check g (\b.
+    (b =  0 => k 0) /\
+    (b != 0 => Main k (i - 1) (Pred g))
+  ).
+
+Fact i n acc f k =u
+  Check f (\b.
+    (b = 0 => k i acc) /\
+    (b = 1 => Mult 0 i n (\k. k 0) acc f (\ii accc. Fact ii (n - 1) accc (Pred f) k))
+  ).
+
+Mult i n m acc f g k =u
+  Check f (\b.
+    (b = 0 => k i acc) /\
+    (b = 1 => Mult (i + n) n (m - 1) (Add acc g) (Pred f) g k)
+  ).
+
+Add f g k =u f (\fx. g (\gx. k (fx + gx))).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).
+
+
+/*
+%HES
+Sentry =u
+  ∀n.
+    Mult [0] [n]
+      (\k. k 0)
+      (\k. k n)
+      (\k. k n)
+      (\i g. ∀r2. r2 >= 1 + i => Main (\r. true) i g).
+
+Main k [i] g =u
+  Check g (\b.
+    (b =  0 => k 0) /\
+    (b != 0 => Main k [i - 1] (Pred g))
+  ).
+
+Mult [i] [n] acc f g k =u
+  Check f (\b.
+    (b = 0 => k [i] acc) /\
+    (b = 1 => Mult [i + n] [n] (Add acc g) (Pred f) g k)
+  ).
+
+Add f g k =u f (\fx. g (\gx. k (fx + gx))).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).
+*/

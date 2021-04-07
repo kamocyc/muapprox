@@ -1,0 +1,19 @@
+%PROGRAM
+let g = event b; g
+
+let f =
+  event a;
+  if * then f else g
+
+let () = f
+
+%TRANSITION
+qa a -> qa
+qa b -> qb
+qb a -> qb
+qb b -> qb
+
+%PRIORITY
+qa -> 2
+qb -> 1
+

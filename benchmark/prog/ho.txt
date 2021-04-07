@@ -1,0 +1,82 @@
+%PROGRAM
+/*
+let l = event a; l
+
+let g n k =
+  if n = 0 then k
+  else (event b; if * then g (n - 1) k else g (n - 1) k)
+
+let f k =
+  if * then (g 1 k)
+  else (event c; g (-1) k)
+
+let () = f l
+
+/*
+(G((a && NOT b && NOT c) || (NOT a && b && NOT c) || (NOT a && NOT b && c)))
+&&
+G(c <-> FG(b))
+*/
+*/
+
+let print x =
+  event b; print x
+
+let rumble x y k =
+  event a;
+  if x < y then (
+    if * then
+      rumble (x+1) y k
+    else rumble x (y-1) k
+  ) else k x
+
+let l = event a; l
+
+let () =
+  let a = 1 in
+  let b = 1 in
+  if * then (
+    event c;
+    rumble b a (\r. rumble a r (\r2. print r2))
+  ) else l
+    
+
+%TRANSITION
+q0_init a -> q_S4
+q0_init b -> q0_S4
+q0_init c -> q1_S2
+
+q1_S2 a -> q1_S6
+q1_S2 b -> q1_S6
+q1_S2 b -> q0_S7
+q1_S2 c -> q1_S2
+
+q1_S6 a -> q1_S6
+q1_S6 b -> q0_S7
+q1_S6 b -> q1_S6
+q1_S6 c -> q1_S6
+
+q0_S7 a -> qd
+q0_S7 b -> q0_S7
+q0_S7 c -> qd
+
+q_S4 a -> q_S4
+q_S4 b -> q0_S4
+q_S4 c -> q1_S6
+
+q0_S4 a -> q_S4
+q0_S4 b -> q0_S4
+q0_S4 c -> q1_S6
+
+qd a -> qd
+qd b -> qd
+qd c -> qd
+
+%PRIORITY
+q0_init -> 1
+q1_S2 -> 1
+q1_S6 -> 1
+q0_S7 -> 1
+q_S4 -> 2
+q0_S4 -> 1
+qd -> 1

@@ -1,0 +1,39 @@
+%HES
+Sentry =u ∀n. Loop1 (\k. k n) (\r. true).
+
+/* Loop1の中ではfの情報を表す整数変数xを使っていない */
+/* fの情報を使って、n!回内部でループしている */
+/* Loop1の引数にnを追加して、n!をboundにすれば */
+Loop1 f k =u
+  Fact One f (Loop2 (\_.
+    Check f (\b.
+      (b = 0 => k 0) /\
+      (b != 0 => Loop1 (Pred f) k)
+    )
+  )).
+  
+Loop2 k g =u
+  Check g (\b.
+    (b = 0 => k 0) /\
+    (b != 0 => Loop2 k (Pred g))
+  ).
+
+Fact acc f k =u
+  Check f (\b.
+    (b = 0 => k acc) /\
+    (b != 0 => Fact (Mult acc f) (Pred f) k)
+  ).
+
+Mult f g k =u
+  f (\fx.
+    Check g (\b.
+      (b = 0 => k 0) /\
+      (b != 0 => Mult f (Pred g) (\r. k (r + fx)))
+    )
+  ).
+
+One k =u k 1.
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).

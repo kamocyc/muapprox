@@ -3,8 +3,7 @@ let g k = if * then (event a; k) else (event b; k)
 let f x = if x > 0 then g (f (x - 1)) else (event b; f 5)
 let () = f 5
 
-/*
-%ENV
+/* %ENV
 g : ((qa, 0) /\ (qb, 1) -> qa, 0)
 g : ((qa, 0) /\ (qb, 1) -> qb, 0)
 f : (int -> qa, 0)
