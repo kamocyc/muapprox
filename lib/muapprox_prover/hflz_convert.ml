@@ -4,11 +4,17 @@ module Type = Hflmc2_syntax.Type
 module Hflz = Hflmc2_syntax.Hflz
 module Arith = Hflmc2_syntax.Arith
 module Fixpoint = Hflmc2_syntax.Fixpoint
-open Id
-open Type
-open Hflz
+
+let to_uident v =
+  let c = String.get v 0 in
+  (Char.uppercase_ascii c |> String.make 1) ^ String.sub v ~pos:1 ~len:(String.length v - 1)
+
+let to_lident v =
+  let c = String.get v 0 in
+  (Char.lowercase_ascii c |> String.make 1) ^ String.sub v ~pos:1 ~len:(String.length v - 1)
 
 module Env = struct
+  open Type
   type t = ([`Pvar of Ast.Ident.pvar | `Tvar of Ast.Ident.tvar] * unit ty arg Id.t) list
     
   let direct_find (env: t) k =
@@ -35,7 +41,8 @@ module Env = struct
     in
     ty
   
-  let add_env_tvar env (k, ty) =
+  let add_env_tvar env (Ast.Ident.Tvar k, ty) =
+    let k = Ast.Ident.Tvar (to_lident k) in
     let new_name = 
       match direct_find env (`Tvar k) with
       | None -> begin
@@ -74,7 +81,8 @@ let show_sort sort =
   
 let rec go_arith env (arith : Ast.Logic.Term.t) : Arith.t =
   match arith with
-  | Var (tvar, sort, _) -> begin
+  | Var (Tvar tvar, sort, _) -> begin
+    let tvar = Ast.Ident.Tvar (to_lident tvar) in
     match Env.direct_find env (`Tvar tvar) with
     | None -> (let Tvar t = tvar in failwith @@ "arith var " ^ t)
     | Some v -> 
@@ -96,7 +104,8 @@ let rec go_arith env (arith : Ast.Logic.Term.t) : Arith.t =
     | _ -> failwith "fun_app"
   end
   
-let rec go env (f : Ast.Logic.Formula.t) : Type.simple_ty t =
+let rec go env (f : Ast.Logic.Formula.t) : Type.simple_ty Hflz.Sugar.t =
+  let open Hflz.Sugar in
   match f with
   | Atom (True _, _) -> Bool true
   | Atom (False _, _) -> Bool false
@@ -124,12 +133,11 @@ let rec go env (f : Ast.Logic.Formula.t) : Type.simple_ty t =
     | _ -> failwith "atom app 2"
   end
   | Atom (App (Fixpoint _, _, _), _) -> failwith "atom app fixpoint"
-  | UnaryOp (Neg, _, _) -> failwith "neg"
-  | BinaryOp (And, f1, f2, _) ->
-    And (go env f1, go env f2)
-  | BinaryOp (Or, f1, f2, _) ->
-    Or (go env f1, go env f2)
-  | BinaryOp (_, _, _, _) -> failwith "bin"
+  | UnaryOp (Neg, f1, _) -> Not (go env f1)
+  | BinaryOp (And, f1, f2, _) -> And (go env f1, go env f2)
+  | BinaryOp (Or, f1, f2, _) -> Or (go env f1, go env f2)
+  | BinaryOp (Imply, f1, f2, _) -> Or (Not (go env f1), go env f2)
+  | BinaryOp (Iff, f1, f2, _) -> And (Or (Not (go env f1), go env f2), Or (Not (go env f2), go env f1))
   | Bind (Forall, args, f, _) ->
     let rec go' env = function
       | (tvar, s)::xs -> 
@@ -165,7 +173,7 @@ let of_func env (fix, pvar, ass, f) =
       let (v, env) = Env.add_env_tvar env (arg, sort) in
       Abs (v, go' env xs)
     end in
-  { fix=of_fix fix; var=var; body=go' env ass }
+  { Hflz.Sugar.fix=of_fix fix; var=var; body=go' env ass }
 
 let do_env env (fix, pvar, ass, f) = 
   let sorts = List.map ~f:(fun (a, s) -> s) ass in
@@ -176,4 +184,5 @@ let do_env env (fix, pvar, ass, f) =
 let of_hes (Hes.HesLogic.Hes (funcs, ep)): Type.simple_ty Hflz.hes =
   let env = List.fold_left funcs ~init:[] ~f:(fun env r -> do_env env r) in
   let top = go env ep in
-  top, List.map ~f:(of_func env) funcs
+  let sugar = top, List.map ~f:(of_func env) funcs in
+  Hflz.desugar sugar

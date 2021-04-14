@@ -54,7 +54,7 @@ rule main = parse
 | "(" { HesParsing.LPAREN }
 | ")" { HesParsing.RPAREN }
 
-| ['a'-'z''A'-'Z''#']['a'-'z''A'-'Z''0'-'9'''''_''#']*
+| ['a'-'z''A'-'Z''#''_']['a'-'z''A'-'Z''0'-'9'''''_''#']*
     {
       let str = Lexing.lexeme lexbuf in
       HesParsing.ID str
