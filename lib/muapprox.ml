@@ -88,6 +88,9 @@ let get_solve_options file =
     simplify_bound = !Options.simplify_bound;
     use_simple_encoding_when_lexico_is_one  = !Options.use_simple_encoding_when_lexico_is_one;
     disable_lexicographic = !Options.disable_lexicographic;
+    add_arguments = !Options.add_arguments;
+    coe_arguments = get_coe !Options.coe_arguments;
+    no_elim = !Options.no_elim;
   }
 
 let check_format file format_type =

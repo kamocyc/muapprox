@@ -25,6 +25,9 @@ let default_lexicographic_order = ref (Obj.magic())
 let simplify_bound = ref (Obj.magic())
 let use_simple_encoding_when_lexico_is_one = ref (Obj.magic())
 let disable_lexicographic = ref (Obj.magic())
+let add_arguments = ref (Obj.magic())
+let coe_arguments = ref (Obj.magic())
+let no_elim = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -66,7 +69,7 @@ type params =
   ; first_order_solver : bool [@default false]
   (** If true, use z3 or hoice to solve first-order formulas. If empty (or default), always use a solver for higher-order formulas. **)
   
-  ; coe : string [@default ""]
+  ; coe : string [@default "1,1"]
   (** Initial coefficients. Speficfy such as "1,8" (default is "1,1") **)
   
   ; dry_run : bool [@default false]
@@ -91,6 +94,11 @@ type params =
   ; use_simple_encoding_when_lexico_is_one: bool [@default true]
   
   ; disable_lexicographic: bool [@default false]
+  
+  (*  *)
+  ; add_arguments : bool [@default false]
+  ; coe_arguments : string [@default "1,0"]
+  ; no_elim : bool [@default false]
   }
   [@@deriving cmdliner,show]
 
@@ -115,6 +123,9 @@ let set_up_params params =
   set_ref simplify_bound       params.simplify_bound;
   set_ref use_simple_encoding_when_lexico_is_one params.use_simple_encoding_when_lexico_is_one;
   set_ref disable_lexicographic params.disable_lexicographic;
+  set_ref add_arguments params.add_arguments;
+  set_ref coe_arguments params.coe_arguments;
+  set_ref no_elim params.no_elim;
   params.input
 
 (******************************************************************************)

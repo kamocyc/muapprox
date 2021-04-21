@@ -15,6 +15,11 @@ open Unix_command
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
 
+type coe_tuple = {
+  coe1: int;
+  coe2: int;
+}
+
 type debug_context = {
   coe1: int;
   coe2: int;
@@ -123,6 +128,7 @@ module SolverCommon = struct
     | TInvalid
     | TUnknown
     | TTerminated
+    | TFail
     | TError
   
   let to_string_result = function
@@ -130,6 +136,7 @@ module SolverCommon = struct
     | TInvalid -> "invalid"
     | TUnknown -> "unknown"
     | TTerminated -> "terminated"
+    | TFail -> "fail"
     | TError -> "error"
     
   let output_post_debug_info tmp_res elapsed stdout stderr debug_context =
@@ -169,6 +176,11 @@ module SolverCommon = struct
       end
       | Error (`Exit_non_zero 143) -> begin
         print_endline @@ "Terminated " ^ (show_debug_context debug_context);
+        Status.Unknown, TTerminated
+      end
+      | Error (`Exit_non_zero 128) -> begin
+        (* why 128? *)
+        print_endline @@ "Terminated (128) " ^ (show_debug_context debug_context);
         Status.Unknown, TTerminated
       end
       | _ -> begin
@@ -402,33 +414,41 @@ let is_onlymu_onlyexists (entry, rules) =
   (Status.flip s1, s2) *)
 
 (* TODO: forallを最外に移動？ => いらなそうか *)
-let elim_mu_exists coe1 coe2 lexico_pair_number debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
-  (* 再帰参照していない述語はgreatestに置換 *)
-  (* これをすると、fixpoint alternationが新たにできて、式が複雑になることがあるので、やめる *)
-  (* let hes = to_greatest_from_not_recursive rec_preds hes in *)
-  (* forall, existential, nu, mu *)
-  (* forall, nu, mu *)
-  (* TODO *)
-  let heses =
-    if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
-    else [Hflz_mani.encode_body_exists coe1 coe2 hes, []] in
-  List.map (fun (hes, acc) ->
-    Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-    ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes;
-    let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number in
-    Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-    if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
-    ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes;
-    (* forall, nu *)
-    hes, acc
-  ) heses
+let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim lexico_pair_number debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
+  (* TODO: *)
+  let (arg_coe1, arg_coe2) = coe_arguments in
+  if no_elim then begin
+    let hes =
+      if add_arguments
+        then Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2
+        else hes in
+    [hes, []]
+  end else begin
+    let hes =
+      if add_arguments
+        then Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2
+        else hes in
+    let heses =
+      if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
+      else [Hflz_mani.encode_body_exists coe1 coe2 hes, []] in
+    List.map (fun (hes, acc) ->
+      Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+      ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes;
+      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number in
+      Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+      if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
+      ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes;
+      (* forall, nu *)
+      hes, acc
+    ) heses
+  end
 
 exception Exit
 
 (* これ以降、本プログラム側での近似が入る *)
 let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : Solve_options.options) debug_output hes mode_name =
   Hflz_mani.simplify_bound := solve_options.simplify_bound;
-  let nu_only_heses = elim_mu_exists coe1 coe2 lexico_pair_number debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
+  let nu_only_heses = elim_mu_exists coe1 coe2 solve_options.add_arguments solve_options.coe_arguments solve_options.no_elim lexico_pair_number debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
   let debug_context = Some {
     mode = mode_name;
     iter_count = iter_count;
@@ -465,16 +485,16 @@ let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : 
     let deferred_is_valid = Ivar.read is_valid in
     let deferred_all =
       Deferred.all (
-      List.map (fun s ->
-        (Deferred.any s) >>|
-        (fun (result, d) ->
-          (match result with
-          | Status.Valid ->
-            if Ivar.is_empty is_valid
-              then Ivar.fill is_valid [(result, d)]
-              else ()
-          | _ -> ());
-          (result, d)))
+        List.map (fun s ->
+          (Deferred.any s) >>|
+          (fun (result, d) ->
+            (match result with
+            | Status.Valid ->
+              if Ivar.is_empty is_valid
+                then Ivar.fill is_valid [(result, d)]
+                else ()
+            | _ -> ());
+            (result, d)))
         solvers
       ) in
     Deferred.any [deferred_is_valid; deferred_all]

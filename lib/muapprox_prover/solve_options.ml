@@ -24,6 +24,9 @@ type options =
     simplify_bound: bool;
     use_simple_encoding_when_lexico_is_one: bool;
     disable_lexicographic: bool;
+    add_arguments: bool;
+    coe_arguments: int * int;
+    no_elim: bool;
   }
 
 let get_solver solver_name = 
@@ -55,7 +58,7 @@ let get_solver_backend s solver =
 
 let get_coe coe_opt = 
   match String.trim coe_opt with
-  | "" -> (1, 1)
+  | "" -> failwith "get_coe: should not be blank"
   | c -> begin
     match String.split_on_char ',' c with
     | [c1; c2] -> begin

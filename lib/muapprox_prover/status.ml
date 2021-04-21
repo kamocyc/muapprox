@@ -7,6 +7,7 @@ type t =
   | Unknown
   | Sat
   | UnSat
+  | Fail
 
 let flip = function
   | Valid -> Invalid
@@ -14,6 +15,7 @@ let flip = function
   | Unknown -> Unknown
   | Sat   -> UnSat
   | UnSat -> Sat
+  | Fail -> Fail
 
 let string_of = function
   | Valid -> "valid"
@@ -21,10 +23,12 @@ let string_of = function
   | Unknown -> "unknown"
   | Sat -> "sat"
   | UnSat -> "unsat"
+  | Fail -> "fail"
 
 let of_string str = 
   let str = String.lowercase_ascii str in
   match str with
+  | "fail" -> Fail
   | "valid" -> Valid
   | "invalid" -> Invalid
   | "unknown" -> Unknown
