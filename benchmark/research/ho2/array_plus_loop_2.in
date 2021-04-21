@@ -1,0 +1,40 @@
+/* 「配列」の第一要素と第二要素の和の数だけ再帰 */
+/* 解けない */
+/* 再帰回数の算出と型付けのためにxとyを渡す必要がある */
+/* yだけでも解けた. xだけだとinvalidになる。 */
+/* 以下で(katsura-solver用に引数x, yをLoopに追加すれば)z3で解ける */
+%HES
+Sentry =u
+  ∀x. ∀y.
+    Make_array [x, y] (\[ar_i] ar.
+      Update [ar_i] ar 0 x [x, y] (\[] ar2.
+        Update [x, y] ar2 1 y [x, y] (\[] ar3.
+          Main [x, y] ar3 [] (\_. true)
+        )
+      )
+    ).
+
+Main [] ar [] k =u 
+  Loop [] ar 0 1 [] (\r. k r).
+
+Loop [ar_i] ar i j [k_i] k =u
+  ar i [j, k_i] (\x.
+    ar j [x, k_i] (\y.
+      (x + y <= 0 => k false) /\
+      (x + y  > 0 => Pred [ar_i] ar 0 [k_i] (\ar'_i ar'. Loop [ar'_i] ar' 0 1 [k_i] k))
+    )
+  ).
+
+/* i番目の要素の値を1減らす */
+Pred [ar_i] ar i [k_i] k =u
+  ar i [ar_i, i, k_i] (\x.
+    Update [ar_i] ar i (x - 1) [k_i] k
+  ).
+  
+Make_array [k_i] k =u k [] (\i. \[k'_i] k'. k' 0).
+
+Update [ar_i] ar i x [k_i] k =u
+  k [ar_i, i, x] (\j. \[k'_i] k'. (j = i => k' x) /\ (j /= i => ar j [k'_i] k')).
+
+Check [ar_i] ar i x [k_i] k =u
+  ar i [k_i, x] (\r. k (r = x)).

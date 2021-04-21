@@ -1,0 +1,10 @@
+%HES
+S =v ∀n. n < 0 \/ Loop n /\ Loop2 n.
+
+/* 過少近似: n >= 0, 過大近似: n >= 0 */
+Loop n =v
+  n >= 0 /\ Loop (n + 1).
+
+Loop2 n =u
+  (n > 0 \/ true) /\
+  (n <= 0 \/ Loop2 (n - 1)).

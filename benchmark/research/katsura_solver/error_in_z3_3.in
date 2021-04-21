@@ -1,0 +1,36 @@
+%HES
+Sentry =v
+  ∀x7. 
+   ∀y8. 
+    Make_array
+     (\ar9. 
+       Update ar9 0 x7
+        (\ar210. 
+          Update ar210 1 y8
+           (\ar311.
+           ∀r. (r < 1 + x7 \/ r < 1 + y8 \/ r < 1 - x7 \/ r < 1 - y8) \/
+            Main r x7 y8 ar311 (\replaced_exc_12. true)
+          ))).
+Main ar_i13 x y ar14 k15 =v
+  ∀recLoop370370.
+   recLoop370370 < 1 + 1 * ar_i13
+   \/ recLoop370370 < 1 + (-1) * ar_i13
+   \/ recLoop370370 < 2
+   \/ Loop recLoop370370 x y ar_i13 ar14 0 1 (\r16. k15 r16).
+Loop recLoop370370 x y ar_i17 ar18 i19 j20 k21 =v
+  recLoop370370 > 0
+  /\ ar18 i19
+      (\x22. 
+        ar18 j20
+         (\y23. 
+           (x22 + y23 > 0 \/ k21 false)
+           /\ (x22 + y23 <= 0
+               \/ Pred ar18 0
+                   (\ar_ap_24. Loop (recLoop370370 - 1) x y ar_i17 ar_ap_24 0 1 k21)))).
+Pred ar25 i26 k27 =v ar25 i26 (\x28. Update ar25 i26 (x28 - 1) k27).
+Make_array k29 =v k29 (\i30. \k_ap_31. k_ap_31 0).
+Update ar32 i33 x34 k35 =v
+  k35
+   (\j36. 
+     \k_ap_37. (j36 != i33 \/ k_ap_37 x34) /\ (j36 = i33 \/ ar32 j36 k_ap_37)).
+Check ar38 i39 x40 k41 =v ar38 i39 (\r42. k41 (r42 = x40)).

@@ -1,0 +1,33 @@
+/* まず、整数値のdata-flowを見る */
+/* 現実には、定数項を加えないと解けない場合がある */
+
+%HES
+Sentry =u
+  ∀n.
+    Mult
+      [0] (\k. k 0)
+      [n] (\k. k n)
+      (\k. k n)
+      (\i g.
+        ∀r2. (r2 >= 1 + n /\ r2 >= 1 - n /\ r2 >= 1 + i /\ r2 >= 1 - i) =>
+        Main (\r. true) i g
+      ).
+
+Main k i g =u
+  Check g (\b.
+    (b =  0 => k 0) /\
+    (b != 0 => Main k i (Pred g))
+  ).
+
+Mult [acc_i] acc f [g_i] g k =u
+  Check f
+    (\b.
+      (b = 0 => k [acc_i] acc) /\
+      (b = 1 => Mult [acc_i, g_i] (Add acc g) (Pred f) [g_i] g k)
+    ).
+
+Add f g k =u f (\fx. g (\gx. k (fx + gx))).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).

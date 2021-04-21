@@ -1,28 +1,31 @@
-/* simplify-boundするとhoiceで13sec程度で解ける */
+/* simplify-boundするとhoiceで解ける */
+/* Checkなど全てに整数引数を追加するとtimeout */
 %HES
 Sentry =u
   ∀n.
     Mult
-      n
+      /* n */
+      0
       (\k. k 0)
       n
       (\k. k n)
       n
       (\k. k n)
-      (\i g. Main (\r. true) i g).
+      (\i g. Main i (\r. true) g).
 
-Main k i g =u
+Main r2 k g =v
+  r2 > 0 /\
   Check g (\b.
     (b =  0 => k 0) /\
-    (b != 0 => Main k i (Pred g))
+    (b != 0 => Main (r2 - 1) k (Pred g))
   ).
 
 Mult acc_i acc f_i f g_i g k =u
   Check f (\b.
     (b = 0 => k acc_i acc) /\
     (b = 1 =>
-      (\kk. kk (Add acc g))
-      (\ff. Mult (acc_i + g_i) ff (f_i - 1) (Pred f) g_i g k)
+      ∀t. (t >= 2 * acc_i /\ t >= 2 * g_i) =>
+        Mult t (Add acc g) (f_i - 1) (Pred f) g_i g k
     )
   ).
 
@@ -31,6 +34,9 @@ Add f g k =u f (\fx. g (\gx. k (fx + gx))).
 Pred f k =u f (\r. k (r - 1)).
 
 Check f k =u f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).
+
+
+
 
 
 /*
@@ -42,12 +48,12 @@ Sentry =u
       (\k. k 0)
       (\k. k n)
       (\k. k n)
-      (\i g. ∀r2. r2 >= 1 + i => Main (\r. true) i g).
+      (\i g. ∀r2. r2 >= 1 + i => Main (\r. true) g).
 
-Main k i g =u
+Main k g =u
   Check g (\b.
     (b =  0 => k 0) /\
-    (b != 0 => Main k (i - 1) (Pred g))
+    (b != 0 => Main k (Pred g))
   ).
 
 Mult i n acc f g k =u

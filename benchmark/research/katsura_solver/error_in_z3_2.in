@@ -1,0 +1,34 @@
+%HES
+Sentry =v
+  ∀n6. 
+   ∀recMult305305. 
+    recMult305305 < n6 + 1 \/ recMult305305 < (-1) * n6 + 1
+    \/ recMult305305 < 1
+    \/ Mult recMult305305 0 n6 (\k7. k7 0) (\k8. k8 n6) (\k9. k9 n6)
+        (\i10. 
+          \g11. 
+           ∀r212. 
+            r212 < 1 + i10
+            \/ (∀recMain304304. 
+                 recMain304304 < i10 + 1 \/ recMain304304 < (-1) * i10 + 1
+                 \/ recMain304304 < 1
+                 \/ Main recMain304304 (\r13. true) i10 g11)).
+Main recMain304304 k14 i15 g16 =v
+  recMain304304 > 0
+  /\ Check g16
+      (\b17. 
+        (b17 != 0 \/ k14 0)
+        /\ (b17 = 0 \/ Main (recMain304304 - 1) k14 i15 (Pred g16))).
+Mult recMult305305 i18 n19 acc20 f21 g22 k23 =v
+  recMult305305 > 0
+  /\ Check f21
+      (\b24. 
+        (b24 != 0 \/ k23 i18 acc20)
+        /\ (b24 != 1
+            \/ (∀xx25. 
+                 xx25 < 2 * i18 + 1 \/ 1 + 2 * n19 >= xx25
+                 \/ Mult (recMult305305 - 1) xx25 n19 (Add acc20 g22)
+                     (Pred f21) g22 k23))).
+Add f26 g27 k28 =v f26 (\fx29. g27 (\gx30. k28 (fx29 + gx30))).
+Pred f31 k32 =v f31 (\r33. k32 (r33 - 1)).
+Check f34 k35 =v f34 (\n36. (n36 > 0 \/ k35 0) /\ (n36 <= 0 \/ k35 1)).

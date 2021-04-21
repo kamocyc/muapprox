@@ -5,7 +5,7 @@ Sentry =u
   ∀x.∀y.
     Make_array (\ar.
       Update ar 0 x (\ar'.
-        Update ar 1 y (\ar''.
+        Update ar' 1 y (\ar''.
           /* 再帰回数の算出と型付けのためにxとyを渡す必要がある */
           /* yだけでも解けた. xだけだとinvalidになる。 */
           Main x y ar'' (\_. true)
@@ -13,8 +13,9 @@ Sentry =u
       )
     ).
 
+/* ここで、boundとして、1 + x + y を指定する必要がある 1 + x, 1 + y ではなぜか解けなくなる */
 Main x y ar k =u 
-  Loop x y ar 0 1 (\r. y = y \/ x = x \/ k r).
+  Loop x y ar 0 1 (\r. x + y = x + y \/ k r).
 
 /* ここでLoopにxとyを渡さないとkatsura-solverで解けない */
 Loop x_ y_ ar i j k =u

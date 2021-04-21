@@ -1,3 +1,6 @@
+// node benchmark/research/many_vars/gen.js > benchmark/research/many_vars/many_vars.in
+// /opt/home2/git/hflmc2_mora/_build/default/bin/main.exe --solver=hoice benchmark/research/many_vars/many_vars.in > a.txt
+
 const max = 300;
 let vars = [];
 for(let i=1; i<=max; i++) {
@@ -6,7 +9,7 @@ for(let i=1; i<=max; i++) {
 const buf =
   "%HES\n" +
   "S =v\n" +
-  vars.map(v => "∀" + v + ".").join("") + "\n" +
+  vars.map(v => "∀" + v + ".").join(" ") + "\n" +
   vars.map(v => v + " <= 0").join(" \\/ ") + " \\/\n" +
   "(" +
   "∀r1." +
