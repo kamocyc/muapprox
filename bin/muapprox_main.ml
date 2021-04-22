@@ -11,13 +11,13 @@ let () =
         tmp_file
     | None -> exit 1
   in
-    Muapprox.main file (fun (s, i) -> 
+    Muapprox.main file (fun (s, debug_contexts) -> 
       match s with
       | r ->
           Fmt.pr "@[<v 2>[[MAIN]] Verification Result:@,%s@]@." @@ Muapprox.show_result r;
           if Logs.Src.level Muapprox.log_src <> None then begin
             Muapprox.report_times ();
-            print_endline @@ Muapprox.show_debug_context i
+            print_endline @@ Muapprox.show_debug_contexts debug_contexts
           end
       | exception
           ( Muapprox.Util.Fn.Fatal e
