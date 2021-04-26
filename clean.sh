@@ -12,3 +12,4 @@ rm -f benchmark/output/*.{tmp,in,smt2}
 rm -f benchmark/*.tmp
 rm -f benchmark/inputs/mochi/*.{json,smt2,sol,ft.ml}
 rm -f benchmark/inputs/mochi/**/*.{json,smt2,sol,ft.ml}
+rm -f benchmark/research/many_vars/{tmp,result}.{in,txt}

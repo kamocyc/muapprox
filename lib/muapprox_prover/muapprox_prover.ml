@@ -109,8 +109,9 @@ module SolverCommon = struct
     let path' = 
       match debug_context with 
       | Some debug_context ->
+        let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in
         let file = Filename.basename debug_context.file ^ "__" ^ debug_context.mode ^ "__" ^ string_of_int debug_context.iter_count ^ ".in" in
-        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:false true hes 
+        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:true true hes 
       | None ->
         Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
     print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
