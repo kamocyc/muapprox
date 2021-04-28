@@ -1,0 +1,30 @@
+/* array_plus_loop_direct.mlを 自動変換したもの */
+/* 解くためには 1. boundに 1 + (x + y) を明示的に使う, 2. LOOPにx, yを渡す（後者はkatsura-solverのため） が必要 */
+
+%HES
+Sentry  =v
+  ∃x_1014.
+   ∃y_1004.
+    LOOP
+     (\j_1028.
+       \k_update_1029.
+        (j_1028 != 1 \/ k_update_1029 y_1004)
+        /\ (j_1028 = 1
+            \/ (j_1028 != 0 \/ k_update_1029 x_1014)
+               /\ (j_1028 = 0 \/ k_update_1029 0)))
+     0 1 (\x_997.false).
+LOOP ar_8 i j k_loop_164 =v
+  ar_8 i
+   (\x_1009.
+     ar_8 j
+      (\y_994.
+        (x_1009 + y_994 > 0 \/ k_loop_164 0)
+        /\ (x_1009 + y_994 <= 0
+            \/ ar_8 0
+                (\x_982.
+                  LOOP
+                   (\j_1028.
+                     \k_update_1029.
+                      (j_1028 != 0 \/ k_update_1029 (x_982 - 1))
+                      /\ (j_1028 = 0 \/ ar_8 j_1028 k_update_1029))
+                   0 1 k_loop_164)))).

@@ -1,0 +1,36 @@
+/* contains_partial のやや複雑なバージョン */
+
+/* 部分適用の最後に整数引数を適用しないといけないので、katsura-solverの型付けと相性が悪い（この例ではたまたまうまく行く） */
+%HES
+Sentry =v A (\t. ∀x. t (M (\k. k x)) x).
+A f =v f (\g gi. g 1 gi).
+M g flag gi =v (∀recLoop. recLoop < 1 + gi \/ recLoop < 1 - gi \/ recLoop < 1 \/ Loop recLoop g flag)
+  /* /\ /* これがあるとkatsura-solverでunknownになる */ M g flag gi */.
+Loop recLoop g flag =v
+  recLoop > 0
+  /\ Check g
+      (\b. (b != 0 \/ flag = 1) /\ (b != 1 \/ Loop (recLoop - 1) (Pred g) flag)).
+Pred f k =v f (\r. k (r - 1)).
+Check f k =v f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).
+
+
+/*
+/* original */
+%HES
+Sentry =v A (\t. ∀x. t (M (\k. k x))).
+
+A f =v f (\g. g 1).
+
+M g flag =v Loop g flag.
+
+Loop g flag =u
+  Check g (\b.
+    (b = 0 => flag = 1) /\
+    (b = 1 => Loop (Pred g) flag)
+  ).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u
+  f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).
+*/

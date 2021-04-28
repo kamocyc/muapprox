@@ -1,0 +1,40 @@
+/* 解きやすいように、高階引数ごとに適切な整数引数を渡したもの */
+%HES
+Sentry =u
+  ∀n.
+    Mult
+      0
+      (\k. k 0)
+      /* f_i の引数を無くすとなぜかhoiceで高速に解ける */
+      /* n */
+      (\k. k n)
+      n
+      (\k. k n)
+      (\g_i g.
+        Main g_i (\r. g_i = g_i \/ true) g
+      ).
+
+Main g_i k g =u
+  Check
+    g
+    (\b.
+      (b =  0 => k 0) /\
+      (b != 0 =>
+        Main (g_i - 1) k (Pred g)
+      )
+    )
+    .
+
+Mult acc_i acc /* f_i */ f g_i g k =u
+  Check f (\b.
+    (b = 0 => k acc_i acc) /\
+    (b = 1 => Mult (acc_i + g_i) (Add acc g) /* (f_i - 1) */ (Pred f) g_i g k)
+  ).
+
+
+Add f g k =u f (\fx. g (\gx. k (fx + gx))).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u
+  f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).

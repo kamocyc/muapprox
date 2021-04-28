@@ -1,0 +1,151 @@
+/* 機械的に全ての高階引数の前に追加した。Multの再帰時の係数を2にしてvalidにした */
+/* 使用しない再帰引数 (\[k] k2. k2 0) のkを削除し、それに伴って使わない変数sを削除した */
+/* 解けない */
+
+%HES
+Sentry =v
+  ∀n. 
+   ∀s. 
+    ∀s2. 
+     ∀s3. 
+      ∀s4. 
+          s < n
+       \/ s < (-1) * n
+       \/ s2 < n
+       \/ s2 < (-1) * n
+       \/ s3 < n
+       \/ s3 < (-1) * n
+       \/ s4 < n
+       \/ s4 < (-1) * n
+       \/ (∀recMult. 
+            /* sは全てnが関わっているので無くて良い */
+            /* recMult < s4 + 1
+            \/ recMult < (-1) * s4 + 1
+            \/ recMult < s3 + 1
+            \/ recMult < (-1) * s3 + 1
+            \/ recMult < s2 + 1
+            \/ recMult < (-1) * s2 + 1
+            \/ recMult < s + 1
+            \/ recMult < (-1) * s + 1
+            \/ */
+               recMult < n + 1
+            \/ recMult < (-1) * n + 1
+            \/ recMult < 1
+            \/ Mult
+                recMult
+                s (\k2. k2 0)
+                s2 (\k2. k2 n)
+                s3 (\k2. k2 n)
+                s4
+                (\g. 
+                  \g2. 
+                   ∀s5. 
+                    ∀s6. 
+                        s5 < g
+                     \/ s5 < (-1) * g
+                     \/ s5 < n
+                     \/ s5 < (-1) * n
+                     \/ s6 < g
+                     \/ s6 < (-1) * g
+                     \/ s6 < n
+                     \/ s6 < (-1) * n
+                     \/ (∀recMain. 
+                             recMain < s6 + 1
+                          \/ recMain < (-1) * s6 + 1
+                          \/ recMain < s5 + 1
+                          \/ recMain < (-1) * s5 + 1
+                          \/ recMain < 1
+                          \/ Main recMain s5 (\r. true) s6 g2))).
+
+Main recMain k k2 g g2 =v
+  recMain > 0
+  /\ (Check g2
+      (\b. 
+          (b != 0 \/ k2 0)
+          /\ (b = 0
+              \/ (∀s3. 
+                    ∀s5. 
+                         s3 < b
+                      \/ s3 < (-1) * b
+                      \/ s3 < g
+                      \/ s3 < (-1) * g
+                      \/ s3 < k
+                      \/ s3 < (-1) * k
+                      \/ s5 < b
+                      \/ s5 < (-1) * b
+                      \/ s5 < g
+                      \/ s5 < (-1) * g
+                      \/ s5 < k
+                      \/ s5 < (-1) * k
+                      \/ Main (recMain - 1) s3 k2 s5 (Pred g2))))).
+
+Mult recMult acc acc2 f f2 g g2 k k2 =v
+  recMult > 0
+  /\ (
+      Check f2
+            (\b. 
+              (b != 0
+               \/ (∀s3. 
+                       s3 < b
+                    \/ s3 < (-1) * b
+                    \/ s3 < k
+                    \/ s3 < (-1) * k
+                    \/ s3 < g
+                    \/ s3 < (-1) * g
+                    \/ s3 < f
+                    \/ s3 < (-1) * f
+                    \/ s3 < acc
+                    \/ s3 < (-1) * acc
+                    \/ k2 s3 acc2))
+              /\ (b != 1
+                  \/ (
+                        ∀s5. 
+                          ∀s7. 
+                           ∀s8. 
+                            ∀s9. 
+                                s5 < 2 * b
+                             \/ s5 < (-2) * b
+                             \/ s5 < 2 * k
+                             \/ s5 < (-2) * k
+                             \/ s5 < 2 * g
+                             \/ s5 < (-2) * g
+                             \/ s5 < 2 * f
+                             \/ s5 < (-2) * f
+                             \/ s5 < 2 * acc
+                             \/ s5 < (-2) * acc
+                             \/ s7 < 2 * b
+                             \/ s7 < (-2) * b
+                             \/ s7 < 2 * k
+                             \/ s7 < (-2) * k
+                             \/ s7 < 2 * g
+                             \/ s7 < (-2) * g
+                             \/ s7 < 2 * f
+                             \/ s7 < (-2) * f
+                             \/ s7 < 2 * acc
+                             \/ s7 < (-2) * acc
+                             \/ s8 < 2 * b
+                             \/ s8 < (-2) * b
+                             \/ s8 < 2 * k
+                             \/ s8 < (-2) * k
+                             \/ s8 < 2 * g
+                             \/ s8 < (-2) * g
+                             \/ s8 < 2 * f
+                             \/ s8 < (-2) * f
+                             \/ s8 < 2 * acc
+                             \/ s8 < (-2) * acc
+                             \/ s9 < 2 * b
+                             \/ s9 < (-2) * b
+                             \/ s9 < 2 * k
+                             \/ s9 < (-2) * k
+                             \/ s9 < 2 * g
+                             \/ s9 < (-2) * g
+                             \/ s9 < 2 * f
+                             \/ s9 < (-2) * f
+                             \/ s9 < 2 * acc
+                             \/ s9 < (-2) * acc
+                             \/ Mult (recMult - 1) s5 (Add acc2 g2) s7
+                                 (Pred f2) s8 g2 s9 k2)))).
+
+Add f2 g2 k2 =v f2 (\fx. g2 (\gx. k2 (fx + gx))).
+Pred f2 k2 =v f2 (\r. k2 (r - 1)).
+Check f2 k2 =v f2 (\n. (n > 0 \/ k2 0) /\ (n <= 0 \/ k2 1)).

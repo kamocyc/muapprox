@@ -1,0 +1,19 @@
+/* 各高階引数の前に整数引数を追加したもの */
+%HES
+Sentry =v ∀x. A x (M x (\k. k x)).
+
+A f_i f =v f 1 /\ A f_i f.
+
+M g_i g flag =v
+  (∀recLoop. 
+   recLoop < 1 + 1 * g_i \/ recLoop < 1 + (-1) * g_i \/ recLoop < 1
+   \/ Loop recLoop g_i g flag) /\ M g_i g flag.
+
+Loop recLoop g_i g flag =v
+  recLoop > 0
+  /\ Check g
+      (\b. (b != 0 \/ flag = 1) /\ (b != 1 \/ Loop (recLoop - 1) g_i (Pred g) flag)).
+
+Pred f k =v f (\r. k (r - 1)).
+
+Check f k =v f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).

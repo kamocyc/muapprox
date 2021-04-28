@@ -1,0 +1,20 @@
+/* 各全適用ごとに、最後に整数引数を1つ追加した */
+%HES
+Sentry =v ∀x. A (M (\k. k x)) x.
+
+/* katsura solverで解くには、AとMのinlining が必要 (型が付くために、Aの第一引数でxを渡す必要がある) */
+A f i =v f 1 i.
+
+M g flag i =v
+  ∀recLoop. 
+   recLoop < 1 + 1 * i \/ recLoop < 1 + (-1) * i \/ recLoop < 1
+   \/ Loop recLoop g flag.
+
+Loop recLoop g flag =v
+  recLoop > 0
+  /\ Check g
+      (\b. (b != 0 \/ flag = 1) /\ (b != 1 \/ Loop (recLoop - 1) (Pred g) flag)).
+
+Pred f k =v f (\r. k (r - 1)).
+
+Check f k =v f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).

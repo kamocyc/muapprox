@@ -1,0 +1,48 @@
+/* Checkの形であるが、高階の引数の情報が必要な例 */
+
+/* valid (by iwayama solver, 4.6sec) */
+%HES
+Sentry =v
+   Check
+    0
+    (\k_i29. \k31. 
+        recF6868 < 1 + 1 * k_i29
+        \/ recF6868 < 1 + (-1) * k_i29
+        \/ recF6868 < 1
+        \/ F recF6868 0 k_i29 k31
+    )
+    n3
+    (\m4. m4 >= n3).
+
+Check f_i5 f6 k_i7 k8 =v
+  /* f_i5はf6のbodyでは既にスコープにある値 */
+  f6 k_i7 k8.
+
+F recF6868 j9 k_i10 k11 =v
+  recF6868 > 0 /\ (k11 j9 \/ F (recF6868 - 1) (j9 + 1) k_i10 k11).
+
+
+/*
+/* inlined */
+%HES
+Sentry =v
+    n3 <= 0 \/
+    (recF6868 < 1 + n3
+      \/ recF6868 < 1
+      \/ F recF6868 0 n3 (\m4. m4 >= n3)).
+
+F recF6868 j9 k_i10 k11 =v
+  recF6868 > 0 /\ (k11 j9 \/ F (recF6868 - 1) (j9 + 1) k_i10 k11).
+*/
+
+/*
+/* original */
+%HES
+S =v ∀n. Check 0 (F 0) 0 (\m. m >= n).
+
+Check f_i f k_i k =u
+  f k_i k.
+
+F j k_i k =u
+  (k j \/ F (j + 1) k_i k).
+*/

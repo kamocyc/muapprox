@@ -1,0 +1,9 @@
+/* POPL13の理由によりkatsura-solverで解けない例 */
+
+%HES
+/* katsura-solverで解くには、Aの第一引数でxを渡す必要がある */
+Sentry =v ∀x. A (M x) x.
+
+A xf x2 =v xf x2 /\ A xf x2.
+
+M x1 x2 =v x1 = x2.

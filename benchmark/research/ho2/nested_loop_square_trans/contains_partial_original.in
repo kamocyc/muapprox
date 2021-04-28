@@ -1,0 +1,18 @@
+/* 部分適用がある例 */
+%HES
+Sentry =v ∀x. A (M (\k. k x)).
+
+A f =v f 1.
+
+M g flag =v Loop g flag.
+
+Loop g flag =u
+  Check g (\b.
+    (b = 0 => flag = 1) /\
+    (b = 1 => Loop (Pred g) flag)
+  ).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u
+  f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).

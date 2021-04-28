@@ -1,0 +1,71 @@
+/*
+hoiceで解いた結果
+Verification Result:
+  Valid
+Profiling:
+  total: 367.104682 sec
+*/
+%HES
+Sentry =v
+  ∀n6. 
+   ∀recMult284284. 
+    recMult284284 < 1 + 1 * n6 \/ recMult284284 < 1 + (-1) * n6
+    \/ recMult284284 < 1
+    \/ Mult recMult284284 n6 (\k7. k7 0) (\k8. k8 n6) (\k9. k9 n6)
+        (\i10. 
+          \g11. 
+           ∀recMain283283. 
+            recMain283283 < 1 \/ Main recMain283283 (\r12. true) g11).
+Main recMain283283 k13 g14 =v
+  recMain283283 > 0
+  /\ Check g14
+      (\b15. 
+        (b15 != 0 \/ k13 0)
+        /\ (b15 = 0 \/ Main (recMain283283 - 1) k13 (Pred g14))).
+Mult recMult284284 ii16 acc17 f18 g19 k20 =v
+  recMult284284 > 0
+  /\ Check f18
+      (\b21. 
+        (b21 != 0 \/ k20 ii16 acc17)
+        /\ (b21 != 1
+            \/ Mult (recMult284284 - 1) (2 * ii16) (Add acc17 g19) (Pred f18)
+                g19 k20)).
+Add f22 g23 k24 =v f22 (\fx25. g23 (\gx26. k24 (fx25 + gx26))).
+Pred f27 k28 =v f27 (\r29. k28 (r29 - 1)).
+Check f30 k31 =v f30 (\n32. (n32 > 0 \/ k31 0) /\ (n32 <= 0 \/ k31 1)).
+
+
+/*
+/* 元（一部変更） */
+%HES
+Sentry =u
+  ∀n.
+    Mult
+      n
+      (\k. k 0)
+      (\k. k n)
+      (\k. k n)
+      (\i g. Main (\r. true) g).
+
+Main k g =u
+  Check g (\b.
+    (b =  0 => k 0) /\
+    (b != 0 => Main k (Pred g))
+  ).
+
+Mult ii acc f g k =u
+  Check f (\b.
+    (b = 0 => k ii acc) /\
+    (b = 1 =>
+        Mult (2 * ii) (Add acc g) (Pred f) g k
+    )
+  ).
+
+Add f g k =u f (\fx. g (\gx. k (fx + gx))).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).
+
+
+*/

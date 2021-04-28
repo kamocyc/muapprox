@@ -1,0 +1,51 @@
+/* 機械的に全ての高階引数の前に追加した。Multの再帰時の係数を2にしてvalidにした */
+/* eliminate_unused_argumentsに加えて、フロー解析で必要なものだけにした（定数をどうするかは問題） */
+/* z3で17 sec程度で解ける */
+
+%HES
+Sentry =v
+  ∀n. (∀recMult.
+               recMult < n + 1
+            \/ recMult < (-1) * n + 1
+            \/ recMult < 1
+            \/ Mult
+                recMult
+                0 (\k2. k2 0)
+                /* n */ (\k2. k2 n)
+                n (\k2. k2 n)
+                /* 0 */
+                (\g. 
+                  \g2.
+                    (∀recMain. 
+                         recMain < g + 1
+                      \/ recMain < (-1) * g + 1
+                      \/ recMain < n + 1
+                      \/ recMain < (-1) * n + 1
+                      \/ recMain < 1
+                      \/ Main recMain /* 0 */ (\r. true) n g2))).
+
+Main recMain /* k */ k2 g g2 =v
+  recMain > 0
+  /\ (Check g2
+      (\b. 
+          (b != 0 \/ k2 0)
+          /\ (b = 0
+              \/ (Main (recMain - 1) /* k */ k2 g (Pred g2))))).
+
+Mult recMult acc acc2 /* f */ f2 g g2 /* k */ k2 =v
+  recMult > 0
+  /\ (
+      Check f2
+            (\b. 
+              (b != 0
+               \/ (k2 acc acc2))
+              /\ (b != 1
+                  \/ (
+                      ∀s5. 
+                          s5 < 2 * g
+                        \/ s5 < 2 * acc
+                        \/ Mult (recMult - 1) s5 (Add acc2 g2) /* f */ (Pred f2) g g2 /* k */ k2)))).
+
+Add f2 g2 k2 =v f2 (\fx. g2 (\gx. k2 (fx + gx))).
+Pred f2 k2 =v f2 (\r. k2 (r - 1)).
+Check f2 k2 =v f2 (\n. (n > 0 \/ k2 0) /\ (n <= 0 \/ k2 1)).

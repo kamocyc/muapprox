@@ -1,0 +1,26 @@
+%HES
+Sentry =v
+  ∀n. 
+   ∀recMult. 
+    recMult < n + 1 \/ recMult < (-1) * n + 1 \/ recMult < 1
+    \/ Mult recMult 0 (\k. k 0) (\k. k n) n (\k. k n)
+        (\g_i. 
+          \g. 
+           ∀recMain. 
+            recMain < g_i + 1 \/ recMain < (-1) * g_i + 1 \/ recMain < 1
+            \/ Main recMain g_i (\r. g_i = g_i \/ true) g).
+Main recMain g_i k g =v
+  recMain > 0
+  /\ Check g
+      (\b. 
+        (b != 0 \/ k 0) /\ (b = 0 \/ Main (recMain - 1) (g_i - 1) k (Pred g))).
+Mult recMult acc_i acc f g_i g k =v
+  recMult > 0
+  /\ Check f
+      (\b. 
+        (b != 0 \/ k acc_i acc)
+        /\ (b != 1
+            \/ Mult (recMult - 1) (acc_i + g_i) (Add acc g) (Pred f) g_i g k)).
+Add f g k =v f (\fx. g (\gx. k (fx + gx))).
+Pred f k =v f (\r. k (r - 1)).
+Check f k =v f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).

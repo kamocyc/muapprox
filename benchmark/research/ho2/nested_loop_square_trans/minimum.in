@@ -1,0 +1,39 @@
+/* 上限として最小限の引数を渡したもの */
+/* Multの結果が、（本来はn^2であるが）n^{2^n}になっている */
+/* simplify_bound, hoice で92.3 secで解けた */
+
+%HES
+Sentry =u
+  ∀n.
+    Mult
+      n
+      (\k. k 0)
+      (\k. k n)
+      (\k. k n)
+      (\g_i g.
+        Main g_i (\r. g_i = g_i \/ true) g
+      ).
+
+Main g_i k g =u
+  Check
+    g
+    (\b.
+      (b =  0 => k 0) /\
+      (b != 0 =>
+        Main (g_i - 1) k (Pred g)
+      )
+    )
+    .
+
+Mult acc_i acc f g k =u
+  Check f (\b.
+    (b = 0 => k acc_i acc) /\
+    (b = 1 => Mult (acc_i + acc_i) (Add acc g) (Pred f) g k)
+  ).
+
+Add f g k =u f (\fx. g (\gx. k (fx + gx))).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u
+  f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).
