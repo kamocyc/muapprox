@@ -200,6 +200,7 @@ let id_n n t = { Id.name = "x_" ^ string_of_int n; id = n; ty = t }
 
 let dummy_entry_name = "MAIN__"
 let mk_entry_rule body = {var=Id.gen ~name:dummy_entry_name (Type.TyBool ()); fix=Fixpoint.Greatest; body=body }
+let merge_entry_rule (entry, rules) = (mk_entry_rule entry) :: rules
 let decompose_entry_rule rules = match rules |> Stdlib.List.partition (fun r -> r.var.name = dummy_entry_name) with
   | [e], rules -> e.body, rules
   | _ -> failwith "decompose_entry_rule"

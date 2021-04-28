@@ -173,67 +173,10 @@ module Print_temp = struct
 
 end
 
-let assign_unique_variable_id (hes : Type.simple_ty Hflz.hes_rule list): Type.simple_ty Hflz.hes_rule list =
-  let to_ty ty = match ty with
-    | Type.TyInt -> failwith "ty"
-    | TySigma s -> s
-  in
-  let to_arithty ty = match ty with
-    | Type.TyInt -> `Int
-    | TySigma _ -> failwith "arithty"
-  in
-  let global_env =
-    List.map (fun {Hflz.var} ->
-      (Id.remove_ty var, {Id.name = var.name; id = Id.gen_id (); ty = Type.TySigma (var.Id.ty)})
-    ) hes in
-  let rec go env body = match body with
-    | Hflz.Bool b -> Hflz.Bool b
-    | Var v -> begin
-      match List.find_all (fun (e, _) -> Id.eq e v) env with
-      | [(_, v)] -> Var ({v with ty = to_ty v.Id.ty})
-      | [] -> failwith @@ "unbound: " ^ Id.to_string v
-      | _ -> assert false
-    end
-    | Or (p1, p2) -> Or (go env p1, go env p2)
-    | And (p1, p2) -> And (go env p1, go env p2)
-    | Abs (x, p) ->
-      let x' = { x with id = Id.gen_id () } in
-      Abs (x', go ((Id.remove_ty x, x') :: env) p)
-    | Forall (x, p) -> 
-      let x' = { x with id = Id.gen_id () } in
-      Forall (x', go ((Id.remove_ty x, x') :: env) p)
-    | Exists (x, p) -> 
-      let x' = { x with id = Id.gen_id () } in
-      Exists (x', go ((Id.remove_ty x, x') :: env) p)
-    | App (p1, p2) -> App (go env p1, go env p2)
-    | Arith a -> Arith (go_arith env a)
-    | Pred (e, ps) -> Pred (e, List.map (go_arith env) ps)
-  and go_arith env a = match a with
-    | Int i -> Int i
-    | Var v -> begin
-      match List.find_all (fun (e, _) -> Id.eq e v) env with
-      | [(_, v)] -> Var ({v with ty = to_arithty v.Id.ty})
-      | [] -> failwith @@ "unbound: " ^ Id.to_string v
-      | _ -> assert false
-    end
-    | Op (o, ps) -> Op (o, List.map (go_arith env) ps)
-  in
-  List.map (fun {Hflz.var; body; fix} ->
-    let body = go global_env body in
-    let var =
-      match List.find_all (fun (e, _) -> Id.eq e var) global_env with
-      | [(_, v)] -> {v with ty = to_ty v.Id.ty}
-      | [] -> failwith @@ "unbound: " ^ Id.to_string var
-      | _ -> assert false
-    in
-    {Hflz.var; body; fix}
-  ) hes
-
 let abbrev_variable_names (hes : Type.simple_ty Hflz.hes): Type.simple_ty Hflz.hes =
   (* let initial_id = Id.gen_id () in *)
   let initial_id = 0 in
-  let (entry, rules) = hes in
-  let hes = (Hflz.mk_entry_rule entry) :: rules in
+  let hes = Hflz.merge_entry_rule hes in
   (* let hes = assign_unique_variable_id hes in *)
   let abbrev_name name =
     match String.index_opt name '_' with

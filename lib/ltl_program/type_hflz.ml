@@ -347,8 +347,7 @@ let infer_thflz_type (rules : ptype thes_rule list): ptype thes_rule list =
   rules
   
 let infer_type (hes : 'a Hflz.hes) =
-  let entry, rules = hes in
-  let rules = (Hflz.mk_entry_rule entry)::rules in
+  let rules = Hflz.merge_entry_rule hes in
   let rules = to_thflzs rules dummy_unit_var_name in
   (* print_endline @@ show_s_thes_rules rules; *)
   let rules = infer_thflz_type rules in
@@ -413,8 +412,7 @@ let eliminate_unit_type_terms (rules: ptype thes_rule list): ptype thes_rule lis
 
 (* TODO: debug *)
 let infer_and_eliminate_unit_type_terms (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
-  let entry, rules = hes in
-  let rules = (Hflz.mk_entry_rule entry)::rules in
+  let rules = Hflz.merge_entry_rule hes in
   let rules = to_thflzs rules dummy_unit_var_name in
   (* print_endline "to_thflz";
   print_endline @@ show_s_thes_rules rules; *)

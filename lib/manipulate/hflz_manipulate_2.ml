@@ -55,8 +55,7 @@ let eliminate_exists_by_assinging_hflz max_assign_value phi =
   go phi
 
 let eliminate_exists_by_assinging max_assign_value (hes : Type.simple_ty Hflz.hes) =
-  let entry, rules = hes in
-  let rules = (mk_entry_rule entry)::rules in
+  let rules = merge_entry_rule hes in
   let ruless =
     List.map
       (fun rule ->

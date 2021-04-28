@@ -3,12 +3,6 @@ module Id = Hflmc2_syntax.Id
 module Type = Hflmc2_syntax.Type
 module Arith = Hflmc2_syntax.Arith
 
-let lift_id id =
-  { id with Id.ty = Type.TySigma id.Id.ty}
-
-let unlift_id id =
-  { id with Id.ty = Type.unsafe_unlift id.Id.ty}
-
 module Env = struct
   type 'a env_element = {
     new_id: 'a Id.t;
@@ -46,8 +40,8 @@ module Env = struct
       new_id, {new_id; old_id; number = 1; basename}::env
   
   let add env old_id =
-    let new_id, env = add_arg env (lift_id old_id) in
-    (unlift_id new_id, env)
+    let new_id, env = add_arg env (Manipulate.Hflz_util.lift_id old_id) in
+    (Manipulate.Hflz_util.unlift_id new_id, env)
     
   let lookup_by_old_id env v =
     List.find_opt (fun {old_id; _} -> Id.eq old_id v) env
@@ -60,7 +54,7 @@ let abbrev_variable_numbers (env : 'a Type.arg Env.t) (phi : 'a Hflz.t) =
     match phi with
     | Var v -> begin
       match Env.lookup_by_old_id env v with
-      | Some new_id -> Var (unlift_id new_id)
+      | Some new_id -> Var (Manipulate.Hflz_util.unlift_id new_id)
       | None -> failwith @@ "(abbrev_variable_numbers) unbounded variable: " ^ Id.to_string v
     end
     | Abs (x, p) ->

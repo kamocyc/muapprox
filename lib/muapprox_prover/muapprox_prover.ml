@@ -336,7 +336,7 @@ let rec is_first_order_function_type (ty : Hflmc2_syntax.Type.simple_ty) =
   
 let is_first_order_hes hes =
   Hflz_mani.decompose_lambdas_hes hes
-  |> (fun (e, r) -> (Hflz.mk_entry_rule e)::r)
+  |> (fun hes -> Hflz.merge_entry_rule hes)
   |> List.for_all (fun { Hflz.var; _} -> is_first_order_function_type var.ty)
   
 let solve_onlynu_onlyforall solve_options debug_context hes with_par =
@@ -395,26 +395,28 @@ let is_onlymu_onlyexists (entry, rules) =
   && (List.for_all is_onlymu_onlyexists_rule rules)
 
 let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim lexico_pair_number debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
-  (* TODO: *)
+  (* TODO: use 2nd return value of add_arguments *)
   let (arg_coe1, arg_coe2) = coe_arguments in
   if no_elim then begin
     let hes =
       if add_arguments
-        then Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2
+        then (let hes, _ = Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2 in hes)
         else hes in
     [hes, []]
   end else begin
-    let hes =
+    let hes, id_type_map =
       if add_arguments
         then Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2
-        else hes in
+        else hes, Hflmc2_syntax.IdMap.empty in
     let heses =
       if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
       else [Hflz_mani.encode_body_exists coe1 coe2 hes, []] in
     List.map (fun (hes, acc) ->
       Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
       ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes;
-      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number in
+      
+      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map in
+      
       Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
       if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
       ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes;

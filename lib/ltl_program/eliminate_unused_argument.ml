@@ -189,9 +189,8 @@ let replace_erasable_subtrees (rules : Type.simple_ty thes_rule list) elasables 
   
 
 let eliminate_unused_argument (hes : Type.simple_ty Hflz.hes) =
-  let entry, rules = hes in
-  let rules = (Hflz.mk_entry_rule entry) :: rules in
-  let rules = assign_unique_variable_id rules in
+  let rules = Hflz.merge_entry_rule hes in
+  let rules = Manipulate.Hflz_util.assign_unique_variable_id rules in
   (* let () =
     let hes = abbrev_variable_names (Hflz.decompose_entry_rule rules) in
     ignore @@ Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:"bb.txt" ~without_id:true true hes

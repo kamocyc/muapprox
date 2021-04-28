@@ -68,7 +68,7 @@ let to_app inner terms =
     | [] -> inner in
   go @@ List.rev terms
 
-let argty_to_ty {Id.name; id; ty} =
+let argty_to_var {Id.name; id; ty} =
   match ty with
   | Type.TyInt -> 
     Arith (Var {name; id; ty=`Int})
@@ -278,8 +278,9 @@ let decompose_lambdas hes_names (rule : Type.simple_ty hes_rule) =
 
 let decompose_lambdas_hes (entry, rules) =
   let hes_names = List.map (fun {var; _} -> Id.remove_ty var) rules in
-  let rules = (mk_entry_rule entry) :: rules in
+  let rules = merge_entry_rule (entry, rules) in
   let rules = rules |> List.map (decompose_lambdas hes_names) |> List.flatten in
+  (* Hflz.decompose_entry_rule rules |> (Hflz_util.with_rules Hflz_util.assign_unique_variable_id) *)
   Hflz.decompose_entry_rule rules
   
 let get_top_rule hes =
@@ -338,12 +339,12 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
     Hflz.fvs_with_type hfl
     |> Id.remove_vars hes_preds in
   let bound_vars, hfl =
-      (* sequence of existentially bound variables *)
+    (* sequence of existentially bound variables *)
     let rec go acc hfl = match hfl with
       | Exists (x, hfl) -> go (x::acc) hfl
       | _ -> (acc, hfl) in
     let (bound_vars, hfl) = go [] hfl in
-    (* ensure all variables are integer type (or not used) *)
+    (* ensure all variables are integer type (otherwise, error) *)
     bound_vars |>
     List.rev |>
     List.filter_map (fun var -> 
@@ -353,7 +354,7 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
       | TySigma _ -> begin
         if (Hflz.fvs_with_type hfl
           |> List.exists (fun fv -> Id.eq fv var))
-          then failwith "encode_body_exists_formula_sub: higher-order bound variable is not supported";
+          then failwith "encode_body_exists_formula_sub: higher-order quantified variable is not supported";
         (* when variable is not used *)
         None
       end
@@ -366,21 +367,20 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
       | None -> "Exists" ^ string_of_int i
       | Some p -> p ^ "_e" ^ string_of_int i in
     let ty =
-      (* TODO: higher-order vars *)
       to_tree
         arg_vars
         (fun x rem -> TyArrow (x, rem))
         (TyBool ())  in
     { Id.name = name; ty = ty; id = i } in
   let body =
-    let guessed_terms = make_guessed_terms_simple coe1 coe2 (free_vars |> filter_int_variable) in
+    let guessed_conditions = make_guessed_terms_simple coe1 coe2 (free_vars |> filter_int_variable) in
     let approx_formulas =
       bound_vars
       |> List.rev
       |> List.map (fun bound_var ->
         make_approx_formula
           {bound_var with ty=`Int}
-          guessed_terms
+          guessed_conditions
       ) in
     rev_abs (
       (formula_type_vars |> List.rev |> to_abs') @@
@@ -399,7 +399,7 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl =
         (arg_vars |> to_abs') @@
         And (
           ((* substitute rec vars to negative *)
-          (* NOTE: exponential grow-up *)
+          (* NOTE: exponential blow-up *)
           let rec go acc vars = match vars with
             | [] -> acc
             | x::xs ->
@@ -472,42 +472,9 @@ let encode_body_exists coe1 coe2 (hes : Type.simple_ty Hflz.hes) =
         {var; fix; body}::new_rules
       )
     |> List.flatten in
+  (* (entry, new_rules @ rules) |> (Hflz_util.with_rules Hflz_util.assign_unique_variable_id) *)
   (entry, new_rules @ rules)
 
-let rec beta (phi : 'a Hflz.t) : 'a Hflz.t = match phi with
-  | Or (phi1, phi2) -> Or (beta phi1, beta phi2)
-  | And(phi1, phi2) -> And(beta phi1, beta phi2)
-  | App(phi1, phi2) -> begin
-    let phi1, phi2 = beta phi1, beta phi2 in
-    let reduced = ref false in
-    let rec go acc phi1 = match phi1 with
-      | Forall (x, phi1) -> Forall (x, go (x::acc) phi1)
-      | Exists (x, phi1) -> Exists (x, go (x::acc) phi1)
-      | Abs(x, phi1) -> begin
-        let fvs = fvs_with_type phi2 in
-        (* print_endline @@ Print_syntax.show_hflz phi1;
-        print_endline "fvs:"; Hflmc2_util.print_list Id.to_string fvs;
-        print_endline "acc:"; Hflmc2_util.print_list Id.to_string acc; *)
-        if List.exists (fun a -> List.exists (fun v -> Id.eq a v) acc) fvs then failwith "[beta] free variable collision";
-        reduced := true;
-        beta @@ Hflmc2_syntax.Trans.Subst.Hflz.hflz (Hflmc2_syntax.IdMap.of_list [x, phi2]) phi1
-      end
-      | phi1 -> phi1 in
-    let res = go [] phi1 in
-    if !reduced then
-      beta res
-    else (
-      (* Log.app begin fun m -> m ~header:"not done" "%a" Print.(hflz simple_ty_) (App (phi1, phi2)) end; *)
-      App (phi1, phi2))
-  end
-  | Abs(x, phi) -> Abs(x, beta phi)
-  | Forall (x, phi) -> Forall (x, beta phi)
-  | Exists (x, phi) -> Exists (x, beta phi)
-  | Bool _ | Var _ | Arith _ | Pred _ -> phi
-  
-
-(* let%expect_test "beta" =
-  App () *)
 
 let get_outer_mu_funcs (funcs : 'a hes_rule list) =
   let funcs_count = List.length funcs in
@@ -577,7 +544,7 @@ let is_rectvar v =
   String.length v.Id.name >=3 &&
   String.sub v.Id.name 0 3 = rectvar_prefix
 
-let get_occuring_arith_terms phi = 
+let get_occuring_arith_terms id_type_map phi = 
   (* remove expressions that contain locally bound variables *)
   let remove ls x =
     List.filter (fun (expr, vars) -> not @@ List.exists ((=) (Id.remove_ty x)) vars) ls
@@ -592,7 +559,11 @@ let get_occuring_arith_terms phi =
     | Exists (x, p1) -> remove (go_hflz p1) x
     | App (p1, p2) -> (go_hflz p1) @ (go_hflz p2)
     | Arith (a) -> [(a, get_occurring_arith_vars a)]
-    | Pred (p, xs) -> List.map (fun a -> (a, get_occurring_arith_vars a)) xs
+    | Pred (p, xs) -> begin
+      match p, xs with
+      | Lt, [Var x; _] when Hflmc2_syntax.IdMap.mem id_type_map (Id.remove_ty x) -> []
+      | _ -> List.map (fun a -> (a, get_occurring_arith_vars a)) xs
+    end
   and get_occurring_arith_vars phi = match phi with
     | Int _ -> []
     | Var v -> [Id.remove_ty v]
@@ -600,36 +571,43 @@ let get_occuring_arith_terms phi =
   in
   go_hflz phi |> List.map fst
 
-let get_guessed_terms_rep coe arg_terms term res =
-  let arg_terms = List.map get_occuring_arith_terms arg_terms |> List.concat in
-  let arg_terms = Hflmc2_util.remove_duplicates (=) arg_terms in
-  (* let arg_terms = List.filter_map (function Arith a -> Some a | _ -> None) arg_terms in *)
-  let rec go arg_terms res = 
-    match arg_terms with
-    | [] -> res
-    | arg_term :: tail ->
+let get_guessed_terms id_type_map arg_terms =
+  let open Hflmc2_syntax in
+  List.map (get_occuring_arith_terms id_type_map) arg_terms
+  |> List.concat
+  |> List.map
+    (fun (arg_term : Arith.t) -> match arg_term with
+      | Var v ->
+        if is_rectvar v then
+          []
+        else
+          [arg_term]
+      | Int i ->
+        if i = 0 then
+          []
+        else
+          [arg_term]
+      | _ -> [arg_term]
+    )
+  |> List.flatten
+  |> Hflmc2_util.remove_duplicates (=)
+  
+  
+let get_guessed_conditions_rep coe arg_terms term =
+  arg_terms
+  |> List.rev
+  |> List.map
+    (fun arg_term -> 
       let open Arith in
       let pterm = Op(Add, [term; Op(Mult, [Int coe; arg_term])]) in
       let nterm = Op(Add, [term; Op(Mult, [Int (-coe); arg_term])]) in
-      let acc =
-        match arg_term with
-        | Var v ->
-          if is_rectvar v then
-            res
-          else
-            pterm::nterm::res
-        | Int i ->
-          if i = 0 then
-            res
-          else
-            pterm::nterm::res
-        | _ -> pterm::nterm::res in
-      go tail acc in
-  go arg_terms res
+      pterm :: [nterm]
+    )
+  |> List.flatten
 
-let get_guessed_terms coe1 coe2 arg_terms =
+let get_guessed_conditions coe1 coe2 guessed_terms =
   let const_term = Arith.Int coe2 in
-  let res = get_guessed_terms_rep coe1 arg_terms const_term [const_term] in
+  let res = (get_guessed_conditions_rep coe1 guessed_terms const_term) @ [const_term] in
   res
 
 let to_ty argty basety =
@@ -648,6 +626,75 @@ let range n m =
     else i::(go (i + 1)) in
   go n
 
+(* for replace_occurences *)
+let make_decrement rec_lex_tvars guessed_conditions term  =
+  let rec_lex_tvars = Env.lookup term rec_lex_tvars in
+  let new_rec_lex_tvars =
+    List.map
+      (fun tvar -> (tvar, Id.gen ~name:(tvar.Id.name ^ "_n") Type.TyInt))
+      rec_lex_tvars
+    |> Env.create
+      in
+  let body =
+    let a_to_i v = Arith.Var {v with Id.ty=`Int} in
+    let rec go xs = match xs with
+      | x1::x2::xs -> begin
+        let new_x1 = Env.lookup x1 new_rec_lex_tvars in
+        let new_x2 = Env.lookup x2 new_rec_lex_tvars in
+        let new_xs = List.map (fun v -> v, (Env.lookup v new_rec_lex_tvars)) (x2::xs) in 
+        Or (
+          And (
+            Pred (Gt, [a_to_i x1; Int 1]),
+            And (
+              Pred (Ge, [a_to_i new_x1; Op (Sub, [a_to_i x1; Int 1])]),
+              List.map
+                (fun (x, new_x) -> Pred (Ge, [a_to_i new_x; a_to_i x]))
+                new_xs |>
+              formula_fold (fun a b -> And (a, b))
+            )
+          ),
+          And (
+            Pred (Le, [a_to_i x1; Int 1]),
+            And (
+              formula_fold
+                (fun a b -> And (a, b))
+                (List.map (fun t -> Pred (Ge, [a_to_i new_x1; t])) guessed_conditions),
+              go (x2::xs)
+            )
+          )
+        )
+      end              
+      | [x1] -> begin
+        let new_x1 = Env.lookup x1 new_rec_lex_tvars in
+        Pred (Ge, [a_to_i new_x1; Op (Sub, [a_to_i x1; Int 1])])
+      end
+      | [] -> failwith "go1" in
+    let imply_left = go rec_lex_tvars in
+    Some (fun inner ->
+      Or (
+        Hflz.negate_formula imply_left,
+        inner
+      )), new_rec_lex_tvars |> List.map snd |> List.map (fun t -> {t with Id.ty=`Int})
+  in
+  body
+
+let make_app new_fml (rec_vars : ((unit Type.ty t -> Type.simple_ty t) option * [> `Int ] Id.t list) list) formula_type_terms = 
+  let body =
+    to_app
+      new_fml
+      ((List.map
+        (fun (_, v) -> List.map (fun v -> Arith (Var v)) v)
+        rec_vars
+      |> List.flatten) @ formula_type_terms) in
+  let funcs = List.filter_map (fun (a, b) -> match a with Some s -> Some (s, b) | None -> None) rec_vars |> List.rev in
+  funcs
+  |> List.fold_left
+    (fun a (tf, vs) ->
+      to_forall
+        (List.map (fun v -> { v with Id.ty=Type.TyInt}) vs)
+        (tf a)
+    ) body
+    
 let replace_occurences
     (coe1: int)
     (coe2 : int)
@@ -655,74 +702,29 @@ let replace_occurences
     (scoped_rec_tvars : ('a Id.t * 'b Id.t) list)
     (rec_tvars : ('a Id.t * unit Type.ty Type.arg Id.t) list)
     (rec_lex_tvars : ('a Type.arg Id.t * 'a Type.arg Id.t list) list)
+    id_type_map
     (fml : 'a Hflz.t) : 'a Hflz.t =
   let is_lexi_one = List.map (fun e -> List.length (snd e)) rec_lex_tvars |> List.for_all ((=)1) in
   let rec go (apps : Type.simple_ty t list) fml : 'a Hflz.t = 
     match fml with
     | Var pvar when is_pred pvar -> begin
       let formula_type_ids = pvar.ty |> to_args |> List.rev in
-      let formula_type_terms = List.map argty_to_ty formula_type_ids in
-      let guessed_terms = get_guessed_terms coe1 coe2 (apps @ formula_type_terms) in
+      let formula_type_terms = List.map argty_to_var formula_type_ids in
+      let guessed_conditions =
+        let guessed_terms = get_guessed_terms id_type_map (apps @ formula_type_terms) in
+        (* print_endline "guessed_terms: ";
+        List.iter (fun t -> print_endline @@ Arith.show t) guessed_terms; *)
+        get_guessed_conditions coe1 coe2 guessed_terms in
       let arg_pvars = Env.lookup pvar outer_mu_funcs in
-      let make_decrement term =
-        let rec_lex_tvars = Env.lookup term rec_lex_tvars in
-        let new_rec_lex_tvars =
-          List.map
-            (fun tvar -> (tvar, Id.gen ~name:(tvar.Id.name ^ "_n") Type.TyInt))
-            rec_lex_tvars
-          |> Env.create
-            in
-        let body =
-          let a_to_i v = Arith.Var {v with Id.ty=`Int} in
-          let rec go xs = match xs with
-            | x1::x2::xs -> begin
-              let new_x1 = Env.lookup x1 new_rec_lex_tvars in
-              let new_x2 = Env.lookup x2 new_rec_lex_tvars in
-              let new_xs = List.map (fun v -> v, (Env.lookup v new_rec_lex_tvars)) (x2::xs) in 
-              Or (
-                And (
-                  Pred (Gt, [a_to_i x1; Int 1]),
-                  And (
-                    Pred (Ge, [a_to_i new_x1; Op (Sub, [a_to_i x1; Int 1])]),
-                    List.map
-                      (fun (x, new_x) -> Pred (Ge, [a_to_i new_x; a_to_i x]))
-                      new_xs |>
-                    formula_fold (fun a b -> And (a, b))
-                  )
-                ),
-                And (
-                  Pred (Le, [a_to_i x1; Int 1]),
-                  And (
-                    formula_fold
-                      (fun a b -> And (a, b))
-                      (List.map (fun t -> Pred (Ge, [a_to_i new_x1; t])) guessed_terms),
-                    go (x2::xs)
-                  )
-                )
-              )
-            end              
-            | [x1] -> begin
-              let new_x1 = Env.lookup x1 new_rec_lex_tvars in
-              Pred (Ge, [a_to_i new_x1; Op (Sub, [a_to_i x1; Int 1])])
-            end
-            | [] -> failwith "go1" in
-          let imply_left = go rec_lex_tvars in
-          Some (fun inner ->
-            Or (
-              Hflz.negate_formula imply_left,
-              inner
-            )), new_rec_lex_tvars |> List.map snd |> List.map (fun t -> {t with Id.ty=`Int})
-        in
-        body
-      in
       let make_args env_guessed env =
+        (* when lexicographic order *)
         (* 述語 -> 再帰回数の変数 を受け取り、pvarの再帰変数は-1、ほかはそのまま適用する *)
         arg_pvars
         |> List.map
           (fun pvar' ->
             try let term = Env.lookup pvar' env in
               if Id.eq pvar' pvar then
-                make_decrement term
+                make_decrement rec_lex_tvars guessed_conditions term
                 (* Arith.Op (Sub, [Var{term with Id.ty=`Int}; Int 1]) *)
               else
                 (None, Env.lookup term rec_lex_tvars |> List.map (fun v -> {v with Id.ty=`Int}))
@@ -735,6 +737,7 @@ let replace_occurences
           )
       in
       let make_args_one env_guessed env =
+        (* when not lexicographic order *)
         (* 述語 -> 再帰回数の変数 を受け取り、pvarの再帰変数は-1、ほかはそのまま適用する *)
         arg_pvars
         |> List.map
@@ -760,23 +763,6 @@ let replace_occurences
             |> List.flatten
           ) pvar.ty in
         Var {pvar with ty=ty} in
-      let make_app new_fml (rec_vars : ((unit Type.ty t -> Type.simple_ty t) option * [> `Int ] Id.t list) list) formula_type_terms = 
-        let body =
-          to_app
-            new_fml
-            ((List.map
-              (fun (_, v) -> List.map (fun v -> Arith (Var v)) v)
-              rec_vars
-            |> List.flatten) @ formula_type_terms) in
-        let funcs = List.filter_map (fun (a, b) -> match a with Some s -> Some (s, b) | None -> None) rec_vars |> List.rev in
-        funcs
-        |> List.fold_left
-          (fun a (tf, vs) ->
-            to_forall
-              (List.map (fun v -> { v with Id.ty=Type.TyInt}) vs)
-              (tf a)
-          ) body
-      in
       if new_pvars = [] then
         if is_lexi_one then
           let rec_vars = make_args_one Env.empty scoped_rec_tvars in
@@ -794,10 +780,11 @@ let replace_occurences
         let new_tvars_lex =
           List.map (fun v -> Env.lookup v rec_lex_tvars) new_tvars
           |> List.flatten in
+        (* ∀r. r < 1 + x \/ ... \/ A r x ... *)
         let havocs =
           (Core.List.cartesian_product
             (List.map (fun tvar -> Arith.Var{tvar with Id.ty=`Int}) new_tvars_lex)
-            guessed_terms)
+            guessed_conditions)
           |> List.map (fun (t1, t2) -> Pred (Lt, [t1; t2]))
           |> formula_fold (fun acc t -> Or (acc, t))
           in
@@ -868,9 +855,85 @@ let remove_duplicate_bounds (phi : Type.simple_ty Hflz.t) =
   in 
   go phi
 
-let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number =
+let get_occurring_variables_in_arith a =
+  let rec go a = match a with
+    | Arith.Var v -> [v]
+    | Op (_, xs) -> List.map go xs |> List.flatten
+    | Int _ -> []
+  in
+  go a
+  
+let substitute_arith a (before, after) =
+  let rec go a = match a with
+    | Arith.Var v -> begin
+      if Id.eq v before then Arith.Var after else Var v
+    end
+    | Int i -> Int i
+    | Op (op, xs) -> Op (op, List.map go xs)
+  in
+  go a
+      
+    
+let remove_redundant_bounds id_type_map (phi : Type.simple_ty Hflz.t) =
+  let rec go phi = match phi with
+    | Bool _ | Var _ | Arith _ | Pred _ -> phi
+    | Or (p1, p2) -> begin
+      let rec sub phi = match phi with
+        | Pred (_, [_; _]) -> [phi]
+        | Or (p1, p2) -> begin
+          let a1 = sub p1 in
+          let a2 = sub p2 in
+          match a1, a2 with
+          | [], _ -> []
+          | _, [] -> []
+          | _ -> a1 @ a2
+        end
+        | _ -> []
+      in
+      match sub phi with
+      | [] -> Or (go p1, go p2)
+      | bounds -> begin
+        let bounds =
+          List.map 
+            (fun bound -> match bound with
+              | Pred (Lt, [Var rec_v; rhs]) -> begin
+                let vs = get_occurring_variables_in_arith rhs in
+                match vs with
+                | [v] -> begin
+                  match Hflmc2_syntax.IdMap.find id_type_map v with
+                  | Some var_category -> begin
+                    match var_category with
+                    | Hflz_util.VTVarMax ids -> begin
+                      List.map
+                        (fun id ->
+                          Pred (Lt, [Var rec_v; substitute_arith rhs (v, id)])
+                        )
+                        ids
+                    end
+                    | Hflz_util.VTHigherInfo -> [bound]
+                  end
+                  | None -> (print_endline @@ "none1: " ^ Id.to_string v; [bound])
+                end
+                | _ -> (print_endline "none2"; [bound])
+              end
+              | _ -> (print_endline "none3"; [bound])
+            )
+            bounds
+          |> List.flatten in
+        formula_fold (fun acc f -> Or (acc, f)) bounds
+      end
+    end
+    | And (p1, p2) -> And (go p1, go p2)
+    | Abs (x, p2) -> Abs (x, go p2)
+    | Forall (x, p2) -> Forall (x, go p2)
+    | Exists (x, p2) -> Exists (x, go p2)
+    | App (p1, p2) -> App (go p1, go p2)
+  in 
+  go phi
+   
+let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map =
   (* calc outer_mu_funcs *)
-  let rules = (Hflz.mk_entry_rule entry)::rules in
+  let rules = Hflz.merge_entry_rule (entry, rules) in
   let outer_mu_funcs = get_outer_mu_funcs rules in
   (* make tvars *)
   let rec_tvars =
@@ -903,8 +966,8 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number =
       let outer_pvars = Env.lookup mypvar outer_mu_funcs in
       let scoped_rec_tvars =
         Env.create (List.map (fun pvar -> (pvar, (Env.lookup pvar rec_tvars))) outer_pvars) in
-      let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars rec_lex_tvars body in
-      (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
+      let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars rec_lex_tvars id_type_map body in
+      Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end;
       let formula_type_vars = Hflz_util.get_hflz_type body |> to_args |> List.rev in
       (* 残りに受け取る引数をいったんlambdaで「受ける」 *)
       let rec_tvar_bounds' =
@@ -916,7 +979,7 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number =
         to_app
           body @@
           List.map
-            argty_to_ty
+            argty_to_var
             formula_type_vars in
       (* add rec > 0 if need *)
       (* if needというのは、mypvarをtopとするループがあるとき *)
@@ -955,14 +1018,16 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number =
             |> List.flatten
           ) mypvar.ty in
         {mypvar with ty=ty} in
-      (* Log.app begin fun m -> m ~header:"body (before beta)" "%a" Print.(hflz simple_ty_) body end;
-      Log.app begin fun m -> m ~header:"body (after beta)" "%a" Print.(hflz simple_ty_) (beta body) end; *)
-      {fix=Greatest; var=mypvar; body=body |> beta |> remove_duplicate_bounds}
+      Log.app begin fun m -> m ~header:"body (before beta)" "%a" Print.(hflz simple_ty_) body end;
+      Log.app begin fun m -> m ~header:"body (after beta)" "%a" Print.(hflz simple_ty_) (Hflz_util.beta body) end;
+      Log.app begin fun m -> m ~header:"body (after beta 2)" "%a" Print.(hflz simple_ty_) (body |> Hflz_util.beta |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds) end;
+      {fix=Greatest; var=mypvar; body=body |> Hflz_util.beta |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds}
     )
     rules
   in
   let hes = Hflz.decompose_entry_rule rules in
   type_check hes;
+  (* hes |> (Hflz_util.with_rules Hflz_util.assign_unique_variable_id) *)
   hes
 
 
@@ -1080,8 +1145,8 @@ let encode_body_forall_except_top (hes : Type.simple_ty Hflz.hes) =
         {var; fix; body}::new_rules
       )
     |> List.flatten in
+  (* (entry, hes) |> (Hflz_util.with_rules Hflz_util.assign_unique_variable_id) *)
   (entry, hes)
-
 
 
 let%expect_test "encode_body_forall_formula_sub" =

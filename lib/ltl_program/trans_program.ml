@@ -132,7 +132,7 @@ let to_hflz prog priority =
             (to_hflz_from_function body func_names) 
       }
     ) funcs in
-  let rules = (Hflz.mk_entry_rule entry) :: rules in
-  let rules = Eliminate_unused_argument_util.assign_unique_variable_id rules in
+  let rules = Hflz.merge_entry_rule (entry, rules) in
+  let rules = Manipulate.Hflz_util.assign_unique_variable_id rules in
   Hflz.decompose_entry_rule rules
   

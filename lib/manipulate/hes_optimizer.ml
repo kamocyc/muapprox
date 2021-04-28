@@ -49,8 +49,7 @@ end*) = struct
     go hfl *)
     
   let optimize (org_hes : 'a Hflz.hes) =
-    let (entry, org_rules) = org_hes in
-    let hes_list = (Hflz.mk_entry_rule entry)::org_rules in
+    let hes_list = (Hflz.merge_entry_rule org_hes) in
     let n = List.length hes_list in
     let pvar_to_id = List.mapi (fun i {Hflz.var;_} -> (var, i)) hes_list in
     let called_counts = get_pvar_called_counts hes_list in
@@ -101,8 +100,8 @@ let simple_partial_evaluate_hfl phi =
   in
   go phi
 
-let simple_partial_evaluate_hes (entry, rules) =
-  (Hflz.mk_entry_rule entry)::rules |>
+let simple_partial_evaluate_hes hes =
+  Hflz.merge_entry_rule hes |>
   List.map (fun rule -> { rule with Hflz.body = simple_partial_evaluate_hfl rule.Hflz.body }) |>
   Hflz.decompose_entry_rule
 
@@ -140,14 +139,14 @@ let evaluate_trivial_boolean phi =
     | Var _ -> phi in
   go phi
 
-let evaluate_trivial_boolean (entry, rules) =
-  (Hflz.mk_entry_rule entry)::rules |>
+let evaluate_trivial_boolean hes =
+  Hflz.merge_entry_rule hes |>
   List.map (fun rule -> { rule with Hflz.body = evaluate_trivial_boolean rule.Hflz.body }) |>
   Hflz.decompose_entry_rule
   
 let beta_hes (entry, rules) =
-  Hflz_manipulate.beta entry,
-  List.map (fun rule -> { rule with Hflz.body = Hflz_manipulate.beta rule.Hflz.body }) rules
+  Hflz_util.beta entry,
+  List.map (fun rule -> { rule with Hflz.body = Hflz_util.beta rule.Hflz.body }) rules
   
 let simplify (hes : Type.simple_ty Hflz.hes)=
   let hes = InlineExpansion.optimize hes in
@@ -287,8 +286,7 @@ let%expect_test "InlineExpansition.optimize" =
     body: λx_401401:int.x_401401 = 5 && x_300300 6} |}]
 
 let eliminate_unreachable_predicates (hes : 'a Hflz.hes) : 'a Hflz.hes =
-  let (entry, rules) = hes in
-  let rules = (Hflz.mk_entry_rule entry)::rules in
+  let rules = Hflz.merge_entry_rule hes in
   let _, rgraph = Hflz_util.get_dependency_graph rules in
   let reachables = Mygraph.reachable_nodes_from ~start_is_reachable_initially:true 0 rgraph in
   let rules = 

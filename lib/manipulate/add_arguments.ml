@@ -4,33 +4,7 @@ open Hflz
 let id_gen ?name ty =
   let id = Id.gen ?name ty in
   { id with name = id.name ^ string_of_int id.id }
-  
-(* let add_parameters_expr (phi : 'ty Hflz.t) =
-  let rec go (phi : 'ty Hflz.t) =
-    match phi with
-    | Abs (x, p) -> begin
-      match x.ty with
-      | TyInt -> Abs (x, go p)
-      | TySigma _ ->
-        let id = id_gen ~name:x.name Type.TyInt in
-        Abs (id, Abs (x, go p))
-    end
-    | Bool _ | Var _ | Arith _ | Pred _ -> phi
-    | Or (p1, p2) -> Or (go p1, go p2)
-    | And (p1, p2) -> And (go p1, p2)
-    | Forall (x, p) -> Forall (x, go p)
-    | Exists (x, p) -> Exists (x, go p)
-    | App (p1, p2) -> App (go p1, go p2)
-  in
-  go phi
 
-let add_parameters (hes : 'ty hes) =
-  let entry, rules = hes in
-  add_parameters_expr entry,
-  List.map
-    (fun {var; fix; body} -> {var; fix; body = add_parameters_expr body})
-    rules
-     *)
 (* TODO: optimize formula? *)
 let make_guessed_terms (coe1 : int) (coe2 : int) vars =
   let mk_affine term coe1 coe2 = Arith.Op (Arith.Add, [Arith.Op (Mult, [Int coe1; term]); Int coe2]) in
@@ -53,7 +27,8 @@ let make_approx_formula fa_var_f bounds =
 
 let add_arguments_expr (phi : 'ty Hflz.t) (coe1: int) (coe2: int) =
   (* env contains only integer variables *)
-  let rec go_expr (env : 'a list) (phi : 'ty Hflz.t) =
+  let new_ids = ref IdMap.empty in
+  let rec go_expr (env : [ `Int ] Id.t list) (phi : 'ty Hflz.t) =
     match phi with
     | App _ -> begin
       (* Appのみを辿って、直近の祖先でAppでない部分式の直下に追加整数引数を追加する *)
@@ -69,11 +44,16 @@ let add_arguments_expr (phi : 'ty Hflz.t) (coe1: int) (coe2: int) =
         let id = id_gen ~name:"s" `Int in
         generated_ids := id :: !generated_ids;
         id
-        in
+      in
       let phi = go_app env id_getter phi in
       match !generated_ids with
       | [] -> phi
       | generated_ids -> begin
+        List.iter
+          (fun id ->
+            new_ids := IdMap.add !new_ids ({id with Id.ty=Type.TyInt}) (Hflz_util.VTVarMax env);
+          )
+          generated_ids;
         let bound =
           generated_ids |>
           List.map
@@ -95,17 +75,13 @@ let add_arguments_expr (phi : 'ty Hflz.t) (coe1: int) (coe2: int) =
     | Or  (p1, p2) -> Or  (go_expr env p1, go_expr env p2)
     | And (p1, p2) -> And (go_expr env p1, go_expr env p2)
     | Abs (x, p) -> begin
-      (* match x.ty with
-      | TyInt -> Abs (x, go p)
-      | TySigma _ ->
-        let id = id_gen ~name:x.name Type.TyInt in
-        Abs (id, Abs (x, go p)) *)
       match x.ty with
       | TyInt ->
         let env = Env.update [{x with ty=`Int}] env in
         Abs (x, go_expr env p)
       | TySigma _ ->
-        let id = id_gen ~name:x.name Type.TyInt in
+        let id = id_gen ~name:(x.name ^ "_i") Type.TyInt in
+        new_ids := IdMap.add !new_ids id Hflz_util.VTHigherInfo;
         let env = Env.update [{id with ty=`Int}] env in
         Abs (id, Abs (x, go_expr env p))
     end
@@ -126,9 +102,8 @@ let add_arguments_expr (phi : 'ty Hflz.t) (coe1: int) (coe2: int) =
     end
     | _ -> go_expr env phi
   in
-  go_expr Env.empty phi
-
-let decomp (entry, rules) = Hflz.mk_entry_rule entry :: rules
+  let body = go_expr Env.empty phi in
+  body, !new_ids
 
 let rec convert_ty ty =
   match ty with
@@ -193,22 +168,45 @@ let adjust_type (hes : 'ty hes) =
     )
     rules
   
+let show_id_map id_map show_f = 
+  "{" ^
+  (IdMap.to_alist id_map
+  |> List.map (fun (id, vt) -> "" ^ Id.to_string id ^ "=" ^ show_f vt)
+  |> String.concat ", ") ^
+  "}"
+
 let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) =
-  (* let hes = add_parameters hes in *)
   let entry, rules = hes in
-  let hes =
-    add_arguments_expr entry coe1 coe2,
+  let entry, new_ids_entry = add_arguments_expr entry coe1 coe2 in
+  let all_id_maps = ref [new_ids_entry] in
+  let rules =
     List.map
       (fun {var; fix; body} ->
-        {var; fix; body = add_arguments_expr body coe1 coe2}
+        let body, new_ids = add_arguments_expr body coe1 coe2 in
+        all_id_maps := new_ids :: !all_id_maps;
+        {var; fix; body}
       )
       rules in
-  print_endline @@ Print_syntax.show_hes (decomp hes);
+  let hes = entry, rules in
+  print_endline @@ Print_syntax.show_hes (merge_entry_rule hes);
   let hes = adjust_type hes in
   Hflz_typecheck.type_check hes;
-  hes
+  let all_id_map =
+    List.fold_left (fun map acc ->
+      (* should use merge_skewed *)
+      IdMap.merge map acc ~f:(fun ~key v ->
+        match v with
+        | `Left v -> Some v
+        | `Right v -> Some v
+        | `Both _ -> assert false
+      )
+    )
+    IdMap.empty
+    !all_id_maps in
+  print_endline "id_map";
+  print_endline @@ show_id_map all_id_map Hflz_util.show_variable_type;
+  hes, all_id_map
 
-(*  *)
 let id_n n t = { Id.name = "x_" ^ string_of_int n; id = n; ty = t }
 
 let to_ty_in_id id =
@@ -236,15 +234,15 @@ let%expect_test "add_arguments" =
      (λx_22:int.λx_33:(int -> bool).x_33 x_22) 0 (λx_44:int.x_44 = x_11) |}];
   let ty' = Hflz_util.get_hflz_type phi in
   assert (ty' = Type.TyBool ());
-  let phi = add_arguments_expr phi 10 20 in
+  let phi, _ = add_arguments_expr phi 10 20 in
   (* let phi = add_parameters_expr phi in *)
   ignore [%expect.output];
   print_endline @@ Print_syntax.show_hflz phi;
   [%expect {|
     ∀x_11.
-     ∀x20.
-      x20 < 10 * x_11 + 20 || x20 < (-10) * x_11 + 20
-      || (λx_22:int.λx21:int.λx_33:(int -> bool).x_33 x_22) 0 x20
+     ∀s100100.
+      s100100 < 10 * x_11 + 20 || s100100 < (-10) * x_11 + 20
+      || (λx_22:int.λx_3_i101101:int.λx_33:(int -> bool).x_33 x_22) 0 s100100
           (λx_44:int.x_44 = x_11) |}];
   let ty' = Hflz_util.get_hflz_type phi in
   assert (ty' = Type.TyBool ());

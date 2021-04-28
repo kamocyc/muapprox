@@ -5,7 +5,65 @@ module Arith = Hflmc2_syntax.Arith
 open Hflz
 
 type ty_env = (Type.simple_ty Type.arg Id.t) list
-  
+
+let ensure_all_variable_ids_are_unique_expr env seen_ids (phi : 'a Hflz.t) =
+  let rec go env (phi : 'a Hflz.t) = match phi with
+    | Var v -> begin  
+      match List.find_opt (Id.eq @@ Hflz_util.lift_id v) env with
+      | Some _ -> ()
+      | None -> assert false 
+    end
+    | Abs (x, p) -> begin
+      if Hashtbl.mem seen_ids x.id then failwith @@ "duplicated id: " ^ Id.to_string x;
+      Hashtbl.add seen_ids x.id x;
+      go (x::env) p
+    end
+    | Forall (x, p) -> begin
+      if Hashtbl.mem seen_ids x.id then failwith @@ "duplicated id: " ^ Id.to_string x;
+      Hashtbl.add seen_ids x.id x;
+      go (x::env) p
+    end
+    | Exists (x, p) -> begin
+      if Hashtbl.mem seen_ids x.id then failwith @@ "duplicated id: " ^ Id.to_string x;
+      Hashtbl.add seen_ids x.id x;
+      go (x::env) p
+    end
+    | Bool b -> ()
+    | Or (p1, p2) -> (go env p1; go env p2)
+    | And (p1, p2) -> (go env p1; go env p2)
+    | App (p1, p2) -> (go env p1; go env p2)
+    | Arith a -> go_arith env a
+    | Pred (_, a) -> List.iter (go_arith env) a
+  and go_arith env (a : Arith.t) = match a with
+    | Int _ -> ()
+    | Var v -> begin
+      match List.find_opt (Id.eq @@ {v with ty=Type.TyInt}) env with
+      | Some _ -> ()
+      | None -> assert false 
+    end
+    | Op (_, a) -> List.iter (go_arith env) a
+  in
+  go env phi
+
+let ensure_all_variable_ids_are_unique (hes : 'a hes) =
+  let seen_ids = Hashtbl.create 100 in
+  let (entry, rules) = hes in
+  let env =
+    List.map
+      (fun {var; fix; body} ->
+        Hashtbl.add seen_ids var.id (Hflz_util.lift_id var);
+        Hflz_util.lift_id var
+      )
+      rules in
+  ensure_all_variable_ids_are_unique_expr env seen_ids entry;
+  Hashtbl.reset seen_ids; (* 同じスコープでIDの重複があったらエラー *)
+  List.iter
+    (fun {var; fix; body} ->
+      ensure_all_variable_ids_are_unique_expr env seen_ids body;
+      Hashtbl.reset seen_ids (* 同じスコープでIDの重複があったらエラー *)
+    )
+    rules
+
 let type_check_arith : ty_env -> Arith.t -> bool = fun env arith ->
   let show_arg_ty = fun fmt ty -> Format.pp_print_string fmt @@ Type.show_ty Fmt.nop ty in
   let show_arg = Type.show_arg show_arg_ty in
@@ -139,4 +197,9 @@ let type_check (hes : Type.simple_ty hes) : unit =
   List.iter (fun ({var={ty;_}; body; _}) -> 
     let ty' = get_hflz_type env body in
     if not @@ Type.eq_modulo_arg_ids ty' ty then failwith @@ "rule type mismatch (Checked type: " ^ show_ty ty' ^ " / Env type: " ^ show_ty ty ^ ")"
-  ) rules
+  ) rules;
+(*   
+  (* 近似処理で同じIDの変数が現れる *)
+  print_endline @@ Print_syntax.show_hes (merge_entry_rule hes);
+  ensure_all_variable_ids_are_unique hes; *)
+  ()
