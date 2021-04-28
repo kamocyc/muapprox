@@ -190,10 +190,10 @@ let replace_erasable_subtrees (rules : Type.simple_ty thes_rule list) elasables 
 
 let eliminate_unused_argument (hes : Type.simple_ty Hflz.hes) =
   let rules = Hflz.merge_entry_rule hes in
-  let rules = Manipulate.Hflz_util.assign_unique_variable_id rules in
+  let rules = Hflz_util.assign_unique_variable_id rules in
   (* let () =
     let hes = abbrev_variable_names (Hflz.decompose_entry_rule rules) in
-    ignore @@ Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:"bb.txt" ~without_id:true true hes
+    ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"bb.txt" ~without_id:true true hes
     in *)
   let rules = assign_id_to_subterm rules in
   (* save_to_file "prog.txt" (show_s_thes_rules rules); *)
@@ -212,6 +212,6 @@ let eliminate_unused_argument (hes : Type.simple_ty Hflz.hes) =
   let hes = Type_hflz.infer_and_eliminate_unit_type_terms (Hflz.decompose_entry_rule rules) in
   (* let () =
     let hes = abbrev_variable_names hes in
-    ignore @@ Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:"bb_elim.txt" ~without_id:true true hes
+    ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"bb_elim.txt" ~without_id:true true hes
     in *)
   hes

@@ -114,8 +114,8 @@ let convert_ltl file show_raw_id_name always_use_canonical_type_env use_branchin
     hflz, Some func_priority
   end
 
-let eliminate_unused_argument = Eliminate_unused_argument.eliminate_unused_argument
-let infer_type = Type_hflz.infer_type
-let abbrev_variable_names = Eliminate_unused_argument_util.abbrev_variable_names
+let eliminate_unused_argument = Manipulate.Eliminate_unused_argument.eliminate_unused_argument
+let infer_type = Manipulate.Type_hflz.infer_type
+let abbrev_variable_names = Manipulate.Eliminate_unused_argument_util.abbrev_variable_names
 let convert_all = Raw_program.Trans_raw_program.convert_all
 let parse_file = Raw_program.Program_main.parse_file

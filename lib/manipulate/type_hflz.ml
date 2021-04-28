@@ -1,4 +1,5 @@
 open Hflmc2_syntax
+module Env = Env_no_value
 (* open Hflz *)
 
 type 'ty tarith = 'ty Id.t Arith.gen_t
@@ -57,7 +58,7 @@ let compose_subst (id, ty) subst =
   
 let unify (constraints : (ptype * ptype) list) =
   let is_equal_ptype = (=) in
-  let rec subst xs pair = List.map (fun (p1, p2) -> (subst_ptype p1 [pair], subst_ptype p2 [pair])) xs in
+  let subst xs pair = List.map (fun (p1, p2) -> (subst_ptype p1 [pair], subst_ptype p2 [pair])) xs in
   let rec unify constraints = match constraints with
     | [] -> []
     | (t1, t2)::xs -> begin
@@ -353,7 +354,7 @@ let infer_type (hes : 'a Hflz.hes) =
   let rules = infer_thflz_type rules in
   let rules = to_hflz rules in
   let hes = Hflz.decompose_entry_rule rules in
-  Manipulate.Hflz_typecheck.type_check hes;
+  Hflz_typecheck.type_check hes;
   hes
 
 let eliminate_unit_type_terms (rules: ptype thes_rule list): ptype thes_rule list =
@@ -428,6 +429,6 @@ let infer_and_eliminate_unit_type_terms (hes : 'a Hflz.hes) : Type.simple_ty Hfl
   print_endline @@ show_s_thes_rules rules; *)
   let rules = to_hflz rules in
   let hes = Hflz.decompose_entry_rule rules in
-  Manipulate.Hflz_typecheck.type_check hes;
+  Hflz_typecheck.type_check hes;
   (* print_endline @@ Hflz.show_hes Type.pp_simple_ty hes;  *)
   hes

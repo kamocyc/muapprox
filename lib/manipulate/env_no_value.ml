@@ -16,7 +16,7 @@ let lookup (key : 'b Id.t) (env : 'a t) : 'a Id.t =
   | [] -> raise Not_found
   | _ -> failwith "multiple found"
 
-let update ~(bounds : 'a Id.t list) ~(env : 'a t) : 'a t =
+let update (bounds : 'a Id.t list) (env : 'a t) : 'a t =
   if exists_duplication bounds then failwith "update duplicate 1";
   if exists_duplication env then failwith "update duplicate 2";
   let env' = List.filter (fun e -> not @@ List.exists (fun b -> Id.eq b e) bounds) env in
@@ -26,7 +26,7 @@ let empty = []
 
 let create bounds = update bounds empty
 
-let remove ~(bounds : 'a Id.t list) ~(env : 'a t) : 'a t =
+let remove (bounds : 'a Id.t list) (env : 'a t) : 'a t =
   List.filter (fun e -> not @@ List.exists (fun b -> Id.eq b e) bounds) env
 
 let merge (envs : 'a t list) =
