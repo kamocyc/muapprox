@@ -1,5 +1,4 @@
 open Hflmc2_util
-open Id
 
 type pred =
   | Eq

@@ -28,7 +28,7 @@ let ensure_all_variable_ids_are_unique_expr env seen_ids (phi : 'a Hflz.t) =
       Hashtbl.add seen_ids x.id x;
       go (x::env) p
     end
-    | Bool b -> ()
+    | Bool _ -> ()
     | Or (p1, p2) -> (go env p1; go env p2)
     | And (p1, p2) -> (go env p1; go env p2)
     | App (p1, p2) -> (go env p1; go env p2)
@@ -50,7 +50,7 @@ let ensure_all_variable_ids_are_unique (hes : 'a hes) =
   let (entry, rules) = hes in
   let env =
     List.map
-      (fun {var; fix; body} ->
+      (fun {var; _} ->
         Hashtbl.add seen_ids var.id (Hflz_util.lift_id var);
         Hflz_util.lift_id var
       )
@@ -58,7 +58,7 @@ let ensure_all_variable_ids_are_unique (hes : 'a hes) =
   ensure_all_variable_ids_are_unique_expr env seen_ids entry;
   Hashtbl.reset seen_ids; (* 同じスコープでIDの重複があったらエラー *)
   List.iter
-    (fun {var; fix; body} ->
+    (fun {body; _} ->
       ensure_all_variable_ids_are_unique_expr env seen_ids body;
       Hashtbl.reset seen_ids (* 同じスコープでIDの重複があったらエラー *)
     )
@@ -159,7 +159,7 @@ let get_duplicates cmp ls =
   List.filter_map
     (fun var ->
       match List.filter (fun var' -> cmp var' var) ls with
-      | [x] -> None
+      | [_] -> None
       | (x::_) as xs ->
         Some (x, List.length xs)
       | [] -> assert false

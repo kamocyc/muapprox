@@ -370,17 +370,17 @@ let fold_hflz folder phi init =
     | Hflz.Var    _ -> folder acc phi
     | Hflz.Or (f1, f2)  -> folder acc phi |> go f1 |> go f2
     | Hflz.And (f1, f2) -> folder acc phi |> go f1 |> go f2
-    | Hflz.Abs (x, f1)  -> folder acc phi |> go f1
-    | Hflz.Forall (x, f1) -> folder acc phi |> go f1
-    | Hflz.Exists (x, f1) -> folder acc phi |> go f1
+    | Hflz.Abs (_, f1)  -> folder acc phi |> go f1
+    | Hflz.Forall (_, f1) -> folder acc phi |> go f1
+    | Hflz.Exists (_, f1) -> folder acc phi |> go f1
     | Hflz.App (f1, f2)   -> folder acc phi |> go f1 |> go f2
-    | Hflz.Arith t -> folder acc phi
-    | Hflz.Pred (p, args) -> folder acc phi in
+    | Hflz.Arith _ -> folder acc phi
+    | Hflz.Pred _ -> folder acc phi in
   go phi init
 
 let is_onlyforall_body formula =
   fold_hflz (fun b f -> match f with Hflz.Exists _ -> false | _ -> b) formula true
-let is_onlynu_onlyforall_rule {Hflz.var; fix; body} =
+let is_onlynu_onlyforall_rule {Hflz.fix; body; _} =
   (fix = Fixpoint.Greatest) && is_onlyforall_body body
 let is_onlynu_onlyforall (entry, rules) =
   is_onlyforall_body entry
@@ -388,13 +388,13 @@ let is_onlynu_onlyforall (entry, rules) =
 
 let is_onlyexists_body formula =
   fold_hflz (fun b f -> match f with Hflz.Forall _ -> false | _ -> b) formula true
-let is_onlymu_onlyexists_rule {Hflz.var; fix; body} =
+let is_onlymu_onlyexists_rule {Hflz.fix; body; _} =
   (fix = Fixpoint.Least) && is_onlyexists_body body
 let is_onlymu_onlyexists (entry, rules) =
   is_onlyexists_body entry
   && (List.for_all is_onlymu_onlyexists_rule rules)
 
-let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim lexico_pair_number debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
+let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim lexico_pair_number _debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
   (* TODO: use 2nd return value of add_arguments *)
   let (arg_coe1, arg_coe2) = coe_arguments in
   if no_elim then begin
@@ -481,7 +481,7 @@ let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : 
               false
           ]
         ) nu_only_heses
-      | Some s ->
+      | Some _ ->
         List.map (fun (nu_only_hes, _) -> [solve_onlynu_onlyforall solve_options debug_context_ nu_only_hes false]) nu_only_heses in
     let (is_valid : (Status.t * debug_context option list) list Ivar.t) = Ivar.create () in
     let deferred_is_valid = Ivar.read is_valid in
@@ -565,7 +565,7 @@ let check_validity_full coe1 coe2 (solve_options : Solve_options.options) hes co
   Core.never_returns(Scheduler.go())
 
 let solve_onlynu_onlyforall_with_schedule solve_options nu_only_hes cont =
-  let dresult = Deferred.any [solve_onlynu_onlyforall { solve_options with no_disprove = false } None nu_only_hes true >>| (fun (s, d) -> s)] in
+  let dresult = Deferred.any [solve_onlynu_onlyforall { solve_options with no_disprove = false } None nu_only_hes true >>| (fun (s, _) -> s)] in
   upon dresult (fun result -> cont (result, [None]); Rfunprover.Solver.kill_z3(); shutdown 0);
   Core.never_returns(Scheduler.go())
   

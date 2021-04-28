@@ -15,7 +15,7 @@ let gen_id () = counter#tick
 
 let to_string ?(without_id=false) id =
   let c = String.get id.name 0 in
-  if c = Char.uppercase c || without_id
+  if c = Char.uppercase_ascii c || without_id
   then id.name
   else id.name ^ string_of_int id.id (* also show id if the id is for a variable *)
 

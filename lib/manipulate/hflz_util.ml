@@ -20,14 +20,14 @@ let get_dependency_graph (hes : 'a hes_rule list) =
   let graph = Mygraph.init graph_size in
   (* 参照の依存グラフを作成 *)
   List.iteri
-    (fun index {var; body; _} -> 
+    (fun index {body; _} -> 
       fvs body
       |> IdSet.to_list
       |> List.filter_map
         (fun v ->
           List.find_opt (fun (_, v') -> Id.eq v' v) preds
         )
-      |> List.iter (fun (i', v') -> 
+      |> List.iter (fun (i', _) -> 
         Mygraph.add_edge index i' graph
       )
     )
@@ -52,8 +52,8 @@ let get_hflz_type phi =
       TyBool ()
     end
     | Abs (x, f1)  -> TyArrow (x, go f1)
-    | Forall (x, f1) -> go f1
-    | Exists (x, f1) -> go f1
+    | Forall (_, f1) -> go f1
+    | Exists (_, f1) -> go f1
     | App (f1, f2)   -> begin
       let ty1 = go f1 in
       match ty1 with
@@ -72,8 +72,8 @@ let get_hflz_type phi =
       | _ -> failwith "Illegal type (App)"
       
     end
-    | Pred (p, args) -> TyBool ()
-    | Arith t -> failwith "Illegal type (Arith)"
+    | Pred _ -> TyBool ()
+    | Arith _ -> failwith "Illegal type (Arith)"
   in
   go phi
 

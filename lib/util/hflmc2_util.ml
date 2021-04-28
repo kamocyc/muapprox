@@ -29,7 +29,7 @@ let rec merge_and_unify comp l1 l2 =
          if c=0 then x::(merge_and_unify comp l1' l2')
          else if c<0 then x::(merge_and_unify comp l1' l2)
          else y::(merge_and_unify comp l1 l2');;
-let rec merge_and_unify_list comp ll =
+let merge_and_unify_list comp ll =
   List.fold_left
   (fun l1 l2 -> merge_and_unify comp l1 l2)
   [] ll

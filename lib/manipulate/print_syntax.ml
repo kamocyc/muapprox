@@ -86,13 +86,13 @@ module PrintUtil = struct
   let id' : 'ty Id.t t =
     fun ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string x)
   
-  let id_' = fun prec ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string x)
+  let id_' = fun _prec ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string x)
   
   let id__' : bool -> 'ty Id.t t =
     fun without_id ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string ~without_id:without_id x)
     
   let id___' =
-    fun without_id prec ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string ~without_id:without_id x)
+    fun without_id _prec ppf x -> Fmt.pf ppf "%s" (replace_apos @@ Id.to_string ~without_id:without_id x)
     
   let arith_  =
     fun without_id prec ppf a -> gen_arith_ (id___' without_id) prec ppf a
@@ -237,7 +237,7 @@ module MachineReadable = struct
       | Hflmc2_syntax.Fixpoint.Least    -> Fmt.string ppf "u"
       | Hflmc2_syntax.Fixpoint.Greatest -> Fmt.string ppf "v"
 
-  let hflz_' (format_ty_ : Prec.t -> 'ty Fmt.t) (show_forall : bool) (without_id : bool) =
+  let hflz_' (_format_ty_ : Prec.t -> 'ty Fmt.t) (show_forall : bool) (without_id : bool) =
     let rec go_ (prec : Prec.t) (ppf : formatter) (phi : 'ty Hflz.t) = match phi with
       | Bool true -> Fmt.string ppf "true"
       | Bool false -> Fmt.string ppf "false"
@@ -325,7 +325,7 @@ module AsProgram = struct
   let id__' : bool -> 'ty Id.t t =
     fun without_id ppf x -> Fmt.pf ppf "%s" (id_str without_id x)
   
-  let hflz_' (format_ty_ : Prec.t -> 'ty Fmt.t) (show_forall : bool) (without_id : bool) =
+  let hflz_' (_format_ty_ : Prec.t -> 'ty Fmt.t) (show_forall : bool) (without_id : bool) =
     let rec go_ int_env (prec : Prec.t) (ppf : formatter) (phi : 'ty Hflz.t) = match phi with
       | Bool true -> begin
         Fmt.string ppf "(";
@@ -363,7 +363,7 @@ module AsProgram = struct
               (id__' without_id) x
               (go_ ((Id.remove_ty x)::int_env) Prec.abs) psi
           ) else assert false
-      | Exists (x, psi) -> failwith "AsProgram: exists"
+      | Exists (_x, _psi) -> failwith "AsProgram: exists"
         (* show_paren (prec > Prec.abs) ppf "@[<1>let %a = read_int () (* !!Exists *) in @,%a@]"
             (id__' without_id) x
             (go_ Prec.abs) psi *)

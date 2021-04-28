@@ -10,7 +10,7 @@ let get_pvar_called_counts hes =
   let preds, graph = Hflz_util.get_dependency_graph hes in
   let graph = Mygraph.reverse_edges graph in
   preds
-  |> List.map (fun (i, var) -> List.length @@ Mygraph.get_next_nids i graph)  
+  |> List.map (fun (i, _var) -> List.length @@ Mygraph.get_next_nids i graph)  
 
 (*
   inline expansion
@@ -81,7 +81,7 @@ end*) = struct
       );
     Array.to_list hes
     |> List.mapi (fun i r -> (i, r))
-    |> List.filter (fun (id, {Hflz.var; _}) -> not expanded.(id))
+    |> List.filter (fun (id, _) -> not expanded.(id))
     |> List.map (fun (_, r) -> r)
     |> Hflz.decompose_entry_rule
 end

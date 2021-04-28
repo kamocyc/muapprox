@@ -73,7 +73,6 @@ let unix_system ?(no_quote=false) commands mode =
   let start_time = Stdlib.Sys.time () in
   Unix.system command 
   >>= (fun code ->
-    let unlines lines = String.concat "\n" lines in
     let elapsed = Stdlib.Sys.time () -. start_time in
     Reader.file_contents stdout_name >>= (fun stdout ->
       Reader.file_contents stderr_name >>| (fun stderr ->

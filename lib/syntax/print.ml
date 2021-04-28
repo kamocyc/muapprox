@@ -123,8 +123,8 @@ let rec gen_arith_ : 'avar t_with_prec -> 'avar Arith.gen_t t_with_prec =
       else
         show_paren (prec > Prec.neg) ppf "-%a"
           (gen_arith_ avar_ Prec.(succ neg)) a'
-    | Op (op',[a1;a2]) -> show_op a
-    | _ -> assert false
+    | Op _ -> show_op a
+
 let gen_arith : 'avar t_with_prec -> 'avar Arith.gen_t t =
   fun avar_ ppf a -> gen_arith_ avar_ Prec.zero ppf a
 let arith_ : Prec.t -> Arith.t Fmt.t =

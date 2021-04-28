@@ -11,4 +11,4 @@
     )
   (flags (-cclib -lstdc++)))
 
-; (env (dev (flags (:standard -warn-error -A))))
+(env (dev (flags (:standard -warn-error -a+31))))

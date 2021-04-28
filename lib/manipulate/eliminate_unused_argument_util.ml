@@ -57,7 +57,7 @@ type s_thes_rules = Type.simple_ty thes_rules
 module Print_temp = struct
   open Hflmc2_syntax.Print
     
-  let pid : Stdlib__format.formatter -> int -> unit = fun fmt i ->
+  let pid : Stdlib__format.formatter -> int -> unit = fun fmt _i ->
     (* Fmt.pf fmt "<%d>" i *)
     Fmt.string fmt ""
   
@@ -152,7 +152,7 @@ module Print_temp = struct
             pid sid.id
             pred pred'
             (arith_ prec) f2
-      | Pred (sid, pred, _) -> assert false
+      | Pred _ -> assert false
 
   let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty thflz Fmt.t =
     fun format_ty_ -> hflz_ format_ty_ Prec.zero
@@ -307,21 +307,21 @@ let compose_subst (ty1, ty) subst =
 let remove_id_form_subterm (phi : Type.simple_ty thes_rules) =
   let rec go (phi : Type.simple_ty thflz): Type.simple_ty Hflz.t =
     match phi with
-    | Bool (sid, b) -> Bool b
-    | Var (sid, v) -> Var v
-    | Or (sid, p1, p2) -> Or (go p1, go p2)
-    | And (sid, p1, p2) -> And (go p1, go p2)
-    | Abs (sid, x, p) -> Abs (x, go p)
-    | Forall (sid, x, p) -> Forall (x, go p)
-    | Exists (sid, x, p) -> Exists (x, go p)
-    | App (sid, p1, p2) -> App (go p1, go p2)
-    | Arith (sid, p) -> Arith (go_arith p)
-    | Pred (sid, e, ps) -> Pred (e, List.map go_arith ps)
+    | Bool (_, b) -> Bool b
+    | Var (_, v) -> Var v
+    | Or (_, p1, p2) -> Or (go p1, go p2)
+    | And (_, p1, p2) -> And (go p1, go p2)
+    | Abs (_, x, p) -> Abs (x, go p)
+    | Forall (_, x, p) -> Forall (x, go p)
+    | Exists (_, x, p) -> Exists (x, go p)
+    | App (_, p1, p2) -> App (go p1, go p2)
+    | Arith (_, p) -> Arith (go_arith p)
+    | Pred (_, e, ps) -> Pred (e, List.map go_arith ps)
   and go_arith (phi : tarith) =
     match phi with
-    | Int (sid, i) -> Int i
-    | Var (sid, v) -> Var v
-    | Op (sid, e, ps) -> Op (e, List.map go_arith ps)
+    | Int (_, i) -> Int i
+    | Var (_, v) -> Var v
+    | Op (_, e, ps) -> Op (e, List.map go_arith ps)
   in
   List.map (fun {var; body; fix} ->
     let body = go body in

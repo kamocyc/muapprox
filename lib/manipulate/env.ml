@@ -2,7 +2,7 @@ open Hflmc2_syntax
 
 (* 環境に変数の重複があったときは、エラー *)
 let lookup (key : 'a Id.t) (env : ('b Id.t * 'c) list) : 'c =
-  match List.find_all (fun (k, e) -> Id.eq k key) env with
+  match List.find_all (fun (k, _) -> Id.eq k key) env with
   | [(_, v)] -> v
   | [] -> raise Not_found
   | _ -> failwith "multiple found"

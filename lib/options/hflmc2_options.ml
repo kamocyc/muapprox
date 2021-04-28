@@ -1,3 +1,4 @@
+[@@@ocaml.warning "-39"]
 
 open Hflmc2_util
 
@@ -100,7 +101,7 @@ type params =
   ; coe_arguments : string [@default "1,0"]
   ; no_elim : bool [@default false]
   }
-  [@@deriving cmdliner,show]
+[@@deriving cmdliner,show]
 
 let set_up_params params =
   set_ref no_approx_mu             params.no_approx_mu;

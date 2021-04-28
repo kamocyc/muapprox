@@ -190,8 +190,8 @@ module Typing = struct
           | `Ok -> write r tv
           | `Alias -> ()
           end
-      | (TvRef (_, ({contents = Some tv_inner} as r), _) as tv_src), tv
-      | tv, (TvRef (_, ({contents = Some tv_inner} as r), _) as tv_src) ->
+      | (TvRef (_, ({contents = Some tv_inner} as r), _) as _tv_src), tv
+      | tv, (TvRef (_, ({contents = Some tv_inner} as r), _) as _tv_src) ->
           (* XXX occur_check r tv; *)
           Log.debug begin fun _ -> Print.pr "HERE@." end;
           write r tv;
@@ -356,7 +356,7 @@ module Typing = struct
         in
         let vars, _, tv_vars = List.unzip3 var_env in
         let id_env =
-          List.fold_left var_env ~init:id_env ~f:begin fun env (var,id,tv) ->
+          List.fold_left var_env ~init:id_env ~f:begin fun env (var,id,_tv) ->
             StrMap.replace env ~key:var.name ~data:id
           end
         in
@@ -502,7 +502,7 @@ let rec rename_abstraction_ty
         let env = IdMap.replace env x' {x with ty=`Int} in
         TyArrow({x with ty=TyInt}, rename_abstraction_ty ~env ret_sty ret_aty)
     | TyArrow({ty=TySigma arg_sty;_} as x , ret_sty),
-      TyArrow({ty=TySigma arg_aty;_} as x', ret_aty) ->
+      TyArrow({ty=TySigma arg_aty;_}, ret_aty) ->
         let ty = TySigma(rename_abstraction_ty ~env arg_sty arg_aty) in
         TyArrow({x with ty}, rename_abstraction_ty ~env ret_sty ret_aty)
     | _ ->

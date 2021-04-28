@@ -233,7 +233,7 @@ let generate_constraints (rules : ptype thes_rule list) : (ptype * ptype) list =
     | Arith a ->
       let ty, c = gen_arith env a in
       (TInt, (TInt, ty) :: c)
-    | Pred (e, ps) ->
+    | Pred (_, ps) ->
       let results = List.map (gen_arith env) ps in
       let tys, cs = List.split results in
       (TBool, (List.map (fun ty -> (TInt, ty)) tys) @ (List.flatten cs))
@@ -242,8 +242,8 @@ let generate_constraints (rules : ptype thes_rule list) : (ptype * ptype) list =
     | Var v ->
       let id = Env.lookup v env in
       (id.ty, [(id.ty, TInt)])
-    | Int i -> (TInt, [])
-    | Op (e, ps) ->
+    | Int _ -> (TInt, [])
+    | Op (_, ps) ->
       let results = List.map (gen_arith env) ps in
       let tys, cs = List.split results in
       (TInt, (List.map (fun ty -> (TInt, ty)) tys) @ (List.flatten cs))
@@ -251,7 +251,7 @@ let generate_constraints (rules : ptype thes_rule list) : (ptype * ptype) list =
   let global_env = List.map (fun (v, _, _, _) -> v) rules in
   let constraints =
     List.map
-      (fun ( var, args, body, fix ) ->
+      (fun ( _var, args, body, _fix ) ->
         gen (Env.update args (Env.create global_env)) body |> snd
       )
       rules

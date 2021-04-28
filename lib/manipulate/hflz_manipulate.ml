@@ -10,7 +10,6 @@ open Hflz
 let simplify_bound = ref false
 
 let show_hflz = Print.show_hflz
-let show_hflz_full = Print.show_hflz_full
 
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
@@ -23,15 +22,6 @@ let to_args : Type.simple_ty -> Type.simple_ty Type.arg Id.t list =
     | Type.TyArrow (arg, ty) -> go (arg::acc) ty
     | Type.TyBool _ -> acc in
   go []
-
-(* 引数のリストからabstractionに変換。IDは新規に生成する。 *)
-let to_abs : 'ty Type.arg Id.t list -> ('ty2 Hflz.t -> 'ty2 Hflz.t) = fun args ->
-  let name_map = List.map (fun arg -> (arg.Id.name, Id.gen ~name:arg.Id.name arg.Id.ty)) args in
-  fun body -> 
-    let rec go = function
-      | [] -> body
-      | arg::xs -> Abs (List.assoc arg.Id.name name_map, go xs) in
-    go args
 
 (* Absの引数のIDを新規に生成しない版 *)
 (* [x1; x2] body  ->  \x1. \x2. body *)
@@ -47,20 +37,6 @@ let to_forall args body =
     | [] -> body
     | arg::xs -> Forall(arg, go xs) in
   go args
-  
-(* Abstractionから、それに適用する変数の列を生成 *)
-let to_vars : 'ty Hflz.t -> ('ty Hflz.t -> 'ty Hflz.t) = fun hfl ->
-  fun body ->
-    let rec go: 'ty Hflz.t -> 'ty Hflz.t = function
-      | Abs ({id;ty;name}, child) -> begin
-        match ty with
-        | Type.TyInt -> 
-          App (go child, Arith (Var {name; id; ty=`Int}))
-        | Type.TySigma x -> 
-          App (go child, Var {name; id; ty=x})
-      end
-      | _ -> body in
-    go hfl
 
 let to_app inner terms =
   let rec go terms = match terms with
@@ -74,14 +50,6 @@ let argty_to_var {Id.name; id; ty} =
     Arith (Var {name; id; ty=`Int})
   | Type.TySigma x -> 
     Var {name; id; ty=x}
-
-let make_guessed_terms (coe1 : int) (coe2 : int) vars =
-  let mk_affine term coe1 coe2 = Arith.Op (Arith.Add, [Arith.Op (Mult, [Int coe1; term]); Int coe2]) in
-  match vars |>
-    List.map (fun var -> mk_affine (Var var) coe1 coe2 :: [mk_affine (Var var) (-coe1) coe2]) |>
-    List.flatten with
-  | [] -> [Arith.Int coe2]
-  | vars -> vars
 
 let make_guessed_terms_simple (coe1 : int) (coe2 : int) vars =
   let open Arith in
@@ -117,17 +85,6 @@ let rev_abs hflz =
     | _ -> (hflz, acc) in
   let (body, vars) = get_abs [] hflz in
   to_abs' vars body
-
-let extract_head_abstracts : Type.simple_ty Hflz.t -> ((Type.simple_ty Hflz.t -> Type.simple_ty Hflz.t) * Type.simple_ty Hflz.t) = fun hfl -> 
-  ((fun body ->     
-    let rec rep2 = fun hfl -> match hfl with
-    | Abs (arg, child) -> Abs(arg, rep2 child)
-    | _ -> body in
-    rep2 hfl),
-  let rec rep1 = fun hfl -> match hfl with
-    | Abs (_, child) -> rep1 child
-    | _ -> hfl in
-    rep1 hfl)
 
 (* base [x1; x2]  ->  (x1 -> x2 -> base) *)
 let to_arrow_type ?base:(base=Type.TyBool ()) args  =
@@ -282,21 +239,6 @@ let decompose_lambdas_hes (entry, rules) =
   let rules = rules |> List.map (decompose_lambdas hes_names) |> List.flatten in
   (* Hflz.decompose_entry_rule rules |> (Hflz_util.with_rules Hflz_util.assign_unique_variable_id) *)
   Hflz.decompose_entry_rule rules
-  
-let get_top_rule hes =
-  match hes with
-  | []  -> failwith "empty"
-  | [x] -> x, []
-  | x::xs -> begin
-    match x with
-    | { var=({ty=Type.TyBool ();_} as var); body; fix=Fixpoint.Greatest } -> begin
-      let fvs = Hflz.fvs_with_type body in
-      match List.find_opt (fun fv -> Id.eq fv var) fvs with
-      | None -> x, xs
-      | Some _ -> failwith "(get_top_rule 1) not implemented"
-    end
-    | _ -> failwith "(get_top_rule 2) not implemented"
-  end
 
 let get_dual_hes ((entry, rules) : Type.simple_ty hes): Type.simple_ty hes =
   let entry = Hflz.negate_formula entry in
@@ -322,8 +264,6 @@ let subst_arith_var replaced formula =
     | Arith t -> Arith (go_arith t)
     | Pred (x, f1) -> Pred (x, List.map go_arith f1) in
   go_formula formula
-  
-let var_as_arith v = {v with Id.ty=`Int}
 
 let rec to_tree seq f b = match seq with
   | [] -> b
@@ -547,11 +487,11 @@ let is_rectvar v =
 let get_occuring_arith_terms id_type_map phi = 
   (* remove expressions that contain locally bound variables *)
   let remove ls x =
-    List.filter (fun (expr, vars) -> not @@ List.exists ((=) (Id.remove_ty x)) vars) ls
+    List.filter (fun (_, vars) -> not @@ List.exists ((=) (Id.remove_ty x)) vars) ls
   in
   let rec go_hflz phi = match phi with
     | Bool _ -> []
-    | Var v -> [] (* use only arithmetic variable *)
+    | Var _ -> [] (* use only arithmetic variable *)
     | Or (p1, p2) -> (go_hflz p1) @ (go_hflz p2)
     | And (p1, p2) -> (go_hflz p1) @ (go_hflz p2)
     | Abs (x, p1) -> remove (go_hflz p1) x
@@ -640,7 +580,6 @@ let make_decrement rec_lex_tvars guessed_conditions term  =
     let rec go xs = match xs with
       | x1::x2::xs -> begin
         let new_x1 = Env.lookup x1 new_rec_lex_tvars in
-        let new_x2 = Env.lookup x2 new_rec_lex_tvars in
         let new_xs = List.map (fun v -> v, (Env.lookup v new_rec_lex_tvars)) (x2::xs) in 
         Or (
           And (
@@ -1116,7 +1055,7 @@ let encode_body_forall_formula new_pred_name_cand hes_preds hfl =
         | None ->
           (* boundされている変数が使用されない、つまり無駄なboundなので無視 *)
           go hes_preds f1
-        | Some x -> failwith "quantifiers for higher-order variables are not implemented"
+        | Some _ -> failwith "quantifiers for higher-order variables are not implemented"
       ) else (
         let hfl, rules = encode_body_forall_formula_sub new_pred_name_cand hes_preds hfl in
         let new_rule_vars = List.map (fun rule -> { rule.var with ty = Type.TySigma rule.var.ty }) rules in

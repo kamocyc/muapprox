@@ -425,7 +425,7 @@ module Simplify = struct
   let hflz_hes_rule : 'a Hflz.hes_rule -> 'a Hflz.hes_rule =
     fun rule -> { rule with body = hflz rule.body }
   let hflz_hes : simple_ty Hflz.hes -> bool -> simple_ty Hflz.hes =
-    fun (entry, rules) inlining ->
+    fun (entry, rules) _inlining ->
       hflz entry,
       rules
       (* |> begin

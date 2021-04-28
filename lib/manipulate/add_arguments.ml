@@ -194,7 +194,7 @@ let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) =
   let all_id_map =
     List.fold_left (fun map acc ->
       (* should use merge_skewed *)
-      IdMap.merge map acc ~f:(fun ~key v ->
+      IdMap.merge map acc ~f:(fun ~key:_ v ->
         match v with
         | `Left v -> Some v
         | `Right v -> Some v

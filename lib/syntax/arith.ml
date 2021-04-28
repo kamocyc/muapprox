@@ -53,7 +53,7 @@ type t' =
   | Var' of [`Int] Id.t
   | Op'  of [`Addit | `Mult | `Div | `Mod] * (t' * [`Add | `Sub]) list
 
-let rec serial psi =
+let serial psi =
   let negate (e, p) = (e, match p with | `Add -> `Sub | `Sub -> `Add) in
   let negate_except_first e = match e with x::xs -> x::(List.map ~f:negate xs) | _ -> failwith "negate_except_first" in
   let rec go_addit p = match p with
@@ -61,12 +61,12 @@ let rec serial psi =
       List.map ~f:go_addit xs |> List.concat
     | Op (Sub, [x1; x2]) ->
       (go_addit x1) @ (go_addit x2 |> List.map ~f:negate)
-    | Op (_, xs) -> [go p, `Add]
+    | Op (_, _) -> [go p, `Add]
     | Var v -> [(Var' v, `Add)]
     | Int i            -> [(Int' i, `Add)]
   and go p = match p with
-    | Op (Add, xs) -> Op' (`Addit, go_addit p)
-    | Op (Sub, xs) -> Op' (`Addit, go_addit p |> negate_except_first)
+    | Op (Add, _) -> Op' (`Addit, go_addit p)
+    | Op (Sub, _) -> Op' (`Addit, go_addit p |> negate_except_first)
     | Op (Mult, xs) -> Op' (`Mult, List.map ~f:go xs |> List.map ~f:(fun e -> (e, `Add)))
     | Op (Div, xs) -> Op' (`Div, List.map ~f:go xs |> List.map ~f:(fun e -> (e, `Add)))
     | Op (Mod, xs) -> Op' (`Mod, List.map ~f:go xs |> List.map ~f:(fun e -> (e, `Add)))

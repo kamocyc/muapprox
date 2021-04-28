@@ -18,7 +18,7 @@ module Env = struct
   type t = ([`Pvar of Ast.Ident.pvar | `Tvar of Ast.Ident.tvar] * unit ty arg Id.t) list
     
   let direct_find (env: t) k =
-    List.find env ~f:(fun (k', v) -> k' = k) |> (fun a -> match a with None -> None | Some (a, b) -> Some b)
+    List.find env ~f:(fun (k', _v) -> k' = k) |> (fun a -> match a with None -> None | Some (_, b) -> Some b)
   
   let conv_ty_sub ty =
     match ty with
@@ -81,7 +81,7 @@ let show_sort sort =
   
 let rec go_arith env (arith : Ast.Logic.Term.t) : Arith.t =
   match arith with
-  | Var (Tvar tvar, sort, _) -> begin
+  | Var (Tvar tvar, _sort, _) -> begin
     let tvar = Ast.Ident.Tvar (to_lident tvar) in
     match Env.direct_find env (`Tvar tvar) with
     | None -> (let Tvar t = tvar in failwith @@ "arith var " ^ t)
@@ -120,7 +120,7 @@ let rec go env (f : Ast.Logic.Formula.t) : Type.simple_ty Hflz.Sugar.t =
     | Ast.Logic.T_int.Gt -> Pred(Gt, args)
     | _ -> failwith "psym"
   end
-  | Atom (App (Var (p, sorts), args, _), _) -> begin
+  | Atom (App (Var (p, _sorts), args, _), _) -> begin
     let args = List.map ~f:(go_arith env) args |> List.map ~f:(fun f -> Arith f) in
     let rec go' acc = function
       | [x] -> App (acc, x)
@@ -175,9 +175,9 @@ let of_func env (fix, pvar, ass, f) =
     end in
   { Hflz.Sugar.fix=of_fix fix; var=var; body=go' env ass }
 
-let do_env env (fix, pvar, ass, f) = 
-  let sorts = List.map ~f:(fun (a, s) -> s) ass in
-  let args = List.map ~f:(fun (Ast.Ident.Tvar a, s) -> a) ass in
+let do_env env (_fix, pvar, ass, _f) = 
+  let sorts = List.map ~f:(fun (_, s) -> s) ass in
+  let args = List.map ~f:(fun (Ast.Ident.Tvar a, _) -> a) ass in
   let (_, env) = Env.add_env_pvar env (pvar, sorts) args in
   env
   

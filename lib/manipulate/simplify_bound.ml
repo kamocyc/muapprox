@@ -52,7 +52,7 @@ let convert_to_smt2 (exprs : 'a t list) =
         end
         | _ -> failwith "convert_to_smt2")
       exprs
-    |> List.partition (fun (b, e, s) -> b)
+    |> List.partition (fun (b, _, _) -> b)
   in
   let not_useds = List.map (fun (_, e, _) -> e) not_useds in
   match preds with
@@ -196,7 +196,7 @@ let to_hflz const_bounds variables parsed =
     if c = 0 then x1
     else (
       match x1 with
-      | Sexp.Atom v -> Sexp.List ((Atom "+")::x1::[Atom (string_of_int c)])
+      | Sexp.Atom _ -> Sexp.List ((Atom "+")::x1::[Atom (string_of_int c)])
       | Sexp.List ((Atom op)::args) -> begin
         match op with
         | "*" | "-" -> Sexp.List ((Atom "+")::x1::[Atom (string_of_int c)])
