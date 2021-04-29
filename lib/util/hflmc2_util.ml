@@ -171,23 +171,40 @@ module Array = Array
 
 module String   = String
 
-module Map = struct
+module Map = struct  
   include Map
   module Make'(Key : Key) = struct
+    
     include Make(Key)
     let replace : 'a t -> key:Key.t -> data:'a -> 'a t =
       fun map ~key ~data ->
         let map = remove map key in
         add_exn map ~key ~data
+        
+    let merge'_either : 'a t -> 'a t -> ('a t, (Key.t * 'a * 'a)) Either.t =
+      fun m1 m2 ->
+        let dup = ref None in
+        try
+          First
+            (merge m1 m2
+              ~f:begin fun ~key -> function
+              | `Left x -> Some x
+              | `Right x -> Some x
+              | `Both (l, r) ->
+                  dup := Some (key, l, r);
+                  invalid_arg ""
+              end)
+        with Invalid_argument _ -> begin
+          match !dup with
+          | Some (key, l, r) -> Second (key, l, r)
+          | None -> assert false
+        end
+            
     let merge' : 'a t -> 'a t -> 'a t =
       fun m1 m2 ->
-        merge m1 m2
-          ~f:begin fun ~key -> function
-          | `Left x -> Some x
-          | `Right x -> Some x
-          | `Both _ ->
-              invalid_arg @@ "merge: " ^ string_of_sexp (Key.sexp_of_t key)
-          end
+        match merge'_either m1 m2 with
+        | First r -> r
+        | Second (key, _, _) -> invalid_arg @@ "merge: " ^ string_of_sexp (Key.sexp_of_t key)
   end
 end
 module IntMap   = Map.Make'(Int)

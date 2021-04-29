@@ -27,6 +27,7 @@ type options =
     add_arguments: bool;
     coe_arguments: int * int;
     no_elim: bool;
+    eliminate_unused_arguments: bool;
   }
 
 let get_solver solver_name = 

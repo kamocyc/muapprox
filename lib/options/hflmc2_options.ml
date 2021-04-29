@@ -29,6 +29,7 @@ let disable_lexicographic = ref (Obj.magic())
 let add_arguments = ref (Obj.magic())
 let coe_arguments = ref (Obj.magic())
 let no_elim = ref (Obj.magic())
+let eliminate_unused_arguments = ref (Obj.magic()) 
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -100,6 +101,8 @@ type params =
   ; add_arguments : bool [@default false]
   ; coe_arguments : string [@default "1,0"]
   ; no_elim : bool [@default false]
+  
+  ; eliminate_unused_arguments : bool [@default false]
   }
 [@@deriving cmdliner,show]
 
@@ -127,6 +130,7 @@ let set_up_params params =
   set_ref add_arguments params.add_arguments;
   set_ref coe_arguments params.coe_arguments;
   set_ref no_elim params.no_elim;
+  set_ref eliminate_unused_arguments params.eliminate_unused_arguments;
   params.input
 
 (******************************************************************************)

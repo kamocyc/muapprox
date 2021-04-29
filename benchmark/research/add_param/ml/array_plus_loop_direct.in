@@ -1,5 +1,6 @@
 /* array_plus_loop_direct.mlを 自動変換したもの */
 /* 解くためには 1. boundに 1 + (x + y) を明示的に使う, 2. LOOPにx, yを渡す（後者はkatsura-solverのため） が必要 */
+/* 既にinlininingされているため、boundさえうまく設定すれば解ける */
 
 %HES
 Sentry  =v

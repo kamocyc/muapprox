@@ -2,6 +2,7 @@ module Print = Print_syntax
 module Fixpoint = Hflmc2_syntax.Fixpoint
 module Formula = Hflmc2_syntax.Formula
 module IdSet = Hflmc2_syntax.IdSet
+module Eliminate_unused_argument = Eliminate_unused_argument
 
 open Hflz_typecheck
 open Hflz
@@ -851,11 +852,11 @@ let remove_redundant_bounds id_type_map (phi : Type.simple_ty Hflz.t) =
                     end
                     | Hflz_util.VTHigherInfo -> [bound]
                   end
-                  | None -> (print_endline @@ "none1: " ^ Id.to_string v; [bound])
+                  | None -> [bound]
                 end
-                | _ -> (print_endline "none2"; [bound])
+                | _ -> [bound]
               end
-              | _ -> (print_endline "none3"; [bound])
+              | _ -> [bound]
             )
             bounds
           |> List.flatten in
@@ -906,7 +907,7 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map =
       let scoped_rec_tvars =
         Env.create (List.map (fun pvar -> (pvar, (Env.lookup pvar rec_tvars))) outer_pvars) in
       let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars rec_lex_tvars id_type_map body in
-      Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end;
+      (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
       let formula_type_vars = Hflz_util.get_hflz_type body |> to_args |> List.rev in
       (* 残りに受け取る引数をいったんlambdaで「受ける」 *)
       let rec_tvar_bounds' =
@@ -957,9 +958,9 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map =
             |> List.flatten
           ) mypvar.ty in
         {mypvar with ty=ty} in
-      Log.app begin fun m -> m ~header:"body (before beta)" "%a" Print.(hflz simple_ty_) body end;
+      (* Log.app begin fun m -> m ~header:"body (before beta)" "%a" Print.(hflz simple_ty_) body end;
       Log.app begin fun m -> m ~header:"body (after beta)" "%a" Print.(hflz simple_ty_) (Hflz_util.beta body) end;
-      Log.app begin fun m -> m ~header:"body (after beta 2)" "%a" Print.(hflz simple_ty_) (body |> Hflz_util.beta |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds) end;
+      Log.app begin fun m -> m ~header:"body (after beta 2)" "%a" Print.(hflz simple_ty_) (body |> Hflz_util.beta |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds) end; *)
       {fix=Greatest; var=mypvar; body=body |> Hflz_util.beta |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds}
     )
     rules

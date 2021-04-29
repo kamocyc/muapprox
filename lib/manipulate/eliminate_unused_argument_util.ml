@@ -3,6 +3,7 @@ open Hflmc2_syntax
 module M = struct
   let init = IdMap.singleton
   let merge = IdMap.merge'
+  let merge_either = IdMap.merge'_either
   let rec merges = function
     | [] -> failwith "merges"
     | [x] -> x
@@ -177,7 +178,7 @@ let abbrev_variable_names (hes : Type.simple_ty Hflz.hes): Type.simple_ty Hflz.h
   (* let initial_id = Id.gen_id () in *)
   let initial_id = 0 in
   let hes = Hflz.merge_entry_rule hes in
-  (* let hes = assign_unique_variable_id hes in *)
+  (* let hes, _ = assign_unique_variable_id hes in *)
   let abbrev_name name =
     match String.index_opt name '_' with
     | None -> name

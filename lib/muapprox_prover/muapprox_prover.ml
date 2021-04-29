@@ -105,7 +105,7 @@ module FptProverRecLimitSolver : BackendSolver = struct
 end
 
 module SolverCommon = struct
-  let output_pre_debug_info hes debug_context =
+  let output_pre_debug_info hes debug_context dry_run =
     let path' = 
       match debug_context with 
       | Some debug_context ->
@@ -116,7 +116,9 @@ module SolverCommon = struct
         Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
     print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
     print_endline path';
-    output_debug debug_context path'
+    output_debug debug_context path';
+    (if dry_run then failwith "DRY RUN");
+    ()
   
   type temp_result_type =
     | TValid
@@ -195,8 +197,8 @@ module KatsuraSolver : BackendSolver = struct
     | None -> failwith "Please set environment variable `katsura_solver_path`"
     | Some s -> s
   
-  let save_hes_to_file hes debug_context =
-    output_pre_debug_info hes debug_context;
+  let save_hes_to_file hes debug_context dry_run =
+    output_pre_debug_info hes debug_context dry_run;
     let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
     (* print_endline @@ "FILE: " ^ path; *)
     path
@@ -222,7 +224,7 @@ module KatsuraSolver : BackendSolver = struct
     )
     
   let run solve_options debug_context hes _ = 
-    let path = save_hes_to_file hes debug_context in
+    let path = save_hes_to_file hes debug_context solve_options.dry_run in
     let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
     unix_system command (Option.map (fun c -> c.mode) debug_context) >>|
@@ -240,9 +242,9 @@ module IwayamaSolver : BackendSolver = struct
     | None -> failwith "Please set environment variable `iwayama_solver_path`"
     | Some s -> s
   
-  let save_hes_to_file hes debug_context =
+  let save_hes_to_file hes debug_context dry_run =
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
-    output_pre_debug_info hes debug_context;
+    output_pre_debug_info hes debug_context dry_run;
     Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes
     
   let solver_command hes_path solver_options =
@@ -266,7 +268,7 @@ module IwayamaSolver : BackendSolver = struct
     )
   
   let run solve_options debug_context hes _ = 
-    let path = save_hes_to_file hes debug_context in
+    let path = save_hes_to_file hes debug_context solve_options.dry_run in
     let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
     unix_system command (Option.map (fun c -> c.mode) debug_context)
@@ -284,10 +286,10 @@ module SuzukiSolver : BackendSolver = struct
     | None -> failwith "Please set environment variable `suzuki_solver_path`"
     | Some s -> s
   
-  let save_hes_to_file hes debug_context =
+  let save_hes_to_file hes debug_context dry_run =
     Hflmc2_syntax.Print.global_not_output_zero_minus_as_negative_value := true;
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
-    output_pre_debug_info hes debug_context;
+    output_pre_debug_info hes debug_context dry_run;
     Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes
     
   let solver_command hes_path solver_options =
@@ -318,7 +320,7 @@ module SuzukiSolver : BackendSolver = struct
     )
   
   let run solve_options debug_context hes _ = 
-    let path = save_hes_to_file hes debug_context in
+    let path = save_hes_to_file hes debug_context solve_options.dry_run in
     let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
     unix_system ~no_quote:true command (Option.map (fun c -> c.mode) debug_context)
@@ -394,7 +396,7 @@ let is_onlymu_onlyexists (entry, rules) =
   is_onlyexists_body entry
   && (List.for_all is_onlymu_onlyexists_rule rules)
 
-let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim lexico_pair_number _debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
+let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim lexico_pair_number eliminate_unused_arguments _debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
   (* TODO: use 2nd return value of add_arguments *)
   let (arg_coe1, arg_coe2) = coe_arguments in
   if no_elim then begin
@@ -420,6 +422,13 @@ let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim lexico_pair_num
       Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
       if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
       ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes;
+      
+      let hes =
+        if eliminate_unused_arguments then
+          Manipulate.Eliminate_unused_argument.eliminate_unused_argument ~id_type_map hes
+        else
+          hes
+      in
       (* forall, nu *)
       hes, acc
     ) heses
@@ -445,7 +454,7 @@ let summary_results (results : (Status.t * 'a) list) =
 (* これ以降、本プログラム側での近似が入る *)
 let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : Solve_options.options) debug_output hes mode_name =
   Hflz_mani.simplify_bound := solve_options.simplify_bound;
-  let nu_only_heses = elim_mu_exists coe1 coe2 solve_options.add_arguments solve_options.coe_arguments solve_options.no_elim lexico_pair_number debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
+  let nu_only_heses = elim_mu_exists coe1 coe2 solve_options.add_arguments solve_options.coe_arguments solve_options.no_elim lexico_pair_number solve_options.eliminate_unused_arguments debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
   let debug_context_ = Some {
     mode = mode_name;
     iter_count = iter_count;
@@ -458,96 +467,94 @@ let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : 
     exists_assignment = None;
     temp_file = "";
   } in
-  if not solve_options.dry_run then (
-    (* e.g. solvers = [(* an instantiation of variables quantified by exists, e.g. x1 = 0 *)[solve with hoice, solve with z3]; (* x1 = 1*)[solve with hoice, solve with z3]]
-      For each instantiation, if both hoice and z3 returned "fail," then the overall result is "fail."
-      If either of hoice and z3 returned some result other than "fail," then the result of the current iteration is the result returned by the solvers.
-      If one of instantiation of existential variables has returned "valid," then result of current iteration is "valid."
-    *)
-    let (solvers: (Status.t * debug_context option) Deferred.t list list) = 
-      match solve_options.solver_backend with
-      | None ->
-        List.map (fun (nu_only_hes, exists_assignment) ->
-          [
-            solve_onlynu_onlyforall
-              { solve_options with solver_backend = Some "hoice" }
-              (Option.map (fun o -> { o with solver_backend = Some "hoice"; exists_assignment = Some exists_assignment }) debug_context_)
-              nu_only_hes
-              false;
-            solve_onlynu_onlyforall
-              { solve_options with solver_backend = Some "z3" }
-              (Option.map (fun o -> { o with solver_backend = Some "z3"; exists_assignment = Some exists_assignment }) debug_context_)
-              nu_only_hes
-              false
-          ]
-        ) nu_only_heses
-      | Some _ ->
-        List.map (fun (nu_only_hes, _) -> [solve_onlynu_onlyforall solve_options debug_context_ nu_only_hes false]) nu_only_heses in
-    let (is_valid : (Status.t * debug_context option list) list Ivar.t) = Ivar.create () in
-    let deferred_is_valid = Ivar.read is_valid in
-    let (deferred_all : (Status.t * debug_context option list) list Deferred.t) =
-      Deferred.all (
-        List.map (fun s ->
-          let mixed_solvers_result = Ivar.create () in
-          let deferred_mixed_solvers_result = Ivar.read mixed_solvers_result in
-          let s = List.map (fun s_ ->
-            s_ >>| (fun (result, d) ->
-              (match result with
-              | Status.Valid | Status.Invalid | Status.Unknown -> begin
-                (* result of current iteration has determined *)
-                if Ivar.is_empty mixed_solvers_result
-                  then Ivar.fill mixed_solvers_result [(result, d)]
-                  else ()
-              end
-              | Status.Fail -> ());
-              (result, d)
-            )
-          ) s in
-          (Deferred.any [Deferred.all s; deferred_mixed_solvers_result]) >>|
-          (fun results ->
-            let result, d = summary_results results in
+  (* e.g. solvers = [(* an instantiation of variables quantified by exists, e.g. x1 = 0 *)[solve with hoice, solve with z3]; (* x1 = 1*)[solve with hoice, solve with z3]]
+    For each instantiation, if both hoice and z3 returned "fail," then the overall result is "fail."
+    If either of hoice and z3 returned some result other than "fail," then the result of the current iteration is the result returned by the solvers.
+    If one of instantiation of existential variables has returned "valid," then result of current iteration is "valid."
+  *)
+  let (solvers: (Status.t * debug_context option) Deferred.t list list) = 
+    match solve_options.solver_backend with
+    | None ->
+      List.map (fun (nu_only_hes, exists_assignment) ->
+        [
+          solve_onlynu_onlyforall
+            { solve_options with solver_backend = Some "hoice" }
+            (Option.map (fun o -> { o with solver_backend = Some "hoice"; exists_assignment = Some exists_assignment }) debug_context_)
+            nu_only_hes
+            false;
+          solve_onlynu_onlyforall
+            { solve_options with solver_backend = Some "z3" }
+            (Option.map (fun o -> { o with solver_backend = Some "z3"; exists_assignment = Some exists_assignment }) debug_context_)
+            nu_only_hes
+            false
+        ]
+      ) nu_only_heses
+    | Some _ ->
+      List.map (fun (nu_only_hes, _) -> [solve_onlynu_onlyforall solve_options debug_context_ nu_only_hes false]) nu_only_heses in
+  let (is_valid : (Status.t * debug_context option list) list Ivar.t) = Ivar.create () in
+  let deferred_is_valid = Ivar.read is_valid in
+  let (deferred_all : (Status.t * debug_context option list) list Deferred.t) =
+    Deferred.all (
+      List.map (fun s ->
+        let mixed_solvers_result = Ivar.create () in
+        let deferred_mixed_solvers_result = Ivar.read mixed_solvers_result in
+        let s = List.map (fun s_ ->
+          s_ >>| (fun (result, d) ->
             (match result with
-            | Status.Valid ->
-              (* if one of instantiation of existential variables has returned "valid," then result of current iteration is "valid" *)
-              if Ivar.is_empty is_valid
-                then Ivar.fill is_valid [(result, d)]
+            | Status.Valid | Status.Invalid | Status.Unknown -> begin
+              (* result of current iteration has determined *)
+              if Ivar.is_empty mixed_solvers_result
+                then Ivar.fill mixed_solvers_result [(result, d)]
                 else ()
-            | _ -> ());
+            end
+            | Status.Fail -> ());
             (result, d)
           )
+        ) s in
+        (Deferred.any [Deferred.all s; deferred_mixed_solvers_result]) >>|
+        (fun results ->
+          let result, d = summary_results results in
+          (match result with
+          | Status.Valid ->
+            (* if one of instantiation of existential variables has returned "valid," then result of current iteration is "valid" *)
+            if Ivar.is_empty is_valid
+              then Ivar.fill is_valid [(result, d)]
+              else ()
+          | _ -> ());
+          (result, d)
         )
-        solvers
-      ) in
-    Deferred.any [deferred_is_valid; deferred_all]
-    >>= (fun results -> kill_processes (Option.map (fun a -> a.mode) debug_context_)
-    >>= (fun _ ->
-        let result, debug_contexts = summary_results results in
-        let debug_contexts = List.flatten debug_contexts in
-        let retry coe1 coe2 =
-          (* let (coe1',coe2',lexico_pair_number) =
-            if (coe1,coe2,lexico_pair_number)=(1,1,1) then (1,1,2)
-            else if (coe1,coe2,lexico_pair_number)=(1,1,2) then (1,8,1)
-            else if lexico_pair_number=1 then (coe1,coe2,lexico_pair_number+1)
-            else (2*coe1,2*coe2,1)
-          in *)
-          let (coe1',coe2',lexico_pair_number) =
-            if (coe1,coe2,lexico_pair_number)=(1,1,1) && not solve_options.disable_lexicographic
-            then (1,1,2)
-            else if (coe1,coe2)=(1,1) 
-              then (1,8,solve_options.default_lexicographic_order)
-              else (2*coe1, 2*coe2,solve_options.default_lexicographic_order) in
-          mu_elim_solver coe1' coe2' lexico_pair_number (iter_count + 1) solve_options false hes mode_name
-        in
-        match result with
-        | Status.Valid -> return (Status.Valid, debug_contexts)
-        | Status.Invalid -> retry coe1 coe2
-        | Status.Unknown -> 
-          if not solve_options.stop_on_unknown then (
-            print_endline @@ "return Unknown (" ^ show_debug_contexts debug_contexts ^ ")";
-            retry coe1 coe2
-          ) else return (Status.Unknown, debug_contexts)
-        | Status.Fail -> return (Status.Fail, debug_contexts)))
-  ) else (print_endline "DRY RUN"; Deferred.return (Status.Unknown, [None]))
+      )
+      solvers
+    ) in
+  Deferred.any [deferred_is_valid; deferred_all]
+  >>= (fun results -> kill_processes (Option.map (fun a -> a.mode) debug_context_)
+  >>= (fun _ ->
+      let result, debug_contexts = summary_results results in
+      let debug_contexts = List.flatten debug_contexts in
+      let retry coe1 coe2 =
+        (* let (coe1',coe2',lexico_pair_number) =
+          if (coe1,coe2,lexico_pair_number)=(1,1,1) then (1,1,2)
+          else if (coe1,coe2,lexico_pair_number)=(1,1,2) then (1,8,1)
+          else if lexico_pair_number=1 then (coe1,coe2,lexico_pair_number+1)
+          else (2*coe1,2*coe2,1)
+        in *)
+        let (coe1',coe2',lexico_pair_number) =
+          if (coe1,coe2,lexico_pair_number)=(1,1,1) && not solve_options.disable_lexicographic
+          then (1,1,2)
+          else if (coe1,coe2)=(1,1) 
+            then (1,8,solve_options.default_lexicographic_order)
+            else (2*coe1, 2*coe2,solve_options.default_lexicographic_order) in
+        mu_elim_solver coe1' coe2' lexico_pair_number (iter_count + 1) solve_options false hes mode_name
+      in
+      match result with
+      | Status.Valid -> return (Status.Valid, debug_contexts)
+      | Status.Invalid -> retry coe1 coe2
+      | Status.Unknown -> 
+        if not solve_options.stop_on_unknown then (
+          print_endline @@ "return Unknown (" ^ show_debug_contexts debug_contexts ^ ")";
+          retry coe1 coe2
+        ) else return (Status.Unknown, debug_contexts)
+      | Status.Fail -> return (Status.Fail, debug_contexts)))
 
 let check_validity_full coe1 coe2 (solve_options : Solve_options.options) hes cont =
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in

@@ -133,6 +133,6 @@ let to_hflz prog priority =
       }
     ) funcs in
   let rules = Hflz.merge_entry_rule (entry, rules) in
-  let rules = Manipulate.Hflz_util.assign_unique_variable_id rules in
+  let rules, _ = Manipulate.Hflz_util.assign_unique_variable_id rules in
   Hflz.decompose_entry_rule rules
   

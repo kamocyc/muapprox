@@ -91,6 +91,7 @@ let get_solve_options file =
     add_arguments = !Options.add_arguments;
     coe_arguments = get_coe !Options.coe_arguments;
     no_elim = !Options.no_elim;
+    eliminate_unused_arguments = !Options.eliminate_unused_arguments;
   }
 
 let check_format file format_type =

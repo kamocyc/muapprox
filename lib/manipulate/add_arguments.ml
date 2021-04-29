@@ -128,6 +128,7 @@ let adjust_type_expr env phi =
   (* env contains only non-integer variables *)
   let rec go env phi = match phi with
     | Var x -> begin
+      if not @@ Env.has x env then failwith @@ "a variable not found in Env (maybe this variable cannot be determined to be an integer type): " ^ Id.to_string x;
       let x = Env.lookup x env in
       Var x
     end
@@ -188,7 +189,7 @@ let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) =
       )
       rules in
   let hes = entry, rules in
-  print_endline @@ Print_syntax.show_hes (merge_entry_rule hes);
+  (* print_endline @@ Print_syntax.show_hes (merge_entry_rule hes); *)
   let hes = adjust_type hes in
   Hflz_typecheck.type_check hes;
   let all_id_map =
@@ -203,8 +204,8 @@ let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) =
     )
     IdMap.empty
     !all_id_maps in
-  print_endline "id_map";
-  print_endline @@ show_id_map all_id_map Hflz_util.show_variable_type;
+  (* print_endline "id_map";
+  print_endline @@ show_id_map all_id_map Hflz_util.show_variable_type; *)
   hes, all_id_map
 
 let id_n n t = { Id.name = "x_" ^ string_of_int n; id = n; ty = t }

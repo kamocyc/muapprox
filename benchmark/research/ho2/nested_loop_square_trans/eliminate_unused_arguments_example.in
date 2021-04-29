@@ -1,0 +1,5 @@
+/* eliminate_unused_argumnets で 全ての s\d* 変数は削除される例 */
+%HES
+Sentry =v ∀x. x < 0 \/ A (\k. k x).
+A f =u A (Pred f) \/ f (\x. x >= 0).
+Pred f k =u f (\x. k (x - 1)).

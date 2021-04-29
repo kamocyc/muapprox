@@ -1,10 +1,11 @@
 /* 部分適用がある例 */
+/* 展開回数がx回なので、このままでも（katsura-solver用に引数を追加すれば）解ける */
 %HES
 Sentry =v ∀x. A (M (\k. k x)).
 
-A f =v f 1.
+A f =v f 1 /* /\ A f */.
 
-M g flag =v Loop g flag.
+M g flag =v Loop g flag /* /\ M g flag */.
 
 Loop g flag =u
   Check g (\b.

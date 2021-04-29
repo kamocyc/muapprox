@@ -80,7 +80,7 @@ let get_hflz_type phi =
 
 open Hflmc2_syntax
 
-let assign_unique_variable_id (hes : Type.simple_ty Hflz.hes_rule list): Type.simple_ty Hflz.hes_rule list =
+let assign_unique_variable_id (hes : Type.simple_ty Hflz.hes_rule list): Type.simple_ty Hflz.hes_rule list * (unit Id.t * Type.simple_ty Type.arg Id.t) list =
   let to_ty ty = match ty with
     | Type.TyInt -> failwith "ty"
     | TySigma s -> s
@@ -89,6 +89,7 @@ let assign_unique_variable_id (hes : Type.simple_ty Hflz.hes_rule list): Type.si
     | Type.TyInt -> `Int
     | TySigma _ -> failwith "arithty"
   in
+  let id_change_map = ref [] in
   let global_env =
     List.map (fun {Hflz.var; _} ->
       (Id.remove_ty var, {Id.name = var.name; id = Id.gen_id (); ty = Type.TySigma (var.Id.ty)})
@@ -105,12 +106,15 @@ let assign_unique_variable_id (hes : Type.simple_ty Hflz.hes_rule list): Type.si
     | And (p1, p2) -> And (go env p1, go env p2)
     | Abs (x, p) ->
       let x' = { x with id = Id.gen_id () } in
+      id_change_map := (Id.remove_ty x, x') :: !id_change_map;
       Abs (x', go ((Id.remove_ty x, x') :: env) p)
-    | Forall (x, p) -> 
+    | Forall (x, p) ->
       let x' = { x with id = Id.gen_id () } in
+      id_change_map := (Id.remove_ty x, x') :: !id_change_map;
       Forall (x', go ((Id.remove_ty x, x') :: env) p)
-    | Exists (x, p) -> 
+    | Exists (x, p) ->
       let x' = { x with id = Id.gen_id () } in
+      id_change_map := (Id.remove_ty x, x') :: !id_change_map;
       Exists (x', go ((Id.remove_ty x, x') :: env) p)
     | App (p1, p2) -> App (go env p1, go env p2)
     | Arith a -> Arith (go_arith env a)
@@ -125,16 +129,19 @@ let assign_unique_variable_id (hes : Type.simple_ty Hflz.hes_rule list): Type.si
     end
     | Op (o, ps) -> Op (o, List.map (go_arith env) ps)
   in
-  List.map (fun {Hflz.var; body; fix} ->
-    let body = go global_env body in
-    let var =
-      match List.find_all (fun (e, _) -> Id.eq e var) global_env with
-      | [(_, v)] -> {v with ty = to_ty v.Id.ty}
-      | [] -> failwith @@ "unbound: " ^ Id.to_string var
-      | _ -> assert false
-    in
-    {Hflz.var; body; fix}
-  ) hes
+  let hes =
+    List.map (fun {Hflz.var; body; fix} ->
+      let body = go global_env body in
+      let var =
+        match List.find_all (fun (e, _) -> Id.eq e var) global_env with
+        | [(_, v)] -> {v with ty = to_ty v.Id.ty}
+        | [] -> failwith @@ "unbound: " ^ Id.to_string var
+        | _ -> assert false
+      in
+      {Hflz.var; body; fix}
+    ) hes in
+  let id_change_map = global_env @ List.rev !id_change_map in
+  hes, id_change_map
 
 
 let with_rules f hes = hes |> merge_entry_rule |> f |> decompose_entry_rule
@@ -170,3 +177,38 @@ let rec beta (phi : 'a Hflz.t) : 'a Hflz.t = match phi with
   | Forall (x, phi) -> Forall (x, beta phi)
   | Exists (x, phi) -> Exists (x, beta phi)
   | Bool _ | Var _ | Arith _ | Pred _ -> phi
+
+let update_id_type_map (id_type_map : (unit Id.t, 'a, IdMap.Key.comparator_witness) Base.Map.t) (id_change_map :  (unit Id.t * Type.simple_ty Type.arg Id.t) list) =
+  (* id -> [id] というmap *)
+  (* id_change_map のキーは重複がある可能性がある（元々IDが重複していた変数があった場合）。最も左のキー（関数環境, 外側の変数 -> 内側の変数の順になっている）を使う *)
+  let m =
+    IdMap.fold
+      id_type_map
+      ~init:IdMap.empty
+      ~f:(fun ~key ~data m ->
+        let key =
+          match List.assoc_opt key id_change_map with
+          | Some key -> key
+          | None -> assert false in
+        let data =
+          match data with
+          | VTVarMax ids -> begin
+            VTVarMax
+              (List.map
+                (fun id ->
+                  match List.assoc_opt (Id.remove_ty id) id_change_map with
+                  | Some key -> {key with ty=`Int}
+                  | None -> assert false
+                )
+                ids)
+          end
+          | VTHigherInfo -> VTHigherInfo
+        in
+        if IdMap.mem m (Id.remove_ty key) then (
+          print_endline @@ "already exists: " ^ Id.to_string key;
+          m
+        ) else
+          IdMap.add m key data
+      )
+  in
+  m
