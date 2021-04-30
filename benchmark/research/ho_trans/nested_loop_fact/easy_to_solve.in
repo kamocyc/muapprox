@@ -1,0 +1,34 @@
+/* simplify-boundするとhoiceで30sec程度で解ける */
+%HES
+Sentry =u
+  ∀n.
+    Fact
+      1
+      n
+      (\k. k 1)
+      (\k. k n)
+      (\g_i g. Main (\r. true) g_i g).
+
+Main k g_i g =u
+  Check g (\b.
+    (b =  0 => k 0) /\
+    (b != 0 => Main k (g_i - 1) (Pred g))
+  ).
+
+Fact acc_i f_i acc f k =u
+  Check f (\b.
+    (b = 0 => k acc_i acc) /\
+    (b = 1 => Mult 0 acc_i f_i (\k. k 0) acc f (\accc_i accc. Fact accc_i (f_i - 1) accc (Pred f) k))
+  ).
+
+Mult acc_i f_i g_i acc f g k =u
+  Check f (\b.
+    (b = 0 => k acc_i acc) /\
+    (b = 1 => Mult (acc_i + g_i) (f_i - 1) g_i (Add acc g) (Pred f) g k)
+  ).
+
+Add f g k =u f (\fx. g (\gx. k (fx + gx))).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).

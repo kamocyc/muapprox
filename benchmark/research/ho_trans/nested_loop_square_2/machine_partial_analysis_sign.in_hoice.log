@@ -1,0 +1,1453 @@
+INPUT FILE: benchmark/research/ho_trans/nested_loop_square_2/machine_partial_analysis_sign.in
+[Main:App:Input]
+  Sentry : bool =ν
+    ∀n6:int.
+     ∀s7:int.
+      s7 < 1 * n6 + 0
+      || s7 < -1 * n6 + 0
+         || (∀recMult8:int.
+              recMult8 < 1 + 1 * n6
+              || recMult8 < 1 + -1 * n6
+                 || recMult8 < 1
+                    || Mult recMult8 s7 (λk9:(int -> bool).k9 0) (λk10:(int -> bool).k10 n6)
+                        (λk11:(int -> bool).k11 n6)
+                        (λg_i12:int.
+                          λg13:((int -> bool) -> bool).
+                           ∀recMain14:int.
+                            recMain14 < 1 + 1 * g_i12
+                            || recMain14 < 1 + 1 * n6
+                               || recMain14 < 1 + -1 * g_i12
+                                  || recMain14 < 1 + -1 * n6
+                                     || recMain14 < 1 || Main recMain14 true g13))
+  Main : int -> bool -> ((int -> bool) -> bool) -> bool =ν
+    λrecMain15:int.
+     λk16:bool.
+      λg17:((int -> bool) -> bool).
+       recMain15 > 0
+       && Check g17
+           (λb18:int.(b18 /= 0 || k16) && (b18 = 0 || Main (recMain15 - 1) k16 (Pred g17)))
+  Mult : int ->
+          int ->
+           ((int -> bool) -> bool) ->
+            ((int -> bool) -> bool) ->
+             ((int -> bool) -> bool) -> (int -> ((int -> bool) -> bool) -> bool) -> bool =ν
+    λrecMult19:int.
+     λacc_i20:int.
+      λacc21:((int -> bool) -> bool).
+       λf22:((int -> bool) -> bool).
+        λg23:((int -> bool) -> bool).
+         λk24:(int -> ((int -> bool) -> bool) -> bool).
+          recMult19 > 0
+          && Check f22
+              (λb25:int.
+                (b25 /= 0
+                 || (∀s26:int.
+                      s26 < 1 * b25 + 0
+                      || s26 < -1 * b25 + 0 || s26 < 1 * acc_i20 + 0 || k24 s26 acc21))
+                && (b25 /= 1
+                    || (∀s27:int.
+                         s27 < 2 * b25 + 0
+                         || s27 < -2 * b25 + 0
+                            || s27 < 2 * acc_i20 + 0
+                               || Mult (recMult19 - 1) s27 (Add acc21 g23) (Pred f22) g23 k24)))
+  Add : ((int -> bool) -> bool) -> ((int -> bool) -> bool) -> (int -> bool) -> bool =ν
+    λf28:((int -> bool) -> bool).
+     λg29:((int -> bool) -> bool).
+      λk30:(int -> bool).f28 (λfx31:int.g29 (λgx32:int.k30 (fx31 + gx32)))
+  Pred : ((int -> bool) -> bool) -> (int -> bool) -> bool =ν
+    λf33:((int -> bool) -> bool).λk34:(int -> bool).f33 (λr35:int.k34 (r35 - 1))
+  Check : ((int -> bool) -> bool) -> (int -> bool) -> bool =ν
+    λf36:((int -> bool) -> bool).
+     λk37:(int -> bool).f36 (λn38:int.(n38 > 0 || k37 0) && (n38 <= 0 || k37 1))
+[Main:App:Simplified]
+  Sentry : bool =ν
+    ∀n6:int.
+     ∀s7:int.
+      s7 < 1 * n6 + 0
+      || s7 < -1 * n6 + 0
+         || (∀recMult8:int.
+              recMult8 < 1 + 1 * n6
+              || recMult8 < 1 + -1 * n6
+                 || recMult8 < 1
+                    || Mult recMult8 s7 (λk9:(int -> bool).k9 0) (λk10:(int -> bool).k10 n6)
+                        (λk11:(int -> bool).k11 n6)
+                        (λg_i12:int.
+                          λg13:((int -> bool) -> bool).
+                           ∀recMain14:int.
+                            recMain14 < 1 + 1 * g_i12
+                            || recMain14 < 1 + 1 * n6
+                               || recMain14 < 1 + -1 * g_i12
+                                  || recMain14 < 1 + -1 * n6
+                                     || recMain14 < 1 || Main recMain14 true g13))
+  Main : int -> bool -> ((int -> bool) -> bool) -> bool =ν
+    λrecMain15:int.
+     λk16:bool.
+      λg17:((int -> bool) -> bool).
+       recMain15 > 0
+       && g17
+           (λn38:int.
+             (n38 > 0
+              || (0 /= 0 || k16)
+                 && (0 = 0
+                     || Main (recMain15 - 1) k16
+                         (λk34:(int -> bool).g17 (λr35:int.k34 (r35 - 1)))))
+             && (n38 <= 0
+                 || (1 /= 0 || k16)
+                    && (1 = 0
+                        || Main (recMain15 - 1) k16
+                            (λk34:(int -> bool).g17 (λr35:int.k34 (r35 - 1))))))
+  Mult : int ->
+          int ->
+           ((int -> bool) -> bool) ->
+            ((int -> bool) -> bool) ->
+             ((int -> bool) -> bool) -> (int -> ((int -> bool) -> bool) -> bool) -> bool =ν
+    λrecMult19:int.
+     λacc_i20:int.
+      λacc21:((int -> bool) -> bool).
+       λf22:((int -> bool) -> bool).
+        λg23:((int -> bool) -> bool).
+         λk24:(int -> ((int -> bool) -> bool) -> bool).
+          recMult19 > 0
+          && f22
+              (λn38:int.
+                (n38 > 0
+                 || (0 /= 0
+                     || (∀s26:int.
+                          s26 < 1 * 0 + 0
+                          || s26 < -1 * 0 + 0 || s26 < 1 * acc_i20 + 0 || k24 s26 acc21))
+                    && (0 /= 1
+                        || (∀s27:int.
+                             s27 < 2 * 0 + 0
+                             || s27 < -2 * 0 + 0
+                                || s27 < 2 * acc_i20 + 0
+                                   || Mult (recMult19 - 1) s27
+                                       (λk30:(int -> bool).
+                                         acc21 (λfx31:int.g23 (λgx32:int.k30 (fx31 + gx32))))
+                                       (λk34:(int -> bool).f22 (λr35:int.k34 (r35 - 1))) g23 k24)))
+                && (n38 <= 0
+                    || (1 /= 0
+                        || (∀s26:int.
+                             s26 < 1 * 1 + 0
+                             || s26 < -1 * 1 + 0 || s26 < 1 * acc_i20 + 0 || k24 s26 acc21))
+                       && (1 /= 1
+                           || (∀s27:int.
+                                s27 < 2 * 1 + 0
+                                || s27 < -2 * 1 + 0
+                                   || s27 < 2 * acc_i20 + 0
+                                      || Mult (recMult19 - 1) s27
+                                          (λk30:(int -> bool).
+                                            acc21 (λfx31:int.g23 (λgx32:int.k30 (fx31 + gx32))))
+                                          (λk34:(int -> bool).f22 (λr35:int.k34 (r35 - 1))) g23
+                                          k24))))
+Sentry *[X217()]
+Main (int(recMain70) -> (*[X157(recMain70)] -> (((int(t72) -> *[X158(t72,recMain70)]) -> *[X159(recMain70)]) -> *[X160(recMain70)])))
+Mult (int(recMult96) -> (int(acc_i97) -> (((int(t98) -> *[X1(t98,acc_i97,recMult96)]) -> *[X2(acc_i97,recMult96)]) -> (((int(t101) -> *[X3(t101,acc_i97,recMult96)]) -> *[X4(acc_i97,recMult96)]) -> (((int(t104) -> *[X5(t104,acc_i97,recMult96)]) -> *[X6(acc_i97,recMult96)]) -> ((int(t107) -> (((int(t108) -> *[X7(t108,t107,acc_i97,recMult96)]) -> *[X8(t107,acc_i97,recMult96)]) -> *[X9(t107,acc_i97,recMult96)])) -> *[X10(acc_i97,recMult96)]))))))
+
+
+infering new formula: Sentry = (∀int(n6).(∀int(s7).(s7<1 * n6 + 0 || (s7<-1 * n6 + 0 || (∀int(recMult8).(recMult8<1 + 1 * n6 || (recMult8<1 + -1 * n6 || (recMult8<1 || ((((((Mult recMult8) s7) (\(int(t53) -> *[X263(t53,recMult8,s7,n6)]).(k9 0))) (\(int(t51) -> *[X259(t51,recMult8,s7,n6)]).(k10 n6))) (\(int(t49) -> *[X255(t49,recMult8,s7,n6)]).(k11 n6))) (\int(g_i12).(\((int(t46) -> *[X232(t46,g_i12,recMult8,s7,n6)]) -> *[X233(g_i12,recMult8,s7,n6)]).(∀int(recMain14).(recMain14<1 + 1 * g_i12 || (recMain14<1 + 1 * n6 || (recMain14<1 + -1 * g_i12 || (recMain14<1 + -1 * n6 || (recMain14<1 || (((Main recMain14) tt) g13))))))))))))))))))
+[Result]
+X217() => X218(n6)
+X218(n6) => X219(s7,n6)
+X219(s7,n6) => (s7<1 * n6 + 0 \/ (s7<-1 * n6 + 0 \/ X224(recMult8,s7,n6)))
+X224(recMult8,s7,n6) => (recMult8<1 + 1 * n6 \/ (recMult8<1 + -1 * n6 \/ (recMult8<1 \/ X300(recMult8,s7,n6))))
+X300(recMult8,s7,n6) => X292(recMult8,s7,n6)
+(X300(recMult8,s7,n6) /\ X293(x231,recMult8,s7,n6)) => X234(recMain14,x231,recMult8,s7,n6)
+((X300(recMult8,s7,n6) /\ X293(x231,recMult8,s7,n6)) /\ X233(x231,recMult8,s7,n6)) => X294(x231,recMult8,s7,n6)
+(((X300(recMult8,s7,n6) /\ X293(x231,recMult8,s7,n6)) /\ X233(x231,recMult8,s7,n6)) /\ X295(x232,x231,recMult8,s7,n6)) => X232(x232,x231,recMult8,s7,n6)
+X234(recMain14,g_i12,recMult8,s7,n6) => (recMain14<1 + 1 * g_i12 \/ (recMain14<1 + 1 * n6 \/ (recMain14<1 + -1 * g_i12 \/ (recMain14<1 + -1 * n6 \/ (recMain14<1 \/ X299(recMain14,g_i12,recMult8,s7,n6))))))
+X299(recMain14,g_i12,recMult8,s7,n6) => X296(recMain14,g_i12,recMult8,s7,n6)
+(X299(recMain14,g_i12,recMult8,s7,n6) /\ X297(recMain14,g_i12,recMult8,s7,n6)) => X233(g_i12,recMult8,s7,n6)
+((X299(recMain14,g_i12,recMult8,s7,n6) /\ X297(recMain14,g_i12,recMult8,s7,n6)) /\ X232(x230,g_i12,recMult8,s7,n6)) => X298(x230,recMain14,g_i12,recMult8,s7,n6)
+X296(recMain14,g_i12,recMult8,s7,n6) => X160(recMain14)
+(X296(recMain14,g_i12,recMult8,s7,n6) /\ X159(recMain14)) => X297(recMain14,g_i12,recMult8,s7,n6)
+((X296(recMain14,g_i12,recMult8,s7,n6) /\ X159(recMain14)) /\ X298(x229,recMain14,g_i12,recMult8,s7,n6)) => X158(x229,recMain14)
+(X296(recMain14,g_i12,recMult8,s7,n6) /\ X157(recMain14)) => tt
+X292(recMult8,s7,n6) => X286(recMult8,s7,n6)
+(X292(recMult8,s7,n6) /\ X287(x227,recMult8,s7,n6)) => X293(x227,recMult8,s7,n6)
+((X292(recMult8,s7,n6) /\ X287(x227,recMult8,s7,n6)) /\ X294(x227,recMult8,s7,n6)) => X288(x227,recMult8,s7,n6)
+(((X292(recMult8,s7,n6) /\ X287(x227,recMult8,s7,n6)) /\ X294(x227,recMult8,s7,n6)) /\ X289(x228,x227,recMult8,s7,n6)) => X295(x228,x227,recMult8,s7,n6)
+(X292(recMult8,s7,n6) /\ X290(recMult8,s7,n6)) => X255(n6,recMult8,s7,n6)
+((X292(recMult8,s7,n6) /\ X290(recMult8,s7,n6)) /\ X255(x226,recMult8,s7,n6)) => X291(x226,recMult8,s7,n6)
+X286(recMult8,s7,n6) => X278(recMult8,s7,n6)
+(X286(recMult8,s7,n6) /\ X279(x224,recMult8,s7,n6)) => X287(x224,recMult8,s7,n6)
+((X286(recMult8,s7,n6) /\ X279(x224,recMult8,s7,n6)) /\ X288(x224,recMult8,s7,n6)) => X280(x224,recMult8,s7,n6)
+(((X286(recMult8,s7,n6) /\ X279(x224,recMult8,s7,n6)) /\ X288(x224,recMult8,s7,n6)) /\ X281(x225,x224,recMult8,s7,n6)) => X289(x225,x224,recMult8,s7,n6)
+(X286(recMult8,s7,n6) /\ X282(recMult8,s7,n6)) => X290(recMult8,s7,n6)
+((X286(recMult8,s7,n6) /\ X282(recMult8,s7,n6)) /\ X291(x223,recMult8,s7,n6)) => X283(x223,recMult8,s7,n6)
+(X286(recMult8,s7,n6) /\ X284(recMult8,s7,n6)) => X259(n6,recMult8,s7,n6)
+((X286(recMult8,s7,n6) /\ X284(recMult8,s7,n6)) /\ X259(x222,recMult8,s7,n6)) => X285(x222,recMult8,s7,n6)
+X278(recMult8,s7,n6) => X10(s7,recMult8)
+(X278(recMult8,s7,n6) /\ X9(x220,s7,recMult8)) => X279(x220,recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X9(x220,s7,recMult8)) /\ X280(x220,recMult8,s7,n6)) => X8(x220,s7,recMult8)
+(((X278(recMult8,s7,n6) /\ X9(x220,s7,recMult8)) /\ X280(x220,recMult8,s7,n6)) /\ X7(x221,x220,s7,recMult8)) => X281(x221,x220,recMult8,s7,n6)
+(X278(recMult8,s7,n6) /\ X6(s7,recMult8)) => X282(recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X6(s7,recMult8)) /\ X283(x219,recMult8,s7,n6)) => X5(x219,s7,recMult8)
+(X278(recMult8,s7,n6) /\ X4(s7,recMult8)) => X284(recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X4(s7,recMult8)) /\ X285(x218,recMult8,s7,n6)) => X3(x218,s7,recMult8)
+(X278(recMult8,s7,n6) /\ X2(s7,recMult8)) => X263(0,recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X2(s7,recMult8)) /\ X263(x217,recMult8,s7,n6)) => X1(x217,s7,recMult8)
+tt => X217()
+
+
+infering new formula: Main = (\int(recMain15).(\*[X161(recMain15)].(\((int(t94) -> *[X162(t94,recMain15)]) -> *[X163(recMain15)]).(recMain15>0:X164(recMain15) && (g17 (\int(n38).((n38>0 || ((0/=0 || k16):X194(n38,recMain15) && (0=0 || (((Main recMain15 - 1) k16) (\(int(t202) -> *[X199(t202,n38,recMain15)]).(g17 (\int(r35).(k34 r35 - 1)))))):X195(n38,recMain15))):X167(n38,recMain15) && (n38<=0 || ((1/=0 || k16):X171(n38,recMain15) && (1=0 || (((Main recMain15 - 1) k16) (\(int(t202) -> *[X176(t202,n38,recMain15)]).(g17 (\int(r35).(k34 r35 - 1)))))):X172(n38,recMain15))):X168(n38,recMain15)))):X165(recMain15)))))
+[Result]
+X160(x240) => (x240>0 /\ X311(x240))
+(X160(x240) /\ X163(x240)) => X159(x240)
+((X160(x240) /\ X163(x240)) /\ X158(x241,x240)) => X162(x241,x240)
+(X160(x240) /\ X161(x240)) => X157(x240)
+X311(recMain15) => X163(recMain15)
+(X311(recMain15) /\ X162(x239,recMain15)) => ((x239>0 \/ ((0/=0 \/ X161(recMain15)) /\ (0=0 \/ X305(x239,recMain15)))) /\ (x239<=0 \/ ((1/=0 \/ X161(recMain15)) /\ (1=0 \/ X310(x239,recMain15)))))
+X310(n38,recMain15) => X306(n38,recMain15)
+(X310(n38,recMain15) /\ X307(n38,recMain15)) => X309(n38,recMain15)
+((X310(n38,recMain15) /\ X307(n38,recMain15)) /\ X176(x238,n38,recMain15)) => X308(x238,n38,recMain15)
+X309(n38,recMain15) => X163(recMain15)
+(X309(n38,recMain15) /\ X162(x237,recMain15)) => X176(x237 - 1,n38,recMain15)
+X306(n38,recMain15) => X160(recMain15 - 1)
+(X306(n38,recMain15) /\ X159(recMain15 - 1)) => X307(n38,recMain15)
+((X306(n38,recMain15) /\ X159(recMain15 - 1)) /\ X308(x236,n38,recMain15)) => X158(x236,recMain15 - 1)
+(X306(n38,recMain15) /\ X157(recMain15 - 1)) => X161(recMain15)
+X305(n38,recMain15) => X301(n38,recMain15)
+(X305(n38,recMain15) /\ X302(n38,recMain15)) => X304(n38,recMain15)
+((X305(n38,recMain15) /\ X302(n38,recMain15)) /\ X199(x235,n38,recMain15)) => X303(x235,n38,recMain15)
+X304(n38,recMain15) => X163(recMain15)
+(X304(n38,recMain15) /\ X162(x234,recMain15)) => X199(x234 - 1,n38,recMain15)
+X301(n38,recMain15) => X160(recMain15 - 1)
+(X301(n38,recMain15) /\ X159(recMain15 - 1)) => X302(n38,recMain15)
+((X301(n38,recMain15) /\ X159(recMain15 - 1)) /\ X303(x233,n38,recMain15)) => X158(x233,recMain15 - 1)
+(X301(n38,recMain15) /\ X157(recMain15 - 1)) => X161(recMain15)
+X217() => X218(n6)
+X218(n6) => X219(s7,n6)
+X219(s7,n6) => (s7<1 * n6 + 0 \/ (s7<-1 * n6 + 0 \/ X224(recMult8,s7,n6)))
+X224(recMult8,s7,n6) => (recMult8<1 + 1 * n6 \/ (recMult8<1 + -1 * n6 \/ (recMult8<1 \/ X300(recMult8,s7,n6))))
+X300(recMult8,s7,n6) => X292(recMult8,s7,n6)
+(X300(recMult8,s7,n6) /\ X293(x231,recMult8,s7,n6)) => X234(recMain14,x231,recMult8,s7,n6)
+((X300(recMult8,s7,n6) /\ X293(x231,recMult8,s7,n6)) /\ X233(x231,recMult8,s7,n6)) => X294(x231,recMult8,s7,n6)
+(((X300(recMult8,s7,n6) /\ X293(x231,recMult8,s7,n6)) /\ X233(x231,recMult8,s7,n6)) /\ X295(x232,x231,recMult8,s7,n6)) => X232(x232,x231,recMult8,s7,n6)
+X234(recMain14,g_i12,recMult8,s7,n6) => (recMain14<1 + 1 * g_i12 \/ (recMain14<1 + 1 * n6 \/ (recMain14<1 + -1 * g_i12 \/ (recMain14<1 + -1 * n6 \/ (recMain14<1 \/ X299(recMain14,g_i12,recMult8,s7,n6))))))
+X299(recMain14,g_i12,recMult8,s7,n6) => X296(recMain14,g_i12,recMult8,s7,n6)
+(X299(recMain14,g_i12,recMult8,s7,n6) /\ X297(recMain14,g_i12,recMult8,s7,n6)) => X233(g_i12,recMult8,s7,n6)
+((X299(recMain14,g_i12,recMult8,s7,n6) /\ X297(recMain14,g_i12,recMult8,s7,n6)) /\ X232(x230,g_i12,recMult8,s7,n6)) => X298(x230,recMain14,g_i12,recMult8,s7,n6)
+X296(recMain14,g_i12,recMult8,s7,n6) => X160(recMain14)
+(X296(recMain14,g_i12,recMult8,s7,n6) /\ X159(recMain14)) => X297(recMain14,g_i12,recMult8,s7,n6)
+((X296(recMain14,g_i12,recMult8,s7,n6) /\ X159(recMain14)) /\ X298(x229,recMain14,g_i12,recMult8,s7,n6)) => X158(x229,recMain14)
+(X296(recMain14,g_i12,recMult8,s7,n6) /\ X157(recMain14)) => tt
+X292(recMult8,s7,n6) => X286(recMult8,s7,n6)
+(X292(recMult8,s7,n6) /\ X287(x227,recMult8,s7,n6)) => X293(x227,recMult8,s7,n6)
+((X292(recMult8,s7,n6) /\ X287(x227,recMult8,s7,n6)) /\ X294(x227,recMult8,s7,n6)) => X288(x227,recMult8,s7,n6)
+(((X292(recMult8,s7,n6) /\ X287(x227,recMult8,s7,n6)) /\ X294(x227,recMult8,s7,n6)) /\ X289(x228,x227,recMult8,s7,n6)) => X295(x228,x227,recMult8,s7,n6)
+(X292(recMult8,s7,n6) /\ X290(recMult8,s7,n6)) => X255(n6,recMult8,s7,n6)
+((X292(recMult8,s7,n6) /\ X290(recMult8,s7,n6)) /\ X255(x226,recMult8,s7,n6)) => X291(x226,recMult8,s7,n6)
+X286(recMult8,s7,n6) => X278(recMult8,s7,n6)
+(X286(recMult8,s7,n6) /\ X279(x224,recMult8,s7,n6)) => X287(x224,recMult8,s7,n6)
+((X286(recMult8,s7,n6) /\ X279(x224,recMult8,s7,n6)) /\ X288(x224,recMult8,s7,n6)) => X280(x224,recMult8,s7,n6)
+(((X286(recMult8,s7,n6) /\ X279(x224,recMult8,s7,n6)) /\ X288(x224,recMult8,s7,n6)) /\ X281(x225,x224,recMult8,s7,n6)) => X289(x225,x224,recMult8,s7,n6)
+(X286(recMult8,s7,n6) /\ X282(recMult8,s7,n6)) => X290(recMult8,s7,n6)
+((X286(recMult8,s7,n6) /\ X282(recMult8,s7,n6)) /\ X291(x223,recMult8,s7,n6)) => X283(x223,recMult8,s7,n6)
+(X286(recMult8,s7,n6) /\ X284(recMult8,s7,n6)) => X259(n6,recMult8,s7,n6)
+((X286(recMult8,s7,n6) /\ X284(recMult8,s7,n6)) /\ X259(x222,recMult8,s7,n6)) => X285(x222,recMult8,s7,n6)
+X278(recMult8,s7,n6) => X10(s7,recMult8)
+(X278(recMult8,s7,n6) /\ X9(x220,s7,recMult8)) => X279(x220,recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X9(x220,s7,recMult8)) /\ X280(x220,recMult8,s7,n6)) => X8(x220,s7,recMult8)
+(((X278(recMult8,s7,n6) /\ X9(x220,s7,recMult8)) /\ X280(x220,recMult8,s7,n6)) /\ X7(x221,x220,s7,recMult8)) => X281(x221,x220,recMult8,s7,n6)
+(X278(recMult8,s7,n6) /\ X6(s7,recMult8)) => X282(recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X6(s7,recMult8)) /\ X283(x219,recMult8,s7,n6)) => X5(x219,s7,recMult8)
+(X278(recMult8,s7,n6) /\ X4(s7,recMult8)) => X284(recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X4(s7,recMult8)) /\ X285(x218,recMult8,s7,n6)) => X3(x218,s7,recMult8)
+(X278(recMult8,s7,n6) /\ X2(s7,recMult8)) => X263(0,recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X2(s7,recMult8)) /\ X263(x217,recMult8,s7,n6)) => X1(x217,s7,recMult8)
+tt => X217()
+
+
+infering new formula: Mult = (\int(recMult19).(\int(acc_i20).(\((int(t174) -> *[X11(t174,acc_i20,recMult19)]) -> *[X12(acc_i20,recMult19)]).(\((int(t172) -> *[X13(t172,acc_i20,recMult19)]) -> *[X14(acc_i20,recMult19)]).(\((int(t170) -> *[X15(t170,acc_i20,recMult19)]) -> *[X16(acc_i20,recMult19)]).(\(int(t166) -> (((int(t167) -> *[X17(t167,t166,acc_i20,recMult19)]) -> *[X18(t166,acc_i20,recMult19)]) -> *[X19(t166,acc_i20,recMult19)])).(recMult19>0:X20(acc_i20,recMult19) && (f22 (\int(n38).((n38>0 || ((0/=0 || (∀int(s26).(s26<1 * 0 + 0 || (s26<-1 * 0 + 0 || (s26<1 * acc_i20 + 0 || ((k24 s26) acc21)))))):X92(n38,acc_i20,recMult19) && (0/=1 || (∀int(s27).(s27<2 * 0 + 0 || (s27<-2 * 0 + 0 || (s27<2 * acc_i20 + 0 || ((((((Mult recMult19 - 1) s27) (\(int(t189) -> *[X118(t189,s27,n38,acc_i20,recMult19)]).(acc21 (\int(fx31).(g23 (\int(gx32).(k30 fx31 + gx32))))))) (\(int(t202) -> *[X111(t202,s27,n38,acc_i20,recMult19)]).(f22 (\int(r35).(k34 r35 - 1))))) g23) k24)))))):X93(n38,acc_i20,recMult19))):X23(n38,acc_i20,recMult19) && (n38<=0 || ((1/=0 || (∀int(s26).(s26<1 * 1 + 0 || (s26<-1 * 1 + 0 || (s26<1 * acc_i20 + 0 || ((k24 s26) acc21)))))):X27(n38,acc_i20,recMult19) && (1/=1 || (∀int(s27).(s27<2 * 1 + 0 || (s27<-2 * 1 + 0 || (s27<2 * acc_i20 + 0 || ((((((Mult recMult19 - 1) s27) (\(int(t189) -> *[X53(t189,s27,n38,acc_i20,recMult19)]).(acc21 (\int(fx31).(g23 (\int(gx32).(k30 fx31 + gx32))))))) (\(int(t202) -> *[X46(t202,s27,n38,acc_i20,recMult19)]).(f22 (\int(r35).(k34 r35 - 1))))) g23) k24)))))):X28(n38,acc_i20,recMult19))):X24(n38,acc_i20,recMult19)))):X21(acc_i20,recMult19))))))))
+[Result]
+X10(x280,x279) => (x279>0 /\ X358(x280,x279))
+(X10(x280,x279) /\ X19(x284,x280,x279)) => X9(x284,x280,x279)
+((X10(x280,x279) /\ X19(x284,x280,x279)) /\ X8(x284,x280,x279)) => X18(x284,x280,x279)
+(((X10(x280,x279) /\ X19(x284,x280,x279)) /\ X8(x284,x280,x279)) /\ X17(x285,x284,x280,x279)) => X7(x285,x284,x280,x279)
+(X10(x280,x279) /\ X16(x280,x279)) => X6(x280,x279)
+((X10(x280,x279) /\ X16(x280,x279)) /\ X5(x283,x280,x279)) => X15(x283,x280,x279)
+(X10(x280,x279) /\ X14(x280,x279)) => X4(x280,x279)
+((X10(x280,x279) /\ X14(x280,x279)) /\ X3(x282,x280,x279)) => X13(x282,x280,x279)
+(X10(x280,x279) /\ X12(x280,x279)) => X2(x280,x279)
+((X10(x280,x279) /\ X12(x280,x279)) /\ X1(x281,x280,x279)) => X11(x281,x280,x279)
+X358(acc_i20,recMult19) => X14(acc_i20,recMult19)
+(X358(acc_i20,recMult19) /\ X13(x278,acc_i20,recMult19)) => ((x278>0 \/ ((0/=0 \/ X141(s26,x278,acc_i20,recMult19)) /\ (0/=1 \/ X96(s27,x278,acc_i20,recMult19)))) /\ (x278<=0 \/ ((1/=0 \/ X76(s26,x278,acc_i20,recMult19)) /\ (1/=1 \/ X31(s27,x278,acc_i20,recMult19)))))
+X31(s27,n38,acc_i20,recMult19) => (s27<2 * 1 + 0 \/ (s27<-2 * 1 + 0 \/ (s27<2 * acc_i20 + 0 \/ X357(s27,n38,acc_i20,recMult19))))
+X357(s27,n38,acc_i20,recMult19) => X353(s27,n38,acc_i20,recMult19)
+(X357(s27,n38,acc_i20,recMult19) /\ X354(x276,s27,n38,acc_i20,recMult19)) => X19(x276,acc_i20,recMult19)
+((X357(s27,n38,acc_i20,recMult19) /\ X354(x276,s27,n38,acc_i20,recMult19)) /\ X18(x276,acc_i20,recMult19)) => X355(x276,s27,n38,acc_i20,recMult19)
+(((X357(s27,n38,acc_i20,recMult19) /\ X354(x276,s27,n38,acc_i20,recMult19)) /\ X18(x276,acc_i20,recMult19)) /\ X356(x277,x276,s27,n38,acc_i20,recMult19)) => X17(x277,x276,acc_i20,recMult19)
+X353(s27,n38,acc_i20,recMult19) => X347(s27,n38,acc_i20,recMult19)
+(X353(s27,n38,acc_i20,recMult19) /\ X348(x274,s27,n38,acc_i20,recMult19)) => X354(x274,s27,n38,acc_i20,recMult19)
+((X353(s27,n38,acc_i20,recMult19) /\ X348(x274,s27,n38,acc_i20,recMult19)) /\ X355(x274,s27,n38,acc_i20,recMult19)) => X349(x274,s27,n38,acc_i20,recMult19)
+(((X353(s27,n38,acc_i20,recMult19) /\ X348(x274,s27,n38,acc_i20,recMult19)) /\ X355(x274,s27,n38,acc_i20,recMult19)) /\ X350(x275,x274,s27,n38,acc_i20,recMult19)) => X356(x275,x274,s27,n38,acc_i20,recMult19)
+(X353(s27,n38,acc_i20,recMult19) /\ X351(s27,n38,acc_i20,recMult19)) => X16(acc_i20,recMult19)
+((X353(s27,n38,acc_i20,recMult19) /\ X351(s27,n38,acc_i20,recMult19)) /\ X15(x273,acc_i20,recMult19)) => X352(x273,s27,n38,acc_i20,recMult19)
+X347(s27,n38,acc_i20,recMult19) => X338(s27,n38,acc_i20,recMult19)
+(X347(s27,n38,acc_i20,recMult19) /\ X339(x271,s27,n38,acc_i20,recMult19)) => X348(x271,s27,n38,acc_i20,recMult19)
+((X347(s27,n38,acc_i20,recMult19) /\ X339(x271,s27,n38,acc_i20,recMult19)) /\ X349(x271,s27,n38,acc_i20,recMult19)) => X340(x271,s27,n38,acc_i20,recMult19)
+(((X347(s27,n38,acc_i20,recMult19) /\ X339(x271,s27,n38,acc_i20,recMult19)) /\ X349(x271,s27,n38,acc_i20,recMult19)) /\ X341(x272,x271,s27,n38,acc_i20,recMult19)) => X350(x272,x271,s27,n38,acc_i20,recMult19)
+(X347(s27,n38,acc_i20,recMult19) /\ X342(s27,n38,acc_i20,recMult19)) => X351(s27,n38,acc_i20,recMult19)
+((X347(s27,n38,acc_i20,recMult19) /\ X342(s27,n38,acc_i20,recMult19)) /\ X352(x270,s27,n38,acc_i20,recMult19)) => X343(x270,s27,n38,acc_i20,recMult19)
+(X347(s27,n38,acc_i20,recMult19) /\ X344(s27,n38,acc_i20,recMult19)) => X346(s27,n38,acc_i20,recMult19)
+((X347(s27,n38,acc_i20,recMult19) /\ X344(s27,n38,acc_i20,recMult19)) /\ X46(x269,s27,n38,acc_i20,recMult19)) => X345(x269,s27,n38,acc_i20,recMult19)
+X346(s27,n38,acc_i20,recMult19) => X14(acc_i20,recMult19)
+(X346(s27,n38,acc_i20,recMult19) /\ X13(x268,acc_i20,recMult19)) => X46(x268 - 1,s27,n38,acc_i20,recMult19)
+X338(s27,n38,acc_i20,recMult19) => X10(s27,recMult19 - 1)
+(X338(s27,n38,acc_i20,recMult19) /\ X9(x266,s27,recMult19 - 1)) => X339(x266,s27,n38,acc_i20,recMult19)
+((X338(s27,n38,acc_i20,recMult19) /\ X9(x266,s27,recMult19 - 1)) /\ X340(x266,s27,n38,acc_i20,recMult19)) => X8(x266,s27,recMult19 - 1)
+(((X338(s27,n38,acc_i20,recMult19) /\ X9(x266,s27,recMult19 - 1)) /\ X340(x266,s27,n38,acc_i20,recMult19)) /\ X7(x267,x266,s27,recMult19 - 1)) => X341(x267,x266,s27,n38,acc_i20,recMult19)
+(X338(s27,n38,acc_i20,recMult19) /\ X6(s27,recMult19 - 1)) => X342(s27,n38,acc_i20,recMult19)
+((X338(s27,n38,acc_i20,recMult19) /\ X6(s27,recMult19 - 1)) /\ X343(x265,s27,n38,acc_i20,recMult19)) => X5(x265,s27,recMult19 - 1)
+(X338(s27,n38,acc_i20,recMult19) /\ X4(s27,recMult19 - 1)) => X344(s27,n38,acc_i20,recMult19)
+((X338(s27,n38,acc_i20,recMult19) /\ X4(s27,recMult19 - 1)) /\ X345(x264,s27,n38,acc_i20,recMult19)) => X3(x264,s27,recMult19 - 1)
+(X338(s27,n38,acc_i20,recMult19) /\ X2(s27,recMult19 - 1)) => X337(s27,n38,acc_i20,recMult19)
+((X338(s27,n38,acc_i20,recMult19) /\ X2(s27,recMult19 - 1)) /\ X53(x263,s27,n38,acc_i20,recMult19)) => X1(x263,s27,recMult19 - 1)
+X337(s27,n38,acc_i20,recMult19) => X12(acc_i20,recMult19)
+(X337(s27,n38,acc_i20,recMult19) /\ X11(x262,acc_i20,recMult19)) => X336(x262,s27,n38,acc_i20,recMult19)
+X336(fx31,s27,n38,acc_i20,recMult19) => X16(acc_i20,recMult19)
+(X336(fx31,s27,n38,acc_i20,recMult19) /\ X15(x261,acc_i20,recMult19)) => X53(fx31 + x261,s27,n38,acc_i20,recMult19)
+X76(s26,n38,acc_i20,recMult19) => (s26<1 * 1 + 0 \/ (s26<-1 * 1 + 0 \/ (s26<1 * acc_i20 + 0 \/ X335(s26,n38,acc_i20,recMult19))))
+X335(s26,n38,acc_i20,recMult19) => X19(s26,acc_i20,recMult19)
+(X335(s26,n38,acc_i20,recMult19) /\ X18(s26,acc_i20,recMult19)) => X12(acc_i20,recMult19)
+((X335(s26,n38,acc_i20,recMult19) /\ X18(s26,acc_i20,recMult19)) /\ X11(x260,acc_i20,recMult19)) => X17(x260,s26,acc_i20,recMult19)
+X96(s27,n38,acc_i20,recMult19) => (s27<2 * 0 + 0 \/ (s27<-2 * 0 + 0 \/ (s27<2 * acc_i20 + 0 \/ X334(s27,n38,acc_i20,recMult19))))
+X334(s27,n38,acc_i20,recMult19) => X330(s27,n38,acc_i20,recMult19)
+(X334(s27,n38,acc_i20,recMult19) /\ X331(x258,s27,n38,acc_i20,recMult19)) => X19(x258,acc_i20,recMult19)
+((X334(s27,n38,acc_i20,recMult19) /\ X331(x258,s27,n38,acc_i20,recMult19)) /\ X18(x258,acc_i20,recMult19)) => X332(x258,s27,n38,acc_i20,recMult19)
+(((X334(s27,n38,acc_i20,recMult19) /\ X331(x258,s27,n38,acc_i20,recMult19)) /\ X18(x258,acc_i20,recMult19)) /\ X333(x259,x258,s27,n38,acc_i20,recMult19)) => X17(x259,x258,acc_i20,recMult19)
+X330(s27,n38,acc_i20,recMult19) => X324(s27,n38,acc_i20,recMult19)
+(X330(s27,n38,acc_i20,recMult19) /\ X325(x256,s27,n38,acc_i20,recMult19)) => X331(x256,s27,n38,acc_i20,recMult19)
+((X330(s27,n38,acc_i20,recMult19) /\ X325(x256,s27,n38,acc_i20,recMult19)) /\ X332(x256,s27,n38,acc_i20,recMult19)) => X326(x256,s27,n38,acc_i20,recMult19)
+(((X330(s27,n38,acc_i20,recMult19) /\ X325(x256,s27,n38,acc_i20,recMult19)) /\ X332(x256,s27,n38,acc_i20,recMult19)) /\ X327(x257,x256,s27,n38,acc_i20,recMult19)) => X333(x257,x256,s27,n38,acc_i20,recMult19)
+(X330(s27,n38,acc_i20,recMult19) /\ X328(s27,n38,acc_i20,recMult19)) => X16(acc_i20,recMult19)
+((X330(s27,n38,acc_i20,recMult19) /\ X328(s27,n38,acc_i20,recMult19)) /\ X15(x255,acc_i20,recMult19)) => X329(x255,s27,n38,acc_i20,recMult19)
+X324(s27,n38,acc_i20,recMult19) => X315(s27,n38,acc_i20,recMult19)
+(X324(s27,n38,acc_i20,recMult19) /\ X316(x253,s27,n38,acc_i20,recMult19)) => X325(x253,s27,n38,acc_i20,recMult19)
+((X324(s27,n38,acc_i20,recMult19) /\ X316(x253,s27,n38,acc_i20,recMult19)) /\ X326(x253,s27,n38,acc_i20,recMult19)) => X317(x253,s27,n38,acc_i20,recMult19)
+(((X324(s27,n38,acc_i20,recMult19) /\ X316(x253,s27,n38,acc_i20,recMult19)) /\ X326(x253,s27,n38,acc_i20,recMult19)) /\ X318(x254,x253,s27,n38,acc_i20,recMult19)) => X327(x254,x253,s27,n38,acc_i20,recMult19)
+(X324(s27,n38,acc_i20,recMult19) /\ X319(s27,n38,acc_i20,recMult19)) => X328(s27,n38,acc_i20,recMult19)
+((X324(s27,n38,acc_i20,recMult19) /\ X319(s27,n38,acc_i20,recMult19)) /\ X329(x252,s27,n38,acc_i20,recMult19)) => X320(x252,s27,n38,acc_i20,recMult19)
+(X324(s27,n38,acc_i20,recMult19) /\ X321(s27,n38,acc_i20,recMult19)) => X323(s27,n38,acc_i20,recMult19)
+((X324(s27,n38,acc_i20,recMult19) /\ X321(s27,n38,acc_i20,recMult19)) /\ X111(x251,s27,n38,acc_i20,recMult19)) => X322(x251,s27,n38,acc_i20,recMult19)
+X323(s27,n38,acc_i20,recMult19) => X14(acc_i20,recMult19)
+(X323(s27,n38,acc_i20,recMult19) /\ X13(x250,acc_i20,recMult19)) => X111(x250 - 1,s27,n38,acc_i20,recMult19)
+X315(s27,n38,acc_i20,recMult19) => X10(s27,recMult19 - 1)
+(X315(s27,n38,acc_i20,recMult19) /\ X9(x248,s27,recMult19 - 1)) => X316(x248,s27,n38,acc_i20,recMult19)
+((X315(s27,n38,acc_i20,recMult19) /\ X9(x248,s27,recMult19 - 1)) /\ X317(x248,s27,n38,acc_i20,recMult19)) => X8(x248,s27,recMult19 - 1)
+(((X315(s27,n38,acc_i20,recMult19) /\ X9(x248,s27,recMult19 - 1)) /\ X317(x248,s27,n38,acc_i20,recMult19)) /\ X7(x249,x248,s27,recMult19 - 1)) => X318(x249,x248,s27,n38,acc_i20,recMult19)
+(X315(s27,n38,acc_i20,recMult19) /\ X6(s27,recMult19 - 1)) => X319(s27,n38,acc_i20,recMult19)
+((X315(s27,n38,acc_i20,recMult19) /\ X6(s27,recMult19 - 1)) /\ X320(x247,s27,n38,acc_i20,recMult19)) => X5(x247,s27,recMult19 - 1)
+(X315(s27,n38,acc_i20,recMult19) /\ X4(s27,recMult19 - 1)) => X321(s27,n38,acc_i20,recMult19)
+((X315(s27,n38,acc_i20,recMult19) /\ X4(s27,recMult19 - 1)) /\ X322(x246,s27,n38,acc_i20,recMult19)) => X3(x246,s27,recMult19 - 1)
+(X315(s27,n38,acc_i20,recMult19) /\ X2(s27,recMult19 - 1)) => X314(s27,n38,acc_i20,recMult19)
+((X315(s27,n38,acc_i20,recMult19) /\ X2(s27,recMult19 - 1)) /\ X118(x245,s27,n38,acc_i20,recMult19)) => X1(x245,s27,recMult19 - 1)
+X314(s27,n38,acc_i20,recMult19) => X12(acc_i20,recMult19)
+(X314(s27,n38,acc_i20,recMult19) /\ X11(x244,acc_i20,recMult19)) => X313(x244,s27,n38,acc_i20,recMult19)
+X313(fx31,s27,n38,acc_i20,recMult19) => X16(acc_i20,recMult19)
+(X313(fx31,s27,n38,acc_i20,recMult19) /\ X15(x243,acc_i20,recMult19)) => X118(fx31 + x243,s27,n38,acc_i20,recMult19)
+X141(s26,n38,acc_i20,recMult19) => (s26<1 * 0 + 0 \/ (s26<-1 * 0 + 0 \/ (s26<1 * acc_i20 + 0 \/ X312(s26,n38,acc_i20,recMult19))))
+X312(s26,n38,acc_i20,recMult19) => X19(s26,acc_i20,recMult19)
+(X312(s26,n38,acc_i20,recMult19) /\ X18(s26,acc_i20,recMult19)) => X12(acc_i20,recMult19)
+((X312(s26,n38,acc_i20,recMult19) /\ X18(s26,acc_i20,recMult19)) /\ X11(x242,acc_i20,recMult19)) => X17(x242,s26,acc_i20,recMult19)
+X160(x240) => (x240>0 /\ X311(x240))
+(X160(x240) /\ X163(x240)) => X159(x240)
+((X160(x240) /\ X163(x240)) /\ X158(x241,x240)) => X162(x241,x240)
+(X160(x240) /\ X161(x240)) => X157(x240)
+X311(recMain15) => X163(recMain15)
+(X311(recMain15) /\ X162(x239,recMain15)) => ((x239>0 \/ ((0/=0 \/ X161(recMain15)) /\ (0=0 \/ X305(x239,recMain15)))) /\ (x239<=0 \/ ((1/=0 \/ X161(recMain15)) /\ (1=0 \/ X310(x239,recMain15)))))
+X310(n38,recMain15) => X306(n38,recMain15)
+(X310(n38,recMain15) /\ X307(n38,recMain15)) => X309(n38,recMain15)
+((X310(n38,recMain15) /\ X307(n38,recMain15)) /\ X176(x238,n38,recMain15)) => X308(x238,n38,recMain15)
+X309(n38,recMain15) => X163(recMain15)
+(X309(n38,recMain15) /\ X162(x237,recMain15)) => X176(x237 - 1,n38,recMain15)
+X306(n38,recMain15) => X160(recMain15 - 1)
+(X306(n38,recMain15) /\ X159(recMain15 - 1)) => X307(n38,recMain15)
+((X306(n38,recMain15) /\ X159(recMain15 - 1)) /\ X308(x236,n38,recMain15)) => X158(x236,recMain15 - 1)
+(X306(n38,recMain15) /\ X157(recMain15 - 1)) => X161(recMain15)
+X305(n38,recMain15) => X301(n38,recMain15)
+(X305(n38,recMain15) /\ X302(n38,recMain15)) => X304(n38,recMain15)
+((X305(n38,recMain15) /\ X302(n38,recMain15)) /\ X199(x235,n38,recMain15)) => X303(x235,n38,recMain15)
+X304(n38,recMain15) => X163(recMain15)
+(X304(n38,recMain15) /\ X162(x234,recMain15)) => X199(x234 - 1,n38,recMain15)
+X301(n38,recMain15) => X160(recMain15 - 1)
+(X301(n38,recMain15) /\ X159(recMain15 - 1)) => X302(n38,recMain15)
+((X301(n38,recMain15) /\ X159(recMain15 - 1)) /\ X303(x233,n38,recMain15)) => X158(x233,recMain15 - 1)
+(X301(n38,recMain15) /\ X157(recMain15 - 1)) => X161(recMain15)
+X217() => X218(n6)
+X218(n6) => X219(s7,n6)
+X219(s7,n6) => (s7<1 * n6 + 0 \/ (s7<-1 * n6 + 0 \/ X224(recMult8,s7,n6)))
+X224(recMult8,s7,n6) => (recMult8<1 + 1 * n6 \/ (recMult8<1 + -1 * n6 \/ (recMult8<1 \/ X300(recMult8,s7,n6))))
+X300(recMult8,s7,n6) => X292(recMult8,s7,n6)
+(X300(recMult8,s7,n6) /\ X293(x231,recMult8,s7,n6)) => X234(recMain14,x231,recMult8,s7,n6)
+((X300(recMult8,s7,n6) /\ X293(x231,recMult8,s7,n6)) /\ X233(x231,recMult8,s7,n6)) => X294(x231,recMult8,s7,n6)
+(((X300(recMult8,s7,n6) /\ X293(x231,recMult8,s7,n6)) /\ X233(x231,recMult8,s7,n6)) /\ X295(x232,x231,recMult8,s7,n6)) => X232(x232,x231,recMult8,s7,n6)
+X234(recMain14,g_i12,recMult8,s7,n6) => (recMain14<1 + 1 * g_i12 \/ (recMain14<1 + 1 * n6 \/ (recMain14<1 + -1 * g_i12 \/ (recMain14<1 + -1 * n6 \/ (recMain14<1 \/ X299(recMain14,g_i12,recMult8,s7,n6))))))
+X299(recMain14,g_i12,recMult8,s7,n6) => X296(recMain14,g_i12,recMult8,s7,n6)
+(X299(recMain14,g_i12,recMult8,s7,n6) /\ X297(recMain14,g_i12,recMult8,s7,n6)) => X233(g_i12,recMult8,s7,n6)
+((X299(recMain14,g_i12,recMult8,s7,n6) /\ X297(recMain14,g_i12,recMult8,s7,n6)) /\ X232(x230,g_i12,recMult8,s7,n6)) => X298(x230,recMain14,g_i12,recMult8,s7,n6)
+X296(recMain14,g_i12,recMult8,s7,n6) => X160(recMain14)
+(X296(recMain14,g_i12,recMult8,s7,n6) /\ X159(recMain14)) => X297(recMain14,g_i12,recMult8,s7,n6)
+((X296(recMain14,g_i12,recMult8,s7,n6) /\ X159(recMain14)) /\ X298(x229,recMain14,g_i12,recMult8,s7,n6)) => X158(x229,recMain14)
+(X296(recMain14,g_i12,recMult8,s7,n6) /\ X157(recMain14)) => tt
+X292(recMult8,s7,n6) => X286(recMult8,s7,n6)
+(X292(recMult8,s7,n6) /\ X287(x227,recMult8,s7,n6)) => X293(x227,recMult8,s7,n6)
+((X292(recMult8,s7,n6) /\ X287(x227,recMult8,s7,n6)) /\ X294(x227,recMult8,s7,n6)) => X288(x227,recMult8,s7,n6)
+(((X292(recMult8,s7,n6) /\ X287(x227,recMult8,s7,n6)) /\ X294(x227,recMult8,s7,n6)) /\ X289(x228,x227,recMult8,s7,n6)) => X295(x228,x227,recMult8,s7,n6)
+(X292(recMult8,s7,n6) /\ X290(recMult8,s7,n6)) => X255(n6,recMult8,s7,n6)
+((X292(recMult8,s7,n6) /\ X290(recMult8,s7,n6)) /\ X255(x226,recMult8,s7,n6)) => X291(x226,recMult8,s7,n6)
+X286(recMult8,s7,n6) => X278(recMult8,s7,n6)
+(X286(recMult8,s7,n6) /\ X279(x224,recMult8,s7,n6)) => X287(x224,recMult8,s7,n6)
+((X286(recMult8,s7,n6) /\ X279(x224,recMult8,s7,n6)) /\ X288(x224,recMult8,s7,n6)) => X280(x224,recMult8,s7,n6)
+(((X286(recMult8,s7,n6) /\ X279(x224,recMult8,s7,n6)) /\ X288(x224,recMult8,s7,n6)) /\ X281(x225,x224,recMult8,s7,n6)) => X289(x225,x224,recMult8,s7,n6)
+(X286(recMult8,s7,n6) /\ X282(recMult8,s7,n6)) => X290(recMult8,s7,n6)
+((X286(recMult8,s7,n6) /\ X282(recMult8,s7,n6)) /\ X291(x223,recMult8,s7,n6)) => X283(x223,recMult8,s7,n6)
+(X286(recMult8,s7,n6) /\ X284(recMult8,s7,n6)) => X259(n6,recMult8,s7,n6)
+((X286(recMult8,s7,n6) /\ X284(recMult8,s7,n6)) /\ X259(x222,recMult8,s7,n6)) => X285(x222,recMult8,s7,n6)
+X278(recMult8,s7,n6) => X10(s7,recMult8)
+(X278(recMult8,s7,n6) /\ X9(x220,s7,recMult8)) => X279(x220,recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X9(x220,s7,recMult8)) /\ X280(x220,recMult8,s7,n6)) => X8(x220,s7,recMult8)
+(((X278(recMult8,s7,n6) /\ X9(x220,s7,recMult8)) /\ X280(x220,recMult8,s7,n6)) /\ X7(x221,x220,s7,recMult8)) => X281(x221,x220,recMult8,s7,n6)
+(X278(recMult8,s7,n6) /\ X6(s7,recMult8)) => X282(recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X6(s7,recMult8)) /\ X283(x219,recMult8,s7,n6)) => X5(x219,s7,recMult8)
+(X278(recMult8,s7,n6) /\ X4(s7,recMult8)) => X284(recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X4(s7,recMult8)) /\ X285(x218,recMult8,s7,n6)) => X3(x218,s7,recMult8)
+(X278(recMult8,s7,n6) /\ X2(s7,recMult8)) => X263(0,recMult8,s7,n6)
+((X278(recMult8,s7,n6) /\ X2(s7,recMult8)) /\ X263(x217,recMult8,s7,n6)) => X1(x217,s7,recMult8)
+tt => X217()
+[Size] 1
+Run command: "hoice /tmp/hoice-61514585.smt2"
+sat
+(model
+  (define-fun X1
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (or (>= (+ v_1 (* (- 2) v_0)) 0) (and (>= (+ v_1 (* (- 1) v_0)) 0) (>= (+ (* 2 v_0) (* (- 1) v_1)) 1)))
+  )
+  (define-fun X16
+    ( (v_0 Int) (v_1 Int) ) Bool
+    true
+  )
+  (define-fun X160
+    ( (v_0 Int) ) Bool
+    (>= v_0 1)
+  )
+  (define-fun X158
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (>= (+ v_1 (* (- 1) v_0)) 1)
+  )
+  (define-fun X12
+    ( (v_0 Int) (v_1 Int) ) Bool
+    true
+  )
+  (define-fun X10
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (>= v_1 1)
+  )
+  (define-fun X8
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    true
+  )
+  (define-fun X5
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (>= (+ v_1 (* (- 1) v_0)) 0)
+  )
+  (define-fun X19
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    true
+  )
+  (define-fun X3
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (>= (+ (* (- 1) v_0) v_2) 1)
+  )
+  (define-fun X17
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (>= (+ v_1 (* (- 1) v_0)) 0)
+  )
+  (define-fun X2
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X10 v_0 v_1) (X12 v_0 v_1))
+  )
+  (define-fun X358
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (X10 v_0 v_1)
+  )
+  (define-fun X6
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X10 v_0 v_1) (X16 v_0 v_1))
+  )
+  (define-fun X7
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X17 v_0 v_1 v_2 v_3) (X10 v_2 v_3) (X19 v_1 v_2 v_3) (X8 v_1 v_2 v_3))
+  )
+  (define-fun X9
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X10 v_1 v_2) (X19 v_0 v_1 v_2))
+  )
+  (define-fun X11
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X1 v_0 v_1 v_2) (X10 v_1 v_2) (X12 v_1 v_2))
+  )
+  (define-fun X14
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (X10 v_0 v_1)
+  )
+  (define-fun X15
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X5 v_0 v_1 v_2) (X10 v_1 v_2) (X16 v_1 v_2))
+  )
+  (define-fun X18
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X10 v_1 v_2) (X19 v_0 v_1 v_2) (X8 v_0 v_1 v_2))
+  )
+  (define-fun X31
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (>= v_1 1) (X10 v_2 v_3) (X3 v_1 v_2 v_3) (X14 v_2 v_3) (X358 v_2 v_3))
+  )
+  (define-fun X53
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (or (>= (+ (* (- 1) v_1) (* 2 v_3)) 1) (>= (* (- 1) v_2) 0) (>= (* (- 1) v_1) (- 1)) (X1 v_0 v_1 (+ (- 1) v_4)) (not (X10 v_1 (+ (- 1) v_4))) (not (X10 v_3 v_4)) (not (X3 v_2 v_3 v_4)) (not (X12 v_1 (+ (- 1) v_4))) (not (X14 v_3 v_4)))
+  )
+  (define-fun X76
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X96
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X111
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    true
+  )
+  (define-fun X118
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    true
+  )
+  (define-fun X141
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (exists ( (v_4 Int) ) (and (>= (* (- 1) v_4) 0) (X10 v_2 v_3) (X3 v_4 v_2 v_3)))
+  )
+  (define-fun X161
+    ( (v_0 Int) ) Bool
+    true
+  )
+  (define-fun X163
+    ( (v_0 Int) ) Bool
+    (X160 v_0)
+  )
+  (define-fun X199
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    true
+  )
+  (define-fun X217
+    ( ) Bool
+    true
+  )
+  (define-fun X218
+    ( (v_0 Int) ) Bool
+    true
+  )
+  (define-fun X219
+    ( (v_0 Int) (v_1 Int) ) Bool
+    true
+  )
+  (define-fun X224
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (>= (+ v_1 (* (- 1) v_2)) 0) (>= (+ v_1 v_2) 0))
+  )
+  (define-fun X233
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (exists ( (v_4 Int) ) (and (>= (+ (* (- 1) v_3) v_4) 1) (>= v_4 1) (>= (+ (* (- 1) v_0) v_4) 1) (>= (+ v_1 (* (- 1) v_3)) 1) (>= (+ v_3 v_4) 1) (>= (+ v_0 v_4) 1) (>= (+ v_2 (* (- 1) v_3)) 0) (>= (+ v_1 v_3) 1) (>= v_1 1) (>= (+ v_2 v_3) 0) (X10 v_2 v_1) (X19 v_0 v_2 v_1) (X160 v_4)))
+  )
+  (define-fun X335
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X334
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X333
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    false
+  )
+  (define-fun X332
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X331
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X330
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X329
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X328
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X327
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    false
+  )
+  (define-fun X326
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X325
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X324
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X323
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X322
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X321
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X320
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X319
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X318
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    false
+  )
+  (define-fun X317
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X316
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X315
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X314
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X313
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X312
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (>= v_0 0) (>= (+ v_0 (* (- 1) v_2)) 0) (X141 v_0 0 v_2 v_3))
+  )
+  (define-fun X311
+    ( (v_0 Int) ) Bool
+    (X160 v_0)
+  )
+  (define-fun X310
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (>= v_0 1) (X163 v_1) (X158 v_0 v_1) (X160 v_1) (X311 v_1))
+  )
+  (define-fun X309
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X163 (+ v_1 (- 1))) (X310 v_0 v_1) (X160 (+ v_1 (- 1))))
+  )
+  (define-fun X308
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X163 v_2) (X163 (+ (- 1) v_2)) (X158 (+ v_0 1) v_2) (X309 v_1 v_2) (X310 v_1 v_2) (X160 v_2) (X160 (+ (- 1) v_2)))
+  )
+  (define-fun X307
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X163 (+ v_1 (- 1))) (X310 v_0 v_1) (X160 (+ v_1 (- 1))))
+  )
+  (define-fun X306
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (X310 v_0 v_1)
+  )
+  (define-fun X305
+    ( (v_0 Int) (v_1 Int) ) Bool
+    false
+  )
+  (define-fun X304
+    ( (v_0 Int) (v_1 Int) ) Bool
+    false
+  )
+  (define-fun X303
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    false
+  )
+  (define-fun X302
+    ( (v_0 Int) (v_1 Int) ) Bool
+    false
+  )
+  (define-fun X301
+    ( (v_0 Int) (v_1 Int) ) Bool
+    false
+  )
+  (define-fun X300
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (>= (+ v_1 (* (- 1) v_2)) 0) (>= (+ v_0 v_2) 1) (>= (+ v_0 (* (- 1) v_2)) 1) (>= v_0 1) (>= (+ v_1 v_2) 0))
+  )
+  (define-fun X299
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (>= (+ v_1 v_0) 1) (>= (+ v_0 (* (- 1) v_4)) 1) (>= (+ v_0 (* (- 1) v_1)) 1) (>= v_0 1) (>= (+ v_0 v_4) 1) (X300 v_2 v_3 v_4) (X10 v_3 v_2) (X19 v_1 v_3 v_2))
+  )
+  (define-fun X298
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    (and (X17 v_0 v_2 v_4 v_3) (X163 v_1) (X19 v_2 v_4 v_3) (X299 v_1 v_2 v_3 v_4 v_5) (X300 v_3 v_4 v_5) (X8 v_2 v_4 v_3) (X233 v_2 v_3 v_4 v_5) (X10 v_4 v_3) (X160 v_1))
+  )
+  (define-fun X297
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X163 v_0) (X160 v_0) (X299 v_0 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X296
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (X299 v_0 v_1 v_2 v_3 v_4)
+  )
+  (define-fun X295
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X17 v_0 v_1 v_3 v_2) (X233 v_1 v_2 v_3 v_4) (X10 v_3 v_2) (X19 v_1 v_3 v_2) (X300 v_2 v_3 v_4) (X8 v_1 v_3 v_2))
+  )
+  (define-fun X294
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_2 v_1) (X233 v_0 v_1 v_2 v_3) (X19 v_0 v_2 v_1) (X300 v_1 v_2 v_3))
+  )
+  (define-fun X293
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X300 v_1 v_2 v_3) (X10 v_2 v_1) (X19 v_0 v_2 v_1))
+  )
+  (define-fun X292
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (X300 v_0 v_1 v_2)
+  )
+  (define-fun X291
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (= (+ (* (- 1) v_0) v_3) 0) (X292 v_1 v_2 v_3) (X10 v_2 v_1) (X16 v_2 v_1))
+  )
+  (define-fun X290
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X292 v_0 v_1 v_2) (X10 v_1 v_0) (X16 v_1 v_0))
+  )
+  (define-fun X289
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X17 v_0 v_1 v_3 v_2) (X10 v_3 v_2) (X19 v_1 v_3 v_2) (X292 v_2 v_3 v_4) (X294 v_1 v_2 v_3 v_4) (X8 v_1 v_3 v_2))
+  )
+  (define-fun X288
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_2 v_1) (X19 v_0 v_2 v_1) (X292 v_1 v_2 v_3) (X294 v_0 v_1 v_2 v_3))
+  )
+  (define-fun X287
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X292 v_1 v_2 v_3) (X10 v_2 v_1) (X19 v_0 v_2 v_1))
+  )
+  (define-fun X286
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (X292 v_0 v_1 v_2)
+  )
+  (define-fun X285
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (= (+ (* (- 1) v_0) v_3) 0) (X14 v_2 v_1) (X286 v_1 v_2 v_3) (X10 v_2 v_1))
+  )
+  (define-fun X284
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X14 v_1 v_0) (X286 v_0 v_1 v_2) (X10 v_1 v_0))
+  )
+  (define-fun X283
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_2 v_1) (X291 v_0 v_1 v_2 v_3) (X286 v_1 v_2 v_3) (X16 v_2 v_1))
+  )
+  (define-fun X282
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X10 v_1 v_0) (X286 v_0 v_1 v_2) (X16 v_1 v_0))
+  )
+  (define-fun X281
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X288 v_1 v_2 v_3 v_4) (X17 v_0 v_1 v_3 v_2) (X10 v_3 v_2) (X19 v_1 v_3 v_2) (X286 v_2 v_3 v_4) (X8 v_1 v_3 v_2))
+  )
+  (define-fun X280
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X288 v_0 v_1 v_2 v_3) (X10 v_2 v_1) (X19 v_0 v_2 v_1) (X286 v_1 v_2 v_3))
+  )
+  (define-fun X279
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_2 v_1) (X286 v_1 v_2 v_3) (X19 v_0 v_2 v_1))
+  )
+  (define-fun X278
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (X286 v_0 v_1 v_2)
+  )
+  (define-fun X263
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (= v_0 0) (X10 v_2 v_1) (X278 v_1 v_2 v_3) (X12 v_2 v_1))
+  )
+  (define-fun X259
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (= (+ (* (- 1) v_0) v_3) 0) (X284 v_1 v_2 v_3) (X286 v_1 v_2 v_3))
+  )
+  (define-fun X255
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (= (+ (* (- 1) v_0) v_3) 0) (X292 v_1 v_2 v_3) (X290 v_1 v_2 v_3))
+  )
+  (define-fun X234
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X300 v_2 v_3 v_4) (X293 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X357
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (>= (+ v_0 (* (- 2) v_2)) 0) (>= v_0 2) (>= v_1 1) (X10 v_2 v_3) (X3 v_1 v_2 v_3) (X14 v_2 v_3) (X358 v_2 v_3))
+  )
+  (define-fun X232
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X233 v_1 v_2 v_3 v_4) (X300 v_2 v_3 v_4) (X293 v_1 v_2 v_3 v_4) (X295 v_0 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X4
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X14 v_0 v_1) (X10 v_0 v_1))
+  )
+  (define-fun X356
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    (and (X17 v_0 v_1 v_2 (+ (- 1) v_5)) (X10 v_2 (+ (- 1) v_5)) (X10 v_4 v_5) (X19 v_1 v_4 v_5) (X19 v_1 v_2 (+ (- 1) v_5)) (X357 v_2 v_3 v_4 v_5) (X8 v_1 v_4 v_5) (X8 v_1 v_2 (+ (- 1) v_5)))
+  )
+  (define-fun X355
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X19 v_0 v_3 v_4) (X19 v_0 v_1 (+ (- 1) v_4)) (X357 v_1 v_2 v_3 v_4) (X8 v_0 v_3 v_4))
+  )
+  (define-fun X354
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X357 v_1 v_2 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X19 v_0 v_1 (+ (- 1) v_4)))
+  )
+  (define-fun X353
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (X357 v_0 v_1 v_2 v_3)
+  )
+  (define-fun X176
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X163 v_2) (X158 (+ v_0 1) v_2) (X309 v_1 v_2) (X160 v_2))
+  )
+  (define-fun X13
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X14 v_1 v_2) (X3 v_0 v_1 v_2) (X10 v_1 v_2))
+  )
+  (define-fun X162
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X158 v_0 v_1) (X163 v_1) (X160 v_1))
+  )
+  (define-fun X352
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X353 v_1 v_2 v_3 v_4) (X10 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X5 v_0 v_3 v_4) (X16 v_3 v_4) (X16 v_1 (+ (- 1) v_4)))
+  )
+  (define-fun X159
+    ( (v_0 Int) ) Bool
+    (and (X163 v_0) (X160 v_0))
+  )
+  (define-fun X157
+    ( (v_0 Int) ) Bool
+    (and (X160 v_0) (X161 v_0))
+  )
+  (define-fun X351
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_0 (+ (- 1) v_3)) (X353 v_0 v_1 v_2 v_3) (X16 v_0 (+ (- 1) v_3)))
+  )
+  (define-fun X350
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    (and (X17 v_0 v_1 v_2 (+ (- 1) v_5)) (X10 v_2 (+ (- 1) v_5)) (X19 v_1 v_2 (+ (- 1) v_5)) (X353 v_2 v_3 v_4 v_5) (X355 v_1 v_2 v_3 v_4 v_5) (X8 v_1 v_2 (+ (- 1) v_5)))
+  )
+  (define-fun X349
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X353 v_1 v_2 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X355 v_0 v_1 v_2 v_3 v_4) (X19 v_0 v_1 (+ (- 1) v_4)))
+  )
+  (define-fun X348
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_1 (+ (- 1) v_4)) (X19 v_0 v_1 (+ (- 1) v_4)) (X353 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X347
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (X353 v_0 v_1 v_2 v_3)
+  )
+  (define-fun X338
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (X347 v_0 v_1 v_2 v_3)
+  )
+  (define-fun X339
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_1 (+ (- 1) v_4)) (X19 v_0 v_1 (+ (- 1) v_4)) (X347 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X346
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X14 v_0 (+ (- 1) v_3)) (X10 v_0 (+ (- 1) v_3)) (X347 v_0 v_1 v_2 v_3))
+  )
+  (define-fun X345
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X346 v_1 v_2 v_3 v_4) (X347 v_1 v_2 v_3 v_4) (X3 (+ v_0 1) v_3 v_4) (X14 v_3 v_4) (X14 v_1 (+ (- 1) v_4)))
+  )
+  (define-fun X344
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X14 v_0 (+ (- 1) v_3)) (X10 v_0 (+ (- 1) v_3)) (X347 v_0 v_1 v_2 v_3))
+  )
+  (define-fun X343
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X352 v_0 v_1 v_2 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X347 v_1 v_2 v_3 v_4) (X16 v_1 (+ (- 1) v_4)))
+  )
+  (define-fun X342
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X347 v_0 v_1 v_2 v_3) (X10 v_0 (+ (- 1) v_3)) (X16 v_0 (+ (- 1) v_3)))
+  )
+  (define-fun X341
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    (and (X17 v_0 v_1 v_2 (+ (- 1) v_5)) (X10 v_2 (+ (- 1) v_5)) (X19 v_1 v_2 (+ (- 1) v_5)) (X347 v_2 v_3 v_4 v_5) (X349 v_1 v_2 v_3 v_4 v_5) (X8 v_1 v_2 (+ (- 1) v_5)))
+  )
+  (define-fun X340
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_1 (+ (- 1) v_4)) (X19 v_0 v_1 (+ (- 1) v_4)) (X347 v_1 v_2 v_3 v_4) (X349 v_0 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X337
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_0 (+ (- 1) v_3)) (X338 v_0 v_1 v_2 v_3) (X12 v_0 (+ (- 1) v_3)))
+  )
+  (define-fun X46
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_3 v_4) (X346 v_1 v_2 v_3 v_4) (X3 (+ v_0 1) v_3 v_4) (X14 v_3 v_4))
+  )
+  (define-fun X336
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X1 v_0 v_3 v_4) (X337 v_1 v_2 v_3 v_4) (X10 v_3 v_4) (X12 v_3 v_4))
+  )
+)
+Process result:
+out: sat
+(model
+  (define-fun X1
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (or (>= (+ v_1 (* (- 2) v_0)) 0) (and (>= (+ v_1 (* (- 1) v_0)) 0) (>= (+ (* 2 v_0) (* (- 1) v_1)) 1)))
+  )
+  (define-fun X16
+    ( (v_0 Int) (v_1 Int) ) Bool
+    true
+  )
+  (define-fun X160
+    ( (v_0 Int) ) Bool
+    (>= v_0 1)
+  )
+  (define-fun X158
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (>= (+ v_1 (* (- 1) v_0)) 1)
+  )
+  (define-fun X12
+    ( (v_0 Int) (v_1 Int) ) Bool
+    true
+  )
+  (define-fun X10
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (>= v_1 1)
+  )
+  (define-fun X8
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    true
+  )
+  (define-fun X5
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (>= (+ v_1 (* (- 1) v_0)) 0)
+  )
+  (define-fun X19
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    true
+  )
+  (define-fun X3
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (>= (+ (* (- 1) v_0) v_2) 1)
+  )
+  (define-fun X17
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (>= (+ v_1 (* (- 1) v_0)) 0)
+  )
+  (define-fun X2
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X10 v_0 v_1) (X12 v_0 v_1))
+  )
+  (define-fun X358
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (X10 v_0 v_1)
+  )
+  (define-fun X6
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X10 v_0 v_1) (X16 v_0 v_1))
+  )
+  (define-fun X7
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X17 v_0 v_1 v_2 v_3) (X10 v_2 v_3) (X19 v_1 v_2 v_3) (X8 v_1 v_2 v_3))
+  )
+  (define-fun X9
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X10 v_1 v_2) (X19 v_0 v_1 v_2))
+  )
+  (define-fun X11
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X1 v_0 v_1 v_2) (X10 v_1 v_2) (X12 v_1 v_2))
+  )
+  (define-fun X14
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (X10 v_0 v_1)
+  )
+  (define-fun X15
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X5 v_0 v_1 v_2) (X10 v_1 v_2) (X16 v_1 v_2))
+  )
+  (define-fun X18
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X10 v_1 v_2) (X19 v_0 v_1 v_2) (X8 v_0 v_1 v_2))
+  )
+  (define-fun X31
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (>= v_1 1) (X10 v_2 v_3) (X3 v_1 v_2 v_3) (X14 v_2 v_3) (X358 v_2 v_3))
+  )
+  (define-fun X53
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (or (>= (+ (* (- 1) v_1) (* 2 v_3)) 1) (>= (* (- 1) v_2) 0) (>= (* (- 1) v_1) (- 1)) (X1 v_0 v_1 (+ (- 1) v_4)) (not (X10 v_1 (+ (- 1) v_4))) (not (X10 v_3 v_4)) (not (X3 v_2 v_3 v_4)) (not (X12 v_1 (+ (- 1) v_4))) (not (X14 v_3 v_4)))
+  )
+  (define-fun X76
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X96
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X111
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    true
+  )
+  (define-fun X118
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    true
+  )
+  (define-fun X141
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (exists ( (v_4 Int) ) (and (>= (* (- 1) v_4) 0) (X10 v_2 v_3) (X3 v_4 v_2 v_3)))
+  )
+  (define-fun X161
+    ( (v_0 Int) ) Bool
+    true
+  )
+  (define-fun X163
+    ( (v_0 Int) ) Bool
+    (X160 v_0)
+  )
+  (define-fun X199
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    true
+  )
+  (define-fun X217
+    ( ) Bool
+    true
+  )
+  (define-fun X218
+    ( (v_0 Int) ) Bool
+    true
+  )
+  (define-fun X219
+    ( (v_0 Int) (v_1 Int) ) Bool
+    true
+  )
+  (define-fun X224
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (>= (+ v_1 (* (- 1) v_2)) 0) (>= (+ v_1 v_2) 0))
+  )
+  (define-fun X233
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (exists ( (v_4 Int) ) (and (>= (+ (* (- 1) v_3) v_4) 1) (>= v_4 1) (>= (+ (* (- 1) v_0) v_4) 1) (>= (+ v_1 (* (- 1) v_3)) 1) (>= (+ v_3 v_4) 1) (>= (+ v_0 v_4) 1) (>= (+ v_2 (* (- 1) v_3)) 0) (>= (+ v_1 v_3) 1) (>= v_1 1) (>= (+ v_2 v_3) 0) (X10 v_2 v_1) (X19 v_0 v_2 v_1) (X160 v_4)))
+  )
+  (define-fun X335
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X334
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X333
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    false
+  )
+  (define-fun X332
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X331
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X330
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X329
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X328
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X327
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    false
+  )
+  (define-fun X326
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X325
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X324
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X323
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X322
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X321
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X320
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X319
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X318
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    false
+  )
+  (define-fun X317
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X316
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X315
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X314
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    false
+  )
+  (define-fun X313
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    false
+  )
+  (define-fun X312
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (>= v_0 0) (>= (+ v_0 (* (- 1) v_2)) 0) (X141 v_0 0 v_2 v_3))
+  )
+  (define-fun X311
+    ( (v_0 Int) ) Bool
+    (X160 v_0)
+  )
+  (define-fun X310
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (>= v_0 1) (X163 v_1) (X158 v_0 v_1) (X160 v_1) (X311 v_1))
+  )
+  (define-fun X309
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X163 (+ v_1 (- 1))) (X310 v_0 v_1) (X160 (+ v_1 (- 1))))
+  )
+  (define-fun X308
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X163 v_2) (X163 (+ (- 1) v_2)) (X158 (+ v_0 1) v_2) (X309 v_1 v_2) (X310 v_1 v_2) (X160 v_2) (X160 (+ (- 1) v_2)))
+  )
+  (define-fun X307
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X163 (+ v_1 (- 1))) (X310 v_0 v_1) (X160 (+ v_1 (- 1))))
+  )
+  (define-fun X306
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (X310 v_0 v_1)
+  )
+  (define-fun X305
+    ( (v_0 Int) (v_1 Int) ) Bool
+    false
+  )
+  (define-fun X304
+    ( (v_0 Int) (v_1 Int) ) Bool
+    false
+  )
+  (define-fun X303
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    false
+  )
+  (define-fun X302
+    ( (v_0 Int) (v_1 Int) ) Bool
+    false
+  )
+  (define-fun X301
+    ( (v_0 Int) (v_1 Int) ) Bool
+    false
+  )
+  (define-fun X300
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (>= (+ v_1 (* (- 1) v_2)) 0) (>= (+ v_0 v_2) 1) (>= (+ v_0 (* (- 1) v_2)) 1) (>= v_0 1) (>= (+ v_1 v_2) 0))
+  )
+  (define-fun X299
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (>= (+ v_1 v_0) 1) (>= (+ v_0 (* (- 1) v_4)) 1) (>= (+ v_0 (* (- 1) v_1)) 1) (>= v_0 1) (>= (+ v_0 v_4) 1) (X300 v_2 v_3 v_4) (X10 v_3 v_2) (X19 v_1 v_3 v_2))
+  )
+  (define-fun X298
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    (and (X17 v_0 v_2 v_4 v_3) (X163 v_1) (X19 v_2 v_4 v_3) (X299 v_1 v_2 v_3 v_4 v_5) (X300 v_3 v_4 v_5) (X8 v_2 v_4 v_3) (X233 v_2 v_3 v_4 v_5) (X10 v_4 v_3) (X160 v_1))
+  )
+  (define-fun X297
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X163 v_0) (X160 v_0) (X299 v_0 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X296
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (X299 v_0 v_1 v_2 v_3 v_4)
+  )
+  (define-fun X295
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X17 v_0 v_1 v_3 v_2) (X233 v_1 v_2 v_3 v_4) (X10 v_3 v_2) (X19 v_1 v_3 v_2) (X300 v_2 v_3 v_4) (X8 v_1 v_3 v_2))
+  )
+  (define-fun X294
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_2 v_1) (X233 v_0 v_1 v_2 v_3) (X19 v_0 v_2 v_1) (X300 v_1 v_2 v_3))
+  )
+  (define-fun X293
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X300 v_1 v_2 v_3) (X10 v_2 v_1) (X19 v_0 v_2 v_1))
+  )
+  (define-fun X292
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (X300 v_0 v_1 v_2)
+  )
+  (define-fun X291
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (= (+ (* (- 1) v_0) v_3) 0) (X292 v_1 v_2 v_3) (X10 v_2 v_1) (X16 v_2 v_1))
+  )
+  (define-fun X290
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X292 v_0 v_1 v_2) (X10 v_1 v_0) (X16 v_1 v_0))
+  )
+  (define-fun X289
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X17 v_0 v_1 v_3 v_2) (X10 v_3 v_2) (X19 v_1 v_3 v_2) (X292 v_2 v_3 v_4) (X294 v_1 v_2 v_3 v_4) (X8 v_1 v_3 v_2))
+  )
+  (define-fun X288
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_2 v_1) (X19 v_0 v_2 v_1) (X292 v_1 v_2 v_3) (X294 v_0 v_1 v_2 v_3))
+  )
+  (define-fun X287
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X292 v_1 v_2 v_3) (X10 v_2 v_1) (X19 v_0 v_2 v_1))
+  )
+  (define-fun X286
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (X292 v_0 v_1 v_2)
+  )
+  (define-fun X285
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (= (+ (* (- 1) v_0) v_3) 0) (X14 v_2 v_1) (X286 v_1 v_2 v_3) (X10 v_2 v_1))
+  )
+  (define-fun X284
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X14 v_1 v_0) (X286 v_0 v_1 v_2) (X10 v_1 v_0))
+  )
+  (define-fun X283
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_2 v_1) (X291 v_0 v_1 v_2 v_3) (X286 v_1 v_2 v_3) (X16 v_2 v_1))
+  )
+  (define-fun X282
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X10 v_1 v_0) (X286 v_0 v_1 v_2) (X16 v_1 v_0))
+  )
+  (define-fun X281
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X288 v_1 v_2 v_3 v_4) (X17 v_0 v_1 v_3 v_2) (X10 v_3 v_2) (X19 v_1 v_3 v_2) (X286 v_2 v_3 v_4) (X8 v_1 v_3 v_2))
+  )
+  (define-fun X280
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X288 v_0 v_1 v_2 v_3) (X10 v_2 v_1) (X19 v_0 v_2 v_1) (X286 v_1 v_2 v_3))
+  )
+  (define-fun X279
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_2 v_1) (X286 v_1 v_2 v_3) (X19 v_0 v_2 v_1))
+  )
+  (define-fun X278
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (X286 v_0 v_1 v_2)
+  )
+  (define-fun X263
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (= v_0 0) (X10 v_2 v_1) (X278 v_1 v_2 v_3) (X12 v_2 v_1))
+  )
+  (define-fun X259
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (= (+ (* (- 1) v_0) v_3) 0) (X284 v_1 v_2 v_3) (X286 v_1 v_2 v_3))
+  )
+  (define-fun X255
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (= (+ (* (- 1) v_0) v_3) 0) (X292 v_1 v_2 v_3) (X290 v_1 v_2 v_3))
+  )
+  (define-fun X234
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X300 v_2 v_3 v_4) (X293 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X357
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (>= (+ v_0 (* (- 2) v_2)) 0) (>= v_0 2) (>= v_1 1) (X10 v_2 v_3) (X3 v_1 v_2 v_3) (X14 v_2 v_3) (X358 v_2 v_3))
+  )
+  (define-fun X232
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X233 v_1 v_2 v_3 v_4) (X300 v_2 v_3 v_4) (X293 v_1 v_2 v_3 v_4) (X295 v_0 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X4
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X14 v_0 v_1) (X10 v_0 v_1))
+  )
+  (define-fun X356
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    (and (X17 v_0 v_1 v_2 (+ (- 1) v_5)) (X10 v_2 (+ (- 1) v_5)) (X10 v_4 v_5) (X19 v_1 v_4 v_5) (X19 v_1 v_2 (+ (- 1) v_5)) (X357 v_2 v_3 v_4 v_5) (X8 v_1 v_4 v_5) (X8 v_1 v_2 (+ (- 1) v_5)))
+  )
+  (define-fun X355
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X19 v_0 v_3 v_4) (X19 v_0 v_1 (+ (- 1) v_4)) (X357 v_1 v_2 v_3 v_4) (X8 v_0 v_3 v_4))
+  )
+  (define-fun X354
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X357 v_1 v_2 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X19 v_0 v_1 (+ (- 1) v_4)))
+  )
+  (define-fun X353
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (X357 v_0 v_1 v_2 v_3)
+  )
+  (define-fun X176
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X163 v_2) (X158 (+ v_0 1) v_2) (X309 v_1 v_2) (X160 v_2))
+  )
+  (define-fun X13
+    ( (v_0 Int) (v_1 Int) (v_2 Int) ) Bool
+    (and (X14 v_1 v_2) (X3 v_0 v_1 v_2) (X10 v_1 v_2))
+  )
+  (define-fun X162
+    ( (v_0 Int) (v_1 Int) ) Bool
+    (and (X158 v_0 v_1) (X163 v_1) (X160 v_1))
+  )
+  (define-fun X352
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X353 v_1 v_2 v_3 v_4) (X10 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X5 v_0 v_3 v_4) (X16 v_3 v_4) (X16 v_1 (+ (- 1) v_4)))
+  )
+  (define-fun X159
+    ( (v_0 Int) ) Bool
+    (and (X163 v_0) (X160 v_0))
+  )
+  (define-fun X157
+    ( (v_0 Int) ) Bool
+    (and (X160 v_0) (X161 v_0))
+  )
+  (define-fun X351
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_0 (+ (- 1) v_3)) (X353 v_0 v_1 v_2 v_3) (X16 v_0 (+ (- 1) v_3)))
+  )
+  (define-fun X350
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    (and (X17 v_0 v_1 v_2 (+ (- 1) v_5)) (X10 v_2 (+ (- 1) v_5)) (X19 v_1 v_2 (+ (- 1) v_5)) (X353 v_2 v_3 v_4 v_5) (X355 v_1 v_2 v_3 v_4 v_5) (X8 v_1 v_2 (+ (- 1) v_5)))
+  )
+  (define-fun X349
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X353 v_1 v_2 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X355 v_0 v_1 v_2 v_3 v_4) (X19 v_0 v_1 (+ (- 1) v_4)))
+  )
+  (define-fun X348
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_1 (+ (- 1) v_4)) (X19 v_0 v_1 (+ (- 1) v_4)) (X353 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X347
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (X353 v_0 v_1 v_2 v_3)
+  )
+  (define-fun X338
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (X347 v_0 v_1 v_2 v_3)
+  )
+  (define-fun X339
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_1 (+ (- 1) v_4)) (X19 v_0 v_1 (+ (- 1) v_4)) (X347 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X346
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X14 v_0 (+ (- 1) v_3)) (X10 v_0 (+ (- 1) v_3)) (X347 v_0 v_1 v_2 v_3))
+  )
+  (define-fun X345
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X346 v_1 v_2 v_3 v_4) (X347 v_1 v_2 v_3 v_4) (X3 (+ v_0 1) v_3 v_4) (X14 v_3 v_4) (X14 v_1 (+ (- 1) v_4)))
+  )
+  (define-fun X344
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X14 v_0 (+ (- 1) v_3)) (X10 v_0 (+ (- 1) v_3)) (X347 v_0 v_1 v_2 v_3))
+  )
+  (define-fun X343
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X352 v_0 v_1 v_2 v_3 v_4) (X10 v_1 (+ (- 1) v_4)) (X347 v_1 v_2 v_3 v_4) (X16 v_1 (+ (- 1) v_4)))
+  )
+  (define-fun X342
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X347 v_0 v_1 v_2 v_3) (X10 v_0 (+ (- 1) v_3)) (X16 v_0 (+ (- 1) v_3)))
+  )
+  (define-fun X341
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) (v_5 Int) ) Bool
+    (and (X17 v_0 v_1 v_2 (+ (- 1) v_5)) (X10 v_2 (+ (- 1) v_5)) (X19 v_1 v_2 (+ (- 1) v_5)) (X347 v_2 v_3 v_4 v_5) (X349 v_1 v_2 v_3 v_4 v_5) (X8 v_1 v_2 (+ (- 1) v_5)))
+  )
+  (define-fun X340
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_1 (+ (- 1) v_4)) (X19 v_0 v_1 (+ (- 1) v_4)) (X347 v_1 v_2 v_3 v_4) (X349 v_0 v_1 v_2 v_3 v_4))
+  )
+  (define-fun X337
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) ) Bool
+    (and (X10 v_0 (+ (- 1) v_3)) (X338 v_0 v_1 v_2 v_3) (X12 v_0 (+ (- 1) v_3)))
+  )
+  (define-fun X46
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X10 v_3 v_4) (X346 v_1 v_2 v_3 v_4) (X3 (+ v_0 1) v_3 v_4) (X14 v_3 v_4))
+  )
+  (define-fun X336
+    ( (v_0 Int) (v_1 Int) (v_2 Int) (v_3 Int) (v_4 Int) ) Bool
+    (and (X1 v_0 v_3 v_4) (X337 v_1 v_2 v_3 v_4) (X10 v_3 v_4) (X12 v_3 v_4))
+  )
+)
+status: Ok
+err:
+
+
+Profiling:
+  CHC Solver: 142.457318 sec
+did not calculate refinement. Use --show-refinement
+Verification Result:
+  Valid
+Profiling:
+  total: 142.470040 sec

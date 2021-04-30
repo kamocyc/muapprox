@@ -1,12 +1,15 @@
 /* 不要な引数の削除後、部分適用はまとめて1つの引数にしたもの */
 /* machine_parital_analysis で、自明な符号の情報（高階引数を表す整数は必ず正になる）を利用したもの */
-/* hoiceで16.105841 sec で解けた */
+/* さらに、Mainではsを使わないことを利用して簡略化した */
+/* 最適な係数 (coe1=1, coe2=1. Multの再帰呼び出しだけ、coe1=2, coe2=0) だと、hoiceで 1 sec で解けた */
+/* 係数が coe1=2, coe2=16 だとタイムアウト. coe1=2, coe2=1 だと hoiceで 40sec で解けた */
+/* Mainの追加引数を残すとhoiceで16.105841 sec で解けた */
 
 %HES
 Sentry =v
   ∀n.
    ∀s.
-       s < n
+       s < 1 * n
     \/ s < (-1) * n
     \/ (∀recMult. 
            recMult < n + 1
@@ -17,33 +20,22 @@ Sentry =v
             s (\k2. k2 0)
             (\k2. k2 n)
             (\k2. k2 n)
-            (\g.
-              \g2. 
-                ∀s5. 
-                     s5 < g
-                  /* \/ s5 < (-1) * g */
-                  \/ s5 < n
-                  \/ s5 < (-1) * n
-                  \/ (∀recMain. 
-                         recMain < g + 1
-                      \/ recMain < (-1) * g + 1
-                      \/ recMain < n + 1
-                      \/ recMain < (-1) * n + 1
-                      \/ recMain < 1
-                      \/ Main recMain s5 (\r. true) g2))).
+            (\g. \g2.
+              (∀recMain. 
+                  recMain < g + 1
+                \/ recMain < (-1) * g + 1
+                \/ recMain < n + 1
+                \/ recMain < (-1) * n + 1
+                \/ recMain < 1
+                \/ Main recMain (\r. true) g2))).
 
-Main recMain k k2 g2 =v
+Main recMain k2 g2 =v
   recMain > 0
-  /\ (Check g2
+  /\
+    (Check g2
       (\b. 
-        (b != 0 \/ k2 0)
-        /\ (b = 0
-            \/ (∀s3. 
-                     s3 < b
-                  \/ s3 < (-1) * b
-                  \/ s3 < k
-                  /* \/ s3 < (-1) * k */
-                  \/ Main (recMain - 1) s3 k2 (Pred g2))))).
+        (b != 0 \/ k2 0) /\
+        (b = 0 \/ Main (recMain - 1) k2 (Pred g2)))).
 
 Mult recMult acc acc2 f2 g2 k2 =v
   recMult > 0
@@ -54,8 +46,7 @@ Mult recMult acc acc2 f2 g2 k2 =v
           /\ (b != 1
               \/ (
                   ∀s5.
-                       s5 < 2 * b
-                    \/ s5 < (-2) * b
+                    /* */ s5 < 2 * b \/ s5 < (-2) * b /* */
                     \/ s5 < 2 * acc
                     /* \/ s5 < (-2) * acc */
                     \/ Mult (recMult - 1) s5 (Add acc2 g2) (Pred f2) g2 k2)))).

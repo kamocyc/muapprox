@@ -1,0 +1,436 @@
+INPUT FILE: benchmark/research/ho_trans/nested_loop_square/machine_partial_analysis_unused_arguments_simple_flow.in
+[Main:App:Input]
+  Sentry : bool =ν
+    ∀n6:int.
+     ∀s7:int.
+      s7 < n6
+      || s7 < -1 * n6
+         || (∀recMult8:int.
+              recMult8 < n6 + 1
+              || recMult8 < -1 * n6 + 1
+                 || recMult8 < 1
+                    || Mult recMult8 s7 (λk29:(int -> bool).k29 0) (λk210:(int -> bool).k210 n6)
+                        (λk211:(int -> bool).k211 n6)
+                        (λg12:int.
+                          λg213:((int -> bool) -> bool).
+                           ∀s514:int.
+                            s514 < g12
+                            || s514 < -1 * g12
+                               || (∀recMain15:int.
+                                    recMain15 < g12 + 1
+                                    || recMain15 < -1 * g12 + 1
+                                       || recMain15 < n6 + 1
+                                          || recMain15 < -1 * n6 + 1
+                                             || recMain15 < 1
+                                                || Main recMain15 s514 (λr16:int.true) g213)))
+  Main : int -> int -> (int -> bool) -> ((int -> bool) -> bool) -> bool =ν
+    λrecMain17:int.
+     λk18:int.
+      λk219:(int -> bool).
+       λg220:((int -> bool) -> bool).
+        recMain17 > 0
+        && Check g220
+            (λb21:int.
+              (b21 /= 0 || k219 0)
+              && (b21 = 0
+                  || (∀s322:int.
+                       s322 < k18 || s322 < -1 * k18 || Main (recMain17 - 1) s322 k219 (Pred g220))))
+  Mult : int ->
+          int ->
+           ((int -> bool) -> bool) ->
+            ((int -> bool) -> bool) ->
+             ((int -> bool) -> bool) -> (int -> ((int -> bool) -> bool) -> bool) -> bool =ν
+    λrecMult23:int.
+     λacc24:int.
+      λacc225:((int -> bool) -> bool).
+       λf226:((int -> bool) -> bool).
+        λg227:((int -> bool) -> bool).
+         λk228:(int -> ((int -> bool) -> bool) -> bool).
+          recMult23 > 0
+          && Check f226
+              (λb29:int.
+                (b29 /= 0 || (∀s330:int.s330 < acc24 || s330 < -1 * acc24 || k228 s330 acc225))
+                && (b29 /= 1
+                    || (∀s531:int.
+                         s531 < 2 * acc24
+                         || s531 < -2 * acc24
+                            || Mult (recMult23 - 1) s531 (Add acc225 g227) (Pred f226) g227 k228)))
+  Add : ((int -> bool) -> bool) -> ((int -> bool) -> bool) -> (int -> bool) -> bool =ν
+    λf232:((int -> bool) -> bool).
+     λg233:((int -> bool) -> bool).
+      λk234:(int -> bool).f232 (λfx35:int.g233 (λgx36:int.k234 (fx35 + gx36)))
+  Pred : ((int -> bool) -> bool) -> (int -> bool) -> bool =ν
+    λf237:((int -> bool) -> bool).λk238:(int -> bool).f237 (λr39:int.k238 (r39 - 1))
+  Check : ((int -> bool) -> bool) -> (int -> bool) -> bool =ν
+    λf240:((int -> bool) -> bool).
+     λk241:(int -> bool).f240 (λn42:int.(n42 > 0 || k241 0) && (n42 <= 0 || k241 1))
+[Main:App:Simplified]
+  Sentry : bool =ν
+    ∀n6:int.
+     ∀s7:int.
+      s7 < n6
+      || s7 < -1 * n6
+         || (∀recMult8:int.
+              recMult8 < n6 + 1
+              || recMult8 < -1 * n6 + 1
+                 || recMult8 < 1
+                    || Mult recMult8 s7 (λk29:(int -> bool).k29 0) (λk210:(int -> bool).k210 n6)
+                        (λk211:(int -> bool).k211 n6)
+                        (λg12:int.
+                          λg213:((int -> bool) -> bool).
+                           ∀s514:int.
+                            s514 < g12
+                            || s514 < -1 * g12
+                               || (∀recMain15:int.
+                                    recMain15 < g12 + 1
+                                    || recMain15 < -1 * g12 + 1
+                                       || recMain15 < n6 + 1
+                                          || recMain15 < -1 * n6 + 1
+                                             || recMain15 < 1
+                                                || Main recMain15 s514 (λr16:int.true) g213)))
+  Main : int -> int -> (int -> bool) -> ((int -> bool) -> bool) -> bool =ν
+    λrecMain17:int.
+     λk18:int.
+      λk219:(int -> bool).
+       λg220:((int -> bool) -> bool).
+        recMain17 > 0
+        && g220
+            (λn42:int.
+              (n42 > 0
+               || (0 /= 0 || k219 0)
+                  && (0 = 0
+                      || (∀s322:int.
+                           s322 < k18
+                           || s322 < -1 * k18
+                              || Main (recMain17 - 1) s322 k219
+                                  (λk238:(int -> bool).g220 (λr39:int.k238 (r39 - 1))))))
+              && (n42 <= 0
+                  || (1 /= 0 || k219 0)
+                     && (1 = 0
+                         || (∀s322:int.
+                              s322 < k18
+                              || s322 < -1 * k18
+                                 || Main (recMain17 - 1) s322 k219
+                                     (λk238:(int -> bool).g220 (λr39:int.k238 (r39 - 1)))))))
+  Mult : int ->
+          int ->
+           ((int -> bool) -> bool) ->
+            ((int -> bool) -> bool) ->
+             ((int -> bool) -> bool) -> (int -> ((int -> bool) -> bool) -> bool) -> bool =ν
+    λrecMult23:int.
+     λacc24:int.
+      λacc225:((int -> bool) -> bool).
+       λf226:((int -> bool) -> bool).
+        λg227:((int -> bool) -> bool).
+         λk228:(int -> ((int -> bool) -> bool) -> bool).
+          recMult23 > 0
+          && f226
+              (λn42:int.
+                (n42 > 0
+                 || (0 /= 0 || (∀s330:int.s330 < acc24 || s330 < -1 * acc24 || k228 s330 acc225))
+                    && (0 /= 1
+                        || (∀s531:int.
+                             s531 < 2 * acc24
+                             || s531 < -2 * acc24
+                                || Mult (recMult23 - 1) s531
+                                    (λk234:(int -> bool).
+                                      acc225 (λfx35:int.g227 (λgx36:int.k234 (fx35 + gx36))))
+                                    (λk238:(int -> bool).f226 (λr39:int.k238 (r39 - 1))) g227
+                                    k228)))
+                && (n42 <= 0
+                    || (1 /= 0
+                        || (∀s330:int.s330 < acc24 || s330 < -1 * acc24 || k228 s330 acc225))
+                       && (1 /= 1
+                           || (∀s531:int.
+                                s531 < 2 * acc24
+                                || s531 < -2 * acc24
+                                   || Mult (recMult23 - 1) s531
+                                       (λk234:(int -> bool).
+                                         acc225 (λfx35:int.g227 (λgx36:int.k234 (fx35 + gx36))))
+                                       (λk238:(int -> bool).f226 (λr39:int.k238 (r39 - 1))) g227
+                                       k228))))
+Sentry *[X223()]
+Main (int(recMain76) -> (int(k77) -> ((int(t78) -> *[X149(t78,k77,recMain76)]) -> (((int(t80) -> *[X150(t80,k77,recMain76)]) -> *[X151(k77,recMain76)]) -> *[X152(k77,recMain76)]))))
+Mult (int(recMult109) -> (int(acc110) -> (((int(t111) -> *[X1(t111,acc110,recMult109)]) -> *[X2(acc110,recMult109)]) -> (((int(t114) -> *[X3(t114,acc110,recMult109)]) -> *[X4(acc110,recMult109)]) -> (((int(t117) -> *[X5(t117,acc110,recMult109)]) -> *[X6(acc110,recMult109)]) -> ((int(t120) -> (((int(t121) -> *[X7(t121,t120,acc110,recMult109)]) -> *[X8(t120,acc110,recMult109)]) -> *[X9(t120,acc110,recMult109)])) -> *[X10(acc110,recMult109)]))))))
+
+
+infering new formula: Sentry = (∀int(n6).(∀int(s7).(s7<n6 || (s7<-1 * n6 || (∀int(recMult8).(recMult8<n6 + 1 || (recMult8<-1 * n6 + 1 || (recMult8<1 || ((((((Mult recMult8) s7) (\(int(t59) -> *[X275(t59,recMult8,s7,n6)]).(k29 0))) (\(int(t57) -> *[X271(t57,recMult8,s7,n6)]).(k210 n6))) (\(int(t55) -> *[X267(t55,recMult8,s7,n6)]).(k211 n6))) (\int(g12).(\((int(t52) -> *[X238(t52,g12,recMult8,s7,n6)]) -> *[X239(g12,recMult8,s7,n6)]).(∀int(s514).(s514<g12 || (s514<-1 * g12 || (∀int(recMain15).(recMain15<g12 + 1 || (recMain15<-1 * g12 + 1 || (recMain15<n6 + 1 || (recMain15<-1 * n6 + 1 || (recMain15<1 || ((((Main recMain15) s514) (\int(r16).tt)) g213)))))))))))))))))))))
+[Result]
+X223() => X224(n6)
+X224(n6) => X225(s7,n6)
+X225(s7,n6) => (s7<n6 \/ (s7<-1 * n6 \/ X230(recMult8,s7,n6)))
+X230(recMult8,s7,n6) => (recMult8<n6 + 1 \/ (recMult8<-1 * n6 + 1 \/ (recMult8<1 \/ X312(recMult8,s7,n6))))
+X312(recMult8,s7,n6) => X304(recMult8,s7,n6)
+(X312(recMult8,s7,n6) /\ X305(x245,recMult8,s7,n6)) => X240(s514,x245,recMult8,s7,n6)
+((X312(recMult8,s7,n6) /\ X305(x245,recMult8,s7,n6)) /\ X239(x245,recMult8,s7,n6)) => X306(x245,recMult8,s7,n6)
+(((X312(recMult8,s7,n6) /\ X305(x245,recMult8,s7,n6)) /\ X239(x245,recMult8,s7,n6)) /\ X307(x246,x245,recMult8,s7,n6)) => X238(x246,x245,recMult8,s7,n6)
+X240(s514,g12,recMult8,s7,n6) => (s514<g12 \/ (s514<-1 * g12 \/ X245(recMain15,s514,g12,recMult8,s7,n6)))
+X245(recMain15,s514,g12,recMult8,s7,n6) => (recMain15<g12 + 1 \/ (recMain15<-1 * g12 + 1 \/ (recMain15<n6 + 1 \/ (recMain15<-1 * n6 + 1 \/ (recMain15<1 \/ X311(recMain15,s514,g12,recMult8,s7,n6))))))
+X311(recMain15,s514,g12,recMult8,s7,n6) => X308(recMain15,s514,g12,recMult8,s7,n6)
+(X311(recMain15,s514,g12,recMult8,s7,n6) /\ X309(recMain15,s514,g12,recMult8,s7,n6)) => X239(g12,recMult8,s7,n6)
+((X311(recMain15,s514,g12,recMult8,s7,n6) /\ X309(recMain15,s514,g12,recMult8,s7,n6)) /\ X238(x244,g12,recMult8,s7,n6)) => X310(x244,recMain15,s514,g12,recMult8,s7,n6)
+X308(recMain15,s514,g12,recMult8,s7,n6) => X152(s514,recMain15)
+(X308(recMain15,s514,g12,recMult8,s7,n6) /\ X151(s514,recMain15)) => X309(recMain15,s514,g12,recMult8,s7,n6)
+((X308(recMain15,s514,g12,recMult8,s7,n6) /\ X151(s514,recMain15)) /\ X310(x243,recMain15,s514,g12,recMult8,s7,n6)) => X150(x243,s514,recMain15)
+(X308(recMain15,s514,g12,recMult8,s7,n6) /\ X149(x242,s514,recMain15)) => tt
+X304(recMult8,s7,n6) => X298(recMult8,s7,n6)
+(X304(recMult8,s7,n6) /\ X299(x240,recMult8,s7,n6)) => X305(x240,recMult8,s7,n6)
+((X304(recMult8,s7,n6) /\ X299(x240,recMult8,s7,n6)) /\ X306(x240,recMult8,s7,n6)) => X300(x240,recMult8,s7,n6)
+(((X304(recMult8,s7,n6) /\ X299(x240,recMult8,s7,n6)) /\ X306(x240,recMult8,s7,n6)) /\ X301(x241,x240,recMult8,s7,n6)) => X307(x241,x240,recMult8,s7,n6)
+(X304(recMult8,s7,n6) /\ X302(recMult8,s7,n6)) => X267(n6,recMult8,s7,n6)
+((X304(recMult8,s7,n6) /\ X302(recMult8,s7,n6)) /\ X267(x239,recMult8,s7,n6)) => X303(x239,recMult8,s7,n6)
+X298(recMult8,s7,n6) => X290(recMult8,s7,n6)
+(X298(recMult8,s7,n6) /\ X291(x237,recMult8,s7,n6)) => X299(x237,recMult8,s7,n6)
+((X298(recMult8,s7,n6) /\ X291(x237,recMult8,s7,n6)) /\ X300(x237,recMult8,s7,n6)) => X292(x237,recMult8,s7,n6)
+(((X298(recMult8,s7,n6) /\ X291(x237,recMult8,s7,n6)) /\ X300(x237,recMult8,s7,n6)) /\ X293(x238,x237,recMult8,s7,n6)) => X301(x238,x237,recMult8,s7,n6)
+(X298(recMult8,s7,n6) /\ X294(recMult8,s7,n6)) => X302(recMult8,s7,n6)
+((X298(recMult8,s7,n6) /\ X294(recMult8,s7,n6)) /\ X303(x236,recMult8,s7,n6)) => X295(x236,recMult8,s7,n6)
+(X298(recMult8,s7,n6) /\ X296(recMult8,s7,n6)) => X271(n6,recMult8,s7,n6)
+((X298(recMult8,s7,n6) /\ X296(recMult8,s7,n6)) /\ X271(x235,recMult8,s7,n6)) => X297(x235,recMult8,s7,n6)
+X290(recMult8,s7,n6) => X10(s7,recMult8)
+(X290(recMult8,s7,n6) /\ X9(x233,s7,recMult8)) => X291(x233,recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X9(x233,s7,recMult8)) /\ X292(x233,recMult8,s7,n6)) => X8(x233,s7,recMult8)
+(((X290(recMult8,s7,n6) /\ X9(x233,s7,recMult8)) /\ X292(x233,recMult8,s7,n6)) /\ X7(x234,x233,s7,recMult8)) => X293(x234,x233,recMult8,s7,n6)
+(X290(recMult8,s7,n6) /\ X6(s7,recMult8)) => X294(recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X6(s7,recMult8)) /\ X295(x232,recMult8,s7,n6)) => X5(x232,s7,recMult8)
+(X290(recMult8,s7,n6) /\ X4(s7,recMult8)) => X296(recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X4(s7,recMult8)) /\ X297(x231,recMult8,s7,n6)) => X3(x231,s7,recMult8)
+(X290(recMult8,s7,n6) /\ X2(s7,recMult8)) => X275(0,recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X2(s7,recMult8)) /\ X275(x230,recMult8,s7,n6)) => X1(x230,s7,recMult8)
+tt => X223()
+
+
+infering new formula: Main = (\int(recMain17).(\int(k18).(\(int(t108) -> *[X153(t108,k18,recMain17)]).(\((int(t106) -> *[X154(t106,k18,recMain17)]) -> *[X155(k18,recMain17)]).(recMain17>0:X156(k18,recMain17) && (g220 (\int(n42).((n42>0 || ((0/=0 || (k219 0)):X193(n42,k18,recMain17) && (0=0 || (∀int(s322).(s322<k18 || (s322<-1 * k18 || ((((Main recMain17 - 1) s322) k219) (\(int(t215) -> *[X203(t215,s322,n42,k18,recMain17)]).(g220 (\int(r39).(k238 r39 - 1))))))))):X194(n42,k18,recMain17))):X159(n42,k18,recMain17) && (n42<=0 || ((1/=0 || (k219 0)):X163(n42,k18,recMain17) && (1=0 || (∀int(s322).(s322<k18 || (s322<-1 * k18 || ((((Main recMain17 - 1) s322) k219) (\(int(t215) -> *[X173(t215,s322,n42,k18,recMain17)]).(g220 (\int(r39).(k238 r39 - 1))))))))):X164(n42,k18,recMain17))):X160(n42,k18,recMain17)))):X157(k18,recMain17))))))
+[Result]
+X152(x257,x256) => (x256>0 /\ X323(x257,x256))
+(X152(x257,x256) /\ X155(x257,x256)) => X151(x257,x256)
+((X152(x257,x256) /\ X155(x257,x256)) /\ X150(x259,x257,x256)) => X154(x259,x257,x256)
+(X152(x257,x256) /\ X153(x258,x257,x256)) => X149(x258,x257,x256)
+X323(k18,recMain17) => X155(k18,recMain17)
+(X323(k18,recMain17) /\ X154(x255,k18,recMain17)) => ((x255>0 \/ ((0/=0 \/ X153(0,k18,recMain17)) /\ (0=0 \/ X197(s322,x255,k18,recMain17)))) /\ (x255<=0 \/ ((1/=0 \/ X153(0,k18,recMain17)) /\ (1=0 \/ X167(s322,x255,k18,recMain17)))))
+X167(s322,n42,k18,recMain17) => (s322<k18 \/ (s322<-1 * k18 \/ X322(s322,n42,k18,recMain17)))
+X322(s322,n42,k18,recMain17) => X318(s322,n42,k18,recMain17)
+(X322(s322,n42,k18,recMain17) /\ X319(s322,n42,k18,recMain17)) => X321(s322,n42,k18,recMain17)
+((X322(s322,n42,k18,recMain17) /\ X319(s322,n42,k18,recMain17)) /\ X173(x254,s322,n42,k18,recMain17)) => X320(x254,s322,n42,k18,recMain17)
+X321(s322,n42,k18,recMain17) => X155(k18,recMain17)
+(X321(s322,n42,k18,recMain17) /\ X154(x253,k18,recMain17)) => X173(x253 - 1,s322,n42,k18,recMain17)
+X318(s322,n42,k18,recMain17) => X152(s322,recMain17 - 1)
+(X318(s322,n42,k18,recMain17) /\ X151(s322,recMain17 - 1)) => X319(s322,n42,k18,recMain17)
+((X318(s322,n42,k18,recMain17) /\ X151(s322,recMain17 - 1)) /\ X320(x252,s322,n42,k18,recMain17)) => X150(x252,s322,recMain17 - 1)
+(X318(s322,n42,k18,recMain17) /\ X149(x251,s322,recMain17 - 1)) => X153(x251,k18,recMain17)
+X197(s322,n42,k18,recMain17) => (s322<k18 \/ (s322<-1 * k18 \/ X317(s322,n42,k18,recMain17)))
+X317(s322,n42,k18,recMain17) => X313(s322,n42,k18,recMain17)
+(X317(s322,n42,k18,recMain17) /\ X314(s322,n42,k18,recMain17)) => X316(s322,n42,k18,recMain17)
+((X317(s322,n42,k18,recMain17) /\ X314(s322,n42,k18,recMain17)) /\ X203(x250,s322,n42,k18,recMain17)) => X315(x250,s322,n42,k18,recMain17)
+X316(s322,n42,k18,recMain17) => X155(k18,recMain17)
+(X316(s322,n42,k18,recMain17) /\ X154(x249,k18,recMain17)) => X203(x249 - 1,s322,n42,k18,recMain17)
+X313(s322,n42,k18,recMain17) => X152(s322,recMain17 - 1)
+(X313(s322,n42,k18,recMain17) /\ X151(s322,recMain17 - 1)) => X314(s322,n42,k18,recMain17)
+((X313(s322,n42,k18,recMain17) /\ X151(s322,recMain17 - 1)) /\ X315(x248,s322,n42,k18,recMain17)) => X150(x248,s322,recMain17 - 1)
+(X313(s322,n42,k18,recMain17) /\ X149(x247,s322,recMain17 - 1)) => X153(x247,k18,recMain17)
+X223() => X224(n6)
+X224(n6) => X225(s7,n6)
+X225(s7,n6) => (s7<n6 \/ (s7<-1 * n6 \/ X230(recMult8,s7,n6)))
+X230(recMult8,s7,n6) => (recMult8<n6 + 1 \/ (recMult8<-1 * n6 + 1 \/ (recMult8<1 \/ X312(recMult8,s7,n6))))
+X312(recMult8,s7,n6) => X304(recMult8,s7,n6)
+(X312(recMult8,s7,n6) /\ X305(x245,recMult8,s7,n6)) => X240(s514,x245,recMult8,s7,n6)
+((X312(recMult8,s7,n6) /\ X305(x245,recMult8,s7,n6)) /\ X239(x245,recMult8,s7,n6)) => X306(x245,recMult8,s7,n6)
+(((X312(recMult8,s7,n6) /\ X305(x245,recMult8,s7,n6)) /\ X239(x245,recMult8,s7,n6)) /\ X307(x246,x245,recMult8,s7,n6)) => X238(x246,x245,recMult8,s7,n6)
+X240(s514,g12,recMult8,s7,n6) => (s514<g12 \/ (s514<-1 * g12 \/ X245(recMain15,s514,g12,recMult8,s7,n6)))
+X245(recMain15,s514,g12,recMult8,s7,n6) => (recMain15<g12 + 1 \/ (recMain15<-1 * g12 + 1 \/ (recMain15<n6 + 1 \/ (recMain15<-1 * n6 + 1 \/ (recMain15<1 \/ X311(recMain15,s514,g12,recMult8,s7,n6))))))
+X311(recMain15,s514,g12,recMult8,s7,n6) => X308(recMain15,s514,g12,recMult8,s7,n6)
+(X311(recMain15,s514,g12,recMult8,s7,n6) /\ X309(recMain15,s514,g12,recMult8,s7,n6)) => X239(g12,recMult8,s7,n6)
+((X311(recMain15,s514,g12,recMult8,s7,n6) /\ X309(recMain15,s514,g12,recMult8,s7,n6)) /\ X238(x244,g12,recMult8,s7,n6)) => X310(x244,recMain15,s514,g12,recMult8,s7,n6)
+X308(recMain15,s514,g12,recMult8,s7,n6) => X152(s514,recMain15)
+(X308(recMain15,s514,g12,recMult8,s7,n6) /\ X151(s514,recMain15)) => X309(recMain15,s514,g12,recMult8,s7,n6)
+((X308(recMain15,s514,g12,recMult8,s7,n6) /\ X151(s514,recMain15)) /\ X310(x243,recMain15,s514,g12,recMult8,s7,n6)) => X150(x243,s514,recMain15)
+(X308(recMain15,s514,g12,recMult8,s7,n6) /\ X149(x242,s514,recMain15)) => tt
+X304(recMult8,s7,n6) => X298(recMult8,s7,n6)
+(X304(recMult8,s7,n6) /\ X299(x240,recMult8,s7,n6)) => X305(x240,recMult8,s7,n6)
+((X304(recMult8,s7,n6) /\ X299(x240,recMult8,s7,n6)) /\ X306(x240,recMult8,s7,n6)) => X300(x240,recMult8,s7,n6)
+(((X304(recMult8,s7,n6) /\ X299(x240,recMult8,s7,n6)) /\ X306(x240,recMult8,s7,n6)) /\ X301(x241,x240,recMult8,s7,n6)) => X307(x241,x240,recMult8,s7,n6)
+(X304(recMult8,s7,n6) /\ X302(recMult8,s7,n6)) => X267(n6,recMult8,s7,n6)
+((X304(recMult8,s7,n6) /\ X302(recMult8,s7,n6)) /\ X267(x239,recMult8,s7,n6)) => X303(x239,recMult8,s7,n6)
+X298(recMult8,s7,n6) => X290(recMult8,s7,n6)
+(X298(recMult8,s7,n6) /\ X291(x237,recMult8,s7,n6)) => X299(x237,recMult8,s7,n6)
+((X298(recMult8,s7,n6) /\ X291(x237,recMult8,s7,n6)) /\ X300(x237,recMult8,s7,n6)) => X292(x237,recMult8,s7,n6)
+(((X298(recMult8,s7,n6) /\ X291(x237,recMult8,s7,n6)) /\ X300(x237,recMult8,s7,n6)) /\ X293(x238,x237,recMult8,s7,n6)) => X301(x238,x237,recMult8,s7,n6)
+(X298(recMult8,s7,n6) /\ X294(recMult8,s7,n6)) => X302(recMult8,s7,n6)
+((X298(recMult8,s7,n6) /\ X294(recMult8,s7,n6)) /\ X303(x236,recMult8,s7,n6)) => X295(x236,recMult8,s7,n6)
+(X298(recMult8,s7,n6) /\ X296(recMult8,s7,n6)) => X271(n6,recMult8,s7,n6)
+((X298(recMult8,s7,n6) /\ X296(recMult8,s7,n6)) /\ X271(x235,recMult8,s7,n6)) => X297(x235,recMult8,s7,n6)
+X290(recMult8,s7,n6) => X10(s7,recMult8)
+(X290(recMult8,s7,n6) /\ X9(x233,s7,recMult8)) => X291(x233,recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X9(x233,s7,recMult8)) /\ X292(x233,recMult8,s7,n6)) => X8(x233,s7,recMult8)
+(((X290(recMult8,s7,n6) /\ X9(x233,s7,recMult8)) /\ X292(x233,recMult8,s7,n6)) /\ X7(x234,x233,s7,recMult8)) => X293(x234,x233,recMult8,s7,n6)
+(X290(recMult8,s7,n6) /\ X6(s7,recMult8)) => X294(recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X6(s7,recMult8)) /\ X295(x232,recMult8,s7,n6)) => X5(x232,s7,recMult8)
+(X290(recMult8,s7,n6) /\ X4(s7,recMult8)) => X296(recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X4(s7,recMult8)) /\ X297(x231,recMult8,s7,n6)) => X3(x231,s7,recMult8)
+(X290(recMult8,s7,n6) /\ X2(s7,recMult8)) => X275(0,recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X2(s7,recMult8)) /\ X275(x230,recMult8,s7,n6)) => X1(x230,s7,recMult8)
+tt => X223()
+
+
+infering new formula: Mult = (\int(recMult23).(\int(acc24).(\((int(t187) -> *[X11(t187,acc24,recMult23)]) -> *[X12(acc24,recMult23)]).(\((int(t185) -> *[X13(t185,acc24,recMult23)]) -> *[X14(acc24,recMult23)]).(\((int(t183) -> *[X15(t183,acc24,recMult23)]) -> *[X16(acc24,recMult23)]).(\(int(t179) -> (((int(t180) -> *[X17(t180,t179,acc24,recMult23)]) -> *[X18(t179,acc24,recMult23)]) -> *[X19(t179,acc24,recMult23)])).(recMult23>0:X20(acc24,recMult23) && (f226 (\int(n42).((n42>0 || ((0/=0 || (∀int(s330).(s330<acc24 || (s330<-1 * acc24 || ((k228 s330) acc225))))):X88(n42,acc24,recMult23) && (0/=1 || (∀int(s531).(s531<2 * acc24 || (s531<-2 * acc24 || ((((((Mult recMult23 - 1) s531) (\(int(t202) -> *[X112(t202,s531,n42,acc24,recMult23)]).(acc225 (\int(fx35).(g227 (\int(gx36).(k234 fx35 + gx36))))))) (\(int(t215) -> *[X105(t215,s531,n42,acc24,recMult23)]).(f226 (\int(r39).(k238 r39 - 1))))) g227) k228))))):X89(n42,acc24,recMult23))):X23(n42,acc24,recMult23) && (n42<=0 || ((1/=0 || (∀int(s330).(s330<acc24 || (s330<-1 * acc24 || ((k228 s330) acc225))))):X27(n42,acc24,recMult23) && (1/=1 || (∀int(s531).(s531<2 * acc24 || (s531<-2 * acc24 || ((((((Mult recMult23 - 1) s531) (\(int(t202) -> *[X51(t202,s531,n42,acc24,recMult23)]).(acc225 (\int(fx35).(g227 (\int(gx36).(k234 fx35 + gx36))))))) (\(int(t215) -> *[X44(t215,s531,n42,acc24,recMult23)]).(f226 (\int(r39).(k238 r39 - 1))))) g227) k228))))):X28(n42,acc24,recMult23))):X24(n42,acc24,recMult23)))):X21(acc24,recMult23))))))))
+[Result]
+X10(x298,x297) => (x297>0 /\ X370(x298,x297))
+(X10(x298,x297) /\ X19(x302,x298,x297)) => X9(x302,x298,x297)
+((X10(x298,x297) /\ X19(x302,x298,x297)) /\ X8(x302,x298,x297)) => X18(x302,x298,x297)
+(((X10(x298,x297) /\ X19(x302,x298,x297)) /\ X8(x302,x298,x297)) /\ X17(x303,x302,x298,x297)) => X7(x303,x302,x298,x297)
+(X10(x298,x297) /\ X16(x298,x297)) => X6(x298,x297)
+((X10(x298,x297) /\ X16(x298,x297)) /\ X5(x301,x298,x297)) => X15(x301,x298,x297)
+(X10(x298,x297) /\ X14(x298,x297)) => X4(x298,x297)
+((X10(x298,x297) /\ X14(x298,x297)) /\ X3(x300,x298,x297)) => X13(x300,x298,x297)
+(X10(x298,x297) /\ X12(x298,x297)) => X2(x298,x297)
+((X10(x298,x297) /\ X12(x298,x297)) /\ X1(x299,x298,x297)) => X11(x299,x298,x297)
+X370(acc24,recMult23) => X14(acc24,recMult23)
+(X370(acc24,recMult23) /\ X13(x296,acc24,recMult23)) => ((x296>0 \/ ((0/=0 \/ X135(s330,x296,acc24,recMult23)) /\ (0/=1 \/ X92(s531,x296,acc24,recMult23)))) /\ (x296<=0 \/ ((1/=0 \/ X74(s330,x296,acc24,recMult23)) /\ (1/=1 \/ X31(s531,x296,acc24,recMult23)))))
+X31(s531,n42,acc24,recMult23) => (s531<2 * acc24 \/ (s531<-2 * acc24 \/ X369(s531,n42,acc24,recMult23)))
+X369(s531,n42,acc24,recMult23) => X365(s531,n42,acc24,recMult23)
+(X369(s531,n42,acc24,recMult23) /\ X366(x294,s531,n42,acc24,recMult23)) => X19(x294,acc24,recMult23)
+((X369(s531,n42,acc24,recMult23) /\ X366(x294,s531,n42,acc24,recMult23)) /\ X18(x294,acc24,recMult23)) => X367(x294,s531,n42,acc24,recMult23)
+(((X369(s531,n42,acc24,recMult23) /\ X366(x294,s531,n42,acc24,recMult23)) /\ X18(x294,acc24,recMult23)) /\ X368(x295,x294,s531,n42,acc24,recMult23)) => X17(x295,x294,acc24,recMult23)
+X365(s531,n42,acc24,recMult23) => X359(s531,n42,acc24,recMult23)
+(X365(s531,n42,acc24,recMult23) /\ X360(x292,s531,n42,acc24,recMult23)) => X366(x292,s531,n42,acc24,recMult23)
+((X365(s531,n42,acc24,recMult23) /\ X360(x292,s531,n42,acc24,recMult23)) /\ X367(x292,s531,n42,acc24,recMult23)) => X361(x292,s531,n42,acc24,recMult23)
+(((X365(s531,n42,acc24,recMult23) /\ X360(x292,s531,n42,acc24,recMult23)) /\ X367(x292,s531,n42,acc24,recMult23)) /\ X362(x293,x292,s531,n42,acc24,recMult23)) => X368(x293,x292,s531,n42,acc24,recMult23)
+(X365(s531,n42,acc24,recMult23) /\ X363(s531,n42,acc24,recMult23)) => X16(acc24,recMult23)
+((X365(s531,n42,acc24,recMult23) /\ X363(s531,n42,acc24,recMult23)) /\ X15(x291,acc24,recMult23)) => X364(x291,s531,n42,acc24,recMult23)
+X359(s531,n42,acc24,recMult23) => X350(s531,n42,acc24,recMult23)
+(X359(s531,n42,acc24,recMult23) /\ X351(x289,s531,n42,acc24,recMult23)) => X360(x289,s531,n42,acc24,recMult23)
+((X359(s531,n42,acc24,recMult23) /\ X351(x289,s531,n42,acc24,recMult23)) /\ X361(x289,s531,n42,acc24,recMult23)) => X352(x289,s531,n42,acc24,recMult23)
+(((X359(s531,n42,acc24,recMult23) /\ X351(x289,s531,n42,acc24,recMult23)) /\ X361(x289,s531,n42,acc24,recMult23)) /\ X353(x290,x289,s531,n42,acc24,recMult23)) => X362(x290,x289,s531,n42,acc24,recMult23)
+(X359(s531,n42,acc24,recMult23) /\ X354(s531,n42,acc24,recMult23)) => X363(s531,n42,acc24,recMult23)
+((X359(s531,n42,acc24,recMult23) /\ X354(s531,n42,acc24,recMult23)) /\ X364(x288,s531,n42,acc24,recMult23)) => X355(x288,s531,n42,acc24,recMult23)
+(X359(s531,n42,acc24,recMult23) /\ X356(s531,n42,acc24,recMult23)) => X358(s531,n42,acc24,recMult23)
+((X359(s531,n42,acc24,recMult23) /\ X356(s531,n42,acc24,recMult23)) /\ X44(x287,s531,n42,acc24,recMult23)) => X357(x287,s531,n42,acc24,recMult23)
+X358(s531,n42,acc24,recMult23) => X14(acc24,recMult23)
+(X358(s531,n42,acc24,recMult23) /\ X13(x286,acc24,recMult23)) => X44(x286 - 1,s531,n42,acc24,recMult23)
+X350(s531,n42,acc24,recMult23) => X10(s531,recMult23 - 1)
+(X350(s531,n42,acc24,recMult23) /\ X9(x284,s531,recMult23 - 1)) => X351(x284,s531,n42,acc24,recMult23)
+((X350(s531,n42,acc24,recMult23) /\ X9(x284,s531,recMult23 - 1)) /\ X352(x284,s531,n42,acc24,recMult23)) => X8(x284,s531,recMult23 - 1)
+(((X350(s531,n42,acc24,recMult23) /\ X9(x284,s531,recMult23 - 1)) /\ X352(x284,s531,n42,acc24,recMult23)) /\ X7(x285,x284,s531,recMult23 - 1)) => X353(x285,x284,s531,n42,acc24,recMult23)
+(X350(s531,n42,acc24,recMult23) /\ X6(s531,recMult23 - 1)) => X354(s531,n42,acc24,recMult23)
+((X350(s531,n42,acc24,recMult23) /\ X6(s531,recMult23 - 1)) /\ X355(x283,s531,n42,acc24,recMult23)) => X5(x283,s531,recMult23 - 1)
+(X350(s531,n42,acc24,recMult23) /\ X4(s531,recMult23 - 1)) => X356(s531,n42,acc24,recMult23)
+((X350(s531,n42,acc24,recMult23) /\ X4(s531,recMult23 - 1)) /\ X357(x282,s531,n42,acc24,recMult23)) => X3(x282,s531,recMult23 - 1)
+(X350(s531,n42,acc24,recMult23) /\ X2(s531,recMult23 - 1)) => X349(s531,n42,acc24,recMult23)
+((X350(s531,n42,acc24,recMult23) /\ X2(s531,recMult23 - 1)) /\ X51(x281,s531,n42,acc24,recMult23)) => X1(x281,s531,recMult23 - 1)
+X349(s531,n42,acc24,recMult23) => X12(acc24,recMult23)
+(X349(s531,n42,acc24,recMult23) /\ X11(x280,acc24,recMult23)) => X348(x280,s531,n42,acc24,recMult23)
+X348(fx35,s531,n42,acc24,recMult23) => X16(acc24,recMult23)
+(X348(fx35,s531,n42,acc24,recMult23) /\ X15(x279,acc24,recMult23)) => X51(fx35 + x279,s531,n42,acc24,recMult23)
+X74(s330,n42,acc24,recMult23) => (s330<acc24 \/ (s330<-1 * acc24 \/ X347(s330,n42,acc24,recMult23)))
+X347(s330,n42,acc24,recMult23) => X19(s330,acc24,recMult23)
+(X347(s330,n42,acc24,recMult23) /\ X18(s330,acc24,recMult23)) => X12(acc24,recMult23)
+((X347(s330,n42,acc24,recMult23) /\ X18(s330,acc24,recMult23)) /\ X11(x278,acc24,recMult23)) => X17(x278,s330,acc24,recMult23)
+X92(s531,n42,acc24,recMult23) => (s531<2 * acc24 \/ (s531<-2 * acc24 \/ X346(s531,n42,acc24,recMult23)))
+X346(s531,n42,acc24,recMult23) => X342(s531,n42,acc24,recMult23)
+(X346(s531,n42,acc24,recMult23) /\ X343(x276,s531,n42,acc24,recMult23)) => X19(x276,acc24,recMult23)
+((X346(s531,n42,acc24,recMult23) /\ X343(x276,s531,n42,acc24,recMult23)) /\ X18(x276,acc24,recMult23)) => X344(x276,s531,n42,acc24,recMult23)
+(((X346(s531,n42,acc24,recMult23) /\ X343(x276,s531,n42,acc24,recMult23)) /\ X18(x276,acc24,recMult23)) /\ X345(x277,x276,s531,n42,acc24,recMult23)) => X17(x277,x276,acc24,recMult23)
+X342(s531,n42,acc24,recMult23) => X336(s531,n42,acc24,recMult23)
+(X342(s531,n42,acc24,recMult23) /\ X337(x274,s531,n42,acc24,recMult23)) => X343(x274,s531,n42,acc24,recMult23)
+((X342(s531,n42,acc24,recMult23) /\ X337(x274,s531,n42,acc24,recMult23)) /\ X344(x274,s531,n42,acc24,recMult23)) => X338(x274,s531,n42,acc24,recMult23)
+(((X342(s531,n42,acc24,recMult23) /\ X337(x274,s531,n42,acc24,recMult23)) /\ X344(x274,s531,n42,acc24,recMult23)) /\ X339(x275,x274,s531,n42,acc24,recMult23)) => X345(x275,x274,s531,n42,acc24,recMult23)
+(X342(s531,n42,acc24,recMult23) /\ X340(s531,n42,acc24,recMult23)) => X16(acc24,recMult23)
+((X342(s531,n42,acc24,recMult23) /\ X340(s531,n42,acc24,recMult23)) /\ X15(x273,acc24,recMult23)) => X341(x273,s531,n42,acc24,recMult23)
+X336(s531,n42,acc24,recMult23) => X327(s531,n42,acc24,recMult23)
+(X336(s531,n42,acc24,recMult23) /\ X328(x271,s531,n42,acc24,recMult23)) => X337(x271,s531,n42,acc24,recMult23)
+((X336(s531,n42,acc24,recMult23) /\ X328(x271,s531,n42,acc24,recMult23)) /\ X338(x271,s531,n42,acc24,recMult23)) => X329(x271,s531,n42,acc24,recMult23)
+(((X336(s531,n42,acc24,recMult23) /\ X328(x271,s531,n42,acc24,recMult23)) /\ X338(x271,s531,n42,acc24,recMult23)) /\ X330(x272,x271,s531,n42,acc24,recMult23)) => X339(x272,x271,s531,n42,acc24,recMult23)
+(X336(s531,n42,acc24,recMult23) /\ X331(s531,n42,acc24,recMult23)) => X340(s531,n42,acc24,recMult23)
+((X336(s531,n42,acc24,recMult23) /\ X331(s531,n42,acc24,recMult23)) /\ X341(x270,s531,n42,acc24,recMult23)) => X332(x270,s531,n42,acc24,recMult23)
+(X336(s531,n42,acc24,recMult23) /\ X333(s531,n42,acc24,recMult23)) => X335(s531,n42,acc24,recMult23)
+((X336(s531,n42,acc24,recMult23) /\ X333(s531,n42,acc24,recMult23)) /\ X105(x269,s531,n42,acc24,recMult23)) => X334(x269,s531,n42,acc24,recMult23)
+X335(s531,n42,acc24,recMult23) => X14(acc24,recMult23)
+(X335(s531,n42,acc24,recMult23) /\ X13(x268,acc24,recMult23)) => X105(x268 - 1,s531,n42,acc24,recMult23)
+X327(s531,n42,acc24,recMult23) => X10(s531,recMult23 - 1)
+(X327(s531,n42,acc24,recMult23) /\ X9(x266,s531,recMult23 - 1)) => X328(x266,s531,n42,acc24,recMult23)
+((X327(s531,n42,acc24,recMult23) /\ X9(x266,s531,recMult23 - 1)) /\ X329(x266,s531,n42,acc24,recMult23)) => X8(x266,s531,recMult23 - 1)
+(((X327(s531,n42,acc24,recMult23) /\ X9(x266,s531,recMult23 - 1)) /\ X329(x266,s531,n42,acc24,recMult23)) /\ X7(x267,x266,s531,recMult23 - 1)) => X330(x267,x266,s531,n42,acc24,recMult23)
+(X327(s531,n42,acc24,recMult23) /\ X6(s531,recMult23 - 1)) => X331(s531,n42,acc24,recMult23)
+((X327(s531,n42,acc24,recMult23) /\ X6(s531,recMult23 - 1)) /\ X332(x265,s531,n42,acc24,recMult23)) => X5(x265,s531,recMult23 - 1)
+(X327(s531,n42,acc24,recMult23) /\ X4(s531,recMult23 - 1)) => X333(s531,n42,acc24,recMult23)
+((X327(s531,n42,acc24,recMult23) /\ X4(s531,recMult23 - 1)) /\ X334(x264,s531,n42,acc24,recMult23)) => X3(x264,s531,recMult23 - 1)
+(X327(s531,n42,acc24,recMult23) /\ X2(s531,recMult23 - 1)) => X326(s531,n42,acc24,recMult23)
+((X327(s531,n42,acc24,recMult23) /\ X2(s531,recMult23 - 1)) /\ X112(x263,s531,n42,acc24,recMult23)) => X1(x263,s531,recMult23 - 1)
+X326(s531,n42,acc24,recMult23) => X12(acc24,recMult23)
+(X326(s531,n42,acc24,recMult23) /\ X11(x262,acc24,recMult23)) => X325(x262,s531,n42,acc24,recMult23)
+X325(fx35,s531,n42,acc24,recMult23) => X16(acc24,recMult23)
+(X325(fx35,s531,n42,acc24,recMult23) /\ X15(x261,acc24,recMult23)) => X112(fx35 + x261,s531,n42,acc24,recMult23)
+X135(s330,n42,acc24,recMult23) => (s330<acc24 \/ (s330<-1 * acc24 \/ X324(s330,n42,acc24,recMult23)))
+X324(s330,n42,acc24,recMult23) => X19(s330,acc24,recMult23)
+(X324(s330,n42,acc24,recMult23) /\ X18(s330,acc24,recMult23)) => X12(acc24,recMult23)
+((X324(s330,n42,acc24,recMult23) /\ X18(s330,acc24,recMult23)) /\ X11(x260,acc24,recMult23)) => X17(x260,s330,acc24,recMult23)
+X152(x257,x256) => (x256>0 /\ X323(x257,x256))
+(X152(x257,x256) /\ X155(x257,x256)) => X151(x257,x256)
+((X152(x257,x256) /\ X155(x257,x256)) /\ X150(x259,x257,x256)) => X154(x259,x257,x256)
+(X152(x257,x256) /\ X153(x258,x257,x256)) => X149(x258,x257,x256)
+X323(k18,recMain17) => X155(k18,recMain17)
+(X323(k18,recMain17) /\ X154(x255,k18,recMain17)) => ((x255>0 \/ ((0/=0 \/ X153(0,k18,recMain17)) /\ (0=0 \/ X197(s322,x255,k18,recMain17)))) /\ (x255<=0 \/ ((1/=0 \/ X153(0,k18,recMain17)) /\ (1=0 \/ X167(s322,x255,k18,recMain17)))))
+X167(s322,n42,k18,recMain17) => (s322<k18 \/ (s322<-1 * k18 \/ X322(s322,n42,k18,recMain17)))
+X322(s322,n42,k18,recMain17) => X318(s322,n42,k18,recMain17)
+(X322(s322,n42,k18,recMain17) /\ X319(s322,n42,k18,recMain17)) => X321(s322,n42,k18,recMain17)
+((X322(s322,n42,k18,recMain17) /\ X319(s322,n42,k18,recMain17)) /\ X173(x254,s322,n42,k18,recMain17)) => X320(x254,s322,n42,k18,recMain17)
+X321(s322,n42,k18,recMain17) => X155(k18,recMain17)
+(X321(s322,n42,k18,recMain17) /\ X154(x253,k18,recMain17)) => X173(x253 - 1,s322,n42,k18,recMain17)
+X318(s322,n42,k18,recMain17) => X152(s322,recMain17 - 1)
+(X318(s322,n42,k18,recMain17) /\ X151(s322,recMain17 - 1)) => X319(s322,n42,k18,recMain17)
+((X318(s322,n42,k18,recMain17) /\ X151(s322,recMain17 - 1)) /\ X320(x252,s322,n42,k18,recMain17)) => X150(x252,s322,recMain17 - 1)
+(X318(s322,n42,k18,recMain17) /\ X149(x251,s322,recMain17 - 1)) => X153(x251,k18,recMain17)
+X197(s322,n42,k18,recMain17) => (s322<k18 \/ (s322<-1 * k18 \/ X317(s322,n42,k18,recMain17)))
+X317(s322,n42,k18,recMain17) => X313(s322,n42,k18,recMain17)
+(X317(s322,n42,k18,recMain17) /\ X314(s322,n42,k18,recMain17)) => X316(s322,n42,k18,recMain17)
+((X317(s322,n42,k18,recMain17) /\ X314(s322,n42,k18,recMain17)) /\ X203(x250,s322,n42,k18,recMain17)) => X315(x250,s322,n42,k18,recMain17)
+X316(s322,n42,k18,recMain17) => X155(k18,recMain17)
+(X316(s322,n42,k18,recMain17) /\ X154(x249,k18,recMain17)) => X203(x249 - 1,s322,n42,k18,recMain17)
+X313(s322,n42,k18,recMain17) => X152(s322,recMain17 - 1)
+(X313(s322,n42,k18,recMain17) /\ X151(s322,recMain17 - 1)) => X314(s322,n42,k18,recMain17)
+((X313(s322,n42,k18,recMain17) /\ X151(s322,recMain17 - 1)) /\ X315(x248,s322,n42,k18,recMain17)) => X150(x248,s322,recMain17 - 1)
+(X313(s322,n42,k18,recMain17) /\ X149(x247,s322,recMain17 - 1)) => X153(x247,k18,recMain17)
+X223() => X224(n6)
+X224(n6) => X225(s7,n6)
+X225(s7,n6) => (s7<n6 \/ (s7<-1 * n6 \/ X230(recMult8,s7,n6)))
+X230(recMult8,s7,n6) => (recMult8<n6 + 1 \/ (recMult8<-1 * n6 + 1 \/ (recMult8<1 \/ X312(recMult8,s7,n6))))
+X312(recMult8,s7,n6) => X304(recMult8,s7,n6)
+(X312(recMult8,s7,n6) /\ X305(x245,recMult8,s7,n6)) => X240(s514,x245,recMult8,s7,n6)
+((X312(recMult8,s7,n6) /\ X305(x245,recMult8,s7,n6)) /\ X239(x245,recMult8,s7,n6)) => X306(x245,recMult8,s7,n6)
+(((X312(recMult8,s7,n6) /\ X305(x245,recMult8,s7,n6)) /\ X239(x245,recMult8,s7,n6)) /\ X307(x246,x245,recMult8,s7,n6)) => X238(x246,x245,recMult8,s7,n6)
+X240(s514,g12,recMult8,s7,n6) => (s514<g12 \/ (s514<-1 * g12 \/ X245(recMain15,s514,g12,recMult8,s7,n6)))
+X245(recMain15,s514,g12,recMult8,s7,n6) => (recMain15<g12 + 1 \/ (recMain15<-1 * g12 + 1 \/ (recMain15<n6 + 1 \/ (recMain15<-1 * n6 + 1 \/ (recMain15<1 \/ X311(recMain15,s514,g12,recMult8,s7,n6))))))
+X311(recMain15,s514,g12,recMult8,s7,n6) => X308(recMain15,s514,g12,recMult8,s7,n6)
+(X311(recMain15,s514,g12,recMult8,s7,n6) /\ X309(recMain15,s514,g12,recMult8,s7,n6)) => X239(g12,recMult8,s7,n6)
+((X311(recMain15,s514,g12,recMult8,s7,n6) /\ X309(recMain15,s514,g12,recMult8,s7,n6)) /\ X238(x244,g12,recMult8,s7,n6)) => X310(x244,recMain15,s514,g12,recMult8,s7,n6)
+X308(recMain15,s514,g12,recMult8,s7,n6) => X152(s514,recMain15)
+(X308(recMain15,s514,g12,recMult8,s7,n6) /\ X151(s514,recMain15)) => X309(recMain15,s514,g12,recMult8,s7,n6)
+((X308(recMain15,s514,g12,recMult8,s7,n6) /\ X151(s514,recMain15)) /\ X310(x243,recMain15,s514,g12,recMult8,s7,n6)) => X150(x243,s514,recMain15)
+(X308(recMain15,s514,g12,recMult8,s7,n6) /\ X149(x242,s514,recMain15)) => tt
+X304(recMult8,s7,n6) => X298(recMult8,s7,n6)
+(X304(recMult8,s7,n6) /\ X299(x240,recMult8,s7,n6)) => X305(x240,recMult8,s7,n6)
+((X304(recMult8,s7,n6) /\ X299(x240,recMult8,s7,n6)) /\ X306(x240,recMult8,s7,n6)) => X300(x240,recMult8,s7,n6)
+(((X304(recMult8,s7,n6) /\ X299(x240,recMult8,s7,n6)) /\ X306(x240,recMult8,s7,n6)) /\ X301(x241,x240,recMult8,s7,n6)) => X307(x241,x240,recMult8,s7,n6)
+(X304(recMult8,s7,n6) /\ X302(recMult8,s7,n6)) => X267(n6,recMult8,s7,n6)
+((X304(recMult8,s7,n6) /\ X302(recMult8,s7,n6)) /\ X267(x239,recMult8,s7,n6)) => X303(x239,recMult8,s7,n6)
+X298(recMult8,s7,n6) => X290(recMult8,s7,n6)
+(X298(recMult8,s7,n6) /\ X291(x237,recMult8,s7,n6)) => X299(x237,recMult8,s7,n6)
+((X298(recMult8,s7,n6) /\ X291(x237,recMult8,s7,n6)) /\ X300(x237,recMult8,s7,n6)) => X292(x237,recMult8,s7,n6)
+(((X298(recMult8,s7,n6) /\ X291(x237,recMult8,s7,n6)) /\ X300(x237,recMult8,s7,n6)) /\ X293(x238,x237,recMult8,s7,n6)) => X301(x238,x237,recMult8,s7,n6)
+(X298(recMult8,s7,n6) /\ X294(recMult8,s7,n6)) => X302(recMult8,s7,n6)
+((X298(recMult8,s7,n6) /\ X294(recMult8,s7,n6)) /\ X303(x236,recMult8,s7,n6)) => X295(x236,recMult8,s7,n6)
+(X298(recMult8,s7,n6) /\ X296(recMult8,s7,n6)) => X271(n6,recMult8,s7,n6)
+((X298(recMult8,s7,n6) /\ X296(recMult8,s7,n6)) /\ X271(x235,recMult8,s7,n6)) => X297(x235,recMult8,s7,n6)
+X290(recMult8,s7,n6) => X10(s7,recMult8)
+(X290(recMult8,s7,n6) /\ X9(x233,s7,recMult8)) => X291(x233,recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X9(x233,s7,recMult8)) /\ X292(x233,recMult8,s7,n6)) => X8(x233,s7,recMult8)
+(((X290(recMult8,s7,n6) /\ X9(x233,s7,recMult8)) /\ X292(x233,recMult8,s7,n6)) /\ X7(x234,x233,s7,recMult8)) => X293(x234,x233,recMult8,s7,n6)
+(X290(recMult8,s7,n6) /\ X6(s7,recMult8)) => X294(recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X6(s7,recMult8)) /\ X295(x232,recMult8,s7,n6)) => X5(x232,s7,recMult8)
+(X290(recMult8,s7,n6) /\ X4(s7,recMult8)) => X296(recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X4(s7,recMult8)) /\ X297(x231,recMult8,s7,n6)) => X3(x231,s7,recMult8)
+(X290(recMult8,s7,n6) /\ X2(s7,recMult8)) => X275(0,recMult8,s7,n6)
+((X290(recMult8,s7,n6) /\ X2(s7,recMult8)) /\ X275(x230,recMult8,s7,n6)) => X1(x230,s7,recMult8)
+tt => X223()
+[Size] 1
+Run command: "z3 fp.engine=spacer /tmp/spacer-8188158.smt2"

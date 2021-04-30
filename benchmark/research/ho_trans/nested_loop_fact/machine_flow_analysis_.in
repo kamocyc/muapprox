@@ -1,0 +1,88 @@
+/* フロー解析で、符号を考慮に入れない版 */
+%HES
+Sentry =v
+  ∀n. 
+    ∀s2. 
+      s2 < 1 * n \/ s2 < (-1) * n
+      \/ (∀recFact. 
+           recFact < 1 + 1 * n \/ recFact < 1 + (-1) * n \/ recFact < 1 + 1 * 1
+           \/ recFact < 1 + (-1) * 1
+           \/ recFact < 1
+           \/ Fact recFact 1 (\k. k 1) s2 (\k. k n)
+               (\g_i. 
+                 \g. 
+                  ∀recMain. 
+                   recMain < 1 + 1 * g_i \/ recMain < 1 + 1 * n
+                   \/ recMain < 1 + (-1) * g_i
+                   \/ recMain < 1 + (-1) * n
+                   \/ recMain < 1
+                   \/ Main recMain true g)).
+
+Main recMain k g =v
+  recMain > 0
+  /\ Check g (\b. (b != 0 \/ k) /\ (b = 0 \/ Main (recMain - 1) k (Pred g))).
+
+Fact recFact acc_i acc f_i f k =v
+  recFact > 0
+  /\ Check f
+      (\b. 
+        (b != 0
+         \/ (∀s. 
+                 s < 1 * acc_i
+              \/ s < (-1) * acc_i
+              \/ k s acc))
+        /\ (b != 1
+            \/ (
+                 ∀s2. 
+                  ∀s3. 
+                       s2 < 1 * acc_i
+                    \/ s2 < (-1) * acc_i
+                    \/ s3 < 1 * f_i
+                    \/ s3 < (-1) * f_i
+                    \/ (∀recMult. 
+                            recMult < 1 + 1 * b
+                         \/ recMult < 1 + 1 * f_i
+                         \/ recMult < 1 + 1 * acc_i
+                         \/ recMult < 1 + (-1) * b
+                         \/ recMult < 1 + (-1) * f_i
+                         \/ recMult < 1 + (-1) * acc_i
+                         \/ recMult < 1
+                         \/ Mult recMult 0 (\k2. k2 0) s2 acc s3 f
+                             (\accc_i. 
+                               \accc. 
+                                ∀s5. 
+                                 ∀s6. 
+                                      s5 < 1 * accc_i
+                                   \/ s5 < (-1) * accc_i
+                                   \/ s6 < 1 * f_i
+                                   \/ s6 < (-1) * f_i
+                                   \/ Fact (recFact - 1) s5 accc s6 (Pred f) k))))).
+
+Mult recMult acc_i acc f_i f g_i g k =v
+  recMult > 0
+  /\ Check f
+      (\b. 
+        (b != 0
+         \/ (∀s. 
+                 s < 1 * acc_i
+              \/ s < (-1) * acc_i
+              \/ k s acc))
+        /\ (b != 1
+            \/ (∀s. 
+                 ∀s2. 
+                  ∀s3. 
+                       s < 2 * g_i
+                    \/ s < (-2) * g_i
+                    \/ s < 2 * acc_i
+                    \/ s < (-2) * acc_i
+                    \/ s2 < 1 * f_i
+                    \/ s2 < (-1) * f_i
+                    \/ s3 < 1 * g_i
+                    \/ s3 < (-1) * g_i
+                    \/ Mult (recMult - 1) s (Add acc g) s2 (Pred f) s3 g k))).
+
+Add f g k =v f (\fx. g (\gx. k (fx + gx))).
+
+Pred f k =v f (\r. k (r - 1)).
+
+Check f k =v f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).

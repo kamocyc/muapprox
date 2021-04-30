@@ -10,3 +10,4 @@ a.out
 submit/
 **/*.tmp
 benchmark/ml/**/*.json
+tmp/

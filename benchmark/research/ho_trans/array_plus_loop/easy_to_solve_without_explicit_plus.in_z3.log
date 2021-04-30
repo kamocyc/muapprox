@@ -1,0 +1,957 @@
+INPUT FILE: benchmark/research/ho_trans/array_plus_loop/easy_to_solve_without_explicit_plus.in
+[Main:App:Input]
+  Sentry : bool =ν
+    ∀x7:int.
+     ∀y8:int.
+      Make_array
+       (λar9:(int -> (int -> bool) -> bool).
+         Update ar9 0 x7
+          (λar210:(int -> (int -> bool) -> bool).
+            Update ar210 1 y8
+             (λar311:(int -> (int -> bool) -> bool).Main x7 y8 ar311 (λreplaced12:bool.true))))
+  Main : int -> int -> (int -> (int -> bool) -> bool) -> (bool -> bool) -> bool =ν
+    λx13:int.
+     λy14:int.
+      λar15:(int -> (int -> bool) -> bool).
+       λk16:(bool -> bool).
+        ∀recLoop17:int.
+         recLoop17 < 1 + 2 * 1
+         || recLoop17 < 1 + -2 * 1
+            || recLoop17 < 1 + 2 * x13
+               || recLoop17 < 1 + -2 * x13
+                  || recLoop17 < 1 + 2 * y14
+                     || recLoop17 < 1 + -2 * y14
+                        || recLoop17 < 1 || Loop recLoop17 x13 y14 ar15 0 1 (λr18:bool.k16 r18)
+  Loop : int ->
+          int -> int -> (int -> (int -> bool) -> bool) -> int -> int -> (bool -> bool) -> bool =ν
+    λrecLoop19:int.
+     λxx20:int.
+      λyy21:int.
+       λar22:(int -> (int -> bool) -> bool).
+        λi23:int.
+         λj24:int.
+          λk25:(bool -> bool).
+           recLoop19 > 0
+           && ar22 i23
+               (λx226:int.
+                 ar22 j24
+                  (λy227:int.
+                    (x226 + y227 > 0 || k25 false)
+                    && (x226 + y227 <= 0
+                        || Pred ar22 0
+                            (λar_ap_28:(int -> (int -> bool) -> bool).
+                              Loop (recLoop19 - 1) xx20 yy21 ar_ap_28 0 1 k25))))
+  Pred : (int -> (int -> bool) -> bool) -> int -> ((int -> (int -> bool) -> bool) -> bool) -> bool =ν
+    λar29:(int -> (int -> bool) -> bool).
+     λi30:int.
+      λk31:((int -> (int -> bool) -> bool) -> bool).
+       ar29 i30 (λx32:int.Update ar29 i30 (x32 - 1) k31)
+  Make_array : ((int -> (int -> bool) -> bool) -> bool) -> bool =ν
+    λk33:((int -> (int -> bool) -> bool) -> bool).
+     k33 (λi34:int.λk_ap_35:(int -> bool).k_ap_35 0)
+  Update : (int -> (int -> bool) -> bool) ->
+            int -> int -> ((int -> (int -> bool) -> bool) -> bool) -> bool =ν
+    λar36:(int -> (int -> bool) -> bool).
+     λi37:int.
+      λx38:int.
+       λk39:((int -> (int -> bool) -> bool) -> bool).
+        k39
+         (λj40:int.
+           λk_ap_41:(int -> bool).(j40 /= i37 || k_ap_41 x38) && (j40 = i37 || ar36 j40 k_ap_41))
+  Check : (bool -> (int -> bool) -> bool) -> bool -> int -> (bool -> bool) -> bool =ν
+    λar42:(bool -> (int -> bool) -> bool).
+     λi43:bool.λx44:int.λk45:(bool -> bool).ar42 i43 (λr46:int.k45 (r46 = x44))
+[Main:App:Simplified]
+  Sentry : bool =ν
+    ∀x7:int.
+     ∀y8:int.
+      ∀recLoop17:int.
+       recLoop17 < 1 + 2 * 1
+       || recLoop17 < 1 + -2 * 1
+          || recLoop17 < 1 + 2 * x7
+             || recLoop17 < 1 + -2 * x7
+                || recLoop17 < 1 + 2 * y8
+                   || recLoop17 < 1 + -2 * y8
+                      || recLoop17 < 1
+                         || Loop recLoop17 x7 y8
+                             (λj40:int.
+                               λk_ap_41:(int -> bool).
+                                (j40 /= 1 || k_ap_41 y8)
+                                && (j40 = 1 || (j40 /= 0 || k_ap_41 x7) && (j40 = 0 || k_ap_41 0)))
+                             0 1 (λr18:bool.true)
+  Loop : int ->
+          int -> int -> (int -> (int -> bool) -> bool) -> int -> int -> (bool -> bool) -> bool =ν
+    λrecLoop19:int.
+     λxx20:int.
+      λyy21:int.
+       λar22:(int -> (int -> bool) -> bool).
+        λi23:int.
+         λj24:int.
+          λk25:(bool -> bool).
+           recLoop19 > 0
+           && ar22 i23
+               (λx226:int.
+                 ar22 j24
+                  (λy227:int.
+                    (x226 + y227 > 0 || k25 false)
+                    && (x226 + y227 <= 0
+                        || ar22 0
+                            (λx32:int.
+                              Loop (recLoop19 - 1) xx20 yy21
+                               (λj40:int.
+                                 λk_ap_41:(int -> bool).
+                                  (j40 /= 0 || k_ap_41 (x32 - 1)) && (j40 = 0 || ar22 j40 k_ap_41))
+                               0 1 k25))))
+Sentry *[X61()]
+Loop (int(recLoop127) -> (int(xx128) -> (int(yy129) -> ((int(t130) -> ((int(t131) -> *[X1(t131,t130,yy129,xx128,recLoop127)]) -> *[X2(t130,yy129,xx128,recLoop127)])) -> (int(i134) -> (int(j135) -> ((*[X3(j135,i134,yy129,xx128,recLoop127)] -> *[X4(j135,i134,yy129,xx128,recLoop127)]) -> *[X5(j135,i134,yy129,xx128,recLoop127)])))))))
+
+
+infering new formula: Sentry = (∀int(x7).(∀int(y8).(∀int(recLoop17).(recLoop17<1 + 2 * 1 || (recLoop17<1 + -2 * 1 || (recLoop17<1 + 2 * x7 || (recLoop17<1 + -2 * x7 || (recLoop17<1 + 2 * y8 || (recLoop17<1 + -2 * y8 || (recLoop17<1 || (((((((Loop recLoop17) x7) y8) (\int(j40).(\(int(t249) -> *[X84(t249,j40,recLoop17,y8,x7)]).((j40/=1 || (k_ap_41 y8)):X85(j40,recLoop17,y8,x7) && (j40=1 || ((j40/=0 || (k_ap_41 x7)):X89(j40,recLoop17,y8,x7) && (j40=0 || (k_ap_41 0)):X90(j40,recLoop17,y8,x7))):X86(j40,recLoop17,y8,x7))))) 0) 1) (\*[X80(recLoop17,y8,x7)].tt))))))))))))
+[Result]
+X61() => X62(x7)
+X62(x7) => X63(y8,x7)
+X63(y8,x7) => X64(recLoop17,y8,x7)
+X64(recLoop17,y8,x7) => (recLoop17<1 + 2 * 1 \/ (recLoop17<1 + -2 * 1 \/ (recLoop17<1 + 2 * x7 \/ (recLoop17<1 + -2 * x7 \/ (recLoop17<1 + 2 * y8 \/ (recLoop17<1 + -2 * y8 \/ (recLoop17<1 \/ X114(recLoop17,y8,x7))))))))
+X114(recLoop17,y8,x7) => X111(1,0,recLoop17,y8,x7)
+(X114(recLoop17,y8,x7) /\ X112(1,0,recLoop17,y8,x7)) => tt
+((X114(recLoop17,y8,x7) /\ X112(1,0,recLoop17,y8,x7)) /\ X80(recLoop17,y8,x7)) => X113(1,0,recLoop17,y8,x7)
+X111(x282,x281,recLoop17,y8,x7) => X5(x282,x281,y8,x7,recLoop17)
+(X111(x282,x281,recLoop17,y8,x7) /\ X4(x282,x281,y8,x7,recLoop17)) => X112(x282,x281,recLoop17,y8,x7)
+((X111(x282,x281,recLoop17,y8,x7) /\ X4(x282,x281,y8,x7,recLoop17)) /\ X113(x282,x281,recLoop17,y8,x7)) => X3(x282,x281,y8,x7,recLoop17)
+(X111(j135,i134,recLoop17,y8,x7) /\ X2(x279,y8,x7,recLoop17)) => ((x279/=1 \/ X84(y8,x279,recLoop17,y8,x7)) /\ (x279=1 \/ ((x279/=0 \/ X84(x7,x279,recLoop17,y8,x7)) /\ (x279=0 \/ X84(0,x279,recLoop17,y8,x7)))))
+((X111(j135,i134,recLoop17,y8,x7) /\ X2(x279,y8,x7,recLoop17)) /\ X84(x280,x279,recLoop17,y8,x7)) => X1(x280,x279,y8,x7,recLoop17)
+tt => X61()
+
+
+infering new formula: Loop = (\int(recLoop19).(\int(xx20).(\int(yy21).(\(int(t177) -> ((int(t178) -> *[X6(t178,t177,yy21,xx20,recLoop19)]) -> *[X7(t177,yy21,xx20,recLoop19)])).(\int(i23).(\int(j24).(\(*[X8(j24,i23,yy21,xx20,recLoop19)] -> *[X9(j24,i23,yy21,xx20,recLoop19)]).(recLoop19>0:X10(j24,i23,yy21,xx20,recLoop19) && ((ar22 i23) (\int(x226).((ar22 j24) (\int(y227).((x226 + y227>0 || (k25 ff)):X14(y227,x226,j24,i23,yy21,xx20,recLoop19) && (x226 + y227<=0 || ((ar22 0) (\int(x32).(((((((Loop recLoop19 - 1) xx20) yy21) (\int(j40).(\(int(t249) -> *[X25(t249,j40,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)]).((j40/=0 || (k_ap_41 x32 - 1)):X26(j40,x32,y227,x226,j24,i23,yy21,xx20,recLoop19) && (j40=0 || ((ar22 j40) k_ap_41)):X27(j40,x32,y227,x226,j24,i23,yy21,xx20,recLoop19))))) 0) 1) k25)))):X15(y227,x226,j24,i23,yy21,xx20,recLoop19)))))):X11(j24,i23,yy21,xx20,recLoop19)))))))))
+[Result]
+X5(x297,x296,x293,x292,x291) => (x291>0 /\ X123(x297,x296,x293,x292,x291))
+(X5(x297,x296,x293,x292,x291) /\ X9(x297,x296,x293,x292,x291)) => X4(x297,x296,x293,x292,x291)
+((X5(x297,x296,x293,x292,x291) /\ X9(x297,x296,x293,x292,x291)) /\ X3(x297,x296,x293,x292,x291)) => X8(x297,x296,x293,x292,x291)
+(X5(j135,i134,x293,x292,x291) /\ X7(x294,x293,x292,x291)) => X2(x294,x293,x292,x291)
+((X5(j135,i134,x293,x292,x291) /\ X7(x294,x293,x292,x291)) /\ X1(x295,x294,x293,x292,x291)) => X6(x295,x294,x293,x292,x291)
+X123(j24,i23,yy21,xx20,recLoop19) => X7(i23,yy21,xx20,recLoop19)
+(X123(j24,i23,yy21,xx20,recLoop19) /\ X6(x290,i23,yy21,xx20,recLoop19)) => X122(x290,j24,i23,yy21,xx20,recLoop19)
+X122(x226,j24,i23,yy21,xx20,recLoop19) => X7(j24,yy21,xx20,recLoop19)
+(X122(x226,j24,i23,yy21,xx20,recLoop19) /\ X6(x289,j24,yy21,xx20,recLoop19)) => ((x226 + x289>0 \/ X115(x289,x226,j24,i23,yy21,xx20,recLoop19)) /\ (x226 + x289<=0 \/ X121(x289,x226,j24,i23,yy21,xx20,recLoop19)))
+X121(y227,x226,j24,i23,yy21,xx20,recLoop19) => X7(0,yy21,xx20,recLoop19)
+(X121(y227,x226,j24,i23,yy21,xx20,recLoop19) /\ X6(x288,0,yy21,xx20,recLoop19)) => X120(x288,y227,x226,j24,i23,yy21,xx20,recLoop19)
+X120(x32,y227,x226,j24,i23,yy21,xx20,recLoop19) => X117(1,0,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)
+(X120(x32,y227,x226,j24,i23,yy21,xx20,recLoop19) /\ X118(1,0,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)) => X9(j24,i23,yy21,xx20,recLoop19)
+((X120(x32,y227,x226,j24,i23,yy21,xx20,recLoop19) /\ X118(1,0,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)) /\ X8(j24,i23,yy21,xx20,recLoop19)) => X119(1,0,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)
+X117(x287,x286,x32,y227,x226,j24,i23,yy21,xx20,recLoop19) => X5(x287,x286,yy21,xx20,recLoop19 - 1)
+(X117(x287,x286,x32,y227,x226,j24,i23,yy21,xx20,recLoop19) /\ X4(x287,x286,yy21,xx20,recLoop19 - 1)) => X118(x287,x286,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)
+((X117(x287,x286,x32,y227,x226,j24,i23,yy21,xx20,recLoop19) /\ X4(x287,x286,yy21,xx20,recLoop19 - 1)) /\ X119(x287,x286,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)) => X3(x287,x286,yy21,xx20,recLoop19 - 1)
+(X117(j135,i134,x32,y227,x226,j24,i23,yy21,xx20,recLoop19) /\ X2(x284,yy21,xx20,recLoop19 - 1)) => ((x284/=0 \/ X25(x32 - 1,x284,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)) /\ (x284=0 \/ X116(x284,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)))
+((X117(j135,i134,x32,y227,x226,j24,i23,yy21,xx20,recLoop19) /\ X2(x284,yy21,xx20,recLoop19 - 1)) /\ X25(x285,x284,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)) => X1(x285,x284,yy21,xx20,recLoop19 - 1)
+X116(j40,x32,y227,x226,j24,i23,yy21,xx20,recLoop19) => X7(j40,yy21,xx20,recLoop19)
+(X116(j40,x32,y227,x226,j24,i23,yy21,xx20,recLoop19) /\ X6(x283,j40,yy21,xx20,recLoop19)) => X25(x283,j40,x32,y227,x226,j24,i23,yy21,xx20,recLoop19)
+X115(y227,x226,j24,i23,yy21,xx20,recLoop19) => X9(j24,i23,yy21,xx20,recLoop19)
+(X115(y227,x226,j24,i23,yy21,xx20,recLoop19) /\ X8(j24,i23,yy21,xx20,recLoop19)) => ff
+X61() => X62(x7)
+X62(x7) => X63(y8,x7)
+X63(y8,x7) => X64(recLoop17,y8,x7)
+X64(recLoop17,y8,x7) => (recLoop17<1 + 2 * 1 \/ (recLoop17<1 + -2 * 1 \/ (recLoop17<1 + 2 * x7 \/ (recLoop17<1 + -2 * x7 \/ (recLoop17<1 + 2 * y8 \/ (recLoop17<1 + -2 * y8 \/ (recLoop17<1 \/ X114(recLoop17,y8,x7))))))))
+X114(recLoop17,y8,x7) => X111(1,0,recLoop17,y8,x7)
+(X114(recLoop17,y8,x7) /\ X112(1,0,recLoop17,y8,x7)) => tt
+((X114(recLoop17,y8,x7) /\ X112(1,0,recLoop17,y8,x7)) /\ X80(recLoop17,y8,x7)) => X113(1,0,recLoop17,y8,x7)
+X111(x282,x281,recLoop17,y8,x7) => X5(x282,x281,y8,x7,recLoop17)
+(X111(x282,x281,recLoop17,y8,x7) /\ X4(x282,x281,y8,x7,recLoop17)) => X112(x282,x281,recLoop17,y8,x7)
+((X111(x282,x281,recLoop17,y8,x7) /\ X4(x282,x281,y8,x7,recLoop17)) /\ X113(x282,x281,recLoop17,y8,x7)) => X3(x282,x281,y8,x7,recLoop17)
+(X111(j135,i134,recLoop17,y8,x7) /\ X2(x279,y8,x7,recLoop17)) => ((x279/=1 \/ X84(y8,x279,recLoop17,y8,x7)) /\ (x279=1 \/ ((x279/=0 \/ X84(x7,x279,recLoop17,y8,x7)) /\ (x279=0 \/ X84(0,x279,recLoop17,y8,x7)))))
+((X111(j135,i134,recLoop17,y8,x7) /\ X2(x279,y8,x7,recLoop17)) /\ X84(x280,x279,recLoop17,y8,x7)) => X1(x280,x279,y8,x7,recLoop17)
+tt => X61()
+[Size] 1
+Run command: "z3 fp.engine=spacer /tmp/spacer-130191088.smt2"
+sat
+(model 
+  (define-fun X61 () Bool
+    true)
+  (define-fun X5 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!2 x!3) 1)) (>= (+ x!4 (* (- 2) x!2)) 0))))
+      (and a!1
+           (not (<= x!4 0))
+           (<= x!1 0)
+           (not (<= x!0 0))
+           (not (>= x!0 2))
+           (>= x!1 0))))
+  (define-fun X7 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int)) Bool
+    true)
+  (define-fun X1 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (let ((a!1 (not (<= (+ (* 2 x!2) x!4) 21)))
+          (a!3 (or (<= (+ x!0 (* (- 1) x!2)) 0) (not (= x!1 1))))
+          (a!4 (not (>= (+ x!4 (* (- 2) x!3)) (- 1))))
+          (a!5 (not (<= (+ (* 2 x!2) x!4) 4)))
+          (a!7 (not (>= (+ x!4 (* (- 2) x!3)) (- 2))))
+          (a!8 (not (<= (+ (* 2 x!2) x!4) 3)))
+          (a!10 (not (<= (+ x!4 (* (- 2) x!0)) (- 5))))
+          (a!11 (not (>= (+ x!0 (* (- 1) x!2)) 0)))
+          (a!13 (or (<= (+ x!0 (* (- 1) x!3)) 0) (not (= x!1 0))))
+          (a!14 (not (>= (+ x!0 (* (- 1) x!3)) 0)))
+          (a!15 (not (<= (+ x!4 (* (- 2) x!2)) 0)))
+          (a!16 (not (<= (+ x!4 (* (- 2) x!3)) (- 2))))
+          (a!18 (not (<= (+ (* 2 x!2) x!4) 5)))
+          (a!19 (not (<= (+ x!4 (* (- 2) x!3)) (- 3))))
+          (a!20 (not (<= (+ x!4 (* 2 x!2)) 8)))
+          (a!21 (not (= (+ x!4 (* (- 2) x!2)) (- 2))))
+          (a!22 (not (<= (+ x!4 (* 2 x!3)) 6)))
+          (a!23 (not (>= (+ (* 2 x!2) x!4) 6)))
+          (a!24 (not (<= (+ x!4 (* (- 2) x!2)) (- 6))))
+          (a!25 (not (<= (+ x!4 (* 2 x!2)) 10)))
+          (a!26 (not (<= (+ x!4 (* 2 x!2)) 14)))
+          (a!27 (not (>= (+ x!4 (* (- 2) x!3)) (- 16))))
+          (a!28 (not (>= (+ x!4 (* (- 2) x!2)) (- 15))))
+          (a!29 (not (<= (+ (* 2 x!2) x!4) 19)))
+          (a!30 (not (<= (+ (* 2 x!3) x!4) 19)))
+          (a!32 (not (<= (+ x!4 (* (- 2) x!3)) (- 17))))
+          (a!34 (not (>= (+ x!0 x!2 (* (- 1) x!4)) 0)))
+          (a!35 (or (not (>= x!0 13))
+                    (<= (+ x!0 (* (- 1) x!2)) 0)
+                    (not (<= x!3 12)))))
+    (let ((a!2 (or (not (>= (+ x!0 x!3) 21))
+                   (not (= x!1 1))
+                   a!1
+                   (not (<= x!3 10))))
+          (a!6 (or (not (>= x!0 2))
+                   (not (= x!1 1))
+                   a!4
+                   (not (>= (+ x!2 x!3) 2))
+                   a!5))
+          (a!9 (or (not (>= x!0 2))
+                   (not (= x!1 1))
+                   a!7
+                   (not (>= (+ x!2 x!3) 2))
+                   a!8))
+          (a!12 (or (not (<= x!3 0))
+                    a!11
+                    (not (<= x!1 0))
+                    (not (>= (+ x!0 x!2) 4))))
+          (a!17 (or a!16
+                    (not (= x!1 1))
+                    (not (>= x!0 3))
+                    (not (<= (+ x!2 x!3) 4))))
+          (a!31 (or (not (>= (+ x!0 x!3) 17))
+                    (not (= x!1 1))
+                    a!27
+                    a!28
+                    a!29
+                    a!30))
+          (a!33 (or (not (>= x!0 10))
+                    (not (= x!1 1))
+                    a!32
+                    (not (<= (+ x!2 x!3) 18)))))
+      (and a!2
+           a!3
+           a!6
+           a!9
+           (or a!10 (not (= x!1 0)))
+           (or (not (>= x!0 5)) (not (= x!1 0)) (not (<= x!4 6)))
+           (or (not (>= x!0 4)) (not (= x!1 0)) (not (<= x!4 5)))
+           (or (not (>= x!0 3)) (not (= x!1 0)) (not (<= x!4 4)))
+           a!12
+           a!13
+           (or a!14 (not (= x!1 0)) a!15)
+           a!17
+           (or (not (<= x!3 2)) (not (= x!1 1)) a!18 (not (>= x!0 3)) a!19)
+           (or (not (>= x!0 4)) (not (= x!1 1)) a!20)
+           (or a!21 (not (= x!1 0)) (not (>= x!0 0)) a!22 a!23)
+           (or a!24 (not (= x!1 1)) (not (>= x!0 5)) a!25)
+           (or (not (>= x!0 6)) (<= x!1 0) (not (<= x!2 5)))
+           (or a!26 (not (= x!1 1)) (not (>= x!0 7)))
+           (or (not (>= x!0 8)) (<= x!1 0) (not (<= x!2 7)))
+           a!31
+           a!33
+           (or a!34 (not (= x!1 0)))
+           a!35))))
+  (define-fun X6 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    true)
+  (define-fun X117 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)
+   (x!8 Int)
+   (x!9 Int)) Bool
+    (and (= x!0 1) (= x!1 0)))
+  (define-fun X4 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    true)
+  (define-fun X114 ((x!0 Int) (x!1 Int) (x!2 Int)) Bool
+    (and (>= x!0 3)
+         (>= x!0 (+ 1 (* 2 x!2)))
+         (>= x!0 (+ 1 (* 2 x!1)))
+         (>= x!0 (+ 1 (* (- 2) x!2)))
+         (>= x!0 (+ 1 (* (- 2) x!1)))
+         (>= x!0 1)
+         (>= x!0 (- 1))))
+  (define-fun X84 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (let ((a!1 (exists ((x!5 Int) (x!6 Int))
+                 (let ((a!1 (or (not (<= (+ x!3 x!4) 1))
+                                (>= (+ x!2 (* (- 2) x!3)) 0))))
+                   (and a!1
+                        (not (<= x!2 0))
+                        (<= x!5 0)
+                        (not (<= x!6 0))
+                        (not (>= x!6 2))
+                        (>= x!5 0)
+                        (not (= x!1 0))
+                        (>= x!2 3)
+                        (>= x!2 (- 1))
+                        (>= x!2 1)
+                        (>= x!2 (+ 1 (* (- 2) x!3)))
+                        (>= x!2 (+ 1 (* (- 2) x!4)))
+                        (>= x!2 (+ 1 (* 2 x!3)))
+                        (>= x!2 (+ 1 (* 2 x!4)))
+                        (not (= x!1 1))
+                        (= x!0 0)))))
+          (a!2 (exists ((x!5 Int) (x!6 Int))
+                 (let ((a!1 (or (not (<= (+ x!0 x!4) 1))
+                                (>= (+ x!2 (* (- 2) x!0)) 0))))
+                   (and a!1
+                        (not (<= x!2 0))
+                        (<= x!5 0)
+                        (not (<= x!6 0))
+                        (not (>= x!6 2))
+                        (>= x!5 0)
+                        (>= x!2 (- 1))
+                        (>= x!2 1)
+                        (>= x!2 (+ 1 (* (- 2) x!0)))
+                        (>= x!2 (+ 1 (* (- 2) x!4)))
+                        (>= x!2 (+ 1 (* 2 x!0)))
+                        (>= x!2 (+ 1 (* 2 x!4)))
+                        (>= x!2 3)
+                        (= x!1 1)
+                        (= x!3 x!0)))))
+          (a!3 (exists ((x!5 Int) (x!6 Int))
+                 (let ((a!1 (or (not (<= (+ x!3 x!0) 1))
+                                (>= (+ x!2 (* (- 2) x!3)) 0))))
+                   (and a!1
+                        (not (<= x!2 0))
+                        (<= x!5 0)
+                        (not (<= x!6 0))
+                        (not (>= x!6 2))
+                        (>= x!5 0)
+                        (>= x!2 (- 1))
+                        (>= x!2 1)
+                        (>= x!2 (+ 1 (* (- 2) x!3)))
+                        (>= x!2 (+ 1 (* (- 2) x!0)))
+                        (>= x!2 (+ 1 (* 2 x!3)))
+                        (>= x!2 (+ 1 (* 2 x!0)))
+                        (>= x!2 3)
+                        (= x!1 0)
+                        (= x!4 x!0))))))
+      (or a!1 a!2 a!3)))
+  (define-fun X25 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)
+   (x!8 Int)
+   (x!9 Int)) Bool
+    (let ((a!1 (exists ((x!10 Int) (x!11 Int) (x!12 Int) (x!13 Int) (x!14 Int))
+                 (let ((a!1 (or (not (<= (+ x!7 x!8) 1))
+                                (>= (+ x!12 (* (- 2) x!7)) 0))))
+                   (and (= x!14 1)
+                        (= x!13 0)
+                        a!1
+                        (not (<= x!12 0))
+                        (<= x!10 0)
+                        (not (<= x!11 0))
+                        (not (>= x!11 2))
+                        (>= x!10 0)
+                        (= x!0 (+ (- 1) x!2))
+                        (= x!12 (+ (- 1) x!9))
+                        (= x!1 0)))))
+          (a!2 (exists ((x!10 Int) (x!11 Int) (x!12 Int) (x!13 Int) (x!14 Int))
+                 (let ((a!1 (or (not (<= (+ x!7 x!8) 1))
+                                (>= (+ x!12 (* (- 2) x!7)) 0))))
+                   (and (= x!14 1)
+                        (= x!13 0)
+                        a!1
+                        (not (<= x!12 0))
+                        (<= x!10 0)
+                        (not (<= x!11 0))
+                        (not (>= x!11 2))
+                        (>= x!10 0)
+                        (not (= x!1 0))
+                        (= x!12 (+ (- 1) x!9)))))))
+      (or a!1 a!2)))
+  (define-fun X116 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)
+   (x!8 Int)) Bool
+    (exists ((x!9 Int) (x!10 Int) (x!11 Int) (x!12 Int) (x!13 Int))
+      (let ((a!1 (or (not (<= (+ x!6 x!7) 1)) (>= (+ x!11 (* (- 2) x!6)) 0))))
+        (and (= x!13 1)
+             (= x!12 0)
+             a!1
+             (not (<= x!11 0))
+             (<= x!9 0)
+             (not (<= x!10 0))
+             (not (>= x!10 2))
+             (>= x!9 0)
+             (not (= x!0 0))
+             (= x!11 (+ (- 1) x!8))))))
+  (define-fun X115 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!4 x!5) 1)) (>= (+ x!6 (* (- 2) x!4)) 0))))
+      (and a!1
+           (not (<= x!6 0))
+           (<= x!3 0)
+           (not (<= x!2 0))
+           (not (>= x!2 2))
+           (>= x!3 0)
+           (<= (+ x!1 x!0) 0))))
+  (define-fun X121 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!4 x!5) 1)) (>= (+ x!6 (* (- 2) x!4)) 0))))
+      (and a!1
+           (not (<= x!6 0))
+           (<= x!3 0)
+           (not (<= x!2 0))
+           (not (>= x!2 2))
+           (>= x!3 0)
+           (not (<= (+ x!1 x!0) 0)))))
+  (define-fun X118 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)
+   (x!8 Int)
+   (x!9 Int)) Bool
+    (exists ((x!10 Int)) (and (= x!0 1) (= x!1 0) (= x!10 (+ (- 1) x!9)))))
+  (define-fun X112 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (and (>= x!2 (- 1))
+         (>= x!2 1)
+         (>= x!2 (+ 1 (* (- 2) x!3)))
+         (>= x!2 (+ 1 (* (- 2) x!4)))
+         (>= x!2 (+ 1 (* 2 x!3)))
+         (>= x!2 (+ 1 (* 2 x!4)))
+         (>= x!2 3)
+         (= x!0 1)
+         (= x!1 0)))
+  (define-fun X9 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (let ((a!1 (exists ((x!5 Int) (x!6 Int) (x!7 Int))
+                 (let ((a!1 (or (not (<= (+ x!2 x!3) 1))
+                                (>= (+ x!4 (* (- 2) x!2)) 0))))
+                   (and a!1
+                        (not (<= x!4 0))
+                        (<= x!1 0)
+                        (not (<= x!0 0))
+                        (not (>= x!0 2))
+                        (>= x!1 0)
+                        (not (<= (+ x!5 x!6) 0))
+                        (= x!7 (+ (- 1) x!4))))))
+          (a!2 (exists ((x!5 Int) (x!6 Int))
+                 (let ((a!1 (or (not (<= (+ x!2 x!3) 1))
+                                (>= (+ x!4 (* (- 2) x!2)) 0))))
+                   (and a!1
+                        (not (<= x!4 0))
+                        (<= x!1 0)
+                        (not (<= x!0 0))
+                        (not (>= x!0 2))
+                        (>= x!1 0)
+                        (<= (+ x!5 x!6) 0))))))
+      (or a!1 a!2)))
+  (define-fun X120 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!5 x!6) 1)) (>= (+ x!7 (* (- 2) x!5)) 0))))
+      (and a!1
+           (not (<= x!7 0))
+           (<= x!4 0)
+           (not (<= x!3 0))
+           (not (>= x!3 2))
+           (>= x!4 0)
+           (not (<= (+ x!2 x!1) 0)))))
+  (define-fun X122 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int) (x!5 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!3 x!4) 1)) (>= (+ x!5 (* (- 2) x!3)) 0))))
+      (and a!1
+           (not (<= x!5 0))
+           (<= x!2 0)
+           (not (<= x!1 0))
+           (not (>= x!1 2))
+           (>= x!2 0))))
+  (define-fun X2 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int)) Bool
+    (exists ((x!4 Int) (x!5 Int))
+      (let ((a!1 (or (not (<= (+ x!1 x!2) 1)) (>= (+ x!3 (* (- 2) x!1)) 0))))
+        (and a!1
+             (not (<= x!3 0))
+             (<= x!4 0)
+             (not (<= x!5 0))
+             (not (>= x!5 2))
+             (>= x!4 0)))))
+  (define-fun X111 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (and (>= x!2 (- 1))
+         (>= x!2 1)
+         (>= x!2 (+ 1 (* (- 2) x!3)))
+         (>= x!2 (+ 1 (* (- 2) x!4)))
+         (>= x!2 (+ 1 (* 2 x!3)))
+         (>= x!2 (+ 1 (* 2 x!4)))
+         (>= x!2 3)
+         (= x!0 1)
+         (= x!1 0)))
+  (define-fun X123 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!2 x!3) 1)) (>= (+ x!4 (* (- 2) x!2)) 0))))
+      (and a!1
+           (not (<= x!4 0))
+           (<= x!1 0)
+           (not (<= x!0 0))
+           (not (>= x!0 2))
+           (>= x!1 0))))
+  (define-fun X62 ((x!0 Int)) Bool
+    true)
+  (define-fun X63 ((x!0 Int) (x!1 Int)) Bool
+    true)
+  (define-fun X64 ((x!0 Int) (x!1 Int) (x!2 Int)) Bool
+    true)
+  (define-fun X8 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    false)
+  (define-fun X3 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    false)
+  (define-fun X80 ((x!0 Int) (x!1 Int) (x!2 Int)) Bool
+    false)
+  (define-fun X113 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    false)
+  (define-fun X119 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)
+   (x!8 Int)
+   (x!9 Int)) Bool
+    false)
+)
+Process result:
+out: sat
+(model 
+  (define-fun X61 () Bool
+    true)
+  (define-fun X5 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!2 x!3) 1)) (>= (+ x!4 (* (- 2) x!2)) 0))))
+      (and a!1
+           (not (<= x!4 0))
+           (<= x!1 0)
+           (not (<= x!0 0))
+           (not (>= x!0 2))
+           (>= x!1 0))))
+  (define-fun X7 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int)) Bool
+    true)
+  (define-fun X1 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (let ((a!1 (not (<= (+ (* 2 x!2) x!4) 21)))
+          (a!3 (or (<= (+ x!0 (* (- 1) x!2)) 0) (not (= x!1 1))))
+          (a!4 (not (>= (+ x!4 (* (- 2) x!3)) (- 1))))
+          (a!5 (not (<= (+ (* 2 x!2) x!4) 4)))
+          (a!7 (not (>= (+ x!4 (* (- 2) x!3)) (- 2))))
+          (a!8 (not (<= (+ (* 2 x!2) x!4) 3)))
+          (a!10 (not (<= (+ x!4 (* (- 2) x!0)) (- 5))))
+          (a!11 (not (>= (+ x!0 (* (- 1) x!2)) 0)))
+          (a!13 (or (<= (+ x!0 (* (- 1) x!3)) 0) (not (= x!1 0))))
+          (a!14 (not (>= (+ x!0 (* (- 1) x!3)) 0)))
+          (a!15 (not (<= (+ x!4 (* (- 2) x!2)) 0)))
+          (a!16 (not (<= (+ x!4 (* (- 2) x!3)) (- 2))))
+          (a!18 (not (<= (+ (* 2 x!2) x!4) 5)))
+          (a!19 (not (<= (+ x!4 (* (- 2) x!3)) (- 3))))
+          (a!20 (not (<= (+ x!4 (* 2 x!2)) 8)))
+          (a!21 (not (= (+ x!4 (* (- 2) x!2)) (- 2))))
+          (a!22 (not (<= (+ x!4 (* 2 x!3)) 6)))
+          (a!23 (not (>= (+ (* 2 x!2) x!4) 6)))
+          (a!24 (not (<= (+ x!4 (* (- 2) x!2)) (- 6))))
+          (a!25 (not (<= (+ x!4 (* 2 x!2)) 10)))
+          (a!26 (not (<= (+ x!4 (* 2 x!2)) 14)))
+          (a!27 (not (>= (+ x!4 (* (- 2) x!3)) (- 16))))
+          (a!28 (not (>= (+ x!4 (* (- 2) x!2)) (- 15))))
+          (a!29 (not (<= (+ (* 2 x!2) x!4) 19)))
+          (a!30 (not (<= (+ (* 2 x!3) x!4) 19)))
+          (a!32 (not (<= (+ x!4 (* (- 2) x!3)) (- 17))))
+          (a!34 (not (>= (+ x!0 x!2 (* (- 1) x!4)) 0)))
+          (a!35 (or (not (>= x!0 13))
+                    (<= (+ x!0 (* (- 1) x!2)) 0)
+                    (not (<= x!3 12)))))
+    (let ((a!2 (or (not (>= (+ x!0 x!3) 21))
+                   (not (= x!1 1))
+                   a!1
+                   (not (<= x!3 10))))
+          (a!6 (or (not (>= x!0 2))
+                   (not (= x!1 1))
+                   a!4
+                   (not (>= (+ x!2 x!3) 2))
+                   a!5))
+          (a!9 (or (not (>= x!0 2))
+                   (not (= x!1 1))
+                   a!7
+                   (not (>= (+ x!2 x!3) 2))
+                   a!8))
+          (a!12 (or (not (<= x!3 0))
+                    a!11
+                    (not (<= x!1 0))
+                    (not (>= (+ x!0 x!2) 4))))
+          (a!17 (or a!16
+                    (not (= x!1 1))
+                    (not (>= x!0 3))
+                    (not (<= (+ x!2 x!3) 4))))
+          (a!31 (or (not (>= (+ x!0 x!3) 17))
+                    (not (= x!1 1))
+                    a!27
+                    a!28
+                    a!29
+                    a!30))
+          (a!33 (or (not (>= x!0 10))
+                    (not (= x!1 1))
+                    a!32
+                    (not (<= (+ x!2 x!3) 18)))))
+      (and a!2
+           a!3
+           a!6
+           a!9
+           (or a!10 (not (= x!1 0)))
+           (or (not (>= x!0 5)) (not (= x!1 0)) (not (<= x!4 6)))
+           (or (not (>= x!0 4)) (not (= x!1 0)) (not (<= x!4 5)))
+           (or (not (>= x!0 3)) (not (= x!1 0)) (not (<= x!4 4)))
+           a!12
+           a!13
+           (or a!14 (not (= x!1 0)) a!15)
+           a!17
+           (or (not (<= x!3 2)) (not (= x!1 1)) a!18 (not (>= x!0 3)) a!19)
+           (or (not (>= x!0 4)) (not (= x!1 1)) a!20)
+           (or a!21 (not (= x!1 0)) (not (>= x!0 0)) a!22 a!23)
+           (or a!24 (not (= x!1 1)) (not (>= x!0 5)) a!25)
+           (or (not (>= x!0 6)) (<= x!1 0) (not (<= x!2 5)))
+           (or a!26 (not (= x!1 1)) (not (>= x!0 7)))
+           (or (not (>= x!0 8)) (<= x!1 0) (not (<= x!2 7)))
+           a!31
+           a!33
+           (or a!34 (not (= x!1 0)))
+           a!35))))
+  (define-fun X6 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    true)
+  (define-fun X117 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)
+   (x!8 Int)
+   (x!9 Int)) Bool
+    (and (= x!0 1) (= x!1 0)))
+  (define-fun X4 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    true)
+  (define-fun X114 ((x!0 Int) (x!1 Int) (x!2 Int)) Bool
+    (and (>= x!0 3)
+         (>= x!0 (+ 1 (* 2 x!2)))
+         (>= x!0 (+ 1 (* 2 x!1)))
+         (>= x!0 (+ 1 (* (- 2) x!2)))
+         (>= x!0 (+ 1 (* (- 2) x!1)))
+         (>= x!0 1)
+         (>= x!0 (- 1))))
+  (define-fun X84 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (let ((a!1 (exists ((x!5 Int) (x!6 Int))
+                 (let ((a!1 (or (not (<= (+ x!3 x!4) 1))
+                                (>= (+ x!2 (* (- 2) x!3)) 0))))
+                   (and a!1
+                        (not (<= x!2 0))
+                        (<= x!5 0)
+                        (not (<= x!6 0))
+                        (not (>= x!6 2))
+                        (>= x!5 0)
+                        (not (= x!1 0))
+                        (>= x!2 3)
+                        (>= x!2 (- 1))
+                        (>= x!2 1)
+                        (>= x!2 (+ 1 (* (- 2) x!3)))
+                        (>= x!2 (+ 1 (* (- 2) x!4)))
+                        (>= x!2 (+ 1 (* 2 x!3)))
+                        (>= x!2 (+ 1 (* 2 x!4)))
+                        (not (= x!1 1))
+                        (= x!0 0)))))
+          (a!2 (exists ((x!5 Int) (x!6 Int))
+                 (let ((a!1 (or (not (<= (+ x!0 x!4) 1))
+                                (>= (+ x!2 (* (- 2) x!0)) 0))))
+                   (and a!1
+                        (not (<= x!2 0))
+                        (<= x!5 0)
+                        (not (<= x!6 0))
+                        (not (>= x!6 2))
+                        (>= x!5 0)
+                        (>= x!2 (- 1))
+                        (>= x!2 1)
+                        (>= x!2 (+ 1 (* (- 2) x!0)))
+                        (>= x!2 (+ 1 (* (- 2) x!4)))
+                        (>= x!2 (+ 1 (* 2 x!0)))
+                        (>= x!2 (+ 1 (* 2 x!4)))
+                        (>= x!2 3)
+                        (= x!1 1)
+                        (= x!3 x!0)))))
+          (a!3 (exists ((x!5 Int) (x!6 Int))
+                 (let ((a!1 (or (not (<= (+ x!3 x!0) 1))
+                                (>= (+ x!2 (* (- 2) x!3)) 0))))
+                   (and a!1
+                        (not (<= x!2 0))
+                        (<= x!5 0)
+                        (not (<= x!6 0))
+                        (not (>= x!6 2))
+                        (>= x!5 0)
+                        (>= x!2 (- 1))
+                        (>= x!2 1)
+                        (>= x!2 (+ 1 (* (- 2) x!3)))
+                        (>= x!2 (+ 1 (* (- 2) x!0)))
+                        (>= x!2 (+ 1 (* 2 x!3)))
+                        (>= x!2 (+ 1 (* 2 x!0)))
+                        (>= x!2 3)
+                        (= x!1 0)
+                        (= x!4 x!0))))))
+      (or a!1 a!2 a!3)))
+  (define-fun X25 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)
+   (x!8 Int)
+   (x!9 Int)) Bool
+    (let ((a!1 (exists ((x!10 Int) (x!11 Int) (x!12 Int) (x!13 Int) (x!14 Int))
+                 (let ((a!1 (or (not (<= (+ x!7 x!8) 1))
+                                (>= (+ x!12 (* (- 2) x!7)) 0))))
+                   (and (= x!14 1)
+                        (= x!13 0)
+                        a!1
+                        (not (<= x!12 0))
+                        (<= x!10 0)
+                        (not (<= x!11 0))
+                        (not (>= x!11 2))
+                        (>= x!10 0)
+                        (= x!0 (+ (- 1) x!2))
+                        (= x!12 (+ (- 1) x!9))
+                        (= x!1 0)))))
+          (a!2 (exists ((x!10 Int) (x!11 Int) (x!12 Int) (x!13 Int) (x!14 Int))
+                 (let ((a!1 (or (not (<= (+ x!7 x!8) 1))
+                                (>= (+ x!12 (* (- 2) x!7)) 0))))
+                   (and (= x!14 1)
+                        (= x!13 0)
+                        a!1
+                        (not (<= x!12 0))
+                        (<= x!10 0)
+                        (not (<= x!11 0))
+                        (not (>= x!11 2))
+                        (>= x!10 0)
+                        (not (= x!1 0))
+                        (= x!12 (+ (- 1) x!9)))))))
+      (or a!1 a!2)))
+  (define-fun X116 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)
+   (x!8 Int)) Bool
+    (exists ((x!9 Int) (x!10 Int) (x!11 Int) (x!12 Int) (x!13 Int))
+      (let ((a!1 (or (not (<= (+ x!6 x!7) 1)) (>= (+ x!11 (* (- 2) x!6)) 0))))
+        (and (= x!13 1)
+             (= x!12 0)
+             a!1
+             (not (<= x!11 0))
+             (<= x!9 0)
+             (not (<= x!10 0))
+             (not (>= x!10 2))
+             (>= x!9 0)
+             (not (= x!0 0))
+             (= x!11 (+ (- 1) x!8))))))
+  (define-fun X115 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!4 x!5) 1)) (>= (+ x!6 (* (- 2) x!4)) 0))))
+      (and a!1
+           (not (<= x!6 0))
+           (<= x!3 0)
+           (not (<= x!2 0))
+           (not (>= x!2 2))
+           (>= x!3 0)
+           (<= (+ x!1 x!0) 0))))
+  (define-fun X121 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!4 x!5) 1)) (>= (+ x!6 (* (- 2) x!4)) 0))))
+      (and a!1
+           (not (<= x!6 0))
+           (<= x!3 0)
+           (not (<= x!2 0))
+           (not (>= x!2 2))
+           (>= x!3 0)
+           (not (<= (+ x!1 x!0) 0)))))
+  (define-fun X118 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)
+   (x!8 Int)
+   (x!9 Int)) Bool
+    (exists ((x!10 Int)) (and (= x!0 1) (= x!1 0) (= x!10 (+ (- 1) x!9)))))
+  (define-fun X112 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (and (>= x!2 (- 1))
+         (>= x!2 1)
+         (>= x!2 (+ 1 (* (- 2) x!3)))
+         (>= x!2 (+ 1 (* (- 2) x!4)))
+         (>= x!2 (+ 1 (* 2 x!3)))
+         (>= x!2 (+ 1 (* 2 x!4)))
+         (>= x!2 3)
+         (= x!0 1)
+         (= x!1 0)))
+  (define-fun X9 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (let ((a!1 (exists ((x!5 Int) (x!6 Int) (x!7 Int))
+                 (let ((a!1 (or (not (<= (+ x!2 x!3) 1))
+                                (>= (+ x!4 (* (- 2) x!2)) 0))))
+                   (and a!1
+                        (not (<= x!4 0))
+                        (<= x!1 0)
+                        (not (<= x!0 0))
+                        (not (>= x!0 2))
+                        (>= x!1 0)
+                        (not (<= (+ x!5 x!6) 0))
+                        (= x!7 (+ (- 1) x!4))))))
+          (a!2 (exists ((x!5 Int) (x!6 Int))
+                 (let ((a!1 (or (not (<= (+ x!2 x!3) 1))
+                                (>= (+ x!4 (* (- 2) x!2)) 0))))
+                   (and a!1
+                        (not (<= x!4 0))
+                        (<= x!1 0)
+                        (not (<= x!0 0))
+                        (not (>= x!0 2))
+                        (>= x!1 0)
+                        (<= (+ x!5 x!6) 0))))))
+      (or a!1 a!2)))
+  (define-fun X120 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!5 x!6) 1)) (>= (+ x!7 (* (- 2) x!5)) 0))))
+      (and a!1
+           (not (<= x!7 0))
+           (<= x!4 0)
+           (not (<= x!3 0))
+           (not (>= x!3 2))
+           (>= x!4 0)
+           (not (<= (+ x!2 x!1) 0)))))
+  (define-fun X122 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int) (x!5 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!3 x!4) 1)) (>= (+ x!5 (* (- 2) x!3)) 0))))
+      (and a!1
+           (not (<= x!5 0))
+           (<= x!2 0)
+           (not (<= x!1 0))
+           (not (>= x!1 2))
+           (>= x!2 0))))
+  (define-fun X2 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int)) Bool
+    (exists ((x!4 Int) (x!5 Int))
+      (let ((a!1 (or (not (<= (+ x!1 x!2) 1)) (>= (+ x!3 (* (- 2) x!1)) 0))))
+        (and a!1
+             (not (<= x!3 0))
+             (<= x!4 0)
+             (not (<= x!5 0))
+             (not (>= x!5 2))
+             (>= x!4 0)))))
+  (define-fun X111 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (and (>= x!2 (- 1))
+         (>= x!2 1)
+         (>= x!2 (+ 1 (* (- 2) x!3)))
+         (>= x!2 (+ 1 (* (- 2) x!4)))
+         (>= x!2 (+ 1 (* 2 x!3)))
+         (>= x!2 (+ 1 (* 2 x!4)))
+         (>= x!2 3)
+         (= x!0 1)
+         (= x!1 0)))
+  (define-fun X123 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    (let ((a!1 (or (not (<= (+ x!2 x!3) 1)) (>= (+ x!4 (* (- 2) x!2)) 0))))
+      (and a!1
+           (not (<= x!4 0))
+           (<= x!1 0)
+           (not (<= x!0 0))
+           (not (>= x!0 2))
+           (>= x!1 0))))
+  (define-fun X62 ((x!0 Int)) Bool
+    true)
+  (define-fun X63 ((x!0 Int) (x!1 Int)) Bool
+    true)
+  (define-fun X64 ((x!0 Int) (x!1 Int) (x!2 Int)) Bool
+    true)
+  (define-fun X8 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    false)
+  (define-fun X3 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    false)
+  (define-fun X80 ((x!0 Int) (x!1 Int) (x!2 Int)) Bool
+    false)
+  (define-fun X113 ((x!0 Int) (x!1 Int) (x!2 Int) (x!3 Int) (x!4 Int)) Bool
+    false)
+  (define-fun X119 ((x!0 Int)
+   (x!1 Int)
+   (x!2 Int)
+   (x!3 Int)
+   (x!4 Int)
+   (x!5 Int)
+   (x!6 Int)
+   (x!7 Int)
+   (x!8 Int)
+   (x!9 Int)) Bool
+    false)
+)
+status: Ok
+err:
+
+
+Profiling:
+  CHC Solver: 211.191227 sec
+did not calculate refinement. Use --show-refinement
+Verification Result:
+  Valid
+Profiling:
+  total: 211.196289 sec

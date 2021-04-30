@@ -1,0 +1,1518 @@
+INPUT FILE: benchmark/research/ho_trans/nested_loop_fact/machine_eliminate_unused_arguments_2.in
+[Main:App:Input]
+  Sentry : bool =ν
+    ∀n7:int.
+     ∀s8:int.
+      ∀s29:int.
+       ∀s310:int.
+        s8 < 1 * n7 + 1
+        || s8 < -1 * n7 + 1
+           || s29 < 1 * n7 + 0
+              || s29 < -1 * n7 + 0
+                 || s310 < 1 * n7 + 0
+                    || s310 < -1 * n7 + 0
+                       || (∀recFact11:int.
+                            recFact11 < 1 + 1 * n7
+                            || recFact11 < 1 + -1 * n7
+                               || recFact11 < 1 + 1 * 1
+                                  || recFact11 < 1 + -1 * 1
+                                     || recFact11 < 1
+                                        || Fact recFact11 s8 (λk12:(int -> bool).k12 1) s29
+                                            (λk13:(int -> bool).k13 n7) s310
+                                            (λg_i14:int.
+                                              λg15:((int -> bool) -> bool).
+                                               ∀recMain16:int.
+                                                recMain16 < 1 + 1 * g_i14
+                                                || recMain16 < 1 + 1 * n7
+                                                   || recMain16 < 1 + -1 * g_i14
+                                                      || recMain16 < 1 + -1 * n7
+                                                         || recMain16 < 1
+                                                            || Main recMain16 true g15))
+  Main : int -> bool -> ((int -> bool) -> bool) -> bool =ν
+    λrecMain17:int.
+     λk18:bool.
+      λg19:((int -> bool) -> bool).
+       recMain17 > 0
+       && Check g19
+           (λb20:int.(b20 /= 0 || k18) && (b20 = 0 || Main (recMain17 - 1) k18 (Pred g19)))
+  Fact : int ->
+          int ->
+           ((int -> bool) -> bool) ->
+            int ->
+             ((int -> bool) -> bool) -> int -> (int -> ((int -> bool) -> bool) -> bool) -> bool =ν
+    λrecFact21:int.
+     λacc_i22:int.
+      λacc23:((int -> bool) -> bool).
+       λf_i24:int.
+        λf25:((int -> bool) -> bool).
+         λk_i26:int.
+          λk27:(int -> ((int -> bool) -> bool) -> bool).
+           recFact21 > 0
+           && Check f25
+               (λb28:int.
+                 (b28 /= 0
+                  || (∀s29:int.
+                       s29 < 1 * b28 + 0
+                       || s29 < -1 * b28 + 0
+                          || s29 < 1 * k_i26 + 0
+                             || s29 < -1 * k_i26 + 0
+                                || s29 < 1 * f_i24 + 0
+                                   || s29 < -1 * f_i24 + 0
+                                      || s29 < 1 * acc_i22 + 0
+                                         || s29 < -1 * acc_i22 + 0 || k27 s29 acc23))
+                 && (b28 /= 1
+                     || (∀s30:int.
+                          ∀s231:int.
+                           ∀s332:int.
+                            ∀s433:int.
+                             s30 < 1 * b28 + 0
+                             || s30 < -1 * b28 + 0
+                                || s30 < 1 * k_i26 + 0
+                                   || s30 < -1 * k_i26 + 0
+                                      || s30 < 1 * f_i24 + 0
+                                         || s30 < -1 * f_i24 + 0
+                                            || s30 < 1 * acc_i22 + 0
+                                               || s30 < -1 * acc_i22 + 0
+                                                  || s231 < 1 * b28 + 0
+                                                     || s231 < -1 * b28 + 0
+                                                        || s231 < 1 * k_i26 + 0
+                                                           || s231 < -1 * k_i26 + 0
+                                                              || s231 < 1 * f_i24 + 0
+                                                                 || s231 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s231 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s231 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    s332 < 1 * b28 + 0
+                                                                    || 
+                                                                    s332 < -1 * b28 + 0
+                                                                    || 
+                                                                    s332 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s332 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s332 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s332 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s332 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s332 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    s433 < 1 * b28 + 0
+                                                                    || 
+                                                                    s433 < -1 * b28 + 0
+                                                                    || 
+                                                                    s433 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s433 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s433 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s433 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s433 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s433 < -1 * acc_i22 + 0
+                                                                    || (
+                                                                    ∀recMult34:int.
+                                                                    recMult34 < 1 + 1 * b28
+                                                                    || 
+                                                                    recMult34 < 1 + 1 * k_i26
+                                                                    || 
+                                                                    recMult34 < 1 + 1 * f_i24
+                                                                    || 
+                                                                    recMult34 < 1 + 1 * acc_i22
+                                                                    || 
+                                                                    recMult34 < 1 + -1 * b28
+                                                                    || 
+                                                                    recMult34 < 1 + -1 * k_i26
+                                                                    || 
+                                                                    recMult34 < 1 + -1 * f_i24
+                                                                    || 
+                                                                    recMult34 < 1 + -1 * acc_i22
+                                                                    || 
+                                                                    recMult34 < 1
+                                                                    || 
+                                                                    Mult recMult34 s30
+                                                                    (λk235:(int -> bool).k235 0)
+                                                                    s231 acc23 s332 f25 s433
+                                                                    (λaccc_i36:int.
+                                                                    λaccc37:(
+                                                                    (int -> bool) -> bool).
+                                                                    ∀s538:int.
+                                                                    ∀s639:int.
+                                                                    ∀s740:int.
+                                                                    s538 < 1 * accc_i36 + 0
+                                                                    || 
+                                                                    s538 < -1 * accc_i36 + 0
+                                                                    || 
+                                                                    s538 < 1 * b28 + 0
+                                                                    || 
+                                                                    s538 < -1 * b28 + 0
+                                                                    || 
+                                                                    s538 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s538 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s538 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s538 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s538 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s538 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    s639 < 1 * accc_i36 + 0
+                                                                    || 
+                                                                    s639 < -1 * accc_i36 + 0
+                                                                    || 
+                                                                    s639 < 1 * b28 + 0
+                                                                    || 
+                                                                    s639 < -1 * b28 + 0
+                                                                    || 
+                                                                    s639 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s639 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s639 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s639 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s639 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s639 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    s740 < 1 * accc_i36 + 0
+                                                                    || 
+                                                                    s740 < -1 * accc_i36 + 0
+                                                                    || 
+                                                                    s740 < 1 * b28 + 0
+                                                                    || 
+                                                                    s740 < -1 * b28 + 0
+                                                                    || 
+                                                                    s740 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s740 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s740 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s740 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s740 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s740 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    Fact (recFact21 - 1) s538
+                                                                    accc37 s639 (
+                                                                    Pred f25) s740 k27)))))
+  Mult : int ->
+          int ->
+           ((int -> bool) -> bool) ->
+            int ->
+             ((int -> bool) -> bool) ->
+              int ->
+               ((int -> bool) -> bool) -> int -> (int -> ((int -> bool) -> bool) -> bool) -> bool =ν
+    λrecMult41:int.
+     λacc_i42:int.
+      λacc43:((int -> bool) -> bool).
+       λf_i44:int.
+        λf45:((int -> bool) -> bool).
+         λg_i46:int.
+          λg47:((int -> bool) -> bool).
+           λk_i48:int.
+            λk49:(int -> ((int -> bool) -> bool) -> bool).
+             recMult41 > 0
+             && Check f45
+                 (λb50:int.
+                   (b50 /= 0
+                    || (∀s51:int.
+                         s51 < 1 * b50 + 0
+                         || s51 < -1 * b50 + 0
+                            || s51 < 1 * k_i48 + 0
+                               || s51 < -1 * k_i48 + 0
+                                  || s51 < 1 * g_i46 + 0
+                                     || s51 < -1 * g_i46 + 0
+                                        || s51 < 1 * f_i44 + 0
+                                           || s51 < -1 * f_i44 + 0
+                                              || s51 < 1 * acc_i42 + 0
+                                                 || s51 < -1 * acc_i42 + 0 || k49 s51 acc43))
+                   && (b50 /= 1
+                       || (∀s52:int.
+                            ∀s253:int.
+                             ∀s354:int.
+                              ∀s455:int.
+                               s52 < 1 * b50 + 0
+                               || s52 < -1 * b50 + 0
+                                  || s52 < 1 * k_i48 + 0
+                                     || s52 < -1 * k_i48 + 0
+                                        || s52 < 1 * g_i46 + 0
+                                           || s52 < -1 * g_i46 + 0
+                                              || s52 < 1 * f_i44 + 0
+                                                 || s52 < -1 * f_i44 + 0
+                                                    || s52 < 1 * acc_i42 + 0
+                                                       || s52 < -1 * acc_i42 + 0
+                                                          || s253 < 1 * b50 + 0
+                                                             || s253 < -1 * b50 + 0
+                                                                || s253 < 1 * k_i48 + 0
+                                                                   || 
+                                                                   s253 < -1 * k_i48 + 0
+                                                                   || 
+                                                                   s253 < 1 * g_i46 + 0
+                                                                   || 
+                                                                   s253 < -1 * g_i46 + 0
+                                                                   || 
+                                                                   s253 < 1 * f_i44 + 0
+                                                                   || 
+                                                                   s253 < -1 * f_i44 + 0
+                                                                   || 
+                                                                   s253 < 1 * acc_i42 + 0
+                                                                   || 
+                                                                   s253 < -1 * acc_i42 + 0
+                                                                   || 
+                                                                   s354 < 1 * b50 + 0
+                                                                   || 
+                                                                   s354 < -1 * b50 + 0
+                                                                   || 
+                                                                   s354 < 1 * k_i48 + 0
+                                                                   || 
+                                                                   s354 < -1 * k_i48 + 0
+                                                                   || 
+                                                                   s354 < 1 * g_i46 + 0
+                                                                   || 
+                                                                   s354 < -1 * g_i46 + 0
+                                                                   || 
+                                                                   s354 < 1 * f_i44 + 0
+                                                                   || 
+                                                                   s354 < -1 * f_i44 + 0
+                                                                   || 
+                                                                   s354 < 1 * acc_i42 + 0
+                                                                   || 
+                                                                   s354 < -1 * acc_i42 + 0
+                                                                   || 
+                                                                   s455 < 1 * b50 + 0
+                                                                   || 
+                                                                   s455 < -1 * b50 + 0
+                                                                   || 
+                                                                   s455 < 1 * k_i48 + 0
+                                                                   || 
+                                                                   s455 < -1 * k_i48 + 0
+                                                                   || 
+                                                                   s455 < 1 * g_i46 + 0
+                                                                   || 
+                                                                   s455 < -1 * g_i46 + 0
+                                                                   || 
+                                                                   s455 < 1 * f_i44 + 0
+                                                                   || 
+                                                                   s455 < -1 * f_i44 + 0
+                                                                   || 
+                                                                   s455 < 1 * acc_i42 + 0
+                                                                   || 
+                                                                   s455 < -1 * acc_i42 + 0
+                                                                   || 
+                                                                   Mult (recMult41 - 1) s52
+                                                                    (
+                                                                    Add acc43 g47) s253 (
+                                                                    Pred f45) s354 g47 s455 k49)))
+  Add : ((int -> bool) -> bool) -> ((int -> bool) -> bool) -> (int -> bool) -> bool =ν
+    λf56:((int -> bool) -> bool).
+     λg57:((int -> bool) -> bool).
+      λk58:(int -> bool).f56 (λfx59:int.g57 (λgx60:int.k58 (fx59 + gx60)))
+  Pred : ((int -> bool) -> bool) -> (int -> bool) -> bool =ν
+    λf61:((int -> bool) -> bool).λk62:(int -> bool).f61 (λr63:int.k62 (r63 - 1))
+  Check : ((int -> bool) -> bool) -> (int -> bool) -> bool =ν
+    λf64:((int -> bool) -> bool).
+     λk65:(int -> bool).f64 (λn66:int.(n66 > 0 || k65 0) && (n66 <= 0 || k65 1))
+[Main:App:Simplified]
+  Sentry : bool =ν
+    ∀n7:int.
+     ∀s8:int.
+      ∀s29:int.
+       ∀s310:int.
+        s8 < 1 * n7 + 1
+        || s8 < -1 * n7 + 1
+           || s29 < 1 * n7 + 0
+              || s29 < -1 * n7 + 0
+                 || s310 < 1 * n7 + 0
+                    || s310 < -1 * n7 + 0
+                       || (∀recFact11:int.
+                            recFact11 < 1 + 1 * n7
+                            || recFact11 < 1 + -1 * n7
+                               || recFact11 < 1 + 1 * 1
+                                  || recFact11 < 1 + -1 * 1
+                                     || recFact11 < 1
+                                        || Fact recFact11 s8 (λk12:(int -> bool).k12 1) s29
+                                            (λk13:(int -> bool).k13 n7) s310
+                                            (λg_i14:int.
+                                              λg15:((int -> bool) -> bool).
+                                               ∀recMain16:int.
+                                                recMain16 < 1 + 1 * g_i14
+                                                || recMain16 < 1 + 1 * n7
+                                                   || recMain16 < 1 + -1 * g_i14
+                                                      || recMain16 < 1 + -1 * n7
+                                                         || recMain16 < 1
+                                                            || Main recMain16 true g15))
+  Main : int -> bool -> ((int -> bool) -> bool) -> bool =ν
+    λrecMain17:int.
+     λk18:bool.
+      λg19:((int -> bool) -> bool).
+       recMain17 > 0
+       && g19
+           (λn66:int.
+             (n66 > 0
+              || (0 /= 0 || k18)
+                 && (0 = 0
+                     || Main (recMain17 - 1) k18
+                         (λk62:(int -> bool).g19 (λr63:int.k62 (r63 - 1)))))
+             && (n66 <= 0
+                 || (1 /= 0 || k18)
+                    && (1 = 0
+                        || Main (recMain17 - 1) k18
+                            (λk62:(int -> bool).g19 (λr63:int.k62 (r63 - 1))))))
+  Fact : int ->
+          int ->
+           ((int -> bool) -> bool) ->
+            int ->
+             ((int -> bool) -> bool) -> int -> (int -> ((int -> bool) -> bool) -> bool) -> bool =ν
+    λrecFact21:int.
+     λacc_i22:int.
+      λacc23:((int -> bool) -> bool).
+       λf_i24:int.
+        λf25:((int -> bool) -> bool).
+         λk_i26:int.
+          λk27:(int -> ((int -> bool) -> bool) -> bool).
+           recFact21 > 0
+           && f25
+               (λn66:int.
+                 (n66 > 0
+                  || (0 /= 0
+                      || (∀s29:int.
+                           s29 < 1 * 0 + 0
+                           || s29 < -1 * 0 + 0
+                              || s29 < 1 * k_i26 + 0
+                                 || s29 < -1 * k_i26 + 0
+                                    || s29 < 1 * f_i24 + 0
+                                       || s29 < -1 * f_i24 + 0
+                                          || s29 < 1 * acc_i22 + 0
+                                             || s29 < -1 * acc_i22 + 0 || k27 s29 acc23))
+                     && (0 /= 1
+                         || (∀s30:int.
+                              ∀s231:int.
+                               ∀s332:int.
+                                ∀s433:int.
+                                 s30 < 1 * 0 + 0
+                                 || s30 < -1 * 0 + 0
+                                    || s30 < 1 * k_i26 + 0
+                                       || s30 < -1 * k_i26 + 0
+                                          || s30 < 1 * f_i24 + 0
+                                             || s30 < -1 * f_i24 + 0
+                                                || s30 < 1 * acc_i22 + 0
+                                                   || s30 < -1 * acc_i22 + 0
+                                                      || s231 < 1 * 0 + 0
+                                                         || s231 < -1 * 0 + 0
+                                                            || s231 < 1 * k_i26 + 0
+                                                               || s231 < -1 * k_i26 + 0
+                                                                  || 
+                                                                  s231 < 1 * f_i24 + 0
+                                                                  || 
+                                                                  s231 < -1 * f_i24 + 0
+                                                                  || 
+                                                                  s231 < 1 * acc_i22 + 0
+                                                                  || 
+                                                                  s231 < -1 * acc_i22 + 0
+                                                                  || 
+                                                                  s332 < 1 * 0 + 0
+                                                                  || 
+                                                                  s332 < -1 * 0 + 0
+                                                                  || 
+                                                                  s332 < 1 * k_i26 + 0
+                                                                  || 
+                                                                  s332 < -1 * k_i26 + 0
+                                                                  || 
+                                                                  s332 < 1 * f_i24 + 0
+                                                                  || 
+                                                                  s332 < -1 * f_i24 + 0
+                                                                  || 
+                                                                  s332 < 1 * acc_i22 + 0
+                                                                  || 
+                                                                  s332 < -1 * acc_i22 + 0
+                                                                  || 
+                                                                  s433 < 1 * 0 + 0
+                                                                  || 
+                                                                  s433 < -1 * 0 + 0
+                                                                  || 
+                                                                  s433 < 1 * k_i26 + 0
+                                                                  || 
+                                                                  s433 < -1 * k_i26 + 0
+                                                                  || 
+                                                                  s433 < 1 * f_i24 + 0
+                                                                  || 
+                                                                  s433 < -1 * f_i24 + 0
+                                                                  || 
+                                                                  s433 < 1 * acc_i22 + 0
+                                                                  || 
+                                                                  s433 < -1 * acc_i22 + 0
+                                                                  || (
+                                                                  ∀recMult34:int.
+                                                                   recMult34 < 1 + 1 * 0
+                                                                   || 
+                                                                   recMult34 < 1 + 1 * k_i26
+                                                                   || 
+                                                                   recMult34 < 1 + 1 * f_i24
+                                                                   || 
+                                                                   recMult34 < 1 + 1 * acc_i22
+                                                                   || 
+                                                                   recMult34 < 1 + -1 * 0
+                                                                   || 
+                                                                   recMult34 < 1 + -1 * k_i26
+                                                                   || 
+                                                                   recMult34 < 1 + -1 * f_i24
+                                                                   || 
+                                                                   recMult34 < 1 + -1 * acc_i22
+                                                                   || 
+                                                                   recMult34 < 1
+                                                                   || 
+                                                                   Mult recMult34 s30
+                                                                    (
+                                                                    λk235:(int -> bool).k235 0)
+                                                                    s231 acc23 s332 f25 s433
+                                                                    (
+                                                                    λaccc_i36:int.
+                                                                    λaccc37:(
+                                                                    (int -> bool) -> bool).
+                                                                    ∀s538:int.
+                                                                    ∀s639:int.
+                                                                    ∀s740:int.
+                                                                    s538 < 1 * accc_i36 + 0
+                                                                    || 
+                                                                    s538 < -1 * accc_i36 + 0
+                                                                    || 
+                                                                    s538 < 1 * 0 + 0
+                                                                    || 
+                                                                    s538 < -1 * 0 + 0
+                                                                    || 
+                                                                    s538 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s538 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s538 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s538 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s538 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s538 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    s639 < 1 * accc_i36 + 0
+                                                                    || 
+                                                                    s639 < -1 * accc_i36 + 0
+                                                                    || 
+                                                                    s639 < 1 * 0 + 0
+                                                                    || 
+                                                                    s639 < -1 * 0 + 0
+                                                                    || 
+                                                                    s639 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s639 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s639 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s639 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s639 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s639 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    s740 < 1 * accc_i36 + 0
+                                                                    || 
+                                                                    s740 < -1 * accc_i36 + 0
+                                                                    || 
+                                                                    s740 < 1 * 0 + 0
+                                                                    || 
+                                                                    s740 < -1 * 0 + 0
+                                                                    || 
+                                                                    s740 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s740 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s740 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s740 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s740 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s740 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    Fact (recFact21 - 1) s538
+                                                                    accc37 s639
+                                                                    (λk62:(
+                                                                    int -> bool).
+                                                                    f25 (λr63:int.k62 (r63 - 1)))
+                                                                    s740 k27)))))
+                 && (n66 <= 0
+                     || (1 /= 0
+                         || (∀s29:int.
+                              s29 < 1 * 1 + 0
+                              || s29 < -1 * 1 + 0
+                                 || s29 < 1 * k_i26 + 0
+                                    || s29 < -1 * k_i26 + 0
+                                       || s29 < 1 * f_i24 + 0
+                                          || s29 < -1 * f_i24 + 0
+                                             || s29 < 1 * acc_i22 + 0
+                                                || s29 < -1 * acc_i22 + 0 || k27 s29 acc23))
+                        && (1 /= 1
+                            || (∀s30:int.
+                                 ∀s231:int.
+                                  ∀s332:int.
+                                   ∀s433:int.
+                                    s30 < 1 * 1 + 0
+                                    || s30 < -1 * 1 + 0
+                                       || s30 < 1 * k_i26 + 0
+                                          || s30 < -1 * k_i26 + 0
+                                             || s30 < 1 * f_i24 + 0
+                                                || s30 < -1 * f_i24 + 0
+                                                   || s30 < 1 * acc_i22 + 0
+                                                      || s30 < -1 * acc_i22 + 0
+                                                         || s231 < 1 * 1 + 0
+                                                            || s231 < -1 * 1 + 0
+                                                               || s231 < 1 * k_i26 + 0
+                                                                  || 
+                                                                  s231 < -1 * k_i26 + 0
+                                                                  || 
+                                                                  s231 < 1 * f_i24 + 0
+                                                                  || 
+                                                                  s231 < -1 * f_i24 + 0
+                                                                  || 
+                                                                  s231 < 1 * acc_i22 + 0
+                                                                  || 
+                                                                  s231 < -1 * acc_i22 + 0
+                                                                  || 
+                                                                  s332 < 1 * 1 + 0
+                                                                  || 
+                                                                  s332 < -1 * 1 + 0
+                                                                  || 
+                                                                  s332 < 1 * k_i26 + 0
+                                                                  || 
+                                                                  s332 < -1 * k_i26 + 0
+                                                                  || 
+                                                                  s332 < 1 * f_i24 + 0
+                                                                  || 
+                                                                  s332 < -1 * f_i24 + 0
+                                                                  || 
+                                                                  s332 < 1 * acc_i22 + 0
+                                                                  || 
+                                                                  s332 < -1 * acc_i22 + 0
+                                                                  || 
+                                                                  s433 < 1 * 1 + 0
+                                                                  || 
+                                                                  s433 < -1 * 1 + 0
+                                                                  || 
+                                                                  s433 < 1 * k_i26 + 0
+                                                                  || 
+                                                                  s433 < -1 * k_i26 + 0
+                                                                  || 
+                                                                  s433 < 1 * f_i24 + 0
+                                                                  || 
+                                                                  s433 < -1 * f_i24 + 0
+                                                                  || 
+                                                                  s433 < 1 * acc_i22 + 0
+                                                                  || 
+                                                                  s433 < -1 * acc_i22 + 0
+                                                                  || (
+                                                                  ∀recMult34:int.
+                                                                   recMult34 < 1 + 1 * 1
+                                                                   || 
+                                                                   recMult34 < 1 + 1 * k_i26
+                                                                   || 
+                                                                   recMult34 < 1 + 1 * f_i24
+                                                                   || 
+                                                                   recMult34 < 1 + 1 * acc_i22
+                                                                   || 
+                                                                   recMult34 < 1 + -1 * 1
+                                                                   || 
+                                                                   recMult34 < 1 + -1 * k_i26
+                                                                   || 
+                                                                   recMult34 < 1 + -1 * f_i24
+                                                                   || 
+                                                                   recMult34 < 1 + -1 * acc_i22
+                                                                   || 
+                                                                   recMult34 < 1
+                                                                   || 
+                                                                   Mult recMult34 s30
+                                                                    (
+                                                                    λk235:(int -> bool).k235 0)
+                                                                    s231 acc23 s332 f25 s433
+                                                                    (
+                                                                    λaccc_i36:int.
+                                                                    λaccc37:(
+                                                                    (int -> bool) -> bool).
+                                                                    ∀s538:int.
+                                                                    ∀s639:int.
+                                                                    ∀s740:int.
+                                                                    s538 < 1 * accc_i36 + 0
+                                                                    || 
+                                                                    s538 < -1 * accc_i36 + 0
+                                                                    || 
+                                                                    s538 < 1 * 1 + 0
+                                                                    || 
+                                                                    s538 < -1 * 1 + 0
+                                                                    || 
+                                                                    s538 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s538 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s538 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s538 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s538 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s538 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    s639 < 1 * accc_i36 + 0
+                                                                    || 
+                                                                    s639 < -1 * accc_i36 + 0
+                                                                    || 
+                                                                    s639 < 1 * 1 + 0
+                                                                    || 
+                                                                    s639 < -1 * 1 + 0
+                                                                    || 
+                                                                    s639 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s639 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s639 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s639 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s639 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s639 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    s740 < 1 * accc_i36 + 0
+                                                                    || 
+                                                                    s740 < -1 * accc_i36 + 0
+                                                                    || 
+                                                                    s740 < 1 * 1 + 0
+                                                                    || 
+                                                                    s740 < -1 * 1 + 0
+                                                                    || 
+                                                                    s740 < 1 * k_i26 + 0
+                                                                    || 
+                                                                    s740 < -1 * k_i26 + 0
+                                                                    || 
+                                                                    s740 < 1 * f_i24 + 0
+                                                                    || 
+                                                                    s740 < -1 * f_i24 + 0
+                                                                    || 
+                                                                    s740 < 1 * acc_i22 + 0
+                                                                    || 
+                                                                    s740 < -1 * acc_i22 + 0
+                                                                    || 
+                                                                    Fact (recFact21 - 1) s538
+                                                                    accc37 s639
+                                                                    (λk62:(
+                                                                    int -> bool).
+                                                                    f25 (λr63:int.k62 (r63 - 1)))
+                                                                    s740 k27))))))
+  Mult : int ->
+          int ->
+           ((int -> bool) -> bool) ->
+            int ->
+             ((int -> bool) -> bool) ->
+              int ->
+               ((int -> bool) -> bool) -> int -> (int -> ((int -> bool) -> bool) -> bool) -> bool =ν
+    λrecMult41:int.
+     λacc_i42:int.
+      λacc43:((int -> bool) -> bool).
+       λf_i44:int.
+        λf45:((int -> bool) -> bool).
+         λg_i46:int.
+          λg47:((int -> bool) -> bool).
+           λk_i48:int.
+            λk49:(int -> ((int -> bool) -> bool) -> bool).
+             recMult41 > 0
+             && f45
+                 (λn66:int.
+                   (n66 > 0
+                    || (0 /= 0
+                        || (∀s51:int.
+                             s51 < 1 * 0 + 0
+                             || s51 < -1 * 0 + 0
+                                || s51 < 1 * k_i48 + 0
+                                   || s51 < -1 * k_i48 + 0
+                                      || s51 < 1 * g_i46 + 0
+                                         || s51 < -1 * g_i46 + 0
+                                            || s51 < 1 * f_i44 + 0
+                                               || s51 < -1 * f_i44 + 0
+                                                  || s51 < 1 * acc_i42 + 0
+                                                     || s51 < -1 * acc_i42 + 0 || k49 s51 acc43))
+                       && (0 /= 1
+                           || (∀s52:int.
+                                ∀s253:int.
+                                 ∀s354:int.
+                                  ∀s455:int.
+                                   s52 < 1 * 0 + 0
+                                   || s52 < -1 * 0 + 0
+                                      || s52 < 1 * k_i48 + 0
+                                         || s52 < -1 * k_i48 + 0
+                                            || s52 < 1 * g_i46 + 0
+                                               || s52 < -1 * g_i46 + 0
+                                                  || s52 < 1 * f_i44 + 0
+                                                     || s52 < -1 * f_i44 + 0
+                                                        || s52 < 1 * acc_i42 + 0
+                                                           || s52 < -1 * acc_i42 + 0
+                                                              || s253 < 1 * 0 + 0
+                                                                 || s253 < -1 * 0 + 0
+                                                                    || 
+                                                                    s253 < 1 * k_i48 + 0
+                                                                    || 
+                                                                    s253 < -1 * k_i48 + 0
+                                                                    || 
+                                                                    s253 < 1 * g_i46 + 0
+                                                                    || 
+                                                                    s253 < -1 * g_i46 + 0
+                                                                    || 
+                                                                    s253 < 1 * f_i44 + 0
+                                                                    || 
+                                                                    s253 < -1 * f_i44 + 0
+                                                                    || 
+                                                                    s253 < 1 * acc_i42 + 0
+                                                                    || 
+                                                                    s253 < -1 * acc_i42 + 0
+                                                                    || 
+                                                                    s354 < 1 * 0 + 0
+                                                                    || 
+                                                                    s354 < -1 * 0 + 0
+                                                                    || 
+                                                                    s354 < 1 * k_i48 + 0
+                                                                    || 
+                                                                    s354 < -1 * k_i48 + 0
+                                                                    || 
+                                                                    s354 < 1 * g_i46 + 0
+                                                                    || 
+                                                                    s354 < -1 * g_i46 + 0
+                                                                    || 
+                                                                    s354 < 1 * f_i44 + 0
+                                                                    || 
+                                                                    s354 < -1 * f_i44 + 0
+                                                                    || 
+                                                                    s354 < 1 * acc_i42 + 0
+                                                                    || 
+                                                                    s354 < -1 * acc_i42 + 0
+                                                                    || 
+                                                                    s455 < 1 * 0 + 0
+                                                                    || 
+                                                                    s455 < -1 * 0 + 0
+                                                                    || 
+                                                                    s455 < 1 * k_i48 + 0
+                                                                    || 
+                                                                    s455 < -1 * k_i48 + 0
+                                                                    || 
+                                                                    s455 < 1 * g_i46 + 0
+                                                                    || 
+                                                                    s455 < -1 * g_i46 + 0
+                                                                    || 
+                                                                    s455 < 1 * f_i44 + 0
+                                                                    || 
+                                                                    s455 < -1 * f_i44 + 0
+                                                                    || 
+                                                                    s455 < 1 * acc_i42 + 0
+                                                                    || 
+                                                                    s455 < -1 * acc_i42 + 0
+                                                                    || 
+                                                                    Mult (recMult41 - 1) s52
+                                                                    (λk58:(
+                                                                    int -> bool).
+                                                                    acc43
+                                                                    (λfx59:int.
+                                                                    g47
+                                                                    (λgx60:int.k58 (fx59 + gx60))))
+                                                                    s253
+                                                                    (λk62:(
+                                                                    int -> bool).
+                                                                    f45 (λr63:int.k62 (r63 - 1)))
+                                                                    s354 g47 s455 k49)))
+                   && (n66 <= 0
+                       || (1 /= 0
+                           || (∀s51:int.
+                                s51 < 1 * 1 + 0
+                                || s51 < -1 * 1 + 0
+                                   || s51 < 1 * k_i48 + 0
+                                      || s51 < -1 * k_i48 + 0
+                                         || s51 < 1 * g_i46 + 0
+                                            || s51 < -1 * g_i46 + 0
+                                               || s51 < 1 * f_i44 + 0
+                                                  || s51 < -1 * f_i44 + 0
+                                                     || s51 < 1 * acc_i42 + 0
+                                                        || s51 < -1 * acc_i42 + 0 || k49 s51 acc43))
+                          && (1 /= 1
+                              || (∀s52:int.
+                                   ∀s253:int.
+                                    ∀s354:int.
+                                     ∀s455:int.
+                                      s52 < 1 * 1 + 0
+                                      || s52 < -1 * 1 + 0
+                                         || s52 < 1 * k_i48 + 0
+                                            || s52 < -1 * k_i48 + 0
+                                               || s52 < 1 * g_i46 + 0
+                                                  || s52 < -1 * g_i46 + 0
+                                                     || s52 < 1 * f_i44 + 0
+                                                        || s52 < -1 * f_i44 + 0
+                                                           || s52 < 1 * acc_i42 + 0
+                                                              || s52 < -1 * acc_i42 + 0
+                                                                 || s253 < 1 * 1 + 0
+                                                                    || 
+                                                                    s253 < -1 * 1 + 0
+                                                                    || 
+                                                                    s253 < 1 * k_i48 + 0
+                                                                    || 
+                                                                    s253 < -1 * k_i48 + 0
+                                                                    || 
+                                                                    s253 < 1 * g_i46 + 0
+                                                                    || 
+                                                                    s253 < -1 * g_i46 + 0
+                                                                    || 
+                                                                    s253 < 1 * f_i44 + 0
+                                                                    || 
+                                                                    s253 < -1 * f_i44 + 0
+                                                                    || 
+                                                                    s253 < 1 * acc_i42 + 0
+                                                                    || 
+                                                                    s253 < -1 * acc_i42 + 0
+                                                                    || 
+                                                                    s354 < 1 * 1 + 0
+                                                                    || 
+                                                                    s354 < -1 * 1 + 0
+                                                                    || 
+                                                                    s354 < 1 * k_i48 + 0
+                                                                    || 
+                                                                    s354 < -1 * k_i48 + 0
+                                                                    || 
+                                                                    s354 < 1 * g_i46 + 0
+                                                                    || 
+                                                                    s354 < -1 * g_i46 + 0
+                                                                    || 
+                                                                    s354 < 1 * f_i44 + 0
+                                                                    || 
+                                                                    s354 < -1 * f_i44 + 0
+                                                                    || 
+                                                                    s354 < 1 * acc_i42 + 0
+                                                                    || 
+                                                                    s354 < -1 * acc_i42 + 0
+                                                                    || 
+                                                                    s455 < 1 * 1 + 0
+                                                                    || 
+                                                                    s455 < -1 * 1 + 0
+                                                                    || 
+                                                                    s455 < 1 * k_i48 + 0
+                                                                    || 
+                                                                    s455 < -1 * k_i48 + 0
+                                                                    || 
+                                                                    s455 < 1 * g_i46 + 0
+                                                                    || 
+                                                                    s455 < -1 * g_i46 + 0
+                                                                    || 
+                                                                    s455 < 1 * f_i44 + 0
+                                                                    || 
+                                                                    s455 < -1 * f_i44 + 0
+                                                                    || 
+                                                                    s455 < 1 * acc_i42 + 0
+                                                                    || 
+                                                                    s455 < -1 * acc_i42 + 0
+                                                                    || 
+                                                                    Mult (recMult41 - 1) s52
+                                                                    (λk58:(
+                                                                    int -> bool).
+                                                                    acc43
+                                                                    (λfx59:int.
+                                                                    g47
+                                                                    (λgx60:int.k58 (fx59 + gx60))))
+                                                                    s253
+                                                                    (λk62:(
+                                                                    int -> bool).
+                                                                    f45 (λr63:int.k62 (r63 - 1)))
+                                                                    s354 g47 s455 k49))))
+Sentry *[X899()]
+Main (int(recMain95) -> (*[X839(recMain95)] -> (((int(t97) -> *[X840(t97,recMain95)]) -> *[X841(recMain95)]) -> *[X842(recMain95)])))
+Fact (int(recFact121) -> (int(acc_i122) -> (((int(t123) -> *[X345(t123,acc_i122,recFact121)]) -> *[X346(acc_i122,recFact121)]) -> (int(f_i126) -> (((int(t127) -> *[X347(t127,f_i126,acc_i122,recFact121)]) -> *[X348(f_i126,acc_i122,recFact121)]) -> (int(k_i130) -> ((int(t131) -> (((int(t132) -> *[X349(t132,t131,k_i130,f_i126,acc_i122,recFact121)]) -> *[X350(t131,k_i130,f_i126,acc_i122,recFact121)]) -> *[X351(t131,k_i130,f_i126,acc_i122,recFact121)])) -> *[X352(k_i130,f_i126,acc_i122,recFact121)])))))))
+Mult (int(recMult212) -> (int(acc_i213) -> (((int(t214) -> *[X1(t214,acc_i213,recMult212)]) -> *[X2(acc_i213,recMult212)]) -> (int(f_i217) -> (((int(t218) -> *[X3(t218,f_i217,acc_i213,recMult212)]) -> *[X4(f_i217,acc_i213,recMult212)]) -> (int(g_i221) -> (((int(t222) -> *[X5(t222,g_i221,f_i217,acc_i213,recMult212)]) -> *[X6(g_i221,f_i217,acc_i213,recMult212)]) -> (int(k_i225) -> ((int(t226) -> (((int(t227) -> *[X7(t227,t226,k_i225,g_i221,f_i217,acc_i213,recMult212)]) -> *[X8(t226,k_i225,g_i221,f_i217,acc_i213,recMult212)]) -> *[X9(t226,k_i225,g_i221,f_i217,acc_i213,recMult212)])) -> *[X10(k_i225,g_i221,f_i217,acc_i213,recMult212)])))))))))
+
+
+infering new formula: Sentry = (∀int(n7).(∀int(s8).(∀int(s29).(∀int(s310).(s8<1 * n7 + 1 || (s8<-1 * n7 + 1 || (s29<1 * n7 + 0 || (s29<-1 * n7 + 0 || (s310<1 * n7 + 0 || (s310<-1 * n7 + 0 || (∀int(recFact11).(recFact11<1 + 1 * n7 || (recFact11<1 + -1 * n7 || (recFact11<1 + 1 * 1 || (recFact11<1 + -1 * 1 || (recFact11<1 || (((((((Fact recFact11) s8) (\(int(t79) -> *[X957(t79,recFact11,s310,s29,s8,n7)]).(k12 1))) s29) (\(int(t77) -> *[X952(t77,recFact11,s310,s29,s8,n7)]).(k13 n7))) s310) (\int(g_i14).(\((int(t74) -> *[X928(t74,g_i14,recFact11,s310,s29,s8,n7)]) -> *[X929(g_i14,recFact11,s310,s29,s8,n7)]).(∀int(recMain16).(recMain16<1 + 1 * g_i14 || (recMain16<1 + 1 * n7 || (recMain16<1 + -1 * g_i14 || (recMain16<1 + -1 * n7 || (recMain16<1 || (((Main recMain16) tt) g15))))))))))))))))))))))))))
+[Result]
+X899() => X900(n7)
+X900(n7) => X901(s8,n7)
+X901(s8,n7) => X902(s29,s8,n7)
+X902(s29,s8,n7) => X903(s310,s29,s8,n7)
+X903(s310,s29,s8,n7) => (s8<1 * n7 + 1 \/ (s8<-1 * n7 + 1 \/ (s29<1 * n7 + 0 \/ (s29<-1 * n7 + 0 \/ (s310<1 * n7 + 0 \/ (s310<-1 * n7 + 0 \/ X916(recFact11,s310,s29,s8,n7)))))))
+X916(recFact11,s310,s29,s8,n7) => (recFact11<1 + 1 * n7 \/ (recFact11<1 + -1 * n7 \/ (recFact11<1 + 1 * 1 \/ (recFact11<1 + -1 * 1 \/ (recFact11<1 \/ X984(recFact11,s310,s29,s8,n7))))))
+X984(recFact11,s310,s29,s8,n7) => X976(s310,recFact11,s310,s29,s8,n7)
+(X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) => X930(recMain16,x351,recFact11,s310,s29,s8,n7)
+((X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) /\ X929(x351,recFact11,s310,s29,s8,n7)) => X978(x351,s310,recFact11,s310,s29,s8,n7)
+(((X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) /\ X929(x351,recFact11,s310,s29,s8,n7)) /\ X979(x352,x351,s310,recFact11,s310,s29,s8,n7)) => X928(x352,x351,recFact11,s310,s29,s8,n7)
+X930(recMain16,g_i14,recFact11,s310,s29,s8,n7) => (recMain16<1 + 1 * g_i14 \/ (recMain16<1 + 1 * n7 \/ (recMain16<1 + -1 * g_i14 \/ (recMain16<1 + -1 * n7 \/ (recMain16<1 \/ X983(recMain16,g_i14,recFact11,s310,s29,s8,n7))))))
+X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) => X980(recMain16,g_i14,recFact11,s310,s29,s8,n7)
+(X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)) => X929(g_i14,recFact11,s310,s29,s8,n7)
+((X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)) /\ X928(x350,g_i14,recFact11,s310,s29,s8,n7)) => X982(x350,recMain16,g_i14,recFact11,s310,s29,s8,n7)
+X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) => X842(recMain16)
+(X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X841(recMain16)) => X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)
+((X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X841(recMain16)) /\ X982(x349,recMain16,g_i14,recFact11,s310,s29,s8,n7)) => X840(x349,recMain16)
+(X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X839(recMain16)) => tt
+X976(x346,recFact11,s310,s29,s8,n7) => X970(x346,s29,recFact11,s310,s29,s8,n7)
+(X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) => X977(x347,x346,recFact11,s310,s29,s8,n7)
+((X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) /\ X978(x347,x346,recFact11,s310,s29,s8,n7)) => X972(x347,x346,s29,recFact11,s310,s29,s8,n7)
+(((X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) /\ X978(x347,x346,recFact11,s310,s29,s8,n7)) /\ X973(x348,x347,x346,s29,recFact11,s310,s29,s8,n7)) => X979(x348,x347,x346,recFact11,s310,s29,s8,n7)
+(X976(k_i130,recFact11,s310,s29,s8,n7) /\ X974(s29,recFact11,s310,s29,s8,n7)) => X952(n7,recFact11,s310,s29,s8,n7)
+((X976(k_i130,recFact11,s310,s29,s8,n7) /\ X974(s29,recFact11,s310,s29,s8,n7)) /\ X952(x345,recFact11,s310,s29,s8,n7)) => X975(x345,s29,recFact11,s310,s29,s8,n7)
+X970(x342,x340,recFact11,s310,s29,s8,n7) => X352(x342,x340,s8,recFact11)
+(X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) => X971(x343,x342,x340,recFact11,s310,s29,s8,n7)
+((X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) /\ X972(x343,x342,x340,recFact11,s310,s29,s8,n7)) => X350(x343,x342,x340,s8,recFact11)
+(((X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) /\ X972(x343,x342,x340,recFact11,s310,s29,s8,n7)) /\ X349(x344,x343,x342,x340,s8,recFact11)) => X973(x344,x343,x342,x340,recFact11,s310,s29,s8,n7)
+(X970(k_i130,x340,recFact11,s310,s29,s8,n7) /\ X348(x340,s8,recFact11)) => X974(x340,recFact11,s310,s29,s8,n7)
+((X970(k_i130,x340,recFact11,s310,s29,s8,n7) /\ X348(x340,s8,recFact11)) /\ X975(x341,x340,recFact11,s310,s29,s8,n7)) => X347(x341,x340,s8,recFact11)
+(X970(k_i130,f_i126,recFact11,s310,s29,s8,n7) /\ X346(s8,recFact11)) => X957(1,recFact11,s310,s29,s8,n7)
+((X970(k_i130,f_i126,recFact11,s310,s29,s8,n7) /\ X346(s8,recFact11)) /\ X957(x339,recFact11,s310,s29,s8,n7)) => X345(x339,s8,recFact11)
+tt => X899()
+
+
+infering new formula: Main = (\int(recMain17).(\*[X843(recMain17)].(\((int(t119) -> *[X844(t119,recMain17)]) -> *[X845(recMain17)]).(recMain17>0:X846(recMain17) && (g19 (\int(n66).((n66>0 || ((0/=0 || k18):X876(n66,recMain17) && (0=0 || (((Main recMain17 - 1) k18) (\(int(t324) -> *[X881(t324,n66,recMain17)]).(g19 (\int(r63).(k62 r63 - 1)))))):X877(n66,recMain17))):X849(n66,recMain17) && (n66<=0 || ((1/=0 || k18):X853(n66,recMain17) && (1=0 || (((Main recMain17 - 1) k18) (\(int(t324) -> *[X858(t324,n66,recMain17)]).(g19 (\int(r63).(k62 r63 - 1)))))):X854(n66,recMain17))):X850(n66,recMain17)))):X847(recMain17)))))
+[Result]
+X842(x360) => (x360>0 /\ X995(x360))
+(X842(x360) /\ X845(x360)) => X841(x360)
+((X842(x360) /\ X845(x360)) /\ X840(x361,x360)) => X844(x361,x360)
+(X842(x360) /\ X843(x360)) => X839(x360)
+X995(recMain17) => X845(recMain17)
+(X995(recMain17) /\ X844(x359,recMain17)) => ((x359>0 \/ ((0/=0 \/ X843(recMain17)) /\ (0=0 \/ X989(x359,recMain17)))) /\ (x359<=0 \/ ((1/=0 \/ X843(recMain17)) /\ (1=0 \/ X994(x359,recMain17)))))
+X994(n66,recMain17) => X990(n66,recMain17)
+(X994(n66,recMain17) /\ X991(n66,recMain17)) => X993(n66,recMain17)
+((X994(n66,recMain17) /\ X991(n66,recMain17)) /\ X858(x358,n66,recMain17)) => X992(x358,n66,recMain17)
+X993(n66,recMain17) => X845(recMain17)
+(X993(n66,recMain17) /\ X844(x357,recMain17)) => X858(x357 - 1,n66,recMain17)
+X990(n66,recMain17) => X842(recMain17 - 1)
+(X990(n66,recMain17) /\ X841(recMain17 - 1)) => X991(n66,recMain17)
+((X990(n66,recMain17) /\ X841(recMain17 - 1)) /\ X992(x356,n66,recMain17)) => X840(x356,recMain17 - 1)
+(X990(n66,recMain17) /\ X839(recMain17 - 1)) => X843(recMain17)
+X989(n66,recMain17) => X985(n66,recMain17)
+(X989(n66,recMain17) /\ X986(n66,recMain17)) => X988(n66,recMain17)
+((X989(n66,recMain17) /\ X986(n66,recMain17)) /\ X881(x355,n66,recMain17)) => X987(x355,n66,recMain17)
+X988(n66,recMain17) => X845(recMain17)
+(X988(n66,recMain17) /\ X844(x354,recMain17)) => X881(x354 - 1,n66,recMain17)
+X985(n66,recMain17) => X842(recMain17 - 1)
+(X985(n66,recMain17) /\ X841(recMain17 - 1)) => X986(n66,recMain17)
+((X985(n66,recMain17) /\ X841(recMain17 - 1)) /\ X987(x353,n66,recMain17)) => X840(x353,recMain17 - 1)
+(X985(n66,recMain17) /\ X839(recMain17 - 1)) => X843(recMain17)
+X899() => X900(n7)
+X900(n7) => X901(s8,n7)
+X901(s8,n7) => X902(s29,s8,n7)
+X902(s29,s8,n7) => X903(s310,s29,s8,n7)
+X903(s310,s29,s8,n7) => (s8<1 * n7 + 1 \/ (s8<-1 * n7 + 1 \/ (s29<1 * n7 + 0 \/ (s29<-1 * n7 + 0 \/ (s310<1 * n7 + 0 \/ (s310<-1 * n7 + 0 \/ X916(recFact11,s310,s29,s8,n7)))))))
+X916(recFact11,s310,s29,s8,n7) => (recFact11<1 + 1 * n7 \/ (recFact11<1 + -1 * n7 \/ (recFact11<1 + 1 * 1 \/ (recFact11<1 + -1 * 1 \/ (recFact11<1 \/ X984(recFact11,s310,s29,s8,n7))))))
+X984(recFact11,s310,s29,s8,n7) => X976(s310,recFact11,s310,s29,s8,n7)
+(X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) => X930(recMain16,x351,recFact11,s310,s29,s8,n7)
+((X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) /\ X929(x351,recFact11,s310,s29,s8,n7)) => X978(x351,s310,recFact11,s310,s29,s8,n7)
+(((X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) /\ X929(x351,recFact11,s310,s29,s8,n7)) /\ X979(x352,x351,s310,recFact11,s310,s29,s8,n7)) => X928(x352,x351,recFact11,s310,s29,s8,n7)
+X930(recMain16,g_i14,recFact11,s310,s29,s8,n7) => (recMain16<1 + 1 * g_i14 \/ (recMain16<1 + 1 * n7 \/ (recMain16<1 + -1 * g_i14 \/ (recMain16<1 + -1 * n7 \/ (recMain16<1 \/ X983(recMain16,g_i14,recFact11,s310,s29,s8,n7))))))
+X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) => X980(recMain16,g_i14,recFact11,s310,s29,s8,n7)
+(X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)) => X929(g_i14,recFact11,s310,s29,s8,n7)
+((X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)) /\ X928(x350,g_i14,recFact11,s310,s29,s8,n7)) => X982(x350,recMain16,g_i14,recFact11,s310,s29,s8,n7)
+X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) => X842(recMain16)
+(X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X841(recMain16)) => X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)
+((X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X841(recMain16)) /\ X982(x349,recMain16,g_i14,recFact11,s310,s29,s8,n7)) => X840(x349,recMain16)
+(X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X839(recMain16)) => tt
+X976(x346,recFact11,s310,s29,s8,n7) => X970(x346,s29,recFact11,s310,s29,s8,n7)
+(X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) => X977(x347,x346,recFact11,s310,s29,s8,n7)
+((X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) /\ X978(x347,x346,recFact11,s310,s29,s8,n7)) => X972(x347,x346,s29,recFact11,s310,s29,s8,n7)
+(((X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) /\ X978(x347,x346,recFact11,s310,s29,s8,n7)) /\ X973(x348,x347,x346,s29,recFact11,s310,s29,s8,n7)) => X979(x348,x347,x346,recFact11,s310,s29,s8,n7)
+(X976(k_i130,recFact11,s310,s29,s8,n7) /\ X974(s29,recFact11,s310,s29,s8,n7)) => X952(n7,recFact11,s310,s29,s8,n7)
+((X976(k_i130,recFact11,s310,s29,s8,n7) /\ X974(s29,recFact11,s310,s29,s8,n7)) /\ X952(x345,recFact11,s310,s29,s8,n7)) => X975(x345,s29,recFact11,s310,s29,s8,n7)
+X970(x342,x340,recFact11,s310,s29,s8,n7) => X352(x342,x340,s8,recFact11)
+(X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) => X971(x343,x342,x340,recFact11,s310,s29,s8,n7)
+((X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) /\ X972(x343,x342,x340,recFact11,s310,s29,s8,n7)) => X350(x343,x342,x340,s8,recFact11)
+(((X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) /\ X972(x343,x342,x340,recFact11,s310,s29,s8,n7)) /\ X349(x344,x343,x342,x340,s8,recFact11)) => X973(x344,x343,x342,x340,recFact11,s310,s29,s8,n7)
+(X970(k_i130,x340,recFact11,s310,s29,s8,n7) /\ X348(x340,s8,recFact11)) => X974(x340,recFact11,s310,s29,s8,n7)
+((X970(k_i130,x340,recFact11,s310,s29,s8,n7) /\ X348(x340,s8,recFact11)) /\ X975(x341,x340,recFact11,s310,s29,s8,n7)) => X347(x341,x340,s8,recFact11)
+(X970(k_i130,f_i126,recFact11,s310,s29,s8,n7) /\ X346(s8,recFact11)) => X957(1,recFact11,s310,s29,s8,n7)
+((X970(k_i130,f_i126,recFact11,s310,s29,s8,n7) /\ X346(s8,recFact11)) /\ X957(x339,recFact11,s310,s29,s8,n7)) => X345(x339,s8,recFact11)
+tt => X899()
+
+
+infering new formula: Fact = (\int(recFact21).(\int(acc_i22).(\((int(t210) -> *[X353(t210,acc_i22,recFact21)]) -> *[X354(acc_i22,recFact21)]).(\int(f_i24).(\((int(t208) -> *[X355(t208,f_i24,acc_i22,recFact21)]) -> *[X356(f_i24,acc_i22,recFact21)]).(\int(k_i26).(\(int(t204) -> (((int(t205) -> *[X357(t205,t204,k_i26,f_i24,acc_i22,recFact21)]) -> *[X358(t204,k_i26,f_i24,acc_i22,recFact21)]) -> *[X359(t204,k_i26,f_i24,acc_i22,recFact21)])).(recFact21>0:X360(k_i26,f_i24,acc_i22,recFact21) && (f25 (\int(n66).((n66>0 || ((0/=0 || (∀int(s29).(s29<1 * 0 + 0 || (s29<-1 * 0 + 0 || (s29<1 * k_i26 + 0 || (s29<-1 * k_i26 + 0 || (s29<1 * f_i24 + 0 || (s29<-1 * f_i24 + 0 || (s29<1 * acc_i22 + 0 || (s29<-1 * acc_i22 + 0 || ((k27 s29) acc23))))))))))):X603(n66,k_i26,f_i24,acc_i22,recFact21) && (0/=1 || (∀int(s30).(∀int(s231).(∀int(s332).(∀int(s433).(s30<1 * 0 + 0 || (s30<-1 * 0 + 0 || (s30<1 * k_i26 + 0 || (s30<-1 * k_i26 + 0 || (s30<1 * f_i24 + 0 || (s30<-1 * f_i24 + 0 || (s30<1 * acc_i22 + 0 || (s30<-1 * acc_i22 + 0 || (s231<1 * 0 + 0 || (s231<-1 * 0 + 0 || (s231<1 * k_i26 + 0 || (s231<-1 * k_i26 + 0 || (s231<1 * f_i24 + 0 || (s231<-1 * f_i24 + 0 || (s231<1 * acc_i22 + 0 || (s231<-1 * acc_i22 + 0 || (s332<1 * 0 + 0 || (s332<-1 * 0 + 0 || (s332<1 * k_i26 + 0 || (s332<-1 * k_i26 + 0 || (s332<1 * f_i24 + 0 || (s332<-1 * f_i24 + 0 || (s332<1 * acc_i22 + 0 || (s332<-1 * acc_i22 + 0 || (s433<1 * 0 + 0 || (s433<-1 * 0 + 0 || (s433<1 * k_i26 + 0 || (s433<-1 * k_i26 + 0 || (s433<1 * f_i24 + 0 || (s433<-1 * f_i24 + 0 || (s433<1 * acc_i22 + 0 || (s433<-1 * acc_i22 + 0 || (∀int(recMult34).(recMult34<1 + 1 * 0 || (recMult34<1 + 1 * k_i26 || (recMult34<1 + 1 * f_i24 || (recMult34<1 + 1 * acc_i22 || (recMult34<1 + -1 * 0 || (recMult34<1 + -1 * k_i26 || (recMult34<1 + -1 * f_i24 || (recMult34<1 + -1 * acc_i22 || (recMult34<1 || (((((((((Mult recMult34) s30) (\(int(t171) -> *[X796(t171,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)]).(k235 0))) s231) acc23) s332) f25) s433) (\int(accc_i36).(\((int(t164) -> *[X695(t164,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)]) -> *[X696(accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)]).(∀int(s538).(∀int(s639).(∀int(s740).(s538<1 * accc_i36 + 0 || (s538<-1 * accc_i36 + 0 || (s538<1 * 0 + 0 || (s538<-1 * 0 + 0 || (s538<1 * k_i26 + 0 || (s538<-1 * k_i26 + 0 || (s538<1 * f_i24 + 0 || (s538<-1 * f_i24 + 0 || (s538<1 * acc_i22 + 0 || (s538<-1 * acc_i22 + 0 || (s639<1 * accc_i36 + 0 || (s639<-1 * accc_i36 + 0 || (s639<1 * 0 + 0 || (s639<-1 * 0 + 0 || (s639<1 * k_i26 + 0 || (s639<-1 * k_i26 + 0 || (s639<1 * f_i24 + 0 || (s639<-1 * f_i24 + 0 || (s639<1 * acc_i22 + 0 || (s639<-1 * acc_i22 + 0 || (s740<1 * accc_i36 + 0 || (s740<-1 * accc_i36 + 0 || (s740<1 * 0 + 0 || (s740<-1 * 0 + 0 || (s740<1 * k_i26 + 0 || (s740<-1 * k_i26 + 0 || (s740<1 * f_i24 + 0 || (s740<-1 * f_i24 + 0 || (s740<1 * acc_i22 + 0 || (s740<-1 * acc_i22 + 0 || (((((((Fact recFact21 - 1) s538) accc37) s639) (\(int(t324) -> *[X766(t324,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)]).(f25 (\int(r63).(k62 r63 - 1))))) s740) k27)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))):X604(n66,k_i26,f_i24,acc_i22,recFact21))):X363(n66,k_i26,f_i24,acc_i22,recFact21) && (n66<=0 || ((1/=0 || (∀int(s29).(s29<1 * 1 + 0 || (s29<-1 * 1 + 0 || (s29<1 * k_i26 + 0 || (s29<-1 * k_i26 + 0 || (s29<1 * f_i24 + 0 || (s29<-1 * f_i24 + 0 || (s29<1 * acc_i22 + 0 || (s29<-1 * acc_i22 + 0 || ((k27 s29) acc23))))))))))):X367(n66,k_i26,f_i24,acc_i22,recFact21) && (1/=1 || (∀int(s30).(∀int(s231).(∀int(s332).(∀int(s433).(s30<1 * 1 + 0 || (s30<-1 * 1 + 0 || (s30<1 * k_i26 + 0 || (s30<-1 * k_i26 + 0 || (s30<1 * f_i24 + 0 || (s30<-1 * f_i24 + 0 || (s30<1 * acc_i22 + 0 || (s30<-1 * acc_i22 + 0 || (s231<1 * 1 + 0 || (s231<-1 * 1 + 0 || (s231<1 * k_i26 + 0 || (s231<-1 * k_i26 + 0 || (s231<1 * f_i24 + 0 || (s231<-1 * f_i24 + 0 || (s231<1 * acc_i22 + 0 || (s231<-1 * acc_i22 + 0 || (s332<1 * 1 + 0 || (s332<-1 * 1 + 0 || (s332<1 * k_i26 + 0 || (s332<-1 * k_i26 + 0 || (s332<1 * f_i24 + 0 || (s332<-1 * f_i24 + 0 || (s332<1 * acc_i22 + 0 || (s332<-1 * acc_i22 + 0 || (s433<1 * 1 + 0 || (s433<-1 * 1 + 0 || (s433<1 * k_i26 + 0 || (s433<-1 * k_i26 + 0 || (s433<1 * f_i24 + 0 || (s433<-1 * f_i24 + 0 || (s433<1 * acc_i22 + 0 || (s433<-1 * acc_i22 + 0 || (∀int(recMult34).(recMult34<1 + 1 * 1 || (recMult34<1 + 1 * k_i26 || (recMult34<1 + 1 * f_i24 || (recMult34<1 + 1 * acc_i22 || (recMult34<1 + -1 * 1 || (recMult34<1 + -1 * k_i26 || (recMult34<1 + -1 * f_i24 || (recMult34<1 + -1 * acc_i22 || (recMult34<1 || (((((((((Mult recMult34) s30) (\(int(t171) -> *[X560(t171,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)]).(k235 0))) s231) acc23) s332) f25) s433) (\int(accc_i36).(\((int(t164) -> *[X459(t164,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)]) -> *[X460(accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)]).(∀int(s538).(∀int(s639).(∀int(s740).(s538<1 * accc_i36 + 0 || (s538<-1 * accc_i36 + 0 || (s538<1 * 1 + 0 || (s538<-1 * 1 + 0 || (s538<1 * k_i26 + 0 || (s538<-1 * k_i26 + 0 || (s538<1 * f_i24 + 0 || (s538<-1 * f_i24 + 0 || (s538<1 * acc_i22 + 0 || (s538<-1 * acc_i22 + 0 || (s639<1 * accc_i36 + 0 || (s639<-1 * accc_i36 + 0 || (s639<1 * 1 + 0 || (s639<-1 * 1 + 0 || (s639<1 * k_i26 + 0 || (s639<-1 * k_i26 + 0 || (s639<1 * f_i24 + 0 || (s639<-1 * f_i24 + 0 || (s639<1 * acc_i22 + 0 || (s639<-1 * acc_i22 + 0 || (s740<1 * accc_i36 + 0 || (s740<-1 * accc_i36 + 0 || (s740<1 * 1 + 0 || (s740<-1 * 1 + 0 || (s740<1 * k_i26 + 0 || (s740<-1 * k_i26 + 0 || (s740<1 * f_i24 + 0 || (s740<-1 * f_i24 + 0 || (s740<1 * acc_i22 + 0 || (s740<-1 * acc_i22 + 0 || (((((((Fact recFact21 - 1) s538) accc37) s639) (\(int(t324) -> *[X530(t324,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)]).(f25 (\int(r63).(k62 r63 - 1))))) s740) k27)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))):X368(n66,k_i26,f_i24,acc_i22,recFact21))):X364(n66,k_i26,f_i24,acc_i22,recFact21)))):X361(k_i26,f_i24,acc_i22,recFact21)))))))))
+[Result]
+X352(x436,x434,x432,x431) => (x431>0 /\ X1060(x436,x434,x432,x431))
+(X352(x436,x434,x432,x431) /\ X359(x437,x436,x434,x432,x431)) => X351(x437,x436,x434,x432,x431)
+((X352(x436,x434,x432,x431) /\ X359(x437,x436,x434,x432,x431)) /\ X350(x437,x436,x434,x432,x431)) => X358(x437,x436,x434,x432,x431)
+(((X352(x436,x434,x432,x431) /\ X359(x437,x436,x434,x432,x431)) /\ X350(x437,x436,x434,x432,x431)) /\ X357(x438,x437,x436,x434,x432,x431)) => X349(x438,x437,x436,x434,x432,x431)
+(X352(k_i130,x434,x432,x431) /\ X356(x434,x432,x431)) => X348(x434,x432,x431)
+((X352(k_i130,x434,x432,x431) /\ X356(x434,x432,x431)) /\ X347(x435,x434,x432,x431)) => X355(x435,x434,x432,x431)
+(X352(k_i130,f_i126,x432,x431) /\ X354(x432,x431)) => X346(x432,x431)
+((X352(k_i130,f_i126,x432,x431) /\ X354(x432,x431)) /\ X345(x433,x432,x431)) => X353(x433,x432,x431)
+X1060(k_i26,f_i24,acc_i22,recFact21) => X356(f_i24,acc_i22,recFact21)
+(X1060(k_i26,f_i24,acc_i22,recFact21) /\ X355(x430,f_i24,acc_i22,recFact21)) => ((x430>0 \/ ((0/=0 \/ X813(s29,x430,k_i26,f_i24,acc_i22,recFact21)) /\ (0/=1 \/ X607(s30,x430,k_i26,f_i24,acc_i22,recFact21)))) /\ (x430<=0 \/ ((1/=0 \/ X577(s29,x430,k_i26,f_i24,acc_i22,recFact21)) /\ (1/=1 \/ X371(s30,x430,k_i26,f_i24,acc_i22,recFact21)))))
+X371(s30,n66,k_i26,f_i24,acc_i22,recFact21) => X372(s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X372(s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X373(s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X373(s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X374(s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X374(s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (s30<1 * 1 + 0 \/ (s30<-1 * 1 + 0 \/ (s30<1 * k_i26 + 0 \/ (s30<-1 * k_i26 + 0 \/ (s30<1 * f_i24 + 0 \/ (s30<-1 * f_i24 + 0 \/ (s30<1 * acc_i22 + 0 \/ (s30<-1 * acc_i22 + 0 \/ (s231<1 * 1 + 0 \/ (s231<-1 * 1 + 0 \/ (s231<1 * k_i26 + 0 \/ (s231<-1 * k_i26 + 0 \/ (s231<1 * f_i24 + 0 \/ (s231<-1 * f_i24 + 0 \/ (s231<1 * acc_i22 + 0 \/ (s231<-1 * acc_i22 + 0 \/ (s332<1 * 1 + 0 \/ (s332<-1 * 1 + 0 \/ (s332<1 * k_i26 + 0 \/ (s332<-1 * k_i26 + 0 \/ (s332<1 * f_i24 + 0 \/ (s332<-1 * f_i24 + 0 \/ (s332<1 * acc_i22 + 0 \/ (s332<-1 * acc_i22 + 0 \/ (s433<1 * 1 + 0 \/ (s433<-1 * 1 + 0 \/ (s433<1 * k_i26 + 0 \/ (s433<-1 * k_i26 + 0 \/ (s433<1 * f_i24 + 0 \/ (s433<-1 * f_i24 + 0 \/ (s433<1 * acc_i22 + 0 \/ (s433<-1 * acc_i22 + 0 \/ X439(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)))))))))))))))))))))))))))))))))
+X439(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (recMult34<1 + 1 * 1 \/ (recMult34<1 + 1 * k_i26 \/ (recMult34<1 + 1 * f_i24 \/ (recMult34<1 + 1 * acc_i22 \/ (recMult34<1 + -1 * 1 \/ (recMult34<1 + -1 * k_i26 \/ (recMult34<1 + -1 * f_i24 \/ (recMult34<1 + -1 * acc_i22 \/ (recMult34<1 \/ X1059(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21))))))))))
+X1059(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1043(s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1059(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1044(x428,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X461(s538,x428,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1059(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1044(x428,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X460(x428,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1045(x428,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1059(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1044(x428,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X460(x428,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1046(x429,x428,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X459(x429,x428,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X461(s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X462(s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X462(s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X463(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X463(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (s538<1 * accc_i36 + 0 \/ (s538<-1 * accc_i36 + 0 \/ (s538<1 * 1 + 0 \/ (s538<-1 * 1 + 0 \/ (s538<1 * k_i26 + 0 \/ (s538<-1 * k_i26 + 0 \/ (s538<1 * f_i24 + 0 \/ (s538<-1 * f_i24 + 0 \/ (s538<1 * acc_i22 + 0 \/ (s538<-1 * acc_i22 + 0 \/ (s639<1 * accc_i36 + 0 \/ (s639<-1 * accc_i36 + 0 \/ (s639<1 * 1 + 0 \/ (s639<-1 * 1 + 0 \/ (s639<1 * k_i26 + 0 \/ (s639<-1 * k_i26 + 0 \/ (s639<1 * f_i24 + 0 \/ (s639<-1 * f_i24 + 0 \/ (s639<1 * acc_i22 + 0 \/ (s639<-1 * acc_i22 + 0 \/ (s740<1 * accc_i36 + 0 \/ (s740<-1 * accc_i36 + 0 \/ (s740<1 * 1 + 0 \/ (s740<-1 * 1 + 0 \/ (s740<1 * k_i26 + 0 \/ (s740<-1 * k_i26 + 0 \/ (s740<1 * f_i24 + 0 \/ (s740<-1 * f_i24 + 0 \/ (s740<1 * acc_i22 + 0 \/ (s740<-1 * acc_i22 + 0 \/ X1058(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)))))))))))))))))))))))))))))))
+X1058(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1054(s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1058(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1055(x426,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X359(x426,k_i26,f_i24,acc_i22,recFact21)
+((X1058(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1055(x426,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X358(x426,k_i26,f_i24,acc_i22,recFact21)) => X1056(x426,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1058(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1055(x426,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X358(x426,k_i26,f_i24,acc_i22,recFact21)) /\ X1057(x427,x426,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X357(x427,x426,k_i26,f_i24,acc_i22,recFact21)
+X1054(x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1047(x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1054(x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1048(x424,x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1055(x424,x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1054(x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1048(x424,x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1056(x424,x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1049(x424,x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1054(x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1048(x424,x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1056(x424,x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1050(x425,x424,x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1057(x425,x424,x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1054(k_i130,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1051(s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1053(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1054(k_i130,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1051(s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X530(x422,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1052(x422,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1053(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X356(f_i24,acc_i22,recFact21)
+(X1053(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X355(x421,f_i24,acc_i22,recFact21)) => X530(x421 - 1,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1047(x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X352(x418,x416,s538,recFact21 - 1)
+(X1047(x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x419,x418,x416,s538,recFact21 - 1)) => X1048(x419,x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1047(x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x419,x418,x416,s538,recFact21 - 1)) /\ X1049(x419,x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X350(x419,x418,x416,s538,recFact21 - 1)
+(((X1047(x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x419,x418,x416,s538,recFact21 - 1)) /\ X1049(x419,x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X349(x420,x419,x418,x416,s538,recFact21 - 1)) => X1050(x420,x419,x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1047(k_i130,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X348(x416,s538,recFact21 - 1)) => X1051(x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1047(k_i130,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X348(x416,s538,recFact21 - 1)) /\ X1052(x417,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X347(x417,x416,s538,recFact21 - 1)
+(X1047(k_i130,f_i126,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X346(s538,recFact21 - 1)) => X460(accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1047(k_i130,f_i126,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X346(s538,recFact21 - 1)) /\ X459(x415,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X345(x415,s538,recFact21 - 1)
+X1043(x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1037(x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1043(x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1038(x413,x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1044(x413,x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1043(x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1038(x413,x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1045(x413,x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1039(x413,x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1043(x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1038(x413,x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1045(x413,x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1040(x414,x413,x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1046(x414,x413,x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1043(k_i225,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1041(s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X356(f_i24,acc_i22,recFact21)
+((X1043(k_i225,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1041(s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X355(x411,f_i24,acc_i22,recFact21)) => X1042(x411,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1037(x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1029(x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1037(x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1030(x409,x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1038(x409,x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1037(x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1030(x409,x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1039(x409,x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1031(x409,x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1037(x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1030(x409,x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1039(x409,x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1032(x410,x409,x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1040(x410,x409,x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1037(k_i225,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1033(x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1041(x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1037(k_i225,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1033(x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1042(x407,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1034(x407,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1037(k_i225,g_i221,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1035(s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X354(acc_i22,recFact21)
+((X1037(k_i225,g_i221,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1035(s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X353(x405,acc_i22,recFact21)) => X1036(x405,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1029(x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X10(x402,x400,x398,s30,recMult34)
+(X1029(x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x403,x402,x400,x398,s30,recMult34)) => X1030(x403,x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1029(x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x403,x402,x400,x398,s30,recMult34)) /\ X1031(x403,x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X8(x403,x402,x400,x398,s30,recMult34)
+(((X1029(x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x403,x402,x400,x398,s30,recMult34)) /\ X1031(x403,x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X7(x404,x403,x402,x400,x398,s30,recMult34)) => X1032(x404,x403,x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1029(k_i225,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X6(x400,x398,s30,recMult34)) => X1033(x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1029(k_i225,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X6(x400,x398,s30,recMult34)) /\ X1034(x401,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X5(x401,x400,x398,s30,recMult34)
+(X1029(k_i225,g_i221,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X4(x398,s30,recMult34)) => X1035(x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1029(k_i225,g_i221,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X4(x398,s30,recMult34)) /\ X1036(x399,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X3(x399,x398,s30,recMult34)
+(X1029(k_i225,g_i221,f_i217,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X2(s30,recMult34)) => X560(0,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1029(k_i225,g_i221,f_i217,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X2(s30,recMult34)) /\ X560(x397,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1(x397,s30,recMult34)
+X577(s29,n66,k_i26,f_i24,acc_i22,recFact21) => (s29<1 * 1 + 0 \/ (s29<-1 * 1 + 0 \/ (s29<1 * k_i26 + 0 \/ (s29<-1 * k_i26 + 0 \/ (s29<1 * f_i24 + 0 \/ (s29<-1 * f_i24 + 0 \/ (s29<1 * acc_i22 + 0 \/ (s29<-1 * acc_i22 + 0 \/ X1028(s29,n66,k_i26,f_i24,acc_i22,recFact21)))))))))
+X1028(s29,n66,k_i26,f_i24,acc_i22,recFact21) => X359(s29,k_i26,f_i24,acc_i22,recFact21)
+(X1028(s29,n66,k_i26,f_i24,acc_i22,recFact21) /\ X358(s29,k_i26,f_i24,acc_i22,recFact21)) => X354(acc_i22,recFact21)
+((X1028(s29,n66,k_i26,f_i24,acc_i22,recFact21) /\ X358(s29,k_i26,f_i24,acc_i22,recFact21)) /\ X353(x396,acc_i22,recFact21)) => X357(x396,s29,k_i26,f_i24,acc_i22,recFact21)
+X607(s30,n66,k_i26,f_i24,acc_i22,recFact21) => X608(s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X608(s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X609(s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X609(s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X610(s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X610(s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (s30<1 * 0 + 0 \/ (s30<-1 * 0 + 0 \/ (s30<1 * k_i26 + 0 \/ (s30<-1 * k_i26 + 0 \/ (s30<1 * f_i24 + 0 \/ (s30<-1 * f_i24 + 0 \/ (s30<1 * acc_i22 + 0 \/ (s30<-1 * acc_i22 + 0 \/ (s231<1 * 0 + 0 \/ (s231<-1 * 0 + 0 \/ (s231<1 * k_i26 + 0 \/ (s231<-1 * k_i26 + 0 \/ (s231<1 * f_i24 + 0 \/ (s231<-1 * f_i24 + 0 \/ (s231<1 * acc_i22 + 0 \/ (s231<-1 * acc_i22 + 0 \/ (s332<1 * 0 + 0 \/ (s332<-1 * 0 + 0 \/ (s332<1 * k_i26 + 0 \/ (s332<-1 * k_i26 + 0 \/ (s332<1 * f_i24 + 0 \/ (s332<-1 * f_i24 + 0 \/ (s332<1 * acc_i22 + 0 \/ (s332<-1 * acc_i22 + 0 \/ (s433<1 * 0 + 0 \/ (s433<-1 * 0 + 0 \/ (s433<1 * k_i26 + 0 \/ (s433<-1 * k_i26 + 0 \/ (s433<1 * f_i24 + 0 \/ (s433<-1 * f_i24 + 0 \/ (s433<1 * acc_i22 + 0 \/ (s433<-1 * acc_i22 + 0 \/ X675(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)))))))))))))))))))))))))))))))))
+X675(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (recMult34<1 + 1 * 0 \/ (recMult34<1 + 1 * k_i26 \/ (recMult34<1 + 1 * f_i24 \/ (recMult34<1 + 1 * acc_i22 \/ (recMult34<1 + -1 * 0 \/ (recMult34<1 + -1 * k_i26 \/ (recMult34<1 + -1 * f_i24 \/ (recMult34<1 + -1 * acc_i22 \/ (recMult34<1 \/ X1027(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21))))))))))
+X1027(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1011(s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1027(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1012(x394,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X697(s538,x394,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1027(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1012(x394,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X696(x394,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1013(x394,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1027(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1012(x394,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X696(x394,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1014(x395,x394,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X695(x395,x394,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X697(s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X698(s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X698(s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X699(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X699(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (s538<1 * accc_i36 + 0 \/ (s538<-1 * accc_i36 + 0 \/ (s538<1 * 0 + 0 \/ (s538<-1 * 0 + 0 \/ (s538<1 * k_i26 + 0 \/ (s538<-1 * k_i26 + 0 \/ (s538<1 * f_i24 + 0 \/ (s538<-1 * f_i24 + 0 \/ (s538<1 * acc_i22 + 0 \/ (s538<-1 * acc_i22 + 0 \/ (s639<1 * accc_i36 + 0 \/ (s639<-1 * accc_i36 + 0 \/ (s639<1 * 0 + 0 \/ (s639<-1 * 0 + 0 \/ (s639<1 * k_i26 + 0 \/ (s639<-1 * k_i26 + 0 \/ (s639<1 * f_i24 + 0 \/ (s639<-1 * f_i24 + 0 \/ (s639<1 * acc_i22 + 0 \/ (s639<-1 * acc_i22 + 0 \/ (s740<1 * accc_i36 + 0 \/ (s740<-1 * accc_i36 + 0 \/ (s740<1 * 0 + 0 \/ (s740<-1 * 0 + 0 \/ (s740<1 * k_i26 + 0 \/ (s740<-1 * k_i26 + 0 \/ (s740<1 * f_i24 + 0 \/ (s740<-1 * f_i24 + 0 \/ (s740<1 * acc_i22 + 0 \/ (s740<-1 * acc_i22 + 0 \/ X1026(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)))))))))))))))))))))))))))))))
+X1026(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1022(s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1026(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1023(x392,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X359(x392,k_i26,f_i24,acc_i22,recFact21)
+((X1026(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1023(x392,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X358(x392,k_i26,f_i24,acc_i22,recFact21)) => X1024(x392,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1026(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1023(x392,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X358(x392,k_i26,f_i24,acc_i22,recFact21)) /\ X1025(x393,x392,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X357(x393,x392,k_i26,f_i24,acc_i22,recFact21)
+X1022(x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1015(x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1022(x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1016(x390,x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1023(x390,x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1022(x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1016(x390,x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1024(x390,x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1017(x390,x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1022(x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1016(x390,x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1024(x390,x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1018(x391,x390,x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1025(x391,x390,x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1022(k_i130,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1019(s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1021(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1022(k_i130,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1019(s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X766(x388,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1020(x388,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1021(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X356(f_i24,acc_i22,recFact21)
+(X1021(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X355(x387,f_i24,acc_i22,recFact21)) => X766(x387 - 1,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1015(x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X352(x384,x382,s538,recFact21 - 1)
+(X1015(x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x385,x384,x382,s538,recFact21 - 1)) => X1016(x385,x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1015(x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x385,x384,x382,s538,recFact21 - 1)) /\ X1017(x385,x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X350(x385,x384,x382,s538,recFact21 - 1)
+(((X1015(x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x385,x384,x382,s538,recFact21 - 1)) /\ X1017(x385,x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X349(x386,x385,x384,x382,s538,recFact21 - 1)) => X1018(x386,x385,x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1015(k_i130,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X348(x382,s538,recFact21 - 1)) => X1019(x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1015(k_i130,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X348(x382,s538,recFact21 - 1)) /\ X1020(x383,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X347(x383,x382,s538,recFact21 - 1)
+(X1015(k_i130,f_i126,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X346(s538,recFact21 - 1)) => X696(accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1015(k_i130,f_i126,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X346(s538,recFact21 - 1)) /\ X695(x381,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X345(x381,s538,recFact21 - 1)
+X1011(x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1005(x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1011(x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1006(x379,x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1012(x379,x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1011(x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1006(x379,x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1013(x379,x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1007(x379,x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1011(x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1006(x379,x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1013(x379,x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1008(x380,x379,x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1014(x380,x379,x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1011(k_i225,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1009(s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X356(f_i24,acc_i22,recFact21)
+((X1011(k_i225,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1009(s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X355(x377,f_i24,acc_i22,recFact21)) => X1010(x377,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1005(x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X997(x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1005(x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X998(x375,x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1006(x375,x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1005(x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X998(x375,x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1007(x375,x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X999(x375,x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1005(x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X998(x375,x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1007(x375,x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1000(x376,x375,x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1008(x376,x375,x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1005(k_i225,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1001(x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1009(x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1005(k_i225,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1001(x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1010(x373,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1002(x373,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1005(k_i225,g_i221,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1003(s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X354(acc_i22,recFact21)
+((X1005(k_i225,g_i221,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1003(s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X353(x371,acc_i22,recFact21)) => X1004(x371,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X997(x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X10(x368,x366,x364,s30,recMult34)
+(X997(x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x369,x368,x366,x364,s30,recMult34)) => X998(x369,x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X997(x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x369,x368,x366,x364,s30,recMult34)) /\ X999(x369,x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X8(x369,x368,x366,x364,s30,recMult34)
+(((X997(x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x369,x368,x366,x364,s30,recMult34)) /\ X999(x369,x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X7(x370,x369,x368,x366,x364,s30,recMult34)) => X1000(x370,x369,x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X997(k_i225,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X6(x366,x364,s30,recMult34)) => X1001(x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X997(k_i225,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X6(x366,x364,s30,recMult34)) /\ X1002(x367,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X5(x367,x366,x364,s30,recMult34)
+(X997(k_i225,g_i221,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X4(x364,s30,recMult34)) => X1003(x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X997(k_i225,g_i221,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X4(x364,s30,recMult34)) /\ X1004(x365,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X3(x365,x364,s30,recMult34)
+(X997(k_i225,g_i221,f_i217,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X2(s30,recMult34)) => X796(0,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X997(k_i225,g_i221,f_i217,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X2(s30,recMult34)) /\ X796(x363,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1(x363,s30,recMult34)
+X813(s29,n66,k_i26,f_i24,acc_i22,recFact21) => (s29<1 * 0 + 0 \/ (s29<-1 * 0 + 0 \/ (s29<1 * k_i26 + 0 \/ (s29<-1 * k_i26 + 0 \/ (s29<1 * f_i24 + 0 \/ (s29<-1 * f_i24 + 0 \/ (s29<1 * acc_i22 + 0 \/ (s29<-1 * acc_i22 + 0 \/ X996(s29,n66,k_i26,f_i24,acc_i22,recFact21)))))))))
+X996(s29,n66,k_i26,f_i24,acc_i22,recFact21) => X359(s29,k_i26,f_i24,acc_i22,recFact21)
+(X996(s29,n66,k_i26,f_i24,acc_i22,recFact21) /\ X358(s29,k_i26,f_i24,acc_i22,recFact21)) => X354(acc_i22,recFact21)
+((X996(s29,n66,k_i26,f_i24,acc_i22,recFact21) /\ X358(s29,k_i26,f_i24,acc_i22,recFact21)) /\ X353(x362,acc_i22,recFact21)) => X357(x362,s29,k_i26,f_i24,acc_i22,recFact21)
+X842(x360) => (x360>0 /\ X995(x360))
+(X842(x360) /\ X845(x360)) => X841(x360)
+((X842(x360) /\ X845(x360)) /\ X840(x361,x360)) => X844(x361,x360)
+(X842(x360) /\ X843(x360)) => X839(x360)
+X995(recMain17) => X845(recMain17)
+(X995(recMain17) /\ X844(x359,recMain17)) => ((x359>0 \/ ((0/=0 \/ X843(recMain17)) /\ (0=0 \/ X989(x359,recMain17)))) /\ (x359<=0 \/ ((1/=0 \/ X843(recMain17)) /\ (1=0 \/ X994(x359,recMain17)))))
+X994(n66,recMain17) => X990(n66,recMain17)
+(X994(n66,recMain17) /\ X991(n66,recMain17)) => X993(n66,recMain17)
+((X994(n66,recMain17) /\ X991(n66,recMain17)) /\ X858(x358,n66,recMain17)) => X992(x358,n66,recMain17)
+X993(n66,recMain17) => X845(recMain17)
+(X993(n66,recMain17) /\ X844(x357,recMain17)) => X858(x357 - 1,n66,recMain17)
+X990(n66,recMain17) => X842(recMain17 - 1)
+(X990(n66,recMain17) /\ X841(recMain17 - 1)) => X991(n66,recMain17)
+((X990(n66,recMain17) /\ X841(recMain17 - 1)) /\ X992(x356,n66,recMain17)) => X840(x356,recMain17 - 1)
+(X990(n66,recMain17) /\ X839(recMain17 - 1)) => X843(recMain17)
+X989(n66,recMain17) => X985(n66,recMain17)
+(X989(n66,recMain17) /\ X986(n66,recMain17)) => X988(n66,recMain17)
+((X989(n66,recMain17) /\ X986(n66,recMain17)) /\ X881(x355,n66,recMain17)) => X987(x355,n66,recMain17)
+X988(n66,recMain17) => X845(recMain17)
+(X988(n66,recMain17) /\ X844(x354,recMain17)) => X881(x354 - 1,n66,recMain17)
+X985(n66,recMain17) => X842(recMain17 - 1)
+(X985(n66,recMain17) /\ X841(recMain17 - 1)) => X986(n66,recMain17)
+((X985(n66,recMain17) /\ X841(recMain17 - 1)) /\ X987(x353,n66,recMain17)) => X840(x353,recMain17 - 1)
+(X985(n66,recMain17) /\ X839(recMain17 - 1)) => X843(recMain17)
+X899() => X900(n7)
+X900(n7) => X901(s8,n7)
+X901(s8,n7) => X902(s29,s8,n7)
+X902(s29,s8,n7) => X903(s310,s29,s8,n7)
+X903(s310,s29,s8,n7) => (s8<1 * n7 + 1 \/ (s8<-1 * n7 + 1 \/ (s29<1 * n7 + 0 \/ (s29<-1 * n7 + 0 \/ (s310<1 * n7 + 0 \/ (s310<-1 * n7 + 0 \/ X916(recFact11,s310,s29,s8,n7)))))))
+X916(recFact11,s310,s29,s8,n7) => (recFact11<1 + 1 * n7 \/ (recFact11<1 + -1 * n7 \/ (recFact11<1 + 1 * 1 \/ (recFact11<1 + -1 * 1 \/ (recFact11<1 \/ X984(recFact11,s310,s29,s8,n7))))))
+X984(recFact11,s310,s29,s8,n7) => X976(s310,recFact11,s310,s29,s8,n7)
+(X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) => X930(recMain16,x351,recFact11,s310,s29,s8,n7)
+((X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) /\ X929(x351,recFact11,s310,s29,s8,n7)) => X978(x351,s310,recFact11,s310,s29,s8,n7)
+(((X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) /\ X929(x351,recFact11,s310,s29,s8,n7)) /\ X979(x352,x351,s310,recFact11,s310,s29,s8,n7)) => X928(x352,x351,recFact11,s310,s29,s8,n7)
+X930(recMain16,g_i14,recFact11,s310,s29,s8,n7) => (recMain16<1 + 1 * g_i14 \/ (recMain16<1 + 1 * n7 \/ (recMain16<1 + -1 * g_i14 \/ (recMain16<1 + -1 * n7 \/ (recMain16<1 \/ X983(recMain16,g_i14,recFact11,s310,s29,s8,n7))))))
+X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) => X980(recMain16,g_i14,recFact11,s310,s29,s8,n7)
+(X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)) => X929(g_i14,recFact11,s310,s29,s8,n7)
+((X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)) /\ X928(x350,g_i14,recFact11,s310,s29,s8,n7)) => X982(x350,recMain16,g_i14,recFact11,s310,s29,s8,n7)
+X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) => X842(recMain16)
+(X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X841(recMain16)) => X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)
+((X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X841(recMain16)) /\ X982(x349,recMain16,g_i14,recFact11,s310,s29,s8,n7)) => X840(x349,recMain16)
+(X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X839(recMain16)) => tt
+X976(x346,recFact11,s310,s29,s8,n7) => X970(x346,s29,recFact11,s310,s29,s8,n7)
+(X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) => X977(x347,x346,recFact11,s310,s29,s8,n7)
+((X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) /\ X978(x347,x346,recFact11,s310,s29,s8,n7)) => X972(x347,x346,s29,recFact11,s310,s29,s8,n7)
+(((X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) /\ X978(x347,x346,recFact11,s310,s29,s8,n7)) /\ X973(x348,x347,x346,s29,recFact11,s310,s29,s8,n7)) => X979(x348,x347,x346,recFact11,s310,s29,s8,n7)
+(X976(k_i130,recFact11,s310,s29,s8,n7) /\ X974(s29,recFact11,s310,s29,s8,n7)) => X952(n7,recFact11,s310,s29,s8,n7)
+((X976(k_i130,recFact11,s310,s29,s8,n7) /\ X974(s29,recFact11,s310,s29,s8,n7)) /\ X952(x345,recFact11,s310,s29,s8,n7)) => X975(x345,s29,recFact11,s310,s29,s8,n7)
+X970(x342,x340,recFact11,s310,s29,s8,n7) => X352(x342,x340,s8,recFact11)
+(X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) => X971(x343,x342,x340,recFact11,s310,s29,s8,n7)
+((X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) /\ X972(x343,x342,x340,recFact11,s310,s29,s8,n7)) => X350(x343,x342,x340,s8,recFact11)
+(((X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) /\ X972(x343,x342,x340,recFact11,s310,s29,s8,n7)) /\ X349(x344,x343,x342,x340,s8,recFact11)) => X973(x344,x343,x342,x340,recFact11,s310,s29,s8,n7)
+(X970(k_i130,x340,recFact11,s310,s29,s8,n7) /\ X348(x340,s8,recFact11)) => X974(x340,recFact11,s310,s29,s8,n7)
+((X970(k_i130,x340,recFact11,s310,s29,s8,n7) /\ X348(x340,s8,recFact11)) /\ X975(x341,x340,recFact11,s310,s29,s8,n7)) => X347(x341,x340,s8,recFact11)
+(X970(k_i130,f_i126,recFact11,s310,s29,s8,n7) /\ X346(s8,recFact11)) => X957(1,recFact11,s310,s29,s8,n7)
+((X970(k_i130,f_i126,recFact11,s310,s29,s8,n7) /\ X346(s8,recFact11)) /\ X957(x339,recFact11,s310,s29,s8,n7)) => X345(x339,s8,recFact11)
+tt => X899()
+
+
+infering new formula: Mult = (\int(recMult41).(\int(acc_i42).(\((int(t296) -> *[X11(t296,acc_i42,recMult41)]) -> *[X12(acc_i42,recMult41)]).(\int(f_i44).(\((int(t294) -> *[X13(t294,f_i44,acc_i42,recMult41)]) -> *[X14(f_i44,acc_i42,recMult41)]).(\int(g_i46).(\((int(t292) -> *[X15(t292,g_i46,f_i44,acc_i42,recMult41)]) -> *[X16(g_i46,f_i44,acc_i42,recMult41)]).(\int(k_i48).(\(int(t288) -> (((int(t289) -> *[X17(t289,t288,k_i48,g_i46,f_i44,acc_i42,recMult41)]) -> *[X18(t288,k_i48,g_i46,f_i44,acc_i42,recMult41)]) -> *[X19(t288,k_i48,g_i46,f_i44,acc_i42,recMult41)])).(recMult41>0:X20(k_i48,g_i46,f_i44,acc_i42,recMult41) && (f45 (\int(n66).((n66>0 || ((0/=0 || (∀int(s51).(s51<1 * 0 + 0 || (s51<-1 * 0 + 0 || (s51<1 * k_i48 + 0 || (s51<-1 * k_i48 + 0 || (s51<1 * g_i46 + 0 || (s51<-1 * g_i46 + 0 || (s51<1 * f_i44 + 0 || (s51<-1 * f_i44 + 0 || (s51<1 * acc_i42 + 0 || (s51<-1 * acc_i42 + 0 || ((k49 s51) acc43))))))))))))):X186(n66,k_i48,g_i46,f_i44,acc_i42,recMult41) && (0/=1 || (∀int(s52).(∀int(s253).(∀int(s354).(∀int(s455).(s52<1 * 0 + 0 || (s52<-1 * 0 + 0 || (s52<1 * k_i48 + 0 || (s52<-1 * k_i48 + 0 || (s52<1 * g_i46 + 0 || (s52<-1 * g_i46 + 0 || (s52<1 * f_i44 + 0 || (s52<-1 * f_i44 + 0 || (s52<1 * acc_i42 + 0 || (s52<-1 * acc_i42 + 0 || (s253<1 * 0 + 0 || (s253<-1 * 0 + 0 || (s253<1 * k_i48 + 0 || (s253<-1 * k_i48 + 0 || (s253<1 * g_i46 + 0 || (s253<-1 * g_i46 + 0 || (s253<1 * f_i44 + 0 || (s253<-1 * f_i44 + 0 || (s253<1 * acc_i42 + 0 || (s253<-1 * acc_i42 + 0 || (s354<1 * 0 + 0 || (s354<-1 * 0 + 0 || (s354<1 * k_i48 + 0 || (s354<-1 * k_i48 + 0 || (s354<1 * g_i46 + 0 || (s354<-1 * g_i46 + 0 || (s354<1 * f_i44 + 0 || (s354<-1 * f_i44 + 0 || (s354<1 * acc_i42 + 0 || (s354<-1 * acc_i42 + 0 || (s455<1 * 0 + 0 || (s455<-1 * 0 + 0 || (s455<1 * k_i48 + 0 || (s455<-1 * k_i48 + 0 || (s455<1 * g_i46 + 0 || (s455<-1 * g_i46 + 0 || (s455<1 * f_i44 + 0 || (s455<-1 * f_i44 + 0 || (s455<1 * acc_i42 + 0 || (s455<-1 * acc_i42 + 0 || (((((((((Mult recMult41 - 1) s52) (\(int(t311) -> *[X292(t311,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)]).(acc43 (\int(fx59).(g47 (\int(gx60).(k58 fx59 + gx60))))))) s253) (\(int(t324) -> *[X284(t324,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)]).(f45 (\int(r63).(k62 r63 - 1))))) s354) g47) s455) k49)))))))))))))))))))))))))))))))))))))))))))))):X187(n66,k_i48,g_i46,f_i44,acc_i42,recMult41))):X23(n66,k_i48,g_i46,f_i44,acc_i42,recMult41) && (n66<=0 || ((1/=0 || (∀int(s51).(s51<1 * 1 + 0 || (s51<-1 * 1 + 0 || (s51<1 * k_i48 + 0 || (s51<-1 * k_i48 + 0 || (s51<1 * g_i46 + 0 || (s51<-1 * g_i46 + 0 || (s51<1 * f_i44 + 0 || (s51<-1 * f_i44 + 0 || (s51<1 * acc_i42 + 0 || (s51<-1 * acc_i42 + 0 || ((k49 s51) acc43))))))))))))):X27(n66,k_i48,g_i46,f_i44,acc_i42,recMult41) && (1/=1 || (∀int(s52).(∀int(s253).(∀int(s354).(∀int(s455).(s52<1 * 1 + 0 || (s52<-1 * 1 + 0 || (s52<1 * k_i48 + 0 || (s52<-1 * k_i48 + 0 || (s52<1 * g_i46 + 0 || (s52<-1 * g_i46 + 0 || (s52<1 * f_i44 + 0 || (s52<-1 * f_i44 + 0 || (s52<1 * acc_i42 + 0 || (s52<-1 * acc_i42 + 0 || (s253<1 * 1 + 0 || (s253<-1 * 1 + 0 || (s253<1 * k_i48 + 0 || (s253<-1 * k_i48 + 0 || (s253<1 * g_i46 + 0 || (s253<-1 * g_i46 + 0 || (s253<1 * f_i44 + 0 || (s253<-1 * f_i44 + 0 || (s253<1 * acc_i42 + 0 || (s253<-1 * acc_i42 + 0 || (s354<1 * 1 + 0 || (s354<-1 * 1 + 0 || (s354<1 * k_i48 + 0 || (s354<-1 * k_i48 + 0 || (s354<1 * g_i46 + 0 || (s354<-1 * g_i46 + 0 || (s354<1 * f_i44 + 0 || (s354<-1 * f_i44 + 0 || (s354<1 * acc_i42 + 0 || (s354<-1 * acc_i42 + 0 || (s455<1 * 1 + 0 || (s455<-1 * 1 + 0 || (s455<1 * k_i48 + 0 || (s455<-1 * k_i48 + 0 || (s455<1 * g_i46 + 0 || (s455<-1 * g_i46 + 0 || (s455<1 * f_i44 + 0 || (s455<-1 * f_i44 + 0 || (s455<1 * acc_i42 + 0 || (s455<-1 * acc_i42 + 0 || (((((((((Mult recMult41 - 1) s52) (\(int(t311) -> *[X133(t311,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)]).(acc43 (\int(fx59).(g47 (\int(gx60).(k58 fx59 + gx60))))))) s253) (\(int(t324) -> *[X125(t324,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)]).(f45 (\int(r63).(k62 r63 - 1))))) s354) g47) s455) k49)))))))))))))))))))))))))))))))))))))))))))))):X28(n66,k_i48,g_i46,f_i44,acc_i42,recMult41))):X24(n66,k_i48,g_i46,f_i44,acc_i42,recMult41)))):X21(k_i48,g_i46,f_i44,acc_i42,recMult41)))))))))))
+[Result]
+X10(x495,x493,x491,x489,x488) => (x488>0 /\ X1107(x495,x493,x491,x489,x488))
+(X10(x495,x493,x491,x489,x488) /\ X19(x496,x495,x493,x491,x489,x488)) => X9(x496,x495,x493,x491,x489,x488)
+((X10(x495,x493,x491,x489,x488) /\ X19(x496,x495,x493,x491,x489,x488)) /\ X8(x496,x495,x493,x491,x489,x488)) => X18(x496,x495,x493,x491,x489,x488)
+(((X10(x495,x493,x491,x489,x488) /\ X19(x496,x495,x493,x491,x489,x488)) /\ X8(x496,x495,x493,x491,x489,x488)) /\ X17(x497,x496,x495,x493,x491,x489,x488)) => X7(x497,x496,x495,x493,x491,x489,x488)
+(X10(k_i225,x493,x491,x489,x488) /\ X16(x493,x491,x489,x488)) => X6(x493,x491,x489,x488)
+((X10(k_i225,x493,x491,x489,x488) /\ X16(x493,x491,x489,x488)) /\ X5(x494,x493,x491,x489,x488)) => X15(x494,x493,x491,x489,x488)
+(X10(k_i225,g_i221,x491,x489,x488) /\ X14(x491,x489,x488)) => X4(x491,x489,x488)
+((X10(k_i225,g_i221,x491,x489,x488) /\ X14(x491,x489,x488)) /\ X3(x492,x491,x489,x488)) => X13(x492,x491,x489,x488)
+(X10(k_i225,g_i221,f_i217,x489,x488) /\ X12(x489,x488)) => X2(x489,x488)
+((X10(k_i225,g_i221,f_i217,x489,x488) /\ X12(x489,x488)) /\ X1(x490,x489,x488)) => X11(x490,x489,x488)
+X1107(k_i48,g_i46,f_i44,acc_i42,recMult41) => X14(f_i44,acc_i42,recMult41)
+(X1107(k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X13(x487,f_i44,acc_i42,recMult41)) => ((x487>0 \/ ((0/=0 \/ X315(s51,x487,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ (0/=1 \/ X190(s52,x487,k_i48,g_i46,f_i44,acc_i42,recMult41)))) /\ (x487<=0 \/ ((1/=0 \/ X156(s51,x487,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ (1/=1 \/ X31(s52,x487,k_i48,g_i46,f_i44,acc_i42,recMult41)))))
+X31(s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X32(s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X32(s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X33(s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X33(s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X34(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X34(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => (s52<1 * 1 + 0 \/ (s52<-1 * 1 + 0 \/ (s52<1 * k_i48 + 0 \/ (s52<-1 * k_i48 + 0 \/ (s52<1 * g_i46 + 0 \/ (s52<-1 * g_i46 + 0 \/ (s52<1 * f_i44 + 0 \/ (s52<-1 * f_i44 + 0 \/ (s52<1 * acc_i42 + 0 \/ (s52<-1 * acc_i42 + 0 \/ (s253<1 * 1 + 0 \/ (s253<-1 * 1 + 0 \/ (s253<1 * k_i48 + 0 \/ (s253<-1 * k_i48 + 0 \/ (s253<1 * g_i46 + 0 \/ (s253<-1 * g_i46 + 0 \/ (s253<1 * f_i44 + 0 \/ (s253<-1 * f_i44 + 0 \/ (s253<1 * acc_i42 + 0 \/ (s253<-1 * acc_i42 + 0 \/ (s354<1 * 1 + 0 \/ (s354<-1 * 1 + 0 \/ (s354<1 * k_i48 + 0 \/ (s354<-1 * k_i48 + 0 \/ (s354<1 * g_i46 + 0 \/ (s354<-1 * g_i46 + 0 \/ (s354<1 * f_i44 + 0 \/ (s354<-1 * f_i44 + 0 \/ (s354<1 * acc_i42 + 0 \/ (s354<-1 * acc_i42 + 0 \/ (s455<1 * 1 + 0 \/ (s455<-1 * 1 + 0 \/ (s455<1 * k_i48 + 0 \/ (s455<-1 * k_i48 + 0 \/ (s455<1 * g_i46 + 0 \/ (s455<-1 * g_i46 + 0 \/ (s455<1 * f_i44 + 0 \/ (s455<-1 * f_i44 + 0 \/ (s455<1 * acc_i42 + 0 \/ (s455<-1 * acc_i42 + 0 \/ X1106(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)))))))))))))))))))))))))))))))))))))))))
+X1106(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X1102(s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1106(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1103(x485,s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X19(x485,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1106(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1103(x485,s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X18(x485,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1104(x485,s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(((X1106(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1103(x485,s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X18(x485,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1105(x486,x485,s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X17(x486,x485,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X1102(x482,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X1096(x482,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1102(x482,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1097(x483,x482,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1103(x483,x482,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1102(x482,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1097(x483,x482,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1104(x483,x482,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1098(x483,x482,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(((X1102(x482,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1097(x483,x482,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1104(x483,x482,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1099(x484,x483,x482,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1105(x484,x483,x482,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1102(k_i225,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1100(s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X16(g_i46,f_i44,acc_i42,recMult41)
+((X1102(k_i225,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1100(s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X15(x481,g_i46,f_i44,acc_i42,recMult41)) => X1101(x481,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X1096(x478,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X1087(x478,x476,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1096(x478,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1088(x479,x478,x476,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1097(x479,x478,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1096(x478,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1088(x479,x478,x476,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1098(x479,x478,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1089(x479,x478,x476,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(((X1096(x478,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1088(x479,x478,x476,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1098(x479,x478,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1090(x480,x479,x478,x476,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1099(x480,x479,x478,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1096(k_i225,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1091(x476,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1100(x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1096(k_i225,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1091(x476,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1101(x477,x476,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1092(x477,x476,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1096(k_i225,g_i221,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1093(s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1095(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1096(k_i225,g_i221,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1093(s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X125(x475,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1094(x475,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X1095(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X14(f_i44,acc_i42,recMult41)
+(X1095(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X13(x474,f_i44,acc_i42,recMult41)) => X125(x474 - 1,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X1087(x471,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X10(x471,x469,x467,s52,recMult41 - 1)
+(X1087(x471,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X9(x472,x471,x469,x467,s52,recMult41 - 1)) => X1088(x472,x471,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1087(x471,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X9(x472,x471,x469,x467,s52,recMult41 - 1)) /\ X1089(x472,x471,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X8(x472,x471,x469,x467,s52,recMult41 - 1)
+(((X1087(x471,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X9(x472,x471,x469,x467,s52,recMult41 - 1)) /\ X1089(x472,x471,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X7(x473,x472,x471,x469,x467,s52,recMult41 - 1)) => X1090(x473,x472,x471,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1087(k_i225,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X6(x469,x467,s52,recMult41 - 1)) => X1091(x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1087(k_i225,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X6(x469,x467,s52,recMult41 - 1)) /\ X1092(x470,x469,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X5(x470,x469,x467,s52,recMult41 - 1)
+(X1087(k_i225,g_i221,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X4(x467,s52,recMult41 - 1)) => X1093(x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1087(k_i225,g_i221,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X4(x467,s52,recMult41 - 1)) /\ X1094(x468,x467,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X3(x468,x467,s52,recMult41 - 1)
+(X1087(k_i225,g_i221,f_i217,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X2(s52,recMult41 - 1)) => X1086(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1087(k_i225,g_i221,f_i217,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X2(s52,recMult41 - 1)) /\ X133(x466,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1(x466,s52,recMult41 - 1)
+X1086(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X12(acc_i42,recMult41)
+(X1086(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X11(x465,acc_i42,recMult41)) => X1085(x465,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X1085(fx59,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X16(g_i46,f_i44,acc_i42,recMult41)
+(X1085(fx59,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X15(x464,g_i46,f_i44,acc_i42,recMult41)) => X133(fx59 + x464,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X156(s51,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => (s51<1 * 1 + 0 \/ (s51<-1 * 1 + 0 \/ (s51<1 * k_i48 + 0 \/ (s51<-1 * k_i48 + 0 \/ (s51<1 * g_i46 + 0 \/ (s51<-1 * g_i46 + 0 \/ (s51<1 * f_i44 + 0 \/ (s51<-1 * f_i44 + 0 \/ (s51<1 * acc_i42 + 0 \/ (s51<-1 * acc_i42 + 0 \/ X1084(s51,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)))))))))))
+X1084(s51,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X19(s51,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1084(s51,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X18(s51,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X12(acc_i42,recMult41)
+((X1084(s51,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X18(s51,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X11(x463,acc_i42,recMult41)) => X17(x463,s51,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X190(s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X191(s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X191(s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X192(s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X192(s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X193(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X193(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => (s52<1 * 0 + 0 \/ (s52<-1 * 0 + 0 \/ (s52<1 * k_i48 + 0 \/ (s52<-1 * k_i48 + 0 \/ (s52<1 * g_i46 + 0 \/ (s52<-1 * g_i46 + 0 \/ (s52<1 * f_i44 + 0 \/ (s52<-1 * f_i44 + 0 \/ (s52<1 * acc_i42 + 0 \/ (s52<-1 * acc_i42 + 0 \/ (s253<1 * 0 + 0 \/ (s253<-1 * 0 + 0 \/ (s253<1 * k_i48 + 0 \/ (s253<-1 * k_i48 + 0 \/ (s253<1 * g_i46 + 0 \/ (s253<-1 * g_i46 + 0 \/ (s253<1 * f_i44 + 0 \/ (s253<-1 * f_i44 + 0 \/ (s253<1 * acc_i42 + 0 \/ (s253<-1 * acc_i42 + 0 \/ (s354<1 * 0 + 0 \/ (s354<-1 * 0 + 0 \/ (s354<1 * k_i48 + 0 \/ (s354<-1 * k_i48 + 0 \/ (s354<1 * g_i46 + 0 \/ (s354<-1 * g_i46 + 0 \/ (s354<1 * f_i44 + 0 \/ (s354<-1 * f_i44 + 0 \/ (s354<1 * acc_i42 + 0 \/ (s354<-1 * acc_i42 + 0 \/ (s455<1 * 0 + 0 \/ (s455<-1 * 0 + 0 \/ (s455<1 * k_i48 + 0 \/ (s455<-1 * k_i48 + 0 \/ (s455<1 * g_i46 + 0 \/ (s455<-1 * g_i46 + 0 \/ (s455<1 * f_i44 + 0 \/ (s455<-1 * f_i44 + 0 \/ (s455<1 * acc_i42 + 0 \/ (s455<-1 * acc_i42 + 0 \/ X1083(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)))))))))))))))))))))))))))))))))))))))))
+X1083(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X1079(s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1083(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1080(x461,s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X19(x461,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1083(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1080(x461,s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X18(x461,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1081(x461,s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(((X1083(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1080(x461,s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X18(x461,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1082(x462,x461,s455,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X17(x462,x461,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X1079(x458,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X1073(x458,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1079(x458,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1074(x459,x458,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1080(x459,x458,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1079(x458,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1074(x459,x458,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1081(x459,x458,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1075(x459,x458,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(((X1079(x458,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1074(x459,x458,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1081(x459,x458,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1076(x460,x459,x458,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1082(x460,x459,x458,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1079(k_i225,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1077(s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X16(g_i46,f_i44,acc_i42,recMult41)
+((X1079(k_i225,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1077(s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X15(x457,g_i46,f_i44,acc_i42,recMult41)) => X1078(x457,s354,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X1073(x454,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X1064(x454,x452,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1073(x454,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1065(x455,x454,x452,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1074(x455,x454,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1073(x454,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1065(x455,x454,x452,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1075(x455,x454,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1066(x455,x454,x452,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(((X1073(x454,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1065(x455,x454,x452,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1075(x455,x454,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1067(x456,x455,x454,x452,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1076(x456,x455,x454,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1073(k_i225,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1068(x452,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1077(x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1073(k_i225,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1068(x452,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X1078(x453,x452,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1069(x453,x452,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1073(k_i225,g_i221,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1070(s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1072(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1073(k_i225,g_i221,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X1070(s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X284(x451,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1071(x451,s253,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X1072(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X14(f_i44,acc_i42,recMult41)
+(X1072(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X13(x450,f_i44,acc_i42,recMult41)) => X284(x450 - 1,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X1064(x447,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X10(x447,x445,x443,s52,recMult41 - 1)
+(X1064(x447,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X9(x448,x447,x445,x443,s52,recMult41 - 1)) => X1065(x448,x447,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1064(x447,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X9(x448,x447,x445,x443,s52,recMult41 - 1)) /\ X1066(x448,x447,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X8(x448,x447,x445,x443,s52,recMult41 - 1)
+(((X1064(x447,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X9(x448,x447,x445,x443,s52,recMult41 - 1)) /\ X1066(x448,x447,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X7(x449,x448,x447,x445,x443,s52,recMult41 - 1)) => X1067(x449,x448,x447,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1064(k_i225,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X6(x445,x443,s52,recMult41 - 1)) => X1068(x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1064(k_i225,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X6(x445,x443,s52,recMult41 - 1)) /\ X1069(x446,x445,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X5(x446,x445,x443,s52,recMult41 - 1)
+(X1064(k_i225,g_i221,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X4(x443,s52,recMult41 - 1)) => X1070(x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1064(k_i225,g_i221,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X4(x443,s52,recMult41 - 1)) /\ X1071(x444,x443,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X3(x444,x443,s52,recMult41 - 1)
+(X1064(k_i225,g_i221,f_i217,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X2(s52,recMult41 - 1)) => X1063(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+((X1064(k_i225,g_i221,f_i217,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X2(s52,recMult41 - 1)) /\ X292(x442,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X1(x442,s52,recMult41 - 1)
+X1063(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X12(acc_i42,recMult41)
+(X1063(s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X11(x441,acc_i42,recMult41)) => X1062(x441,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X1062(fx59,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X16(g_i46,f_i44,acc_i42,recMult41)
+(X1062(fx59,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X15(x440,g_i46,f_i44,acc_i42,recMult41)) => X292(fx59 + x440,s455,s354,s253,s52,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X315(s51,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => (s51<1 * 0 + 0 \/ (s51<-1 * 0 + 0 \/ (s51<1 * k_i48 + 0 \/ (s51<-1 * k_i48 + 0 \/ (s51<1 * g_i46 + 0 \/ (s51<-1 * g_i46 + 0 \/ (s51<1 * f_i44 + 0 \/ (s51<-1 * f_i44 + 0 \/ (s51<1 * acc_i42 + 0 \/ (s51<-1 * acc_i42 + 0 \/ X1061(s51,n66,k_i48,g_i46,f_i44,acc_i42,recMult41)))))))))))
+X1061(s51,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) => X19(s51,k_i48,g_i46,f_i44,acc_i42,recMult41)
+(X1061(s51,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X18(s51,k_i48,g_i46,f_i44,acc_i42,recMult41)) => X12(acc_i42,recMult41)
+((X1061(s51,n66,k_i48,g_i46,f_i44,acc_i42,recMult41) /\ X18(s51,k_i48,g_i46,f_i44,acc_i42,recMult41)) /\ X11(x439,acc_i42,recMult41)) => X17(x439,s51,k_i48,g_i46,f_i44,acc_i42,recMult41)
+X352(x436,x434,x432,x431) => (x431>0 /\ X1060(x436,x434,x432,x431))
+(X352(x436,x434,x432,x431) /\ X359(x437,x436,x434,x432,x431)) => X351(x437,x436,x434,x432,x431)
+((X352(x436,x434,x432,x431) /\ X359(x437,x436,x434,x432,x431)) /\ X350(x437,x436,x434,x432,x431)) => X358(x437,x436,x434,x432,x431)
+(((X352(x436,x434,x432,x431) /\ X359(x437,x436,x434,x432,x431)) /\ X350(x437,x436,x434,x432,x431)) /\ X357(x438,x437,x436,x434,x432,x431)) => X349(x438,x437,x436,x434,x432,x431)
+(X352(k_i130,x434,x432,x431) /\ X356(x434,x432,x431)) => X348(x434,x432,x431)
+((X352(k_i130,x434,x432,x431) /\ X356(x434,x432,x431)) /\ X347(x435,x434,x432,x431)) => X355(x435,x434,x432,x431)
+(X352(k_i130,f_i126,x432,x431) /\ X354(x432,x431)) => X346(x432,x431)
+((X352(k_i130,f_i126,x432,x431) /\ X354(x432,x431)) /\ X345(x433,x432,x431)) => X353(x433,x432,x431)
+X1060(k_i26,f_i24,acc_i22,recFact21) => X356(f_i24,acc_i22,recFact21)
+(X1060(k_i26,f_i24,acc_i22,recFact21) /\ X355(x430,f_i24,acc_i22,recFact21)) => ((x430>0 \/ ((0/=0 \/ X813(s29,x430,k_i26,f_i24,acc_i22,recFact21)) /\ (0/=1 \/ X607(s30,x430,k_i26,f_i24,acc_i22,recFact21)))) /\ (x430<=0 \/ ((1/=0 \/ X577(s29,x430,k_i26,f_i24,acc_i22,recFact21)) /\ (1/=1 \/ X371(s30,x430,k_i26,f_i24,acc_i22,recFact21)))))
+X371(s30,n66,k_i26,f_i24,acc_i22,recFact21) => X372(s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X372(s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X373(s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X373(s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X374(s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X374(s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (s30<1 * 1 + 0 \/ (s30<-1 * 1 + 0 \/ (s30<1 * k_i26 + 0 \/ (s30<-1 * k_i26 + 0 \/ (s30<1 * f_i24 + 0 \/ (s30<-1 * f_i24 + 0 \/ (s30<1 * acc_i22 + 0 \/ (s30<-1 * acc_i22 + 0 \/ (s231<1 * 1 + 0 \/ (s231<-1 * 1 + 0 \/ (s231<1 * k_i26 + 0 \/ (s231<-1 * k_i26 + 0 \/ (s231<1 * f_i24 + 0 \/ (s231<-1 * f_i24 + 0 \/ (s231<1 * acc_i22 + 0 \/ (s231<-1 * acc_i22 + 0 \/ (s332<1 * 1 + 0 \/ (s332<-1 * 1 + 0 \/ (s332<1 * k_i26 + 0 \/ (s332<-1 * k_i26 + 0 \/ (s332<1 * f_i24 + 0 \/ (s332<-1 * f_i24 + 0 \/ (s332<1 * acc_i22 + 0 \/ (s332<-1 * acc_i22 + 0 \/ (s433<1 * 1 + 0 \/ (s433<-1 * 1 + 0 \/ (s433<1 * k_i26 + 0 \/ (s433<-1 * k_i26 + 0 \/ (s433<1 * f_i24 + 0 \/ (s433<-1 * f_i24 + 0 \/ (s433<1 * acc_i22 + 0 \/ (s433<-1 * acc_i22 + 0 \/ X439(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)))))))))))))))))))))))))))))))))
+X439(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (recMult34<1 + 1 * 1 \/ (recMult34<1 + 1 * k_i26 \/ (recMult34<1 + 1 * f_i24 \/ (recMult34<1 + 1 * acc_i22 \/ (recMult34<1 + -1 * 1 \/ (recMult34<1 + -1 * k_i26 \/ (recMult34<1 + -1 * f_i24 \/ (recMult34<1 + -1 * acc_i22 \/ (recMult34<1 \/ X1059(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21))))))))))
+X1059(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1043(s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1059(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1044(x428,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X461(s538,x428,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1059(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1044(x428,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X460(x428,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1045(x428,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1059(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1044(x428,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X460(x428,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1046(x429,x428,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X459(x429,x428,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X461(s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X462(s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X462(s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X463(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X463(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (s538<1 * accc_i36 + 0 \/ (s538<-1 * accc_i36 + 0 \/ (s538<1 * 1 + 0 \/ (s538<-1 * 1 + 0 \/ (s538<1 * k_i26 + 0 \/ (s538<-1 * k_i26 + 0 \/ (s538<1 * f_i24 + 0 \/ (s538<-1 * f_i24 + 0 \/ (s538<1 * acc_i22 + 0 \/ (s538<-1 * acc_i22 + 0 \/ (s639<1 * accc_i36 + 0 \/ (s639<-1 * accc_i36 + 0 \/ (s639<1 * 1 + 0 \/ (s639<-1 * 1 + 0 \/ (s639<1 * k_i26 + 0 \/ (s639<-1 * k_i26 + 0 \/ (s639<1 * f_i24 + 0 \/ (s639<-1 * f_i24 + 0 \/ (s639<1 * acc_i22 + 0 \/ (s639<-1 * acc_i22 + 0 \/ (s740<1 * accc_i36 + 0 \/ (s740<-1 * accc_i36 + 0 \/ (s740<1 * 1 + 0 \/ (s740<-1 * 1 + 0 \/ (s740<1 * k_i26 + 0 \/ (s740<-1 * k_i26 + 0 \/ (s740<1 * f_i24 + 0 \/ (s740<-1 * f_i24 + 0 \/ (s740<1 * acc_i22 + 0 \/ (s740<-1 * acc_i22 + 0 \/ X1058(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)))))))))))))))))))))))))))))))
+X1058(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1054(s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1058(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1055(x426,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X359(x426,k_i26,f_i24,acc_i22,recFact21)
+((X1058(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1055(x426,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X358(x426,k_i26,f_i24,acc_i22,recFact21)) => X1056(x426,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1058(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1055(x426,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X358(x426,k_i26,f_i24,acc_i22,recFact21)) /\ X1057(x427,x426,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X357(x427,x426,k_i26,f_i24,acc_i22,recFact21)
+X1054(x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1047(x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1054(x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1048(x424,x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1055(x424,x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1054(x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1048(x424,x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1056(x424,x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1049(x424,x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1054(x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1048(x424,x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1056(x424,x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1050(x425,x424,x423,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1057(x425,x424,x423,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1054(k_i130,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1051(s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1053(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1054(k_i130,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1051(s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X530(x422,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1052(x422,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1053(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X356(f_i24,acc_i22,recFact21)
+(X1053(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X355(x421,f_i24,acc_i22,recFact21)) => X530(x421 - 1,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1047(x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X352(x418,x416,s538,recFact21 - 1)
+(X1047(x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x419,x418,x416,s538,recFact21 - 1)) => X1048(x419,x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1047(x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x419,x418,x416,s538,recFact21 - 1)) /\ X1049(x419,x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X350(x419,x418,x416,s538,recFact21 - 1)
+(((X1047(x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x419,x418,x416,s538,recFact21 - 1)) /\ X1049(x419,x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X349(x420,x419,x418,x416,s538,recFact21 - 1)) => X1050(x420,x419,x418,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1047(k_i130,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X348(x416,s538,recFact21 - 1)) => X1051(x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1047(k_i130,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X348(x416,s538,recFact21 - 1)) /\ X1052(x417,x416,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X347(x417,x416,s538,recFact21 - 1)
+(X1047(k_i130,f_i126,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X346(s538,recFact21 - 1)) => X460(accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1047(k_i130,f_i126,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X346(s538,recFact21 - 1)) /\ X459(x415,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X345(x415,s538,recFact21 - 1)
+X1043(x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1037(x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1043(x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1038(x413,x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1044(x413,x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1043(x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1038(x413,x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1045(x413,x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1039(x413,x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1043(x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1038(x413,x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1045(x413,x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1040(x414,x413,x412,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1046(x414,x413,x412,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1043(k_i225,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1041(s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X356(f_i24,acc_i22,recFact21)
+((X1043(k_i225,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1041(s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X355(x411,f_i24,acc_i22,recFact21)) => X1042(x411,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1037(x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1029(x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1037(x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1030(x409,x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1038(x409,x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1037(x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1030(x409,x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1039(x409,x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1031(x409,x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1037(x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1030(x409,x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1039(x409,x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1032(x410,x409,x408,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1040(x410,x409,x408,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1037(k_i225,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1033(x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1041(x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1037(k_i225,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1033(x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1042(x407,x406,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1034(x407,x406,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1037(k_i225,g_i221,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1035(s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X354(acc_i22,recFact21)
+((X1037(k_i225,g_i221,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1035(s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X353(x405,acc_i22,recFact21)) => X1036(x405,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1029(x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X10(x402,x400,x398,s30,recMult34)
+(X1029(x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x403,x402,x400,x398,s30,recMult34)) => X1030(x403,x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1029(x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x403,x402,x400,x398,s30,recMult34)) /\ X1031(x403,x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X8(x403,x402,x400,x398,s30,recMult34)
+(((X1029(x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x403,x402,x400,x398,s30,recMult34)) /\ X1031(x403,x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X7(x404,x403,x402,x400,x398,s30,recMult34)) => X1032(x404,x403,x402,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1029(k_i225,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X6(x400,x398,s30,recMult34)) => X1033(x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1029(k_i225,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X6(x400,x398,s30,recMult34)) /\ X1034(x401,x400,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X5(x401,x400,x398,s30,recMult34)
+(X1029(k_i225,g_i221,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X4(x398,s30,recMult34)) => X1035(x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1029(k_i225,g_i221,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X4(x398,s30,recMult34)) /\ X1036(x399,x398,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X3(x399,x398,s30,recMult34)
+(X1029(k_i225,g_i221,f_i217,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X2(s30,recMult34)) => X560(0,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1029(k_i225,g_i221,f_i217,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X2(s30,recMult34)) /\ X560(x397,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1(x397,s30,recMult34)
+X577(s29,n66,k_i26,f_i24,acc_i22,recFact21) => (s29<1 * 1 + 0 \/ (s29<-1 * 1 + 0 \/ (s29<1 * k_i26 + 0 \/ (s29<-1 * k_i26 + 0 \/ (s29<1 * f_i24 + 0 \/ (s29<-1 * f_i24 + 0 \/ (s29<1 * acc_i22 + 0 \/ (s29<-1 * acc_i22 + 0 \/ X1028(s29,n66,k_i26,f_i24,acc_i22,recFact21)))))))))
+X1028(s29,n66,k_i26,f_i24,acc_i22,recFact21) => X359(s29,k_i26,f_i24,acc_i22,recFact21)
+(X1028(s29,n66,k_i26,f_i24,acc_i22,recFact21) /\ X358(s29,k_i26,f_i24,acc_i22,recFact21)) => X354(acc_i22,recFact21)
+((X1028(s29,n66,k_i26,f_i24,acc_i22,recFact21) /\ X358(s29,k_i26,f_i24,acc_i22,recFact21)) /\ X353(x396,acc_i22,recFact21)) => X357(x396,s29,k_i26,f_i24,acc_i22,recFact21)
+X607(s30,n66,k_i26,f_i24,acc_i22,recFact21) => X608(s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X608(s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X609(s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X609(s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X610(s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X610(s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (s30<1 * 0 + 0 \/ (s30<-1 * 0 + 0 \/ (s30<1 * k_i26 + 0 \/ (s30<-1 * k_i26 + 0 \/ (s30<1 * f_i24 + 0 \/ (s30<-1 * f_i24 + 0 \/ (s30<1 * acc_i22 + 0 \/ (s30<-1 * acc_i22 + 0 \/ (s231<1 * 0 + 0 \/ (s231<-1 * 0 + 0 \/ (s231<1 * k_i26 + 0 \/ (s231<-1 * k_i26 + 0 \/ (s231<1 * f_i24 + 0 \/ (s231<-1 * f_i24 + 0 \/ (s231<1 * acc_i22 + 0 \/ (s231<-1 * acc_i22 + 0 \/ (s332<1 * 0 + 0 \/ (s332<-1 * 0 + 0 \/ (s332<1 * k_i26 + 0 \/ (s332<-1 * k_i26 + 0 \/ (s332<1 * f_i24 + 0 \/ (s332<-1 * f_i24 + 0 \/ (s332<1 * acc_i22 + 0 \/ (s332<-1 * acc_i22 + 0 \/ (s433<1 * 0 + 0 \/ (s433<-1 * 0 + 0 \/ (s433<1 * k_i26 + 0 \/ (s433<-1 * k_i26 + 0 \/ (s433<1 * f_i24 + 0 \/ (s433<-1 * f_i24 + 0 \/ (s433<1 * acc_i22 + 0 \/ (s433<-1 * acc_i22 + 0 \/ X675(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)))))))))))))))))))))))))))))))))
+X675(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (recMult34<1 + 1 * 0 \/ (recMult34<1 + 1 * k_i26 \/ (recMult34<1 + 1 * f_i24 \/ (recMult34<1 + 1 * acc_i22 \/ (recMult34<1 + -1 * 0 \/ (recMult34<1 + -1 * k_i26 \/ (recMult34<1 + -1 * f_i24 \/ (recMult34<1 + -1 * acc_i22 \/ (recMult34<1 \/ X1027(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21))))))))))
+X1027(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1011(s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1027(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1012(x394,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X697(s538,x394,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1027(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1012(x394,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X696(x394,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1013(x394,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1027(recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1012(x394,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X696(x394,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1014(x395,x394,s433,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X695(x395,x394,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X697(s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X698(s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X698(s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X699(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X699(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => (s538<1 * accc_i36 + 0 \/ (s538<-1 * accc_i36 + 0 \/ (s538<1 * 0 + 0 \/ (s538<-1 * 0 + 0 \/ (s538<1 * k_i26 + 0 \/ (s538<-1 * k_i26 + 0 \/ (s538<1 * f_i24 + 0 \/ (s538<-1 * f_i24 + 0 \/ (s538<1 * acc_i22 + 0 \/ (s538<-1 * acc_i22 + 0 \/ (s639<1 * accc_i36 + 0 \/ (s639<-1 * accc_i36 + 0 \/ (s639<1 * 0 + 0 \/ (s639<-1 * 0 + 0 \/ (s639<1 * k_i26 + 0 \/ (s639<-1 * k_i26 + 0 \/ (s639<1 * f_i24 + 0 \/ (s639<-1 * f_i24 + 0 \/ (s639<1 * acc_i22 + 0 \/ (s639<-1 * acc_i22 + 0 \/ (s740<1 * accc_i36 + 0 \/ (s740<-1 * accc_i36 + 0 \/ (s740<1 * 0 + 0 \/ (s740<-1 * 0 + 0 \/ (s740<1 * k_i26 + 0 \/ (s740<-1 * k_i26 + 0 \/ (s740<1 * f_i24 + 0 \/ (s740<-1 * f_i24 + 0 \/ (s740<1 * acc_i22 + 0 \/ (s740<-1 * acc_i22 + 0 \/ X1026(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)))))))))))))))))))))))))))))))
+X1026(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1022(s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1026(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1023(x392,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X359(x392,k_i26,f_i24,acc_i22,recFact21)
+((X1026(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1023(x392,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X358(x392,k_i26,f_i24,acc_i22,recFact21)) => X1024(x392,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1026(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1023(x392,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X358(x392,k_i26,f_i24,acc_i22,recFact21)) /\ X1025(x393,x392,s740,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X357(x393,x392,k_i26,f_i24,acc_i22,recFact21)
+X1022(x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1015(x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1022(x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1016(x390,x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1023(x390,x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1022(x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1016(x390,x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1024(x390,x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1017(x390,x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1022(x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1016(x390,x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1024(x390,x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1018(x391,x390,x389,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1025(x391,x390,x389,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1022(k_i130,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1019(s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1021(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1022(k_i130,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1019(s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X766(x388,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1020(x388,s639,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1021(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X356(f_i24,acc_i22,recFact21)
+(X1021(s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X355(x387,f_i24,acc_i22,recFact21)) => X766(x387 - 1,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1015(x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X352(x384,x382,s538,recFact21 - 1)
+(X1015(x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x385,x384,x382,s538,recFact21 - 1)) => X1016(x385,x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1015(x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x385,x384,x382,s538,recFact21 - 1)) /\ X1017(x385,x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X350(x385,x384,x382,s538,recFact21 - 1)
+(((X1015(x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X351(x385,x384,x382,s538,recFact21 - 1)) /\ X1017(x385,x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X349(x386,x385,x384,x382,s538,recFact21 - 1)) => X1018(x386,x385,x384,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1015(k_i130,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X348(x382,s538,recFact21 - 1)) => X1019(x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1015(k_i130,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X348(x382,s538,recFact21 - 1)) /\ X1020(x383,x382,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X347(x383,x382,s538,recFact21 - 1)
+(X1015(k_i130,f_i126,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X346(s538,recFact21 - 1)) => X696(accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1015(k_i130,f_i126,s740,s639,s538,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X346(s538,recFact21 - 1)) /\ X695(x381,accc_i36,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X345(x381,s538,recFact21 - 1)
+X1011(x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X1005(x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1011(x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1006(x379,x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1012(x379,x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1011(x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1006(x379,x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1013(x379,x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1007(x379,x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1011(x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1006(x379,x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1013(x379,x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1008(x380,x379,x378,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1014(x380,x379,x378,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1011(k_i225,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1009(s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X356(f_i24,acc_i22,recFact21)
+((X1011(k_i225,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1009(s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X355(x377,f_i24,acc_i22,recFact21)) => X1010(x377,s332,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X1005(x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X997(x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1005(x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X998(x375,x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1006(x375,x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1005(x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X998(x375,x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1007(x375,x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X999(x375,x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(((X1005(x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X998(x375,x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1007(x375,x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1000(x376,x375,x374,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1008(x376,x375,x374,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1005(k_i225,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1001(x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1009(x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X1005(k_i225,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1001(x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X1010(x373,x372,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1002(x373,x372,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X1005(k_i225,g_i221,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1003(s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X354(acc_i22,recFact21)
+((X1005(k_i225,g_i221,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X1003(s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X353(x371,acc_i22,recFact21)) => X1004(x371,s231,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+X997(x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) => X10(x368,x366,x364,s30,recMult34)
+(X997(x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x369,x368,x366,x364,s30,recMult34)) => X998(x369,x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X997(x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x369,x368,x366,x364,s30,recMult34)) /\ X999(x369,x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X8(x369,x368,x366,x364,s30,recMult34)
+(((X997(x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X9(x369,x368,x366,x364,s30,recMult34)) /\ X999(x369,x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) /\ X7(x370,x369,x368,x366,x364,s30,recMult34)) => X1000(x370,x369,x368,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+(X997(k_i225,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X6(x366,x364,s30,recMult34)) => X1001(x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X997(k_i225,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X6(x366,x364,s30,recMult34)) /\ X1002(x367,x366,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X5(x367,x366,x364,s30,recMult34)
+(X997(k_i225,g_i221,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X4(x364,s30,recMult34)) => X1003(x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X997(k_i225,g_i221,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X4(x364,s30,recMult34)) /\ X1004(x365,x364,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X3(x365,x364,s30,recMult34)
+(X997(k_i225,g_i221,f_i217,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X2(s30,recMult34)) => X796(0,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)
+((X997(k_i225,g_i221,f_i217,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21) /\ X2(s30,recMult34)) /\ X796(x363,recMult34,s433,s332,s231,s30,n66,k_i26,f_i24,acc_i22,recFact21)) => X1(x363,s30,recMult34)
+X813(s29,n66,k_i26,f_i24,acc_i22,recFact21) => (s29<1 * 0 + 0 \/ (s29<-1 * 0 + 0 \/ (s29<1 * k_i26 + 0 \/ (s29<-1 * k_i26 + 0 \/ (s29<1 * f_i24 + 0 \/ (s29<-1 * f_i24 + 0 \/ (s29<1 * acc_i22 + 0 \/ (s29<-1 * acc_i22 + 0 \/ X996(s29,n66,k_i26,f_i24,acc_i22,recFact21)))))))))
+X996(s29,n66,k_i26,f_i24,acc_i22,recFact21) => X359(s29,k_i26,f_i24,acc_i22,recFact21)
+(X996(s29,n66,k_i26,f_i24,acc_i22,recFact21) /\ X358(s29,k_i26,f_i24,acc_i22,recFact21)) => X354(acc_i22,recFact21)
+((X996(s29,n66,k_i26,f_i24,acc_i22,recFact21) /\ X358(s29,k_i26,f_i24,acc_i22,recFact21)) /\ X353(x362,acc_i22,recFact21)) => X357(x362,s29,k_i26,f_i24,acc_i22,recFact21)
+X842(x360) => (x360>0 /\ X995(x360))
+(X842(x360) /\ X845(x360)) => X841(x360)
+((X842(x360) /\ X845(x360)) /\ X840(x361,x360)) => X844(x361,x360)
+(X842(x360) /\ X843(x360)) => X839(x360)
+X995(recMain17) => X845(recMain17)
+(X995(recMain17) /\ X844(x359,recMain17)) => ((x359>0 \/ ((0/=0 \/ X843(recMain17)) /\ (0=0 \/ X989(x359,recMain17)))) /\ (x359<=0 \/ ((1/=0 \/ X843(recMain17)) /\ (1=0 \/ X994(x359,recMain17)))))
+X994(n66,recMain17) => X990(n66,recMain17)
+(X994(n66,recMain17) /\ X991(n66,recMain17)) => X993(n66,recMain17)
+((X994(n66,recMain17) /\ X991(n66,recMain17)) /\ X858(x358,n66,recMain17)) => X992(x358,n66,recMain17)
+X993(n66,recMain17) => X845(recMain17)
+(X993(n66,recMain17) /\ X844(x357,recMain17)) => X858(x357 - 1,n66,recMain17)
+X990(n66,recMain17) => X842(recMain17 - 1)
+(X990(n66,recMain17) /\ X841(recMain17 - 1)) => X991(n66,recMain17)
+((X990(n66,recMain17) /\ X841(recMain17 - 1)) /\ X992(x356,n66,recMain17)) => X840(x356,recMain17 - 1)
+(X990(n66,recMain17) /\ X839(recMain17 - 1)) => X843(recMain17)
+X989(n66,recMain17) => X985(n66,recMain17)
+(X989(n66,recMain17) /\ X986(n66,recMain17)) => X988(n66,recMain17)
+((X989(n66,recMain17) /\ X986(n66,recMain17)) /\ X881(x355,n66,recMain17)) => X987(x355,n66,recMain17)
+X988(n66,recMain17) => X845(recMain17)
+(X988(n66,recMain17) /\ X844(x354,recMain17)) => X881(x354 - 1,n66,recMain17)
+X985(n66,recMain17) => X842(recMain17 - 1)
+(X985(n66,recMain17) /\ X841(recMain17 - 1)) => X986(n66,recMain17)
+((X985(n66,recMain17) /\ X841(recMain17 - 1)) /\ X987(x353,n66,recMain17)) => X840(x353,recMain17 - 1)
+(X985(n66,recMain17) /\ X839(recMain17 - 1)) => X843(recMain17)
+X899() => X900(n7)
+X900(n7) => X901(s8,n7)
+X901(s8,n7) => X902(s29,s8,n7)
+X902(s29,s8,n7) => X903(s310,s29,s8,n7)
+X903(s310,s29,s8,n7) => (s8<1 * n7 + 1 \/ (s8<-1 * n7 + 1 \/ (s29<1 * n7 + 0 \/ (s29<-1 * n7 + 0 \/ (s310<1 * n7 + 0 \/ (s310<-1 * n7 + 0 \/ X916(recFact11,s310,s29,s8,n7)))))))
+X916(recFact11,s310,s29,s8,n7) => (recFact11<1 + 1 * n7 \/ (recFact11<1 + -1 * n7 \/ (recFact11<1 + 1 * 1 \/ (recFact11<1 + -1 * 1 \/ (recFact11<1 \/ X984(recFact11,s310,s29,s8,n7))))))
+X984(recFact11,s310,s29,s8,n7) => X976(s310,recFact11,s310,s29,s8,n7)
+(X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) => X930(recMain16,x351,recFact11,s310,s29,s8,n7)
+((X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) /\ X929(x351,recFact11,s310,s29,s8,n7)) => X978(x351,s310,recFact11,s310,s29,s8,n7)
+(((X984(recFact11,s310,s29,s8,n7) /\ X977(x351,s310,recFact11,s310,s29,s8,n7)) /\ X929(x351,recFact11,s310,s29,s8,n7)) /\ X979(x352,x351,s310,recFact11,s310,s29,s8,n7)) => X928(x352,x351,recFact11,s310,s29,s8,n7)
+X930(recMain16,g_i14,recFact11,s310,s29,s8,n7) => (recMain16<1 + 1 * g_i14 \/ (recMain16<1 + 1 * n7 \/ (recMain16<1 + -1 * g_i14 \/ (recMain16<1 + -1 * n7 \/ (recMain16<1 \/ X983(recMain16,g_i14,recFact11,s310,s29,s8,n7))))))
+X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) => X980(recMain16,g_i14,recFact11,s310,s29,s8,n7)
+(X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)) => X929(g_i14,recFact11,s310,s29,s8,n7)
+((X983(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)) /\ X928(x350,g_i14,recFact11,s310,s29,s8,n7)) => X982(x350,recMain16,g_i14,recFact11,s310,s29,s8,n7)
+X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) => X842(recMain16)
+(X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X841(recMain16)) => X981(recMain16,g_i14,recFact11,s310,s29,s8,n7)
+((X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X841(recMain16)) /\ X982(x349,recMain16,g_i14,recFact11,s310,s29,s8,n7)) => X840(x349,recMain16)
+(X980(recMain16,g_i14,recFact11,s310,s29,s8,n7) /\ X839(recMain16)) => tt
+X976(x346,recFact11,s310,s29,s8,n7) => X970(x346,s29,recFact11,s310,s29,s8,n7)
+(X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) => X977(x347,x346,recFact11,s310,s29,s8,n7)
+((X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) /\ X978(x347,x346,recFact11,s310,s29,s8,n7)) => X972(x347,x346,s29,recFact11,s310,s29,s8,n7)
+(((X976(x346,recFact11,s310,s29,s8,n7) /\ X971(x347,x346,s29,recFact11,s310,s29,s8,n7)) /\ X978(x347,x346,recFact11,s310,s29,s8,n7)) /\ X973(x348,x347,x346,s29,recFact11,s310,s29,s8,n7)) => X979(x348,x347,x346,recFact11,s310,s29,s8,n7)
+(X976(k_i130,recFact11,s310,s29,s8,n7) /\ X974(s29,recFact11,s310,s29,s8,n7)) => X952(n7,recFact11,s310,s29,s8,n7)
+((X976(k_i130,recFact11,s310,s29,s8,n7) /\ X974(s29,recFact11,s310,s29,s8,n7)) /\ X952(x345,recFact11,s310,s29,s8,n7)) => X975(x345,s29,recFact11,s310,s29,s8,n7)
+X970(x342,x340,recFact11,s310,s29,s8,n7) => X352(x342,x340,s8,recFact11)
+(X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) => X971(x343,x342,x340,recFact11,s310,s29,s8,n7)
+((X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) /\ X972(x343,x342,x340,recFact11,s310,s29,s8,n7)) => X350(x343,x342,x340,s8,recFact11)
+(((X970(x342,x340,recFact11,s310,s29,s8,n7) /\ X351(x343,x342,x340,s8,recFact11)) /\ X972(x343,x342,x340,recFact11,s310,s29,s8,n7)) /\ X349(x344,x343,x342,x340,s8,recFact11)) => X973(x344,x343,x342,x340,recFact11,s310,s29,s8,n7)
+(X970(k_i130,x340,recFact11,s310,s29,s8,n7) /\ X348(x340,s8,recFact11)) => X974(x340,recFact11,s310,s29,s8,n7)
+((X970(k_i130,x340,recFact11,s310,s29,s8,n7) /\ X348(x340,s8,recFact11)) /\ X975(x341,x340,recFact11,s310,s29,s8,n7)) => X347(x341,x340,s8,recFact11)
+(X970(k_i130,f_i126,recFact11,s310,s29,s8,n7) /\ X346(s8,recFact11)) => X957(1,recFact11,s310,s29,s8,n7)
+((X970(k_i130,f_i126,recFact11,s310,s29,s8,n7) /\ X346(s8,recFact11)) /\ X957(x339,recFact11,s310,s29,s8,n7)) => X345(x339,s8,recFact11)
+tt => X899()
+[Size] 1
+Run command: "hoice /tmp/hoice-184225813.smt2"

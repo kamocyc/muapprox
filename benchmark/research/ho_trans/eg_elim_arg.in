@@ -1,0 +1,45 @@
+/* k_i が 使われない */
+
+%HES
+Sentry =v
+  ∀n.
+    ∀s.
+      (s < 1 * n \/ s < (-1) * n) \/
+      (∀recMain.
+        (recMain < 1 + 1 * n \/ recMain < 1 + (-1) * n \/ recMain < 1) \/
+        Main recMain s (\k_i k. k n)
+      ).
+
+Main recMain g_i g =v
+  recMain > 0
+  /\
+  (∀s. 
+    ∀s2. 
+      (s < 1 * g_i \/ s < (-1) * g_i \/ s2 < 1 * g_i \/ s2 < (-1) * g_i)
+      \/
+      Check
+        s g
+        s2 (\b. 
+            (b != 0 \/ true)
+            /\
+            (b = 0
+              \/ (
+                ∀s4. 
+                  ∀s5.
+                      (s4 < 1 * b
+                    \/ s4 < (-1) * b
+                    \/ s4 < 1 * g_i
+                    \/ s4 < (-1) * g_i
+                    \/ s5 < 1 * b
+                    \/ s5 < (-1) * b
+                    \/ s5 < 1 * g_i
+                    \/ s5 < (-1) * g_i)
+                    \/ Main (recMain - 1) s5 (Pred s4 g))))).
+
+Pred f_i f k_i k =v
+  ∀s. (s < 1 * k_i \/ s < (-1) * k_i \/ s < 1 * f_i \/ s < (-1) * f_i)
+    \/ f s (\r. k (r - 1)).
+
+Check f_i f k_i k =v
+  ∀s. (s < 1 * k_i \/ s < (-1) * k_i \/ s < 1 * f_i \/ s < (-1) * f_i)
+    \/ f s (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).

@@ -1,0 +1,167 @@
+INPUT FILE: benchmark/research/ho_trans/array_plus_loop/easy_to_solve.in__prover__1.in
+[Main:App:Input]
+  Sentry : bool =ν
+    ∀x7:int.
+     ∀y8:int.
+      Make_array
+       (λar9:(int -> (int -> bool) -> bool).
+         Update ar9 0 x7
+          (λar210:(int -> (int -> bool) -> bool).
+            Update ar210 1 y8
+             (λar311:(int -> (int -> bool) -> bool).
+               Main x7 y8 (x7 + y8) ar311 (λreplaced12:bool.true))))
+  Main : int -> int -> int -> (int -> (int -> bool) -> bool) -> (bool -> bool) -> bool =ν
+    λx13:int.
+     λy14:int.
+      λar_i15:int.
+       λar16:(int -> (int -> bool) -> bool).
+        λk17:(bool -> bool).
+         ∀recLoop18:int.
+          recLoop18 < 1 + 1 * 1
+          || recLoop18 < 1 + -1 * 1
+             || recLoop18 < 1 + 1 * ar_i15
+                || recLoop18 < 1 + -1 * ar_i15
+                   || recLoop18 < 1 || Loop recLoop18 x13 y14 ar_i15 ar16 0 1 (λr19:bool.k17 r19)
+  Loop : int ->
+          int ->
+           int -> int -> (int -> (int -> bool) -> bool) -> int -> int -> (bool -> bool) -> bool =ν
+    λrecLoop20:int.
+     λxx21:int.
+      λyy22:int.
+       λar_i23:int.
+        λar24:(int -> (int -> bool) -> bool).
+         λi25:int.
+          λj26:int.
+           λk27:(bool -> bool).
+            recLoop20 > 0
+            && ar24 i25
+                (λx228:int.
+                  ar24 j26
+                   (λy229:int.
+                     (x228 + y229 > 0 || k27 false)
+                     && (x228 + y229 <= 0
+                         || Pred ar24 0
+                             (λar_ap_30:(int -> (int -> bool) -> bool).
+                               Loop (recLoop20 - 1) xx21 yy22 ar_i23 ar_ap_30 0 1 k27))))
+  Pred : (int -> (int -> bool) -> bool) -> int -> ((int -> (int -> bool) -> bool) -> bool) -> bool =ν
+    λar31:(int -> (int -> bool) -> bool).
+     λi32:int.
+      λk33:((int -> (int -> bool) -> bool) -> bool).
+       ar31 i32 (λx34:int.Update ar31 i32 (x34 - 1) k33)
+  Make_array : ((int -> (int -> bool) -> bool) -> bool) -> bool =ν
+    λk35:((int -> (int -> bool) -> bool) -> bool).
+     k35 (λi36:int.λk_ap_37:(int -> bool).k_ap_37 0)
+  Update : (int -> (int -> bool) -> bool) ->
+            int -> int -> ((int -> (int -> bool) -> bool) -> bool) -> bool =ν
+    λar38:(int -> (int -> bool) -> bool).
+     λi39:int.
+      λx40:int.
+       λk41:((int -> (int -> bool) -> bool) -> bool).
+        k41
+         (λj42:int.
+           λk_ap_43:(int -> bool).(j42 /= i39 || k_ap_43 x40) && (j42 = i39 || ar38 j42 k_ap_43))
+  Check : (bool -> (int -> bool) -> bool) -> bool -> int -> (bool -> bool) -> bool =ν
+    λar44:(bool -> (int -> bool) -> bool).
+     λi45:bool.λx46:int.λk47:(bool -> bool).ar44 i45 (λr48:int.k47 (r48 = x46))
+[Main:App:Simplified]
+  Sentry : bool =ν
+    ∀x7:int.
+     ∀y8:int.
+      ∀recLoop18:int.
+       recLoop18 < 1 + 1 * 1
+       || recLoop18 < 1 + -1 * 1
+          || recLoop18 < 1 + 1 * (x7 + y8)
+             || recLoop18 < 1 + -1 * (x7 + y8)
+                || recLoop18 < 1
+                   || Loop recLoop18 x7 y8 (x7 + y8)
+                       (λj42:int.
+                         λk_ap_43:(int -> bool).
+                          (j42 /= 1 || k_ap_43 y8)
+                          && (j42 = 1 || (j42 /= 0 || k_ap_43 x7) && (j42 = 0 || k_ap_43 0)))
+                       0 1 (λr19:bool.true)
+  Loop : int ->
+          int ->
+           int -> int -> (int -> (int -> bool) -> bool) -> int -> int -> (bool -> bool) -> bool =ν
+    λrecLoop20:int.
+     λxx21:int.
+      λyy22:int.
+       λar_i23:int.
+        λar24:(int -> (int -> bool) -> bool).
+         λi25:int.
+          λj26:int.
+           λk27:(bool -> bool).
+            recLoop20 > 0
+            && ar24 i25
+                (λx228:int.
+                  ar24 j26
+                   (λy229:int.
+                     (x228 + y229 > 0 || k27 false)
+                     && (x228 + y229 <= 0
+                         || ar24 0
+                             (λx34:int.
+                               Loop (recLoop20 - 1) xx21 yy22 ar_i23
+                                (λj42:int.
+                                  λk_ap_43:(int -> bool).
+                                   (j42 /= 0 || k_ap_43 (x34 - 1)) && (j42 = 0 || ar24 j42 k_ap_43))
+                                0 1 k27))))
+Sentry *[X62()]
+Loop (int(recLoop132) -> (int(xx133) -> (int(yy134) -> (int(ar_i135) -> ((int(t136) -> ((int(t137) -> *[X1(t137,t136,ar_i135,yy134,xx133,recLoop132)]) -> *[X2(t136,ar_i135,yy134,xx133,recLoop132)])) -> (int(i140) -> (int(j141) -> ((*[X3(j141,i140,ar_i135,yy134,xx133,recLoop132)] -> *[X4(j141,i140,ar_i135,yy134,xx133,recLoop132)]) -> *[X5(j141,i140,ar_i135,yy134,xx133,recLoop132)]))))))))
+
+
+infering new formula: Sentry = (∀int(x7).(∀int(y8).(∀int(recLoop18).(recLoop18<1 + 1 * 1 || (recLoop18<1 + -1 * 1 || (recLoop18<1 + 1 * (x7 + y8) || (recLoop18<1 + -1 * (x7 + y8) || (recLoop18<1 || ((((((((Loop recLoop18) x7) y8) x7 + y8) (\int(j42).(\(int(t256) -> *[X81(t256,j42,recLoop18,y8,x7)]).((j42/=1 || (k_ap_43 y8)):X82(j42,recLoop18,y8,x7) && (j42=1 || ((j42/=0 || (k_ap_43 x7)):X86(j42,recLoop18,y8,x7) && (j42=0 || (k_ap_43 0)):X87(j42,recLoop18,y8,x7))):X83(j42,recLoop18,y8,x7))))) 0) 1) (\*[X77(recLoop18,y8,x7)].tt))))))))))
+[Result]
+X62() => X63(x7)
+X63(x7) => X64(y8,x7)
+X64(y8,x7) => X65(recLoop18,y8,x7)
+X65(recLoop18,y8,x7) => (recLoop18<1 + 1 * 1 \/ (recLoop18<1 + -1 * 1 \/ (recLoop18<1 + 1 * (x7 + y8) \/ (recLoop18<1 + -1 * (x7 + y8) \/ (recLoop18<1 \/ X112(recLoop18,y8,x7))))))
+X112(recLoop18,y8,x7) => X109(1,0,recLoop18,y8,x7)
+(X112(recLoop18,y8,x7) /\ X110(1,0,recLoop18,y8,x7)) => tt
+((X112(recLoop18,y8,x7) /\ X110(1,0,recLoop18,y8,x7)) /\ X77(recLoop18,y8,x7)) => X111(1,0,recLoop18,y8,x7)
+X109(x289,x288,recLoop18,y8,x7) => X5(x289,x288,x7 + y8,y8,x7,recLoop18)
+(X109(x289,x288,recLoop18,y8,x7) /\ X4(x289,x288,x7 + y8,y8,x7,recLoop18)) => X110(x289,x288,recLoop18,y8,x7)
+((X109(x289,x288,recLoop18,y8,x7) /\ X4(x289,x288,x7 + y8,y8,x7,recLoop18)) /\ X111(x289,x288,recLoop18,y8,x7)) => X3(x289,x288,x7 + y8,y8,x7,recLoop18)
+(X109(j141,i140,recLoop18,y8,x7) /\ X2(x286,x7 + y8,y8,x7,recLoop18)) => ((x286/=1 \/ X81(y8,x286,recLoop18,y8,x7)) /\ (x286=1 \/ ((x286/=0 \/ X81(x7,x286,recLoop18,y8,x7)) /\ (x286=0 \/ X81(0,x286,recLoop18,y8,x7)))))
+((X109(j141,i140,recLoop18,y8,x7) /\ X2(x286,x7 + y8,y8,x7,recLoop18)) /\ X81(x287,x286,recLoop18,y8,x7)) => X1(x287,x286,x7 + y8,y8,x7,recLoop18)
+tt => X62()
+
+
+infering new formula: Loop = (\int(recLoop20).(\int(xx21).(\int(yy22).(\int(ar_i23).(\(int(t184) -> ((int(t185) -> *[X6(t185,t184,ar_i23,yy22,xx21,recLoop20)]) -> *[X7(t184,ar_i23,yy22,xx21,recLoop20)])).(\int(i25).(\int(j26).(\(*[X8(j26,i25,ar_i23,yy22,xx21,recLoop20)] -> *[X9(j26,i25,ar_i23,yy22,xx21,recLoop20)]).(recLoop20>0:X10(j26,i25,ar_i23,yy22,xx21,recLoop20) && ((ar24 i25) (\int(x228).((ar24 j26) (\int(y229).((x228 + y229>0 || (k27 ff)):X14(y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) && (x228 + y229<=0 || ((ar24 0) (\int(x34).((((((((Loop recLoop20 - 1) xx21) yy22) ar_i23) (\int(j42).(\(int(t256) -> *[X25(t256,j42,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)]).((j42/=0 || (k_ap_43 x34 - 1)):X26(j42,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) && (j42=0 || ((ar24 j42) k_ap_43)):X27(j42,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20))))) 0) 1) k27)))):X15(y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)))))):X11(j26,i25,ar_i23,yy22,xx21,recLoop20))))))))))
+[Result]
+X5(x305,x304,x301,x300,x299,x298) => (x298>0 /\ X121(x305,x304,x301,x300,x299,x298))
+(X5(x305,x304,x301,x300,x299,x298) /\ X9(x305,x304,x301,x300,x299,x298)) => X4(x305,x304,x301,x300,x299,x298)
+((X5(x305,x304,x301,x300,x299,x298) /\ X9(x305,x304,x301,x300,x299,x298)) /\ X3(x305,x304,x301,x300,x299,x298)) => X8(x305,x304,x301,x300,x299,x298)
+(X5(j141,i140,x301,x300,x299,x298) /\ X7(x302,x301,x300,x299,x298)) => X2(x302,x301,x300,x299,x298)
+((X5(j141,i140,x301,x300,x299,x298) /\ X7(x302,x301,x300,x299,x298)) /\ X1(x303,x302,x301,x300,x299,x298)) => X6(x303,x302,x301,x300,x299,x298)
+X121(j26,i25,ar_i23,yy22,xx21,recLoop20) => X7(i25,ar_i23,yy22,xx21,recLoop20)
+(X121(j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X6(x297,i25,ar_i23,yy22,xx21,recLoop20)) => X120(x297,j26,i25,ar_i23,yy22,xx21,recLoop20)
+X120(x228,j26,i25,ar_i23,yy22,xx21,recLoop20) => X7(j26,ar_i23,yy22,xx21,recLoop20)
+(X120(x228,j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X6(x296,j26,ar_i23,yy22,xx21,recLoop20)) => ((x228 + x296>0 \/ X113(x296,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)) /\ (x228 + x296<=0 \/ X119(x296,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)))
+X119(y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) => X7(0,ar_i23,yy22,xx21,recLoop20)
+(X119(y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X6(x295,0,ar_i23,yy22,xx21,recLoop20)) => X118(x295,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)
+X118(x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) => X115(1,0,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)
+(X118(x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X116(1,0,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)) => X9(j26,i25,ar_i23,yy22,xx21,recLoop20)
+((X118(x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X116(1,0,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)) /\ X8(j26,i25,ar_i23,yy22,xx21,recLoop20)) => X117(1,0,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)
+X115(x294,x293,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) => X5(x294,x293,ar_i23,yy22,xx21,recLoop20 - 1)
+(X115(x294,x293,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X4(x294,x293,ar_i23,yy22,xx21,recLoop20 - 1)) => X116(x294,x293,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)
+((X115(x294,x293,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X4(x294,x293,ar_i23,yy22,xx21,recLoop20 - 1)) /\ X117(x294,x293,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)) => X3(x294,x293,ar_i23,yy22,xx21,recLoop20 - 1)
+(X115(j141,i140,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X2(x291,ar_i23,yy22,xx21,recLoop20 - 1)) => ((x291/=0 \/ X25(x34 - 1,x291,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)) /\ (x291=0 \/ X114(x291,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)))
+((X115(j141,i140,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X2(x291,ar_i23,yy22,xx21,recLoop20 - 1)) /\ X25(x292,x291,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)) => X1(x292,x291,ar_i23,yy22,xx21,recLoop20 - 1)
+X114(j42,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) => X7(j42,ar_i23,yy22,xx21,recLoop20)
+(X114(j42,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X6(x290,j42,ar_i23,yy22,xx21,recLoop20)) => X25(x290,j42,x34,y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20)
+X113(y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) => X9(j26,i25,ar_i23,yy22,xx21,recLoop20)
+(X113(y229,x228,j26,i25,ar_i23,yy22,xx21,recLoop20) /\ X8(j26,i25,ar_i23,yy22,xx21,recLoop20)) => ff
+X62() => X63(x7)
+X63(x7) => X64(y8,x7)
+X64(y8,x7) => X65(recLoop18,y8,x7)
+X65(recLoop18,y8,x7) => (recLoop18<1 + 1 * 1 \/ (recLoop18<1 + -1 * 1 \/ (recLoop18<1 + 1 * (x7 + y8) \/ (recLoop18<1 + -1 * (x7 + y8) \/ (recLoop18<1 \/ X112(recLoop18,y8,x7))))))
+X112(recLoop18,y8,x7) => X109(1,0,recLoop18,y8,x7)
+(X112(recLoop18,y8,x7) /\ X110(1,0,recLoop18,y8,x7)) => tt
+((X112(recLoop18,y8,x7) /\ X110(1,0,recLoop18,y8,x7)) /\ X77(recLoop18,y8,x7)) => X111(1,0,recLoop18,y8,x7)
+X109(x289,x288,recLoop18,y8,x7) => X5(x289,x288,x7 + y8,y8,x7,recLoop18)
+(X109(x289,x288,recLoop18,y8,x7) /\ X4(x289,x288,x7 + y8,y8,x7,recLoop18)) => X110(x289,x288,recLoop18,y8,x7)
+((X109(x289,x288,recLoop18,y8,x7) /\ X4(x289,x288,x7 + y8,y8,x7,recLoop18)) /\ X111(x289,x288,recLoop18,y8,x7)) => X3(x289,x288,x7 + y8,y8,x7,recLoop18)
+(X109(j141,i140,recLoop18,y8,x7) /\ X2(x286,x7 + y8,y8,x7,recLoop18)) => ((x286/=1 \/ X81(y8,x286,recLoop18,y8,x7)) /\ (x286=1 \/ ((x286/=0 \/ X81(x7,x286,recLoop18,y8,x7)) /\ (x286=0 \/ X81(0,x286,recLoop18,y8,x7)))))
+((X109(j141,i140,recLoop18,y8,x7) /\ X2(x286,x7 + y8,y8,x7,recLoop18)) /\ X81(x287,x286,recLoop18,y8,x7)) => X1(x287,x286,x7 + y8,y8,x7,recLoop18)
+tt => X62()
+[Size] 1
+Run command: "hoice /tmp/hoice-65971820.smt2"

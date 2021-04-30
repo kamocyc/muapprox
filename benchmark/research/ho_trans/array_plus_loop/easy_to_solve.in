@@ -1,0 +1,40 @@
+/* 「配列」の第一要素と第二要素の和の数だけ再帰 */
+/* 解けない */
+/* 再帰回数の算出と型付けのためにxとyを渡す必要がある */
+/* yだけでも解けた. xだけだとinvalidになる。 */
+/* 以下で(katsura-solver用に引数x, yをLoopに追加すれば)z3で解ける */
+
+%HES
+Sentry =u
+  ∀x. ∀y.
+    Make_array (\ar.
+      Update ar 0 x (\ar2.
+        Update ar2 1 y (\ar3.
+          Main x y ( x + y ) ar3 (\_. true)
+        )
+      )
+    ).
+
+Main x y ar_i ar k =u 
+  /* ∀r. (r < 1 + x7 \/ r < 1 + y8 \/ r < 1 - x7 \/ r < 1 - y8) \/ とするか、no-inliningだと、z3でエラー */
+  Loop x y ar_i ar 0 1 (\r. x + y = x + y /\ k r).
+
+Loop x y ar_i ar i j k =u
+  ar i (\x.
+    ar j (\y.
+      (x + y <= 0 => k false) /\
+      (x + y  > 0 => Pred ar 0 (\ar'. Loop x y ar_i ar' 0 1 k))
+    )
+  ).
+
+/* i番目の要素の値を1減らす */
+Pred ar i k =u
+  ar i (\x.
+    Update ar i (x - 1) k
+  ).
+  
+Make_array k =u k (\i.\k'. k' 0).
+Update ar i x k =u
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+Check ar i x k =u
+  ar i (\r. k (r = x)).
