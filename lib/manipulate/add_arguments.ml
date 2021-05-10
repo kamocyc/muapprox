@@ -1,5 +1,6 @@
 open Hflmc2_syntax
 open Hflz
+module PA = Infer_partial_application
 
 let id_gen ?name ty =
   let id = Id.gen ?name ty in
@@ -25,16 +26,38 @@ let make_approx_formula fa_var_f bounds =
   |> List.map (fun bound -> Pred (Lt, [Var fa_var_f; bound]))
   |> formula_fold (fun acc f -> Or (acc, f))
 
-let add_arguments_expr (phi : 'ty Hflz.t) (coe1: int) (coe2: int) =
+let rec to_ty = function
+  | PA.TFunc (l, arg, body) -> begin
+    match l with
+    | PA.Insert ->
+      Type.TyArrow (Id.gen Type.TyInt,
+        Type.TyArrow (Id.gen (to_argty arg), to_ty body)
+      )
+    | PA.NoInsert ->
+      Type.TyArrow (Id.gen (to_argty arg), to_ty body)
+  end
+  | TBool -> Type.TyBool ()
+  | TInt -> assert false
+  | TVar _ -> assert false
+and to_argty = function
+  | TInt -> Type.TyInt
+  | t -> Type.TySigma (to_ty t)
+
+let add_arguments_expr (phi : PA.i_thflz) (coe1: int) (coe2: int) =
   (* env contains only integer variables *)
   let new_ids = ref IdMap.empty in
-  let rec go_expr (env : [ `Int ] Id.t list) (phi : 'ty Hflz.t) =
+  let rec go_arith (a : PA.i_ptype PA.tarith) : Arith.t = match a with
+    | Int i -> Int i
+    | Var v -> Var {v with ty = `Int}
+    | Op (e, ps) -> Op (e, List.map go_arith ps)
+  in 
+  let rec go_expr (env : [ `Int ] Id.t list) (phi : PA.i_thflz) : unit Type.ty Hflz.t =
     match phi with
     | App _ -> begin
       (* Appのみを辿って、直近の祖先でAppでない部分式の直下に追加整数引数を追加する *)
       (* NOTE: 式の型がbool出ない場合はeta変換が必要 *)
-      let ty = Hflz_util.get_hflz_type phi in
-      assert (ty = Type.TyBool ());
+      let ty = PA.get_thflz_type phi in
+      assert (ty = TBool);
       (* (* スコープ内の整数引数の集合は同一なので、同一の整数変数を使う *)
       let id = id_gen Type.TyInt in
       let id_getter () = id in *)
@@ -71,65 +94,68 @@ let add_arguments_expr (phi : 'ty Hflz.t) (coe1: int) (coe2: int) =
         g generated_ids body
       end
     end
-    | Bool _ | Var _ | Arith _ | Pred _ -> phi
+    | Bool b -> Bool b
+    | Var v -> Var {v with ty = to_ty v.ty }
+    | Arith a -> Arith (go_arith a)
+    | Pred (p, a) -> Pred (p, List.map go_arith a)
     | Or  (p1, p2) -> Or  (go_expr env p1, go_expr env p2)
     | And (p1, p2) -> And (go_expr env p1, go_expr env p2)
-    | Abs (x, p) -> begin
-      match x.ty with
-      | TyInt ->
-        let env = Env.update [{x with ty=`Int}] env in
-        Abs (x, go_expr env p)
-      | TySigma _ ->
-        let id = id_gen ~name:(x.name ^ "_i") Type.TyInt in
+    | Abs (l, x, p) -> begin
+      let env =
+        match x.ty with
+        | TInt -> Env.update [{x with ty=`Int}] env
+        | _ -> env in
+      match l with
+      | Insert ->
+        let id = id_gen ~name:"t" Type.TyInt in
         new_ids := IdMap.add !new_ids id Hflz_util.VTHigherInfo;
         let env = Env.update [{id with ty=`Int}] env in
-        Abs (id, Abs (x, go_expr env p))
+        Abs (id, Abs ({x with ty=to_argty x.ty}, go_expr env p))
+      | NoInsert ->
+        Abs ({x with ty=to_argty x.ty}, go_expr env p)
     end
     | Forall (x, p) ->
       let env = Env.update [{x with ty=`Int}] env in
-      Forall (x, go_expr env p)
+      Forall ({x with ty=to_argty x.ty}, go_expr env p)
     | Exists (x, p) ->
       let env = Env.update [{x with ty=`Int}] env in
-      Exists (x, go_expr env p)
-  and go_app env (id_getter : unit -> [`Int] Id.t) (phi : 'ty Hflz.t) =
+      Exists ({x with ty=to_argty x.ty}, go_expr env p)
+  and go_app env (id_getter : unit -> [`Int] Id.t) (phi : PA.i_thflz) : unit Type.ty Hflz.t =
     match phi with
     | App (p1, p2) -> begin
-      match p2 with
-      | Arith _ -> App (go_app env id_getter p1, p2)
-      | _ ->
-        let id = id_getter () in
-        App (App (go_app env id_getter p1, Arith (Var id)), go_app env id_getter p2)
+      let p2 =
+        match p2 with
+        | Arith a -> Arith (go_arith a)
+        | _ -> go_app env id_getter p2
+      in
+      let ty = PA.get_thflz_type p1 in
+      match ty with
+      | TFunc (l, _, _) -> begin
+        match l with
+        | PA.Insert ->
+          let id = id_getter () in
+          App (App (go_app env id_getter p1, Arith (Var id)), p2)
+        | PA.NoInsert -> begin
+          App (go_app env id_getter p1, p2)
+        end
+      end
+      | _ -> assert false
     end
     | _ -> go_expr env phi
   in
   let body = go_expr Env.empty phi in
   body, !new_ids
 
-let rec convert_ty ty =
-  match ty with
-  | Type.TyArrow (argid, ty) -> begin
-    match argid.ty with
-    | TyInt -> Type.TyArrow ({argid with ty = argid.ty}, convert_ty ty)
-    | TySigma _ ->
-      let id = Id.gen Type.TyInt in
-      Type.TyArrow (
-        id,
-        Type.TyArrow ({argid with ty = convert_argty argid.ty}, convert_ty ty)
-      )
-  end
-  | Type.TyBool () -> Type.TyBool ()
-
-and convert_argty argty =
-  match argty with
-  | Type.TyInt -> Type.TyInt
-  | Type.TySigma ty -> Type.TySigma (convert_ty ty)
+module Env_ = Env_no_value
 
 let adjust_type_expr env phi =
   (* env contains only non-integer variables *)
   let rec go env phi = match phi with
     | Var x -> begin
-      if not @@ Env.has x env then failwith @@ "a variable not found in Env (maybe this variable cannot be determined to be an integer type): " ^ Id.to_string x;
-      let x = Env.lookup x env in
+      let x = 
+        try
+          Env_.lookup x env
+        with Not_found ->failwith @@ "a variable not found in Env (maybe this variable cannot be determined to be an integer type): " ^ Id.to_string x in
       Var x
     end
     | Bool _ | Arith _ | Pred _ -> phi
@@ -138,8 +164,7 @@ let adjust_type_expr env phi =
     | Abs (x, p) -> begin
       match x.ty with
       | TySigma ty ->
-        let x = { x with ty = convert_ty ty } in
-        Abs ({x with ty = TySigma x.ty}, go (Env.update [x, x] env) p)
+        Abs (x, go (Env_.update [{ x with ty = ty }] env) p)
       | TyInt ->
         Abs (x, go env p)
     end
@@ -154,16 +179,16 @@ let adjust_type_expr env phi =
 let adjust_type (hes : 'ty hes) =
   let entry, rules = hes in
   let env =
+    Env_.create @@
     List.map
       (fun {var; _} ->
-        let var = { var with ty = convert_ty var.ty } in
-        var, var
+        { var with ty = var.ty }
       )
       rules in
   adjust_type_expr env entry,
   List.map
     (fun {var; fix; body} ->
-      { var = Env.lookup var env;
+      { var = Env_.lookup var env;
         fix;
         body = adjust_type_expr env body }
     )
@@ -177,19 +202,22 @@ let show_id_map id_map show_f =
   "}"
 
 let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) =
-  let entry, rules = hes in
-  let entry, new_ids_entry = add_arguments_expr entry coe1 coe2 in
-  let all_id_maps = ref [new_ids_entry] in
+  let rules = Infer_partial_application.infer_and_eliminate_unit_type_terms hes in
+  (* let entry, rules = hes in *)
+  (* let entry, new_ids_entry = add_arguments_expr entry coe1 coe2 in *)
+  let all_id_maps = ref [] in
   let rules =
     List.map
-      (fun {var; fix; body} ->
+      (fun {PA.var; fix; body} ->
         let body, new_ids = add_arguments_expr body coe1 coe2 in
         all_id_maps := new_ids :: !all_id_maps;
+        let var = {var with ty=to_ty var.ty} in
         {var; fix; body}
       )
       rules in
-  let hes = entry, rules in
-  (* print_endline @@ Print_syntax.show_hes (merge_entry_rule hes); *)
+  let hes = decompose_entry_rule rules in
+  (* print_endline @@ Hflz.show_hes Print.simple_ty hes;
+  print_endline @@ Print_syntax.show_hes (merge_entry_rule hes); *)
   let hes = adjust_type hes in
   Hflz_typecheck.type_check hes;
   let all_id_map =
@@ -229,21 +257,23 @@ let%expect_test "add_arguments" =
   let v_y = id_n 4 TyInt in
   let phi =
     Forall (v_n, App (App (Abs (v_x, Abs (v_f, App (to_ty_in_id v_f, to_ty_in_id v_x))), Arith (Int 0)), Abs (v_y, Pred (Eq, [to_int_in_id v_y; to_int_in_id v_n])))) in
-  print_endline @@ Print_syntax.show_hflz phi;
+  let hes = phi, [] in
+  print_endline @@ Hflmc2_util.fmt_string (Print_syntax.hflz_hes Print.simple_ty_) hes;
   [%expect {|
     ∀x_11.
      (λx_22:int.λx_33:(int -> bool).x_33 x_22) 0 (λx_44:int.x_44 = x_11) |}];
   let ty' = Hflz_util.get_hflz_type phi in
   assert (ty' = Type.TyBool ());
-  let phi, _ = add_arguments_expr phi 10 20 in
+  let hes, _ = add_arguments hes 10 20 in
   (* let phi = add_parameters_expr phi in *)
   ignore [%expect.output];
-  print_endline @@ Print_syntax.show_hflz phi;
+  print_endline @@ Hflmc2_util.fmt_string (Print_syntax.hflz_hes Print.simple_ty_) hes;
   [%expect {|
     ∀x_11.
      ∀s100100.
       s100100 < 10 * x_11 + 20 || s100100 < (-10) * x_11 + 20
       || (λx_22:int.λx_3_i101101:int.λx_33:(int -> bool).x_33 x_22) 0 s100100
           (λx_44:int.x_44 = x_11) |}];
+  let phi, _ = hes in
   let ty' = Hflz_util.get_hflz_type phi in
   assert (ty' = Type.TyBool ());

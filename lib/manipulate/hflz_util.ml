@@ -52,8 +52,16 @@ let get_hflz_type phi =
       TyBool ()
     end
     | Abs (x, f1)  -> TyArrow (x, go f1)
-    | Forall (_, f1) -> go f1
-    | Exists (_, f1) -> go f1
+    | Forall (_, f1) -> begin
+      let ty = go f1 in
+      if ty <> TyBool () then print_endline @@ Type.show_simple_ty ty;
+      assert ((go f1) = TyBool ());
+      TyBool ()
+    end
+    | Exists (_, f1) -> begin
+      assert ((go f1) = TyBool ());
+      TyBool ()
+    end
     | App (f1, f2)   -> begin
       let ty1 = go f1 in
       match ty1 with

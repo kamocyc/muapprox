@@ -1099,20 +1099,31 @@ let%expect_test "encode_body_forall_formula_sub" =
   (* arguments in the term's type = x1 : int, x2 : int -> bool *)
   (* free variables = x3 : int, x4 : int -> bool, x5 : int *)
   let org_formula =
-    Forall (id_n 100 TyInt, Forall (id_n 300 TyInt, Abs (id_n 1 TyInt, Abs (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))),
-      And (
-        App (App (Var { p with ty = unsafe_unlift p.ty }, 
-          Arith (Op (Add, [Var (id_n 1 `Int); Var (id_n 3 `Int)]))), Arith (Var (id_n 300 `Int))),
-        And (App (Var (id_n 2 (TyArrow (id_n 31 TyInt, TyBool ()))), Arith (Var (id_n 5 `Int))),
-          App (Var (id_n 4 (TyArrow (id_n 32 TyInt, TyBool ()))), Arith (Var (id_n 100 `Int)))))
-      )))) in
+    Forall (id_n 100 TyInt, Forall (id_n 300 TyInt,
+      App (
+        App (
+          Abs (id_n 1 TyInt, Abs (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))),
+            And (
+              App (App (Var { p with ty = unsafe_unlift p.ty }, 
+                Arith (Op (Add, [Var (id_n 1 `Int); Var (id_n 3 `Int)]))), Arith (Var (id_n 300 `Int))),
+              And (App (Var (id_n 2 (TyArrow (id_n 31 TyInt, TyBool ()))), Arith (Var (id_n 5 `Int))),
+                App (Var (id_n 4 (TyArrow (id_n 32 TyInt, TyBool ()))), Arith (Var (id_n 100 `Int)))))
+            )
+          ),
+          Arith (Int 1)
+        ),
+        Abs (id_n 41 TyInt, Pred (Eq, [Var (id_n 41 `Int); Int 2]))
+      )
+     )
+    ) in
   print_endline @@ "original: " ^ show_hflz org_formula;
   [%expect {|
     original: ∀x_100100.
      ∀x_300300.
-      λx_11:int.
-       λx_22:(int -> bool).
-        x_1010 (x_11 + x_33) x_300300 && x_22 x_55 && x_44 x_100100 |}];
+      (λx_11:int.
+        λx_22:(int -> bool).
+         x_1010 (x_11 + x_33) x_300300 && x_22 x_55 && x_44 x_100100)
+       1 (λx_4141:int.x_4141 = 2)|}];
   let (replaced, rules) =
     encode_body_forall_formula_sub
       None
@@ -1125,7 +1136,7 @@ let%expect_test "encode_body_forall_formula_sub" =
   print_endline @@ "replaced: " ^ show_hflz replaced;
   [%expect {|
     1
-    replaced: λx_11:int.λx_22:(int -> bool).Forall0 x_33 x_44 x_55 x_11 x_22 0 0  |}];
+    replaced: Forall0 x_33 x_44 x_55 0 0  |}];
   print_endline @@ "fix: " ^ Fixpoint.show rule.fix;
   print_endline @@ "var: " ^ Id.show pp_simple_ty rule.var;
   print_endline @@ "rule: " ^ show_hflz rule.body;
@@ -1142,22 +1153,10 @@ let%expect_test "encode_body_forall_formula_sub" =
                     (Type.TyBool ()))))
               },
             (Type.TyArrow ({ Id.name = "x_5"; id = 5; ty = Type.TyInt },
-               (Type.TyArrow ({ Id.name = "x_1"; id = 1; ty = Type.TyInt },
+               (Type.TyArrow ({ Id.name = "x_100"; id = 100; ty = Type.TyInt },
                   (Type.TyArrow (
-                     { Id.name = "x_2"; id = 2;
-                       ty =
-                       (Type.TySigma
-                          (Type.TyArrow (
-                             { Id.name = "x_31"; id = 31; ty = Type.TyInt },
-                             (Type.TyBool ()))))
-                       },
-                     (Type.TyArrow (
-                        { Id.name = "x_100"; id = 100; ty = Type.TyInt },
-                        (Type.TyArrow (
-                           { Id.name = "x_300"; id = 300; ty = Type.TyInt },
-                           (Type.TyBool ())))
-                        ))
-                     ))
+                     { Id.name = "x_300"; id = 300; ty = Type.TyInt },
+                     (Type.TyBool ())))
                   ))
                ))
             ))
@@ -1166,23 +1165,21 @@ let%expect_test "encode_body_forall_formula_sub" =
     rule: λx_33:int.
      λx_44:(int -> bool).
       λx_55:int.
-       λx_11:int.
-        λx_22:(int -> bool).
-         λx_100100:int.
-          λx_300300:int.
-           (λx_11:int.
-             λx_22:(int -> bool).
-              x_1010 (x_11 + x_33) x_300300 && x_22 x_55 && x_44 x_100100)
-            x_11 x_22
-           && Forall0 x_33 x_44 x_55 x_11 x_22 (x_100100 + 1) x_300300
-              && Forall0 x_33 x_44 x_55 x_11 x_22 (x_100100 - 1) x_300300
-              && Forall0 x_33 x_44 x_55 x_11 x_22 x_100100 (x_300300 + 1)
-                 && Forall0 x_33 x_44 x_55 x_11 x_22 x_100100 (x_300300 - 1)|}];
+       λx_100100:int.
+        λx_300300:int.
+         (λx_11:int.
+           λx_22:(int -> bool).
+            x_1010 (x_11 + x_33) x_300300 && x_22 x_55 && x_44 x_100100)
+          1 (λx_4141:int.x_4141 = 2)
+         && Forall0 x_33 x_44 x_55 (x_100100 + 1) x_300300
+            && Forall0 x_33 x_44 x_55 (x_100100 - 1) x_300300
+            && Forall0 x_33 x_44 x_55 x_100100 (x_300300 + 1)
+               && Forall0 x_33 x_44 x_55 x_100100 (x_300300 - 1)|}];
   (* check well-typedness *)
   let rules = [
     {
       var = id_n 200 (TyArrow (id_n 3 TyInt, TyArrow (id_n 4 @@ TySigma (TyArrow (id_n 32 TyInt, TyBool ())),
-        TyArrow (id_n 5 TyInt, TyArrow (id_n 1 TyInt, (TyArrow (id_n 2 (TySigma (TyArrow (id_n 31 TyInt, TyBool ()))), TyBool ())))))));
+        TyArrow (id_n 5 TyInt, TyBool ()))));
       fix = Fixpoint.Greatest;
       body = Abs (id_n 3 TyInt, Abs (id_n 4 (TySigma (TyArrow (id_n 32 TyInt, TyBool ()))), Abs (id_n 5 TyInt, replaced))) };
     {

@@ -1,0 +1,4 @@
+%HES
+Sentry =u ∀n. F n (Gt 0 (\k. k 1 /\ true)) (\r. true).
+F x p k =u p x (\b. ((b = 1) => F (x-1) p k) /\ ((b = 0) => k false)).
+Gt lb f n k =u f (\n. n = 1) /\ (((n > lb) => k 1) /\ ((n <= lb) => k 0)).

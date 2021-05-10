@@ -1,0 +1,4 @@
+%HES
+Sentry =v ∀s30. s30 < 10 \/ A s30 B.
+A f_i31 f =v f 10 20.
+B x y =v x = y.

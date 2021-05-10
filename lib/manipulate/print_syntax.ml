@@ -422,7 +422,8 @@ let show_hes hes : string =
     (fun rule ->
       "{" ^
       "fix: " ^ (Hflmc2_syntax.Fixpoint.show rule.fix) ^ "\n" ^
-      "var: " ^ (Id.show Hflmc2_syntax.Type.pp_simple_ty rule.var) ^ "\n" ^
+      (* "var: " ^ (Id.show Hflmc2_syntax.Type.pp_simple_ty rule.var) ^ "\n" ^ *)
+      "var: (" ^ (Id.to_string rule.var) ^ " : " ^ Hflmc2_util.fmt_string simple_ty rule.var.ty ^ ")\n" ^
       "body: " ^ (show_hflz rule.body) ^ 
       "}"
     ) hes

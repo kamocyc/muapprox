@@ -1,0 +1,5 @@
+%HES
+Sentry =u ∀x. Sum x (\y. true).
+/* Sentry =u ∀x. A (Sum x) \/ Sum x (\z. false).
+A f =u f (\y. true). */
+Sum x k =u (x <= 0 => (k 0)) /\ (x > 0 => Sum (x - 1) (\m. k (m + x))).
