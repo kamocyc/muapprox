@@ -28,6 +28,8 @@ type options =
     coe_arguments: int * int;
     no_elim: bool;
     eliminate_unused_arguments: bool;
+    partial_analysis: bool;
+    flow_analysis: bool;
   }
 
 let get_solver solver_name = 

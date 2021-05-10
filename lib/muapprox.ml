@@ -92,6 +92,8 @@ let get_solve_options file =
     coe_arguments = get_coe !Options.coe_arguments;
     no_elim = !Options.no_elim;
     eliminate_unused_arguments = !Options.eliminate_unused_arguments;
+    partial_analysis = !Options.partial_analysis;
+    flow_analysis = !Options.flow_analysis;
   }
 
 let check_format file format_type =

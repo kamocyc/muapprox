@@ -30,6 +30,8 @@ let add_arguments = ref (Obj.magic())
 let coe_arguments = ref (Obj.magic())
 let no_elim = ref (Obj.magic())
 let eliminate_unused_arguments = ref (Obj.magic()) 
+let partial_analysis = ref (Obj.magic ())
+let flow_analysis = ref (Obj.magic ())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -97,10 +99,15 @@ type params =
   
   ; disable_lexicographic: bool [@default false]
   
-  (*  *)
+  (* 追加引数 *)
   ; add_arguments : bool [@default false]
   ; coe_arguments : string [@default "1,0"]
+  
+  (* do not eliminate mu and exists *)
   ; no_elim : bool [@default false]
+  
+  ; partial_analysis : bool [@default false]
+  ; flow_analysis : bool [@default false]
   
   ; eliminate_unused_arguments : bool [@default false]
   }
@@ -131,6 +138,8 @@ let set_up_params params =
   set_ref coe_arguments params.coe_arguments;
   set_ref no_elim params.no_elim;
   set_ref eliminate_unused_arguments params.eliminate_unused_arguments;
+  set_ref partial_analysis params.partial_analysis;
+  set_ref flow_analysis params.flow_analysis;
   params.input
 
 (******************************************************************************)

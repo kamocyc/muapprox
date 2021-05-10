@@ -201,8 +201,12 @@ let show_id_map id_map show_f =
   |> String.concat ", ") ^
   "}"
 
-let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) =
-  let rules = Infer_partial_application.infer_and_eliminate_unit_type_terms hes in
+let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) (partial_analysis : bool) =
+  let rules =
+    if partial_analysis then
+      Infer_partial_application.infer_partial_applications hes
+    else
+      Infer_partial_application.insert_all hes in
   (* let entry, rules = hes in *)
   (* let entry, new_ids_entry = add_arguments_expr entry coe1 coe2 in *)
   let all_id_maps = ref [] in
@@ -264,7 +268,7 @@ let%expect_test "add_arguments" =
      (λx_22:int.λx_33:(int -> bool).x_33 x_22) 0 (λx_44:int.x_44 = x_11) |}];
   let ty' = Hflz_util.get_hflz_type phi in
   assert (ty' = Type.TyBool ());
-  let hes, _ = add_arguments hes 10 20 in
+  let hes, _ = add_arguments hes 10 20 true in
   (* let phi = add_parameters_expr phi in *)
   ignore [%expect.output];
   print_endline @@ Hflmc2_util.fmt_string (Print_syntax.hflz_hes Print.simple_ty_) hes;

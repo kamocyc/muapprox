@@ -48,6 +48,14 @@ let pp_insert_flag ppf = function
   | Insert -> Fmt.pf ppf "i"
   | NoInsert -> Fmt.pf ppf "_"
 
+let rec eq_p_type_except_flag t1 t2 = match t1, t2 with
+  | TInt, TInt -> true
+  | TBool, TBool -> true
+  | TVar _, TVar _ -> true
+  | TFunc (_, ty1, ty2), TFunc (_, ty1', ty2') ->
+    (eq_p_type_except_flag ty1 ty1') && (eq_p_type_except_flag ty2 ty2')
+  | _ -> false
+
 module Print = struct
   include Print
   
@@ -353,10 +361,10 @@ let generate_constraints (rules : s_thes_rules) : (p_ptype * p_ptype) list =
       (TFunc (l, arg.Id.ty, t), c)
     | Forall (arg, body) ->
       let t, c = gen (Env.update [arg] env) body in
-      (t, (* (arg.Id.ty, TInt) :: *) c)
+      (t, (arg.Id.ty, TInt) :: c)
     | Exists (arg, body) ->
       let t, c = gen (Env.update [arg] env) body in
-      (t, (* (arg.Id.ty, TInt) :: *) c)
+      (t, (arg.Id.ty, TInt) :: c)
     | App _ -> begin
       let rec go_app raw acc = match raw with
         | App (p1, p2) -> go_app p1 (p2::acc)
@@ -403,11 +411,19 @@ let generate_constraints (rules : s_thes_rules) : (p_ptype * p_ptype) list =
     |> List.flatten in
   constraints
 
+(* これをやると型が合わない *)
+(* let rec subst_remaining_varty_to_bool ty =
+  match ty with
+  | TVar _ -> TBool
+  | TInt -> TInt
+  | TFunc (l, ty1, ty2) -> TFunc (l, subst_remaining_varty_to_bool ty1, subst_remaining_varty_to_bool ty2)
+  | TBool -> TBool *)
+
 let subst_program (rules : s_thes_rules) (subst : (unit Id.t * p_ptype) list) lab =
   let subst_ptype ty =
     List.fold_left
       (fun ty subst -> subst_label_on_ptype ty subst)
-      (subst_ptype ty subst)
+      (subst_ptype ty subst (* |> subst_remaining_varty_to_bool *))
       lab
     in
   let rec go (phi : p_thflz) = match phi with
@@ -417,6 +433,14 @@ let subst_program (rules : s_thes_rules) (subst : (unit Id.t * p_ptype) list) la
     | And (p1, p2) -> And (go p1, go p2)
     | Abs (l, v, p) -> begin
       let l = subst_label l lab in
+      (* let l =
+        match l with
+        | UnkLabel _ -> begin
+          match p with
+          | Abs _ -> l
+          | _ -> Boundary
+        end
+        | _ -> l in *)
       Abs (l, { v with Id.ty = subst_ptype v.Id.ty }, go p)
     end
     | Forall (v, p) -> Forall ({ v with Id.ty = subst_ptype v.Id.ty }, go p)
@@ -475,7 +499,18 @@ let get_thflz_type (phi : ('a ptype, 'a) thflz) =
         | TInt -> (match f2 with Arith _ -> () | _ -> assert false)
         | _ -> begin
           let sty = go f2 in
-          if sty <> a then assert false
+          if not @@ eq_p_type_except_flag sty a then begin
+            (* print_endline "phi";
+            print_endline @@
+              Hflmc2_util.fmt_string (Print.hflz (Print.pp_ptype (fun _ _ -> ())) (fun _ _ -> ())) phi;
+            print_endline "sty";
+            print_endline @@
+              Hflmc2_util.fmt_string (Print.pp_ptype (fun _ _ -> ())) sty;
+            print_endline "a";
+            print_endline @@
+              Hflmc2_util.fmt_string (Print.pp_ptype (fun _ _ -> ())) a; *)
+            assert false
+          end
         end);
         b
       end
@@ -559,7 +594,7 @@ let border_to_insert_expr phi =
       in
       let args, body = get_abs [] phi in
       (* print_endline @@ show_p_hflz phi; *)
-      assert (List.rev args |> List.hd |> fst = Boundary);
+      (* assert (List.rev args |> List.hd |> fst = Boundary); *)
       let body = go body in
       let ty = get_thflz_type phi in
       let ty = border_to_insert_ty ty in
@@ -604,7 +639,7 @@ let border_to_insert_rules rules =
     rules
   
 (* TODO: debug *)
-let infer_and_eliminate_unit_type_terms (hes : 'a Hflz.hes) : i_thflz_rule list =
+let infer_partial_applications (hes : 'a Hflz.hes) : i_thflz_rule list =
   let rules = Hflz.merge_entry_rule hes in
   let rules = to_thflzs rules in
   (* print_endline "to_thflz";
@@ -615,4 +650,69 @@ let infer_and_eliminate_unit_type_terms (hes : 'a Hflz.hes) : i_thflz_rule list 
   print_endline @@ show_p_hflz_hes rules;
   let rules = border_to_insert_rules rules in
   print_endline @@ show_i_hflz_hes rules;
+  rules
+
+let rec to_insert_all_ty ty =
+  let is_ho ty = match ty with
+    | TFunc _ -> true
+    | _ -> false
+  in
+  match ty with
+  | Type.TyArrow ({ty=argty; _}, ty) -> begin
+    let argty = to_insert_all_arg_ty argty in
+    let ty = to_insert_all_ty ty in
+    if is_ho argty then
+      TFunc (Insert, argty, ty)
+    else
+      TFunc (NoInsert, argty, ty)
+  end
+  | Type.TyBool _ -> TBool
+and to_insert_all_arg_ty argty =
+  match argty with
+  | Type.TyInt -> TInt
+  | Type.TySigma ty -> to_insert_all_ty ty
+
+let insert_all_expr phi =
+  let rec go phi =
+    match phi with
+    | Hflz.Bool b -> Bool b
+    | Var v -> Var { v with ty = to_insert_all_ty v.ty }
+    | Or (p1, p2) -> Or (go p1, go p2)
+    | And (p1, p2) -> And (go p1, go p2)
+    | Abs (x, p1) -> begin
+      let flag =
+        match x.ty with
+        | Type.TyInt -> NoInsert
+        | TySigma _ -> Insert
+      in
+      Abs (flag, { x with ty = to_insert_all_arg_ty x.ty }, go p1)
+    end
+    | Forall (x, p1) ->
+      Forall ({x with ty=TInt}, go p1)
+    | Exists (x, p1) ->
+      Exists ({x with ty=TInt}, go p1)
+    | App (p1, p2) ->
+      App (go p1, go p2)
+    | Arith a ->
+      Arith (go_arith a)
+    | Pred (op, a) ->
+      Pred (op, List.map go_arith a)
+  and go_arith a =
+    match a with
+    | Int i -> Int i
+    | Var v -> Var { v with ty = TInt }
+    | Op (op, a) -> Op (op, List.map go_arith a)
+  in
+  go phi
+
+let insert_all (hes : 'a Hflz.hes) : i_thflz_rule list =
+  let rules = Hflz.merge_entry_rule hes in
+  let rules =
+    List.map
+      (fun {Hflz.var; body; fix} ->
+        let var = { var with ty = to_insert_all_ty var.ty } in
+        let body = insert_all_expr body in
+        { var; body; fix }
+      )
+      rules in
   rules
