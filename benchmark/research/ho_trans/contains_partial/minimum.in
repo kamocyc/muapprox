@@ -1,8 +1,9 @@
 /* 各全適用ごとに、最後に整数引数を1つ追加した */
+/* katsura solverで解くには、AとMのinlining が必要 (型が付くために、Aの第一引数でxを渡す必要がある) */
+
 %HES
 Sentry =v ∀x. A (M (\k. k x)) x.
 
-/* katsura solverで解くには、AとMのinlining が必要 (型が付くために、Aの第一引数でxを渡す必要がある) */
 A f i =v f 1 i.
 
 M g flag i =v

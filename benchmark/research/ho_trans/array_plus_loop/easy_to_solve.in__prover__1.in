@@ -1,11 +1,15 @@
+/* x + y */
+
 %HES
 Sentry =v
   ∀x. 
    ∀y. 
     Make_array
      (\ar. 
-       Update ar 0 x
-        (\ar2. Update ar2 1 y (\ar3. Main x y (x + y) ar3 (\replaced. true)))).
+       Update 0 ar 0 x
+        (\ar2_i ar2. Update ar2_i ar2 1 y
+          (\ar3_i ar3. Main x y (2 * ar3_i) ar3 (\replaced. true)))).
+
 Main x y ar_i ar k =v
   ∀recLoop. 
       recLoop < 1 + 1 * 1
@@ -13,8 +17,9 @@ Main x y ar_i ar k =v
    \/ recLoop < 1 + 1 * ar_i
    \/ recLoop < 1 + (-1) * ar_i
    \/ recLoop < 1
-   \/ Loop recLoop x y ar_i ar 0 1 (\r. k r).
-Loop recLoop xx yy ar_i ar i j k =v
+   \/ Loop recLoop x y ar 0 1 (\r. k r).
+
+Loop recLoop xx yy ar i j k =v
   recLoop > 0
   /\ ar i
       (\x2. 
@@ -23,9 +28,14 @@ Loop recLoop xx yy ar_i ar i j k =v
            (x2 + y2 > 0 \/ k false)
            /\ (x2 + y2 <= 0
                \/ Pred ar 0
-                   (\ar_ap_. Loop (recLoop - 1) xx yy ar_i ar_ap_ 0 1 k)))).
-Pred ar i k =v ar i (\x. Update ar i (x - 1) k).
+                   (\ar_ii ar_ap_. Loop (recLoop - 1) xx yy ar_ap_ 0 1 k)))).
+
+Pred ar i k =v ar i (\x. Update (x - 1) ar i (x - 1) k).
+
 Make_array k =v k (\i. \k_ap_. k_ap_ 0).
-Update ar i x k =v
-  k (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).
+
+Update ar_i ar i x k =v
+  ∀s. s < ar_i \/ s < x \/
+  k s (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).
+
 Check ar i x k =v ar i (\r. k (r = x)).

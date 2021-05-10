@@ -25,13 +25,16 @@ Mult recMult acc_i acc f g k =v
       (\b. 
         (b != 0
          \/ (∀s. 
-              s < 1 * b + 0 \/ s < (-1) * b + 0
+              /* kはbに依存しない */
+                 s < 1 * b + 0
+              \/ s < (-1) * b + 0
               \/ s < 1 * acc_i + 0
               \/ s < (-1) * acc_i + 0
               \/ k s acc))
         /\ (b != 1
             \/ (∀s. 
-                    s < 2 * b + 0 \/ s < (-2) * b + 0 
+                       s < 2 * b + 0
+                    \/ s < (-2) * b + 0 
                     \/ s < 2 * acc_i + 0
                     \/ s < (-2) * acc_i + 0
                     \/ Mult (recMult - 1) s (Add acc g) (Pred f) g k))).

@@ -1,0 +1,85 @@
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+      Make_array
+         (\ar_i. 
+           \ar. 
+            ∀s2. 
+               s2 < 1 * ar_i + 0
+            \/ s2 < (-1) * ar_i + 0
+            \/ s2 < 1 * y + 0
+            \/ s2 < (-1) * y + 0
+            \/ s2 < 1 * x + 0
+            \/ s2 < (-1) * x + 0
+            \/ Update s2 ar 0 x
+                (\ar2_i. 
+                  \ar2. 
+                    ∀s4. 
+                        s4 < 1 * ar2_i + 0
+                      \/ s4 < (-1) * ar2_i + 0
+                      \/ s4 < 1 * y + 0
+                      \/ s4 < (-1) * y + 0
+                      \/ Update s4 ar2 1 y
+                          (\ar3_i. 
+                            \ar3. 
+                            ∀s6. 
+                                 s6 < 2 * ar3_i + 0
+                              \/ s6 < (-2) * ar3_i + 0
+                              \/ Main x y s6 ar3 true))).
+
+Main x y ar_i ar k =v
+  ∀s. 
+     s < 1 * ar_i + 0
+  \/ s < (-1) * ar_i + 0
+  \/ (∀recLoop. 
+        recLoop < 1 + 1 * ar_i
+        \/ recLoop < 1 + (-1) * ar_i
+        \/ recLoop < 1 + 1 * 1
+        \/ recLoop < 1 + (-1) * 1
+        \/ recLoop < 1
+        \/ Loop x y recLoop s ar 0 1 k).
+
+Loop x_ y_ recLoop ar_i ar i j k =v
+  recLoop > 0
+  /\ ar i
+    (\x. 
+      ar j
+        (\y. 
+          (x + y > 0 \/ k)
+          /\ (x + y <= 0
+            \/ (∀s. 
+                   s < 1 * ar_i + 0
+                \/ s < (-1) * ar_i + 0
+                \/ Pred s ar 0
+                    (\ar_ap__i. 
+                      \ar_ap_. 
+                      ∀s3. 
+                           s3 < 1 * ar_ap__i + 0
+                        \/ s3 < (-1) * ar_ap__i + 0
+                        \/ Loop x_ y_ (recLoop - 1) s3 ar_ap_ 0 1 k))))).
+
+Pred ar_i ar i k =v
+  ar i
+   (\x. 
+     ∀s.
+          s < 1 * x + 0
+       \/ s < (-1) * x + 0
+       \/ s < 1 * i + 0
+       \/ s < (-1) * i + 0
+       \/ s < 1 * ar_i + 0
+       \/ s < (-1) * ar_i + 0
+       \/ Update s ar i (x - 1) k).
+
+Make_array k =v
+  k 0 (\i. \k_ap_. k_ap_ 0).
+
+Update ar_i ar i x k =v
+  ∀s. 
+      s < 1 * x + 0
+   \/ s < (-1) * x + 0
+   \/ s < 1 * i + 0
+   \/ s < (-1) * i + 0
+   \/ s < 1 * ar_i + 0
+   \/ s < (-1) * ar_i + 0
+   \/ k s (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).
