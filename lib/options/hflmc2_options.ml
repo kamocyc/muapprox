@@ -31,7 +31,8 @@ let coe_arguments = ref (Obj.magic())
 let no_elim = ref (Obj.magic())
 let eliminate_unused_arguments = ref (Obj.magic()) 
 let partial_analysis = ref (Obj.magic ())
-let flow_analysis = ref (Obj.magic ())
+let use_related = ref (Obj.magic ())
+let use_all_variables = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -107,7 +108,9 @@ type params =
   ; no_elim : bool [@default false]
   
   ; partial_analysis : bool [@default false]
-  ; flow_analysis : bool [@default false]
+  ; use_related : bool [@default false]
+  
+  ; use_all_variables : bool [@default false]
   
   ; eliminate_unused_arguments : bool [@default false]
   }
@@ -139,7 +142,8 @@ let set_up_params params =
   set_ref no_elim params.no_elim;
   set_ref eliminate_unused_arguments params.eliminate_unused_arguments;
   set_ref partial_analysis params.partial_analysis;
-  set_ref flow_analysis params.flow_analysis;
+  set_ref use_related params.use_related;
+  set_ref use_all_variables params.use_all_variables;
   params.input
 
 (******************************************************************************)

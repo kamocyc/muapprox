@@ -93,7 +93,8 @@ let get_solve_options file =
     no_elim = !Options.no_elim;
     eliminate_unused_arguments = !Options.eliminate_unused_arguments;
     partial_analysis = !Options.partial_analysis;
-    flow_analysis = !Options.flow_analysis;
+    use_related = !Options.use_related;
+    use_all_variables = !Options.use_all_variables;
   }
 
 let check_format file format_type =

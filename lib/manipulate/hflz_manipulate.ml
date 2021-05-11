@@ -512,10 +512,18 @@ let get_occuring_arith_terms id_type_map phi =
   in
   go_hflz phi |> List.map fst
 
-let get_guessed_terms id_type_map arg_terms =
+let get_guessed_terms id_type_map arg_terms scoped_variables =
   let open Hflmc2_syntax in
-  List.map (get_occuring_arith_terms id_type_map) arg_terms
-  |> List.concat
+  let all_terms =
+    (List.map (get_occuring_arith_terms id_type_map) arg_terms |> List.concat) @
+    (List.filter_map
+      (fun var -> match var.Id.ty with
+        | Type.TyInt -> Some (Arith.Var {var with Id.ty = `Int})
+        | _ -> None
+      )
+      scoped_variables)
+  in
+  all_terms
   |> List.map
     (fun (arg_term : Arith.t) -> match arg_term with
       | Var v ->
@@ -643,15 +651,17 @@ let replace_occurences
     (rec_tvars : ('a Id.t * unit Type.ty Type.arg Id.t) list)
     (rec_lex_tvars : ('a Type.arg Id.t * 'a Type.arg Id.t list) list)
     id_type_map
+    use_all_scoped_variables
     (fml : 'a Hflz.t) : 'a Hflz.t =
   let is_lexi_one = List.map (fun e -> List.length (snd e)) rec_lex_tvars |> List.for_all ((=)1) in
-  let rec go (apps : Type.simple_ty t list) fml : 'a Hflz.t = 
+  let rec go env (apps : Type.simple_ty t list) fml : 'a Hflz.t = 
     match fml with
     | Var pvar when is_pred pvar -> begin
       let formula_type_ids = pvar.ty |> to_args |> List.rev in
       let formula_type_terms = List.map argty_to_var formula_type_ids in
       let guessed_conditions =
-        let guessed_terms = get_guessed_terms id_type_map (apps @ formula_type_terms) in
+        let guessed_terms =
+          get_guessed_terms id_type_map (apps @ formula_type_terms) (if use_all_scoped_variables then env else []) in
         (* print_endline "guessed_terms: ";
         List.iter (fun t -> print_endline @@ Arith.show t) guessed_terms; *)
         get_guessed_conditions coe1 coe2 guessed_terms in
@@ -748,14 +758,14 @@ let replace_occurences
         )
       end
     end
-    | App (f1,f2) ->  App (go (f2::apps) f1, go [] f2)
-    | Or (f1,f2) -> Or (go [] f1, go [] f2)
-    | And(f1,f2) -> And(go [] f1, go [] f2)
-    | Abs(x, f1) -> Abs(x, go [] f1)
-    | Forall(x, f1) -> Forall (x, go [] f1)
-    | Exists(x, f1) -> Exists (x, go [] f1)
+    | App (f1,f2) ->  App (go env (f2::apps) f1, go env [] f2)
+    | Or (f1,f2) -> Or (go env [] f1, go env [] f2)
+    | And(f1,f2) -> And(go env [] f1, go env [] f2)
+    | Abs(x, f1) -> Abs(x, go (x::env) [] f1)
+    | Forall(x, f1) -> Forall (x, go (x::env) [] f1)
+    | Exists(x, f1) -> Exists (x, go (x::env) [] f1)
     | Bool _ | Pred _ | Arith _ | Var _ -> fml in
-  go [] fml
+  go [] [] fml
 
 let remove_duplicate_bounds (phi : Type.simple_ty Hflz.t) =
   let rec go phi = match phi with
@@ -844,6 +854,7 @@ let remove_redundant_bounds id_type_map (phi : Type.simple_ty Hflz.t) =
                   | Some var_category -> begin
                     match var_category with
                     | Hflz_util.VTVarMax ids -> begin
+                      (* 整数変数のMAXを表す変数vの場合、vが集約している変数を直接利用する *)
                       List.map
                         (fun id ->
                           Pred (Lt, [Var rec_v; substitute_arith rhs (v, id)])
@@ -871,7 +882,7 @@ let remove_redundant_bounds id_type_map (phi : Type.simple_ty Hflz.t) =
   in 
   go phi
    
-let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map =
+let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map use_all_scoped_variables =
   (* calc outer_mu_funcs *)
   let rules = Hflz.merge_entry_rule (entry, rules) in
   let outer_mu_funcs = get_outer_mu_funcs rules in
@@ -906,7 +917,7 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map =
       let outer_pvars = Env.lookup mypvar outer_mu_funcs in
       let scoped_rec_tvars =
         Env.create (List.map (fun pvar -> (pvar, (Env.lookup pvar rec_tvars))) outer_pvars) in
-      let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars rec_lex_tvars id_type_map body in
+      let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars rec_lex_tvars id_type_map use_all_scoped_variables body in
       (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
       let formula_type_vars = Hflz_util.get_hflz_type body |> to_args |> List.rev in
       (* 残りに受け取る引数をいったんlambdaで「受ける」 *)

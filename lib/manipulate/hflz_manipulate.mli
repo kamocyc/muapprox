@@ -31,6 +31,7 @@ val elim_mu_with_rec :
   (unit Id.t, Hflz_util.variable_type,
     IdMap.Key.comparator_witness)
     Base.Map.t ->
+  bool ->
   unit Hflmc2_syntax.Type.ty Hflz.t *
   unit Hflmc2_syntax.Type.ty Hflz.hes_rule list
 

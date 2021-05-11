@@ -59,7 +59,7 @@ let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.t Fmt.t =
 
 let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes_rule Fmt.t =
   fun format_ty_ ppf rule ->
-    Fmt.pf ppf "@[<2>%s =%a@ %a@]"
+    Fmt.pf ppf "@[<2>%s =%a@ %a.@]"
       (Id.to_string rule.var)
       (* (format_ty_ Prec.zero) rule.var.ty *)
       fixpoint rule.fix
@@ -72,7 +72,7 @@ let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes_rule Fmt.t =
 
 let hflz_hes : (Prec.t -> 'ty Fmt.t) -> 'ty Hflz.hes Fmt.t =
   fun format_ty_ ppf (entry, rules) ->
-    Fmt.pf ppf "@[<v>Sentry =v %a@]@[<v>%a@]"
+    Fmt.pf ppf "@[<v>@[<2>Sentry =v@ %a.@]@ %a@]"
       (hflz format_ty_) entry
       (Fmt.list (hflz_hes_rule format_ty_)) rules
 

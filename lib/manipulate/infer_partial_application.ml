@@ -143,11 +143,15 @@ type i_ptype = insert_flag ptype
 type i_thflz = (i_ptype, insert_flag) thflz
 type i_thflz_rule = { var : i_ptype Id.t; body : i_thflz; fix : Fixpoint.t }
 
+let pp_i_thflz ppf body =
+  Fmt.pf ppf "%a"
+  (Print.hflz (Print.pp_ptype pp_insert_flag) pp_insert_flag) body
+  
 let pp_i_thflz_rule ppf { var; body; fix } =
   Fmt.pf ppf "@[<2>%s =%a@ %a@]"
     (Id.to_string var)
     Print.fixpoint fix
-    (Print.hflz (Print.pp_ptype pp_insert_flag) pp_insert_flag) body
+    pp_i_thflz body
 
 let pp_i_thflz_hes ppf rules =
   Fmt.pf ppf "@[<v>%a@]"

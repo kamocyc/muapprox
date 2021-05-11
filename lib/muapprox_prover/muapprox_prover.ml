@@ -396,19 +396,19 @@ let is_onlymu_onlyexists (entry, rules) =
   is_onlyexists_body entry
   && (List.for_all is_onlymu_onlyexists_rule rules)
 
-let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim partial_analysis lexico_pair_number eliminate_unused_arguments _debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
+let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim partial_analysis use_related use_all_variables lexico_pair_number eliminate_unused_arguments _debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
   (* TODO: use 2nd return value of add_arguments *)
   let (arg_coe1, arg_coe2) = coe_arguments in
   if no_elim then begin
     let hes =
       if add_arguments
-        then (let hes, _ = Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2 partial_analysis in hes)
+        then (let hes, _ = Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2 partial_analysis use_related in hes)
         else hes in
     [hes, []]
   end else begin
     let hes, id_type_map =
       if add_arguments
-        then Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2 partial_analysis
+        then Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2 partial_analysis use_related
         else hes, Hflmc2_syntax.IdMap.empty in
     let heses =
       if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
@@ -417,7 +417,7 @@ let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim partial_analysi
       Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
       ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes;
       
-      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map in
+      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables in
       
       Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
       if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
@@ -454,7 +454,7 @@ let summary_results (results : (Status.t * 'a) list) =
 (* これ以降、本プログラム側での近似が入る *)
 let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : Solve_options.options) debug_output hes mode_name =
   Hflz_mani.simplify_bound := solve_options.simplify_bound;
-  let nu_only_heses = elim_mu_exists coe1 coe2 solve_options.add_arguments solve_options.coe_arguments solve_options.no_elim solve_options.partial_analysis lexico_pair_number solve_options.eliminate_unused_arguments debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
+  let nu_only_heses = elim_mu_exists coe1 coe2 solve_options.add_arguments solve_options.coe_arguments solve_options.no_elim solve_options.partial_analysis solve_options.use_related solve_options.use_all_variables lexico_pair_number solve_options.eliminate_unused_arguments debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
   let debug_context_ = Some {
     mode = mode_name;
     iter_count = iter_count;

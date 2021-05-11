@@ -43,7 +43,57 @@ and to_argty = function
   | TInt -> Type.TyInt
   | t -> Type.TySigma (to_ty t)
 
-let add_arguments_expr (phi : PA.i_thflz) (coe1: int) (coe2: int) =
+let get_free_variables (phi : ('a, 'b) PA.thflz) =
+  let rec go (phi : ('a, 'b) PA.thflz) =
+    match phi with
+    | Var v -> [v]
+    | Arith a -> go_arith a
+    | App (p1, p2) -> go p1 @ go p2
+    | Or (p1, p2) -> go p1 @ go p2
+    | And (p1, p2) -> go p1 @ go p2
+    | Abs (_, x, p1) -> List.filter (fun x' -> not @@ Id.eq x x') (go p1)
+    | Pred (_, a) -> List.map go_arith a |> List.flatten
+    | Bool _ -> []
+    | Forall (x, p1) -> List.filter (fun x' -> not @@ Id.eq x x') (go p1)
+    | Exists (x, p1) -> List.filter (fun x' -> not @@ Id.eq x x') (go p1)
+  and go_arith a = match a with
+    | Int _ -> []
+    | Var x -> [x]
+    | Op (_, a) -> List.map go_arith a |> List.flatten
+  in
+  go phi
+
+let get_related_integer_variables
+    global_vars
+    (fvs : PA.insert_flag PA.ptype Id.t list)
+    (env : (PA.insert_flag PA.ptype Id.t * PA.insert_flag PA.ptype Id.t list) list) =
+  let integers, hos =
+    List.partition
+      (fun v ->
+        match v.Id.ty with
+        | PA.TInt -> true
+        | _ -> false
+      )
+      fvs in
+  let hos =
+    hos 
+    |> List.filter 
+      (fun v ->
+        not @@ List.exists (Id.eq v) global_vars
+      )
+    |> List.map
+      (fun ho_v ->
+        match List.find_all (fun (_, vs) -> List.exists (Id.eq ho_v) vs) env with
+        | [(i, _)] -> i
+        | [] -> print_endline ho_v.name; assert false
+        | _ -> assert false
+      )
+    in
+  integers @ hos
+  |> List.map (fun v -> { v with Id.ty = `Int })
+  |> Hflmc2_util.remove_duplicates Id.eq
+  
+let add_arguments_expr global_vars use_related (phi : PA.i_thflz) (coe1: int) (coe2: int) =
   (* env contains only integer variables *)
   let new_ids = ref IdMap.empty in
   let rec go_arith (a : PA.i_ptype PA.tarith) : Arith.t = match a with
@@ -51,7 +101,7 @@ let add_arguments_expr (phi : PA.i_thflz) (coe1: int) (coe2: int) =
     | Var v -> Var {v with ty = `Int}
     | Op (e, ps) -> Op (e, List.map go_arith ps)
   in 
-  let rec go_expr (env : [ `Int ] Id.t list) (phi : PA.i_thflz) : unit Type.ty Hflz.t =
+  let rec go_expr (env : (PA.insert_flag PA.ptype Id.t * PA.i_ptype Id.t list) list) (phi : PA.i_thflz) : unit Type.ty Hflz.t =
     match phi with
     | App _ -> begin
       (* Appのみを辿って、直近の祖先でAppでない部分式の直下に追加整数引数を追加する *)
@@ -61,27 +111,32 @@ let add_arguments_expr (phi : PA.i_thflz) (coe1: int) (coe2: int) =
       (* (* スコープ内の整数引数の集合は同一なので、同一の整数変数を使う *)
       let id = id_gen Type.TyInt in
       let id_getter () = id in *)
-      (* 高階引数ごとに別の整数変数を使う *)
-      let generated_ids = ref [] in
+      (* 高階引数ごとに別の整数変数を使う => こちらのほうがソルバで解きやすいようだ *)
       let id_getter () =
-        let id = id_gen ~name:"s" `Int in
-        generated_ids := id :: !generated_ids;
-        id
-      in
-      let phi = go_app env id_getter phi in
-      match !generated_ids with
+        id_gen ~name:"s" `Int in
+      let phi, generated_ids = go_app env [] id_getter phi in
+      (* let integers = List.map fst env in *)
+      match generated_ids with
       | [] -> phi
       | generated_ids -> begin
+        let scoped_integer_variables =
+          env
+          |> List.filter (fun (id, _) -> match id.Id.ty with PA.TInt -> true | _ -> false) 
+          |> List.map (fun (id, _) -> { id with Id.ty = `Int }) in
         List.iter
-          (fun id ->
-            new_ids := IdMap.add !new_ids ({id with Id.ty=Type.TyInt}) (Hflz_util.VTVarMax env);
+          (fun (id, related_ids) ->
+            let ids =
+              if use_related then related_ids else scoped_integer_variables in
+            new_ids := IdMap.add !new_ids ({id with Id.ty=Type.TyInt}) (Hflz_util.VTVarMax ids);
           )
           generated_ids;
         let bound =
           generated_ids |>
           List.map
-            (fun id ->
-              let bound_terms = make_guessed_terms coe1 coe2 env in
+            (fun (id, related_ids) ->
+              let ids =
+                if use_related then related_ids else scoped_integer_variables in
+              let bound_terms = make_guessed_terms coe1 coe2 ids in
               let bound = make_approx_formula id bound_terms in
               bound
             ) |>
@@ -90,7 +145,7 @@ let add_arguments_expr (phi : PA.i_thflz) (coe1: int) (coe2: int) =
           Or (bound, phi) in
         let rec g xs b = match xs with
           | [] -> b
-          | x::xs -> Forall ({x with ty=Type.TyInt}, g xs b) in
+          | (x, _)::xs -> Forall ({x with ty=Type.TyInt}, g xs b) in
         g generated_ids body
       end
     end
@@ -101,47 +156,64 @@ let add_arguments_expr (phi : PA.i_thflz) (coe1: int) (coe2: int) =
     | Or  (p1, p2) -> Or  (go_expr env p1, go_expr env p2)
     | And (p1, p2) -> And (go_expr env p1, go_expr env p2)
     | Abs (l, x, p) -> begin
-      let env =
-        match x.ty with
-        | TInt -> Env.update [{x with ty=`Int}] env
-        | _ -> env in
+      let env = Env.update [x, []] env in
       match l with
       | Insert ->
         let id = id_gen ~name:"t" Type.TyInt in
         new_ids := IdMap.add !new_ids id Hflz_util.VTHigherInfo;
-        let env = Env.update [{id with ty=`Int}] env in
+        (* TODO: 関連する高階引数を追加 *)
+        let rec get_abs acc phi = match phi with
+          | PA.Abs (l, x, p) -> begin
+            match l with
+            | PA.NoInsert ->
+              get_abs (x::acc) p
+            | PA.Insert -> acc
+          end
+          | _ -> acc
+        in
+        let args = x::(get_abs [] p) in
+        print_endline @@ "int=" ^ Id.to_string id ^ ", args=" ^ Hflmc2_util.show_list (fun id -> Id.to_string id) args;
+        let env = Env.update [{id with ty=PA.TInt}, args] env in
         Abs (id, Abs ({x with ty=to_argty x.ty}, go_expr env p))
       | NoInsert ->
         Abs ({x with ty=to_argty x.ty}, go_expr env p)
     end
     | Forall (x, p) ->
-      let env = Env.update [{x with ty=`Int}] env in
+      let env = Env.update [{x with ty=PA.TInt}, []] env in
       Forall ({x with ty=to_argty x.ty}, go_expr env p)
     | Exists (x, p) ->
-      let env = Env.update [{x with ty=`Int}] env in
+      let env = Env.update [{x with ty=PA.TInt}, []] env in
       Exists ({x with ty=to_argty x.ty}, go_expr env p)
-  and go_app env (id_getter : unit -> [`Int] Id.t) (phi : PA.i_thflz) : unit Type.ty Hflz.t =
+  and go_app env apps (id_getter : unit -> [`Int] Id.t) (phi : PA.i_thflz) : unit Type.ty Hflz.t * ([ `Int ] Id.t * [ `Int ] Id.t list) list =
     match phi with
     | App (p1, p2) -> begin
-      let p2 =
+      let apps = p2::apps in
+      let p2, generated_ids_in_arg =
         match p2 with
-        | Arith a -> Arith (go_arith a)
-        | _ -> go_app env id_getter p2
+        | Arith a -> Arith (go_arith a), []
+        | _ -> go_app env [] id_getter p2
       in
       let ty = PA.get_thflz_type p1 in
       match ty with
       | TFunc (l, _, _) -> begin
         match l with
         | PA.Insert ->
+          let p1, generated_ids = go_app env [] id_getter p1 in
           let id = id_getter () in
-          App (App (go_app env id_getter p1, Arith (Var id)), p2)
+          (* TODO: apps中の自由変数の情報を取得。高階変数と、それに関連する整数変数のmapを保持する必要がある。Absのときに生成して渡す？ *)
+          print_endline "phi";
+          print_endline (Hflmc2_util.fmt_string PA.pp_i_thflz phi);
+          let fvs = List.map get_free_variables apps |> List.flatten |> Hflmc2_util.remove_duplicates Id.eq in
+          let related_integer_variables = get_related_integer_variables global_vars fvs env in
+          App (App (p1, Arith (Var id)), p2), ((id, related_integer_variables) :: generated_ids @ generated_ids_in_arg)
         | PA.NoInsert -> begin
-          App (go_app env id_getter p1, p2)
+          let p1, generated_ids = go_app env apps id_getter p1 in
+          App (p1, p2), generated_ids @ generated_ids_in_arg
         end
       end
       | _ -> assert false
     end
-    | _ -> go_expr env phi
+    | _ -> go_expr env phi, []
   in
   let body = go_expr Env.empty phi in
   body, !new_ids
@@ -201,19 +273,17 @@ let show_id_map id_map show_f =
   |> String.concat ", ") ^
   "}"
 
-let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) (partial_analysis : bool) =
+let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) (partial_analysis : bool) (use_related : bool) =
   let rules =
     if partial_analysis then
       Infer_partial_application.infer_partial_applications hes
     else
       Infer_partial_application.insert_all hes in
-  (* let entry, rules = hes in *)
-  (* let entry, new_ids_entry = add_arguments_expr entry coe1 coe2 in *)
   let all_id_maps = ref [] in
   let rules =
     List.map
       (fun {PA.var; fix; body} ->
-        let body, new_ids = add_arguments_expr body coe1 coe2 in
+        let body, new_ids = add_arguments_expr (List.map (fun {PA.var; _} -> var) rules) use_related body coe1 coe2 in
         all_id_maps := new_ids :: !all_id_maps;
         let var = {var with ty=to_ty var.ty} in
         {var; fix; body}
@@ -268,7 +338,7 @@ let%expect_test "add_arguments" =
      (λx_22:int.λx_33:(int -> bool).x_33 x_22) 0 (λx_44:int.x_44 = x_11) |}];
   let ty' = Hflz_util.get_hflz_type phi in
   assert (ty' = Type.TyBool ());
-  let hes, _ = add_arguments hes 10 20 true in
+  let hes, _ = add_arguments hes 10 20 true false in
   (* let phi = add_parameters_expr phi in *)
   ignore [%expect.output];
   print_endline @@ Hflmc2_util.fmt_string (Print_syntax.hflz_hes Print.simple_ty_) hes;

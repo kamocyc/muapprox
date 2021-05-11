@@ -29,7 +29,8 @@ type options =
     no_elim: bool;
     eliminate_unused_arguments: bool;
     partial_analysis: bool;
-    flow_analysis: bool;
+    use_related: bool;
+    use_all_variables: bool;
   }
 
 let get_solver solver_name = 
