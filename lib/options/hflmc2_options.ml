@@ -100,19 +100,26 @@ type params =
   
   ; disable_lexicographic: bool [@default false]
   
-  (* 追加引数 *)
   ; add_arguments : bool [@default false]
-  ; coe_arguments : string [@default "1,0"]
+  (** Add integer arguments that represent information of higher-order arguments **)
   
-  (* do not eliminate mu and exists *)
+  ; coe_arguments : string [@default "1,0"]
+  (** Coefficients of added arguments (default: 1,0) **)
+  
   ; no_elim : bool [@default false]
+  (** Don't eliminate mu and exists (for debug) **)
   
   ; partial_analysis : bool [@default false]
+  (** Analyze partial applications to optimize added arguments **)
+  
   ; use_related : bool [@default false]
+  (** Analyze related integer variables to optimize added arguments **)
   
   ; use_all_variables : bool [@default false]
+  (** Use all variables (not only variables which are occured in arguments of application) to guess recursion bound to approximate least-fixpoints. (This may (or may not) help Hoice.) **)
   
   ; eliminate_unused_arguments : bool [@default false]
+  (** Eliminate unused arguments using type-based analysis **)
   }
 [@@deriving cmdliner,show]
 

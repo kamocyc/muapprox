@@ -202,11 +202,11 @@ let update_id_type_map (id_type_map : (unit Id.t, 'a, IdMap.Key.comparator_witne
           match data with
           | VTVarMax ids -> begin
             VTVarMax
-              (List.map
+              (List.filter_map
                 (fun id ->
                   match List.assoc_opt (Id.remove_ty id) id_change_map with
-                  | Some key -> {key with ty=`Int}
-                  | None -> assert false
+                  | Some key -> Some {key with ty=`Int}
+                  | None -> None (* instantiate-exists で変数が消去された場合 *)
                 )
                 ids)
           end

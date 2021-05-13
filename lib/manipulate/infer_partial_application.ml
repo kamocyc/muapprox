@@ -686,7 +686,7 @@ let insert_all_expr phi =
     | Abs (x, p1) -> begin
       let flag =
         match x.ty with
-        | Type.TyInt -> NoInsert
+        | Type.TyInt | TySigma (TyBool ())-> NoInsert
         | TySigma _ -> Insert
       in
       Abs (flag, { x with ty = to_insert_all_arg_ty x.ty }, go p1)
@@ -719,4 +719,5 @@ let insert_all (hes : 'a Hflz.hes) : i_thflz_rule list =
         { var; body; fix }
       )
       rules in
+  print_endline @@ show_i_hflz_hes rules;
   rules

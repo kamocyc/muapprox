@@ -172,7 +172,7 @@ let add_arguments_expr global_vars use_related (phi : PA.i_thflz) (coe1: int) (c
           | _ -> acc
         in
         let args = x::(get_abs [] p) in
-        print_endline @@ "int=" ^ Id.to_string id ^ ", args=" ^ Hflmc2_util.show_list (fun id -> Id.to_string id) args;
+        (* print_endline @@ "int=" ^ Id.to_string id ^ ", args=" ^ Hflmc2_util.show_list (fun id -> Id.to_string id) args; *)
         let env = Env.update [{id with ty=PA.TInt}, args] env in
         Abs (id, Abs ({x with ty=to_argty x.ty}, go_expr env p))
       | NoInsert ->
@@ -201,8 +201,8 @@ let add_arguments_expr global_vars use_related (phi : PA.i_thflz) (coe1: int) (c
           let p1, generated_ids = go_app env [] id_getter p1 in
           let id = id_getter () in
           (* TODO: apps中の自由変数の情報を取得。高階変数と、それに関連する整数変数のmapを保持する必要がある。Absのときに生成して渡す？ *)
-          print_endline "phi";
-          print_endline (Hflmc2_util.fmt_string PA.pp_i_thflz phi);
+          (* print_endline "phi";
+          print_endline (Hflmc2_util.fmt_string PA.pp_i_thflz phi); *)
           let fvs = List.map get_free_variables apps |> List.flatten |> Hflmc2_util.remove_duplicates Id.eq in
           let related_integer_variables = get_related_integer_variables global_vars fvs env in
           App (App (p1, Arith (Var id)), p2), ((id, related_integer_variables) :: generated_ids @ generated_ids_in_arg)
@@ -253,14 +253,12 @@ let adjust_type (hes : 'ty hes) =
   let env =
     Env_.create @@
     List.map
-      (fun {var; _} ->
-        { var with ty = var.ty }
-      )
+      (fun {var; _} -> var)
       rules in
   adjust_type_expr env entry,
   List.map
     (fun {var; fix; body} ->
-      { var = Env_.lookup var env;
+      { var;
         fix;
         body = adjust_type_expr env body }
     )
@@ -290,9 +288,13 @@ let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) (partial_analysis : bo
       )
       rules in
   let hes = decompose_entry_rule rules in
-  (* print_endline @@ Hflz.show_hes Print.simple_ty hes;
+  (* print_endline "result 1";
+  print_endline @@ Hflz.show_hes Print.simple_ty hes;
   print_endline @@ Print_syntax.show_hes (merge_entry_rule hes); *)
   let hes = adjust_type hes in
+  (* print_endline "result 2";
+  print_endline @@ Hflz.show_hes Print.simple_ty hes;
+  print_endline @@ Print_syntax.show_hes (merge_entry_rule hes); *)
   Hflz_typecheck.type_check hes;
   let all_id_map =
     List.fold_left (fun map acc ->
