@@ -54,7 +54,42 @@ let trans_argty all_states max_priority ty =
   | Type.TySigma ty -> Type.TySigma (trans_ty all_states max_priority ty)
   | Type.TyInt -> ty
 
+let convert_quantifiers phi =
+  let generated_ids = ref [] in
+  let rec go phi = match phi with
+    | Horsz.PVar _ -> phi
+    | App (p1, p2) -> App (go p1, go p2)
+    | AppInt (p1, p2) -> AppInt (go p1, go_arith p2)
+    | If (p1, p2, p3) ->
+      (* ANonDet does not occur in conditions in if-expressions *)
+      If (p1, go p2, go p3)
+    | Terminal (c, ps) ->
+      Terminal (c, List.map go ps)
+  and go_arith a = match a with
+    | Int _ | AVar _ -> a
+    | ANonDet ty ->
+      let id = Id.gen `Int in
+      let id = { id with name = id.name ^ string_of_int id.id } in
+      generated_ids := (id, ty) :: !generated_ids;
+      AVar id
+    | Op (op, ps) -> Op (op, List.map go_arith ps)
+  in
+  let rec mk_quantifiers ids body = match ids with
+    | [] -> body
+    | (x, ty)::xs -> begin
+      match ty with
+      | Horsz.ANonDet_Exists -> 
+        Hflz.Exists ({x with ty=Type.TyInt}, mk_quantifiers xs body)
+      | Horsz.ANonDet_Forall -> 
+        Hflz.Forall ({x with ty=Type.TyInt}, mk_quantifiers xs body)
+    end
+  in
+  let phi = go phi in
+  let introduced_ids = List.map (fun (id, _) -> { id with Id.ty=Type.TyInt }) !generated_ids in
+  phi, introduced_ids, mk_quantifiers !generated_ids
+
 let trans_body automaton all_states max_priority global_env rule_args current_state (phi : 'a Horsz.horsz_expr) =
+  let phi, quantified_variables, quantifications_fun = convert_quantifiers phi in
   let states_times_prs = get_states_times_prs all_states max_priority in
   let rec go (env :  'a Hflmc2_syntax.Type.arg Hflmc2_syntax.Id.t list) state pr_m (phi : 'a Horsz.horsz_expr): 'a Hflz.t = match phi with
     | PVar v -> begin
@@ -145,11 +180,13 @@ let trans_body automaton all_states max_priority global_env rule_args current_st
       | [] -> failwith @@ "not found: " ^ v.Id.name
       | _ -> assert false
     end
+    | ANonDet _ -> failwith "illegal ANonDet"
     | Op (o, ps) -> Op (o, List.map (go_arith env) ps)
   in
   let env = (List.map (fun id -> { id with Id.ty = Type.TySigma id.Id.ty }) global_env) @ rule_args in
   (* state pr_m *)
-  go env current_state 0 phi
+  let result = go (env @ quantified_variables) current_state 0 phi in
+  quantifications_fun result
 
 let trans_horsz automaton horsz =
   let {A.st; omega; init = initial_state} = automaton in

@@ -18,9 +18,15 @@ let show_op p = match p with
   | Arith.Div -> "/"
   | Arith.Mod -> "%"
   
+type a_non_det_type =
+  | ANonDet_Exists
+  | ANonDet_Forall
+[@@deriving eq,ord,show]
+
 type 'var gen_arith =
   | Int of int
   | AVar of 'var
+  | ANonDet of a_non_det_type
   | Op  of op * 'var gen_arith list
   [@@deriving eq,ord,show]
 
@@ -63,10 +69,15 @@ type 'ty horsz_rule = {var: 'ty Id.t; args: 'ty Type.arg Id.t list; body: 'ty ho
 type 'ty horsz = ('ty horsz_expr * 'ty horsz_rule list)
 [@@deriving eq,ord,show]
 
+let show_a_non_det_type = function
+  | ANonDet_Exists -> "exists"
+  | ANonDet_Forall -> "forall"
+
 let show_arith a =
   let rec go a = match a with
     | Int i -> string_of_int i
     | AVar s -> Id.to_string ~without_id:true s
+    | ANonDet ty -> "<_" ^ show_a_non_det_type ty ^ ">*"
     | Op (op, [a1; a2]) -> 
       "(" ^ go a1 ^ " " ^ show_op op ^ " " ^ go a2 ^ ")"
     | Op _ -> assert false

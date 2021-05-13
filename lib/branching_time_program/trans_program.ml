@@ -15,6 +15,7 @@ let gen_id ~name ty =
   let id = Hflmc2_syntax.Id.gen `Int in
   {Hflmc2_syntax.Id.name = (if name = "" then "x" else name) ^ string_of_int id.id; id = id.id; ty = ty}
   
+(* ifの条件部分の中にnon-deterministic intが存在しないことを確認するためだけに使われる *)
 let get_first_nondet_arith (a : arith_expr) =
   let found = ref None in
   let rec go a = match a with
@@ -163,6 +164,7 @@ let type_check_expr ?check_env expr =
         ()
       | _ -> failwith @@ "many: " ^ v.name
     end
+    | ANonDet _ -> ()
     | Int _ -> ()
     | Op (_, a) -> List.iter (go_arith env) a
   in
@@ -208,7 +210,6 @@ let to_funty args =
 
 let trans_non_det global_env expr var_id ev =
   let open Hflmc2_syntax in
-  let ev = match ev with Some ev -> ev | None -> failwith "non-deterministic integer should have an event name" in
   let ty = get_type expr in
   let cont =
     gen_id ~name:"k" (Type.TyArrow ({name=""; id=0; ty=Type.TyInt}, ty)) in
@@ -259,6 +260,9 @@ let trans_non_det global_env expr var_id ev =
   new_rule,
   (ev, 3)
 
+let a_non_det_forall = "_forall"
+let a_non_det_exists = "_exists"
+
 let decompose_anondet global_env expr =
   let found = ref None in
   let rec go expr = match expr with
@@ -271,13 +275,20 @@ let decompose_anondet global_env expr =
     | AInt i -> arith
     | AOp (op, es) -> AOp (op, List.map go_arith es)
     | ANonDet (_, e) -> begin
-      match !found with
-      | Some f -> arith
-      | None -> begin
-        let id = gen_id ~name:"x" `Int in
-        found := Some (id, e);
-        AVar id
+      match e with
+      | Some e -> begin
+        if (e = a_non_det_forall || e = a_non_det_exists) then arith
+        else begin
+          match !found with
+          | Some f -> arith
+          | None -> begin
+            let id = gen_id ~name:"x" `Int in
+            found := Some (id, e);
+            AVar id
+          end
+        end
       end
+      | None -> failwith "non-deterministic integer should have an event name"
     end
   in
   let expr = go expr in
@@ -352,7 +363,18 @@ let trans (program: program) =
     | AVar v -> AVar v
     | AInt i -> Int i
     | AOp (op, es) -> Op (op, List.map go_arith es)
-    | ANonDet (_, e) -> failwith "go_arith (anondet)"
+    | ANonDet (_, e) -> begin
+      match e with
+      | Some e -> begin
+        match e with
+        | e when e = a_non_det_exists ->
+          ANonDet ANonDet_Exists
+        | e when e = a_non_det_forall ->
+          ANonDet ANonDet_Forall
+        | _ -> failwith "go_arith (anondet)"
+      end
+      | None -> assert false
+    end
   in
   let (entry, rules) = program in
   let entry = go_expr entry in
