@@ -1,0 +1,53 @@
+/* これはz3で1secで解ける */
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    Nil
+     (\len. 
+        \l.
+          Cons 0 y len l
+          (\t2. 
+            \len2. 
+              \l2. 
+                ∀s2. 
+                     s2 < 1 * t2
+                  \/ s2 < (-1) * t2
+                  \/ Cons s2 x len2 l2
+                      (\t3. 
+                        \len3. 
+                        \l3. 
+                          ∀s3. 
+                             s3 < 1 * t3 \/ s3 < (-1) * t3
+                          \/ (∀recLoop. 
+                                   recLoop < 1 + 2 * t3
+                                \/ recLoop < 1 + (-2) * t3
+                                \/ recLoop < 1
+                                \/ Loop recLoop x y (x+y) 0 s3 l3 true)))).
+
+/* Loopにx, y, xy を追加する必要がある */
+Loop recLoop x_ y_ xy_ i t l k =v
+  recLoop > 0
+  /\ Hd l
+      (\x. 
+        Tl l
+         (\l2. 
+           Hd l2
+            (\y. 
+              (x + y <= i \/
+                Loop (recLoop - 1) x_ y_ xy_ (i+1) t l k
+              ) /\
+              (x + y > i \/ k)))).
+
+Tl l k =v k (\i. \k2. l (i + 1) k2).
+
+Hd l k =v l 0 k.
+
+Cons t a len l k =v
+  ∀s. 
+   /* s < 2 * len \/ s < (-2) * len \/ */
+   s < 1 * a \/ s < (-1) * a \/
+   s < 1 * t \/ s < (-1) * t
+   \/ k s (len + 1) (\i. \k2. (i != 0 \/ k2 a) /\ (i = 0 \/ l (i - 1) k2)).
+
+Nil k =v k 0 (\i. \k2. k2 0).

@@ -1,0 +1,45 @@
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    Nil
+     (\len. 
+       \t. 
+        \l. 
+         ∀s. 
+          s < 1 * t + 0 \/ s < (-1) * t + 0
+          \/ Cons y len s l
+              (\len2. 
+                \t2. 
+                 \l2. 
+                  ∀s2. 
+                   s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0
+                   \/ Cons x len2 s2 l2
+                       (\len3. 
+                         \t3. 
+                          \l3. 
+                           ∀recLoop. 
+                            recLoop < 1 + 2 * t3 \/ recLoop < 1 + (-2) * t3
+                            \/ recLoop < 1 + 2 * len3
+                            \/ recLoop < 1 + (-2) * len3
+                            \/ recLoop < 1 + 2 * 0
+                            \/ recLoop < 1 + (-2) * 0
+                            \/ recLoop < 1
+                            \/ Loop recLoop x y (x+y) 0 l3 true))).
+Loop recLoop x_ y_ xy_ i l k =v
+  recLoop > 0
+  /\ Hd l
+      (\x. 
+        Tl l
+         (\l2. 
+           Hd l2
+            (\y. 
+              (x + y <= i \/ Loop (recLoop - 1) x_ y_ xy_ (i + 1) l k)
+              /\ (x + y > i \/ k)))).
+Tl l k =v k (\i. \k2. l (i + 1) k2).
+Hd l k =v l 0 k.
+Cons a len t l k =v
+  ∀s. 
+   s < 1 * a + 0 \/ s < (-1) * a + 0 \/ s < 1 * t + 0 \/ s < (-1) * t + 0
+   \/ k (len + 1) s (\i. \k2. (i != 0 \/ k2 a) /\ (i = 0 \/ l (i - 1) k2)).
+Nil k =v ∀s. s < 0 \/ k 0 s (\i. \k2. k2 0).

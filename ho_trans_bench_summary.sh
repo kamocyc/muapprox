@@ -1,8 +1,10 @@
 #!/bin/bash
 
+base_path=benchmark/research/ho_trans/0_bench
+
 : > summary.log
 
-for file in benchmark/research/ho_trans/**/*.log
+for file in "$base_path"/**/*.log
 do
   echo "$file"
   

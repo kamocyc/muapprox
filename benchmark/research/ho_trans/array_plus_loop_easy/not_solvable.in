@@ -1,0 +1,89 @@
+/* 「配列」の第一要素と第二要素の和の数だけ再帰 */
+/* 再帰回数の算出と型付けのために、x, y, x+y をLoopに渡す必要がある */
+/* 再帰のときに、iをインクリメントするのではなく、配列を変更するバージョン。*/
+/* 解けない */
+%HES
+Sentry =u
+  ∀x. ∀y.
+    Make_array (\ar.
+      Update ar 0 x (\ar2.
+        Update ar2 1 y (\ar3.
+          Main ar3 (\_. true)
+        )
+      )
+    ).
+
+Main ar k =u 
+  Loop ar (\r. k r).
+
+Loop ar k =u
+  ar 0 (\x.
+    ar 1 (\y.
+      (x + y <= 0 => k false) /\
+      (x + y  > 0 => Pred ar 0 (\ar'. Loop ar' k))
+    )
+  ).
+
+/* i番目の要素の値を1減らす */
+Pred ar i k =u
+  ar i (\x.
+    Update2 ar i (x - 1) k
+  ).
+
+Make_array k =u k (\i.\k'. k' 0).
+
+Update ar i x k =u
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+
+Update2 ar i x k =u
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+
+/*
+/* 変換後 */
+/* 解けない */
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    Make_array
+     (\t. 
+       \ar. 
+        ∀s. 
+         s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 1 * y + 0 \/ s < (-1) * y + 0
+         \/ s < 1 * t + 0
+         \/ s < (-1) * t + 0
+         \/ Update s ar 0 x
+             (\t2. 
+               \ar2. 
+                ∀s2. 
+                 s2 < 1 * y + 0 \/ s2 < (-1) * y + 0 \/ s2 < 1 * t2 + 0
+                 \/ s2 < (-1) * t2 + 0
+                 \/ Update s2 ar2 1 y
+                     (\t3. 
+                       \ar3. 
+                        ∀s3. 
+                         s3 < 1 * t3 + 0 \/ s3 < (-1) * t3 + 0
+                         \/ Main x y (x+y) s3 ar3 true))).
+Main x_ y_ xy_ t ar k =v
+  ∀recLoop. 
+   recLoop < 1 + 2 * t \/ recLoop < 1 + (-2) * t \/ recLoop < 1
+   \/ Loop x_ y_ xy_ recLoop ar k.
+Loop x_ y_ xy_ recLoop ar k =v
+  recLoop > 0
+  /\ ar 0
+      (\x. 
+        ar 1
+         (\y. 
+           (x + y > 0 \/ k)
+           /\ (x + y <= 0 \/ Pred ar 0 (\ar_ap_. Loop x_ y_ xy_ (recLoop - 1) ar_ap_ k)))).
+Pred ar i k =v ar i (\x. Update2 ar i (x - 1) k).
+Make_array k =v ∀s. s < 0 \/ k s (\i. \k_ap_. k_ap_ 0).
+Update t ar i x k =v
+  ∀s. 
+   s < 1 * i + 0 \/ s < (-1) * i + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+   \/ s < 1 * t + 0
+   \/ s < (-1) * t + 0
+   \/ k s (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).
+Update2 ar i x k =v
+  k (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).
+*/

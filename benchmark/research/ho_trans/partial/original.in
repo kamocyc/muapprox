@@ -1,0 +1,17 @@
+/* katusra solverで解けるようにする */
+/* 再帰回数がnで済まないようにする */
+
+%HES
+Sentry =u ∀n. F (\k. k 0) (Lt (\k. k n)) (\r. true).
+
+F acc p k =u p acc (\b. ((b = 1) => F (Succ acc) p k) /\ ((b = 0) => k false)).
+
+Lt fub fn k =u
+  fub (\ub.
+    fn (\n.
+      ((n < ub) => k 1) /\
+      ((n >= ub) => k 0)
+    )
+  ).
+
+Succ f k =u f (\r. k (r + 1)).

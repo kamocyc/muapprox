@@ -1,4 +1,4 @@
-/* this is invalid since "b" may occur only finitely */
+/* this is invalid since "b" may NOT occur only finitely, and the result is negated in conversion */
 %PROGRAM
 let f = if * then (event a; f) else (event b; f)
 let () = f

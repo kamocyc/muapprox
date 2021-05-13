@@ -1,0 +1,42 @@
+%HES
+Sentry =u
+  ∀x. ∀y.
+    Nil (\len l.
+      Cons y len l (\len2 l2.
+        Cons x len2 l2 (\len3 l3.
+          Loop len3 l3 (\_. true)
+        )
+      )
+    ).
+
+Loop len l k =u
+  Hd len l (\x.
+    Tl len l (\len2 l2.
+      Hd len2 l2 (\y.
+        (x + y > 0 =>
+          Nil (\len3 l3.
+            Cons y len3 l3 (\len4 l4.
+              Cons (x - 1) len4 l4 (\len5 l5.
+                Loop len5 l5 k
+              )
+            )
+          )
+        ) /\
+        (x + y <= 0 => k false)
+      )
+    )
+  ).
+
+/*
+IsNil len l k =v
+  (len = 0 => k 1) /\ (len != 0 => k 0).
+*/
+
+Tl len l k =v k (len - 1) (\i k2. l (i + 1) k2).
+
+Hd len l k =v l 0 k.
+
+Cons a len l k =v
+  k (len + 1) (\i k2. (i = 0 => k2 a) /\ (i != 0 => l (i - 1) k2)).
+
+Nil k =v k 0 (\i k. k 0).

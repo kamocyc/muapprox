@@ -1,0 +1,31 @@
+/* 解けない */
+%HES
+Sentry =u Prepare Main.
+
+Prepare k =u ∀n. k (\k2. k2 n).
+
+Main f =u Loop f (\r. true).
+
+Loop f k =u
+  f (\r.
+    (r <= 0 => k 0) /\
+    (r >  0 => Loop (Pred r) k)
+  ).
+
+Pred r k =u k (r - 1).
+
+/*
+%HES
+/* 単にラムダ抽象で書くと、--no-simplifyを付けてもinliningされるので解ける */
+Sentry =u
+  (\k. ∀n. k (\k2. k2 n))
+  (\f. Loop f (\r. true)).
+
+Loop f k =u
+  f (\r.
+    (r <= 0 => k 0) /\
+    (r >  0 => Loop (Pred r) k)
+  ).
+
+Pred r k =u k (r - 1).
+*/

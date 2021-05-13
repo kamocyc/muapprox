@@ -1,0 +1,79 @@
+%HES
+Sentry =v
+  ∀x. 
+   ∀s. 
+    ∀s2. 
+     s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s2 < 1 * x + 0 \/ s2 < (-1) * x + 0
+     \/ A s (M s2 (\t. \k. k x)).
+A t f =v
+  ∀y. 
+   ∀s. 
+    s < 1 * y + 0 \/ s < (-1) * y + 0 \/ s < 1 * t + 0 \/ s < (-1) * t + 0
+    \/ f s (\t2. \k. k y).
+M t g t2 h =v
+  (∀s. 
+    s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 1 * t + 0 \/ s < (-1) * t + 0
+    \/ (∀recLoop. 
+         recLoop < 1 + 1 * t2 \/ recLoop < 1 + 1 * t \/ recLoop < 1 + (-1) * t2
+         \/ recLoop < 1 + (-1) * t
+         \/ recLoop < 1
+         \/ Loop recLoop s g h (\replaced. true)))
+  /\ (∀s. 
+       s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 1 * t + 0 \/ s < (-1) * t + 0
+       \/ (∀recLoop. 
+            recLoop < 1 + 1 * t2 \/ recLoop < 1 + 1 * t
+            \/ recLoop < 1 + (-1) * t2
+            \/ recLoop < 1 + (-1) * t
+            \/ recLoop < 1
+            \/ Loop recLoop s h g (\replaced. true))).
+Loop recLoop t g h k =v
+  recLoop > 0
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0
+       \/ Check s g
+           (\b. 
+             (b != 0
+              \/ (∀s2. 
+                   s2 < 1 * b + 0 \/ s2 < (-1) * b + 0 \/ s2 < 1 * t + 0
+                   \/ s2 < (-1) * t + 0
+                   \/ (∀recLoop2. 
+                        recLoop2 < 1 + 1 * b \/ recLoop2 < 1 + 1 * t
+                        \/ recLoop2 < 1 + (-1) * b
+                        \/ recLoop2 < 1 + (-1) * t
+                        \/ recLoop2 < 1
+                        \/ Loop2 recLoop2 s2 h k)))
+             /\ (b != 1
+                 \/ (∀s2. 
+                      ∀s3. 
+                       s2 < 1 * b + 0 \/ s2 < (-1) * b + 0 \/ s2 < 1 * t + 0
+                       \/ s2 < (-1) * t + 0
+                       \/ s3 < 1 * b + 0
+                       \/ s3 < (-1) * b + 0
+                       \/ s3 < 1 * t + 0
+                       \/ s3 < (-1) * t + 0
+                       \/ Loop (recLoop - 1) s2 (Pred s3 g) h k)))).
+Loop2 recLoop t h k =v
+  recLoop > 0
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0
+       \/ Check s h
+           (\b. 
+             (b != 0 \/ k false)
+             /\ (b != 1
+                 \/ (∀s2. 
+                      ∀s3. 
+                       s2 < 1 * b + 0 \/ s2 < (-1) * b + 0 \/ s2 < 1 * t + 0
+                       \/ s2 < (-1) * t + 0
+                       \/ s3 < 1 * b + 0
+                       \/ s3 < (-1) * b + 0
+                       \/ s3 < 1 * t + 0
+                       \/ s3 < (-1) * t + 0
+                       \/ Loop2 (recLoop - 1) s2 (Pred s3 h) k)))).
+Pred t f t2 k =v
+  ∀s. 
+   s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 1 * t + 0 \/ s < (-1) * t + 0
+   \/ f s (\r. k (r - 1)).
+Check t f k =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0
+   \/ f s (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).

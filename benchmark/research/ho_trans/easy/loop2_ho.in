@@ -1,0 +1,18 @@
+%HES
+Sentry =u ∀n. Loop1 (\k. k n) (\_. true).
+
+Loop1 f k =u
+  Loop2 f (\r.
+    f (\x.
+      (x <= 0 => k 0) /\
+      (x > 0  => Loop1 (Pred x) k)
+    )
+  ).
+
+Loop2 g k =u
+  g (\x.
+    (x <= 0 => k 0) /\
+    (x > 0  => Loop2 (Pred x) k)
+  ).
+
+Pred x k =u k (x - 1).

@@ -1,0 +1,80 @@
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    ∀s. 
+     s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 1 * y + 0 \/ s < (-1) * y + 0
+     \/ Make_array s
+         (\t. 
+           \ar. 
+            ∀s2. 
+             ∀s3. 
+              s2 < 1 * y + 0 \/ s2 < (-1) * y + 0 \/ s3 < 1 * x + 0
+              \/ s3 < (-1) * x + 0
+              \/ s3 < 1 * t + 0
+              \/ s3 < (-1) * t + 0
+              \/ Update s3 ar 0 x s2
+                  (\t2. 
+                    \ar2. 
+                     ∀s4. 
+                      ∀s5. 
+                       s4 < 0 \/ s5 < 1 * y + 0 \/ s5 < (-1) * y + 0
+                       \/ s5 < 1 * t2 + 0
+                       \/ s5 < (-1) * t2 + 0
+                       \/ Update s5 ar2 1 y s4
+                           (\t3. 
+                             \ar3. 
+                              ∀s6. 
+                               ∀s7. 
+                                s6 < 0 \/ s7 < 1 * t3 + 0 \/ s7 < (-1) * t3 + 0
+                                \/ Main x y (x+y) s7 ar3 s6 (\replaced. true)))).
+Main x_ y_ xy_ t ar t2 k =v
+  ∀s. 
+   ∀s2. 
+    s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s2 < 1 * t + 0 \/ s2 < (-1) * t + 0
+    \/ (∀recLoop. 
+         recLoop < 1 + 2 * t2 \/ recLoop < 1 + (-2) * t2 \/ recLoop < 1 + 2 * t
+         \/ recLoop < 1 + (-2) * t
+         \/ recLoop < 1 + 2 * 0
+         \/ recLoop < 1 + (-2) * 0
+         \/ recLoop < 1
+         \/ Loop recLoop x_ y_ xy_ 0 s2 ar s (\r. k r)).
+Loop recLoop x_ y_ xy_ i t ar t2 k =v
+  recLoop > 0
+  /\ (∀s. 
+       s < 1 * i + 0 \/ s < (-1) * i + 0 \/ s < 1 * t + 0 \/ s < (-1) * t + 0
+       \/ s < 1 * t2 + 0
+       \/ s < (-1) * t2 + 0
+       \/ ar 0 s
+           (\x. 
+             ∀s2. 
+              s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 1 * i + 0
+              \/ s2 < (-1) * i + 0
+              \/ s2 < 1 * t2 + 0
+              \/ s2 < (-1) * t2 + 0
+              \/ s2 < 1 * t + 0
+              \/ s2 < (-1) * t + 0
+              \/ ar 1 s2
+                  (\y. 
+                    (x + y > i \/ k false)
+                    /\ (x + y <= i
+                        \/ (∀s3. 
+                             ∀s4. 
+                              s3 < 1 * t2 + 0 \/ s3 < (-1) * t2 + 0
+                              \/ s4 < 1 * t + 0
+                              \/ s4 < (-1) * t + 0
+                              \/ Loop (recLoop - 1) x_ y_ xy_ (i + 1) s4 ar s3 k))))).
+Make_array t k =v ∀s. s < 0 \/ k s (\i. \t2. \k_ap_. k_ap_ 0).
+Update t ar i x t2 k =v
+  ∀s. 
+   s < 1 * i + 0 \/ s < (-1) * i + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+   \/ s < 1 * t + 0
+   \/ s < (-1) * t + 0
+   \/ k s
+       (\j. 
+         \t3. 
+          \k_ap_. 
+           (j != i \/ k_ap_ x)
+           /\ (j = i
+               \/ (∀s2. 
+                    s2 < 1 * t3 + 0 \/ s2 < (-1) * t3 + 0 \/ ar j s2 k_ap_))).

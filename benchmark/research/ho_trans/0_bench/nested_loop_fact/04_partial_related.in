@@ -1,0 +1,88 @@
+%HES
+Sentry =v
+  ∀n. 
+   ∀s. 
+    s < 1 * n + 1 \/ s < (-1) * n + 1
+    \/ (∀recFact. 
+         recFact < 1 + 1 * n \/ recFact < 1 + (-1) * n \/ recFact < 1 + 1 * 1
+         \/ recFact < 1 + (-1) * 1
+         \/ recFact < 1
+         \/ Fact recFact s (\t. \k. k 1) (\t. \k. k n)
+             (\t. 
+               \g. 
+                ∀s2. 
+                 s2 < 1 * t + 0 \/ s2 < (-1) * t + 0
+                 \/ (∀recMain. 
+                      recMain < 1 + 1 * t \/ recMain < 1 + (-1) * t
+                      \/ recMain < 1
+                      \/ Main recMain s2 (\r. true) g))).
+Main recMain t k g =v
+  recMain > 0
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0
+       \/ Check s g
+           (\b. 
+             (b != 0 \/ k 0)
+             /\ (b = 0
+                 \/ (∀s2. 
+                      ∀s3. 
+                       s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s3 < 1 * t + 0
+                       \/ s3 < (-1) * t + 0
+                       \/ Main (recMain - 1) s2 k (Pred s3 g))))).
+Fact recFact t acc f k =v
+  recFact > 0
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0
+       \/ Check s f
+           (\b. 
+             (b != 0
+              \/ (∀s2. s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ k s2 acc))
+             /\ (b != 1
+                 \/ (∀s2. 
+                      s2 < 1 * t + 0 \/ s2 < (-1) * t + 0
+                      \/ (∀recMult. 
+                           recMult < 1 + 1 * t \/ recMult < 1 + (-1) * t
+                           \/ recMult < 1
+                           \/ Mult recMult s2 (\t2. \k2. k2 0) acc f
+                               (\t2. 
+                                 \accc. 
+                                  ∀s3. 
+                                   ∀s4. 
+                                    s3 < 1 * t2 + 0 \/ s3 < (-1) * t2 + 0
+                                    \/ s3 < 1 * t + 0
+                                    \/ s3 < (-1) * t + 0
+                                    \/ s4 < 1 * t + 0
+                                    \/ s4 < (-1) * t + 0
+                                    \/ Fact (recFact - 1) s3 accc (Pred s4 f) k)))))).
+Mult recMult t acc f g k =v
+  recMult > 0
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0
+       \/ Check s f
+           (\b. 
+             (b != 0
+              \/ (∀s2. s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ k s2 acc))
+             /\ (b != 1
+                 \/ (∀s2. 
+                      ∀s3. 
+                       ∀s4. 
+                        s2 < 2 * t + 0 \/ s2 < (-2) * t + 0 \/ s3 < 2 * t + 0
+                        \/ s3 < (-2) * t + 0
+                        \/ s4 < 2 * t + 0
+                        \/ s4 < (-2) * t + 0
+                        \/ Mult (recMult - 1) s2 (Add s3 acc g) (Pred s4 f) g k)))).
+Add t f g t2 k =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 1 * t2 + 0 \/ s < (-1) * t2 + 0
+   \/ f s
+       (\fx. 
+         ∀s2. 
+          s2 < 1 * fx + 0 \/ s2 < (-1) * fx + 0 \/ s2 < 1 * t2 + 0
+          \/ s2 < (-1) * t2 + 0
+          \/ g s2 (\gx. k (fx + gx))).
+Pred t f t2 k =v
+  ∀s. s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ f s (\r. k (r - 1)).
+Check t f k =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0
+   \/ f s (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).

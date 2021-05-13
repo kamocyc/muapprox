@@ -11,3 +11,4 @@ submit/
 **/*.tmp
 benchmark/ml/**/*.json
 tmp/
+log/

@@ -1,0 +1,55 @@
+%HES
+Sentry =u ∀n. Loop (\k. k n).
+
+Loop f =u
+  Check f (\b. (b != 0 \/ true) /\ (b != 1 \/ Loop (Pred f))).
+
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u
+  f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).
+
+
+/*
+/* 近似後、inliningした場合 */
+
+Sentry : bool =ν
+  ∀n4:int.
+    ∀recLoop5:int.
+      recLoop5 < 1 + 1 * n4
+      || recLoop5 < 1 + -1 * n4 || recLoop5 < 1 || Loop recLoop5 (λk6:(int -> bool).k6 n4)
+
+Loop : int -> ((int -> bool) -> bool) -> bool =ν
+  λrecLoop7:int.
+    λf8:((int -> bool) -> bool).
+    recLoop7 > 0
+    && f8
+        (λn15:int.
+          (n15 > 0
+            || 0 /= 1 || Loop (recLoop7 - 1) (λk11:(int -> bool).f8 (λr12:int.k11 (r12 - 1))))
+          && (n15 <= 0
+              || 1 /= 1 || Loop (recLoop7 - 1) (λk11:(int -> bool).f8 (λr12:int.k11 (r12 - 1)))))
+
+/*
+Sentry *[tt]
+Loop (int(recLoop22) -> (((int(t23) -> *[(-1 * t23 + recLoop22>=1 \/ t23<=0)]) -> *[recLoop22>=1]) -> *[recLoop22>=1]))
+*/
+
+
+/* inliningしない場合は、以下のようにrecLoopを追加すれば型が付いて解ける */
+%HES
+Sentry =v
+  ∀n. 
+   ∀recLoop. 
+    recLoop < 1 + 1 * n \/ recLoop < 1 + (-1) * n \/ recLoop < 1
+    \/ Loop recLoop (\k. k n).
+
+Loop recLoop f =v
+  recLoop > 0
+  /\ Check recLoop f (\b. (b != 0 \/ true) /\ (b != 1 \/ Loop (recLoop - 1) (Pred recLoop f))).
+
+Pred recLoop f k =v f (\r. k (r - 1)).
+
+Check recLoop f k =v f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).
+
+*/

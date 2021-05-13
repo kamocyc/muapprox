@@ -1,0 +1,44 @@
+/* valid */
+%PROGRAM
+let fin = event fin; ()
+
+let outer m =
+  event e_outer;
+  if m <= 0 then fin
+  else (
+    let n = <d2> * in
+    repeat n
+  )
+  
+let repeat n =
+  event e_repeat;
+  if n <= 0 then outer (1 - n)
+  else repeat (n - 1)
+
+let () =
+  let n = <d2> * in
+  if n > 0 then
+    outer n
+  else fin
+
+%TRANSITION
+q0 d2 -> (1, q0) /\ (2, q1) /\ (3, q1).
+q0 e_repeat -> (1, q0).
+q0 e_outer -> (1, q2).
+q0 fin -> true.
+
+q1 d2 -> (1, q0) /\ (2, q1) /\ (3, q1).
+q1 e_repeat -> false.
+q1 e_outer -> false.
+q1 fin -> false.
+
+q2 d2 -> (1, q0) /\ (2, q1) /\ (3, q1).
+q2 e_repeat -> (1, q0).
+q2 e_outer -> false.
+q2 fin -> false.
+
+%PRIORITY
+q0 -> 1.
+/* demonicのときは偶数 = 無限に分岐する場合を受理、angelicのときは奇数の大きな値 = (ORで繋がる)無限に分岐する場合は受理しない にする */
+q1 -> 2.
+q2 -> 2.
