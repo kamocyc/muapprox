@@ -1,0 +1,37 @@
+/* valid */
+/* Outerは無限に再帰、Repeatは有限回再帰. */
+/* 対応するプログラムのイメージは、 benchmark/prog2/ho_01.txt */
+
+%HES
+S =v ∀x. x > 0 => M (\k. k x).
+
+M f =v Outer f.
+
+/* Repeatのboundを作るために、Outerにxの値を渡す必要がある */
+Outer fx =v
+  Check fx (\b.
+    (b = 0 => false) /\
+    (b = 1 => ∀y. y >= 0 => Repeat (Add fx (\k. k y)))
+  ).
+
+Repeat fy =u
+  Check fy (\b.
+    (b = 0 => Outer (Neg1 fy)) /\
+    (b = 1 => Repeat (Pred fy))
+  ).
+
+Check f k =v
+  f (\x.
+    (x =  0 => k 0) /\
+    (x != 0 => k 1)
+  ).
+
+Add f g k =v
+  f (\x. g (\y. k (x + y))).
+
+Neg1 f k =v
+  f (\x. k (1 - x)).
+  
+Pred f k =v
+  f (\x. k (x - 1)).
+  

@@ -1,0 +1,20 @@
+
+Flow_notexpanded(Mult. acc) = { S. (\k. k 0) }
+Flow_notexpanded(Mult. f) = { S. (\k. k n) }
+Flow_notexpanded(Mult. g) = { S. (\k. k n) }
+Flow_notexpanded(Mult. k) = { S. (\g. Loop (\r. true) g) }
+
+Flow_notexpanded(Loop. k) = { S. (\r. true) }
+Flow_notexpanded(Loop. g) = { S. g }
+
+Flow(S. g) = { Mult. acc }
+Flow(Mult. acc) = { S. (\k. k 0),   Mult. (Add acc g) }
+Flow(Mult. g)   = { S. (\k. k n),   Mult. g }
+
+Rel_notexpanded(Mult. acc) = {}
+Rel_notexpanded(Mult. f) = {}
+Rel_notexpanded(Mult. g) = {}
+Rel_notexpanded(Mult. k) = {}
+
+Rel_notexpanded(Loop. k) = {}
+Rel_notexpanded(Loop. g) = { S. g,   Mult. acc,   Mult. g }

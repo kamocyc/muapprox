@@ -1,0 +1,386 @@
+S =u
+  ∀n.
+    Mult
+      (\km1. km1 0)
+      (\km2. km2 n)
+      (\km3. km3 n)
+      (\gm.
+        Loop (\rm. true) gm
+      ).
+
+uMult.\acc1.\f1.\g1.\k1.
+  Check f1 (\b1.
+    (b1 = 0 => k1 acc1) /\
+    (b1 = 1 => Mult (Add acc1 g1) (Pred f1) g1 k1)
+  ).
+
+uAdd.\f_add.\g_add.\k_add. f_add (\fx_add. g_add (\gx_add. k_add (fx_add + gx_add))).
+
+uPred.\f_pred.\k_pred. f_pred (\r_pred. k_pred (r_pred - 1)).
+
+uCheck.\f_check.\k_check. f_check (\n_check. (n_check <= 0 => k_check 0) /\ (n_check > 0 => k_check 1)).
+
+===========================================
+
+S =u
+  [
+    (uMult.\acc1.\f1.\g1.\k1.
+      Check f1 (\b1.
+        (b1 = 0 => k1 acc1) /\
+        (b1 = 1 => Mult (Add acc1 g1) (Pred f1) g1 k1)
+      )
+    )
+    (\km1. km1 0)
+    (\km2. km2 9_n)
+    (\km3. km3 9_n)
+    (\gm.
+      Loop (\rm. true) gm
+    )
+  ]_n.
+
+uAdd.\f_add.\g_add.\k_add. f_add (\fx_add. g_add (\gx_add. k_add (fx_add + gx_add))).
+
+uPred.\f_pred.\k_pred. f_pred (\r_pred. k_pred (r_pred - 1)).
+
+uCheck.\f_check.\k_check. f_check (\n_check. (n_check <= 0 => k_check 0) /\ (n_check > 0 => k_check 1)).
+
+===========================================
+
+S =u
+  [
+    (\acc1.\f1.\g1.\k1.
+      Check f1 (\b1.
+        (b1 = 0 => k1 acc1) /\
+        (b1 = 1 =>
+          (uMult.\acc2.\f2.\g2.\k2.
+            Check f2 (\b2.
+              (b2 = 0 => k2 acc2) /\
+              (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+            )
+          )
+          (Add acc1 g1) (Pred f1) g1 k1)
+      )
+    )
+    (\km1. km1 0)
+    (\km2. km2 9_n)
+    (\km3. km3 9_n)
+    (\gm.
+      Loop (\rm. true) gm
+    )
+  ]_n.
+
+uAdd.\f_add.\g_add.\k_add. f_add (\fx_add. g_add (\gx_add. k_add (fx_add + gx_add))).
+
+uPred.\f_pred.\k_pred. f_pred (\r_pred. k_pred (r_pred - 1)).
+
+uCheck.\f_check.\k_check. f_check (\n_check. (n_check <= 0 => k_check 0) /\ (n_check > 0 => k_check 1)).
+
+===========================================
+
+S =u
+  [
+    (uCheck.\f_check.\k_check. f_check (\n_check. (n_check <= 0 => k_check 0) /\ (n_check > 0 => k_check 1))) (\km2. km2 9_n)_f1 (\b1.
+      (b1 = 0 => (\gm. Loop (\rm. true) gm)_k1 (\km1. km1 0)_acc1) /\
+      (b1 = 1 =>
+        (uMult.\acc2.\f2.\g2.\k2.
+          Check f2 (\b2.
+            (b2 = 0 => k2 acc2) /\
+            (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+          )
+        )
+        (Add (\km1. km1 0)_acc1 (\km3. km3 9_n)_g1) (Pred (\km2. km2 9_n)_f1) (\km3. km3 9_n)_g1 (\gm. Loop (\rm. true) gm)_k1)
+    )
+  ]_{n,acc1,f1,g1,k1}.
+
+uAdd.\f_add.\g_add.\k_add. f_add (\fx_add. g_add (\gx_add. k_add (fx_add + gx_add))).
+
+uPred.\f_pred.\k_pred. f_pred (\r_pred. k_pred (r_pred - 1)).
+
+===========================================
+S =u
+  [
+    (\km2. km2 9_n)_{f1,f_check} (\n_check. (n_check <= 0 =>
+      (\b1.
+        (b1 = 0 => (\gm. Loop (\rm. true) gm)_k1 (\km1. km1 0)_acc1) /\
+        (b1 = 1 =>
+          (uMult.\acc2.\f2.\g2.\k2.
+            Check f2 (\b2.
+              (b2 = 0 => k2 acc2) /\
+              (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+            )
+          )
+          (Add (\km1. km1 0)_acc1 (\km3. km3 9_n)_g1) (Pred (\km2. km2 9_n)_f1) (\km3. km3 9_n)_g1 (\gm. Loop (\rm. true) gm)_k1)
+      )_k_check 0
+    ) /\ (n_check > 0 =>
+      (\b1.
+        (b1 = 0 => (\gm. Loop (\rm. true) gm)_k1 (\km1. km1 0)_acc1) /\
+        (b1 = 1 =>
+          (uMult.\acc2.\f2.\g2.\k2.
+            Check f2 (\b2.
+              (b2 = 0 => k2 acc2) /\
+              (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+            )
+          )
+          (Add (\km1. km1 0)_acc1 (\km3. km3 9_n)_g1) (Pred (\km2. km2 9_n)_f1) (\km3. km3 9_n)_g1 (\gm. Loop (\rm. true) gm)_k1)
+      )_k_check 1
+    ))
+  ]_{n,acc1,f1,g1,k1,f_check,k_check}.
+
+uAdd.\f_add.\g_add.\k_add. f_add (\fx_add. g_add (\gx_add. k_add (fx_add + gx_add))).
+
+uPred.\f_pred.\k_pred. f_pred (\r_pred. k_pred (r_pred - 1)).
+
+===========================================
+S =u
+  [
+    (\n_check. (n_check <= 0 =>
+      (\b1.
+        (b1 = 0 => (\gm. Loop (\rm. true) gm)_k1 (\km1. km1 0)_acc1) /\
+        (b1 = 1 =>
+          (uMult.\acc2.\f2.\g2.\k2.
+            Check f2 (\b2.
+              (b2 = 0 => k2 acc2) /\
+              (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+            )
+          )
+          (Add (\km1. km1 0)_acc1 (\km3. km3 9_n)_g1) (Pred (\km2. km2 9_n)_f1) (\km3. km3 9_n)_g1 (\gm. Loop (\rm. true) gm)_k1)
+      )_k_check 0
+    ) /\ (n_check > 0 =>
+      (\b1.
+        (b1 = 0 => (\gm. Loop (\rm. true) gm)_k1 (\km1. km1 0)_acc1) /\
+        (b1 = 1 =>
+          (uMult.\acc2.\f2.\g2.\k2.
+            Check f2 (\b2.
+              (b2 = 0 => k2 acc2) /\
+              (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+            )
+          )
+          (Add (\km1. km1 0)_acc1 (\km3. km3 9_n)_g1) (Pred (\km2. km2 9_n)_f1) (\km3. km3 9_n)_g1 (\gm. Loop (\rm. true) gm)_k1)
+      )_k_check 1
+    ))_km2 9_n
+  ]_{n,acc1,f1,g1,k1,f_check,k_check,f_check,km2}.
+
+uAdd.\f_add.\g_add.\k_add. f_add (\fx_add. g_add (\gx_add. k_add (fx_add + gx_add))).
+
+uPred.\f_pred.\k_pred. f_pred (\r_pred. k_pred (r_pred - 1)).
+
+===========================================
+S =u
+  [
+    ((9_{n,n_check} <= 0 =>
+      (\b1.
+        (b1 = 0 => (\gm. Loop (\rm. true) gm)_k1 (\km1. km1 0)_acc1) /\
+        (b1 = 1 =>
+          (uMult.\acc2.\f2.\g2.\k2.
+            Check f2 (\b2.
+              (b2 = 0 => k2 acc2) /\
+              (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+            )
+          )
+          (Add (\km1. km1 0)_acc1 (\km3. km3 9_n)_g1) (Pred (\km2. km2 9_n)_f1) (\km3. km3 9_n)_g1 (\gm. Loop (\rm. true) gm)_k1)
+      )_k_check 0
+    ) /\ (9_{n,n_check} > 0 =>
+      (\b1.
+        (b1 = 0 => (\gm. Loop (\rm. true) gm)_k1 (\km1. km1 0)_acc1) /\
+        (b1 = 1 =>
+          (uMult.\acc2.\f2.\g2.\k2.
+            Check f2 (\b2.
+              (b2 = 0 => k2 acc2) /\
+              (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+            )
+          )
+          (Add (\km1. km1 0)_acc1 (\km3. km3 9_n)_g1) (Pred (\km2. km2 9_n)_f1) (\km3. km3 9_n)_g1 (\gm. Loop (\rm. true) gm)_k1)
+      )_k_check 1
+    ))_km2 
+  ]_{n,acc1,f1,g1,k1,f_check,k_check,f_check,km2,n_check}.
+
+uAdd.\f_add.\g_add.\k_add. f_add (\fx_add. g_add (\gx_add. k_add (fx_add + gx_add))).
+
+uPred.\f_pred.\k_pred. f_pred (\r_pred. k_pred (r_pred - 1)).
+
+===========================================
+S =u
+  [
+    (
+      (\b1.
+        (b1 = 0 => (\gm. Loop (\rm. true) gm)_k1 (\km1. km1 0)_acc1) /\
+        (b1 = 1 =>
+          (uMult.\acc2.\f2.\g2.\k2.
+            Check f2 (\b2.
+              (b2 = 0 => k2 acc2) /\
+              (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+            )
+          )
+          (Add (\km1. km1 0)_acc1 (\km3. km3 9_n)_g1) (Pred (\km2. km2 9_n)_f1) (\km3. km3 9_n)_g1 (\gm. Loop (\rm. true) gm)_k1)
+      )_k_check 1
+    )_{km2,n,n_check}
+  ]_{n,acc1,f1,g1,k1,f_check,k_check,f_check,km2,n_check}.
+
+uAdd.\f_add.\g_add.\k_add. f_add (\fx_add. g_add (\gx_add. k_add (fx_add + gx_add))).
+
+uPred.\f_pred.\k_pred. f_pred (\r_pred. k_pred (r_pred - 1)).
+
+===========================================
+S =u
+  [
+    (
+      (1_b1 = 0 => (\gm. Loop (\rm. true) gm)_k1 (\km1. km1 0)_acc1) /\
+      (1_b1 = 1 =>
+        (uMult.\acc2.\f2.\g2.\k2.
+          Check f2 (\b2.
+            (b2 = 0 => k2 acc2) /\
+            (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+          )
+        )
+        (Add (\km1. km1 0)_acc1 (\km3. km3 9_n)_g1) (Pred (\km2. km2 9_n)_f1) (\km3. km3 9_n)_g1 (\gm. Loop (\rm. true) gm)_k1)
+    )_{km2,n,n_check,k_check}
+  ]_{n,acc1,f1,g1,k1,f_check,k_check,f_check,km2,n_check,b1}.
+
+uAdd.\f_add.\g_add.\k_add. f_add (\fx_add. g_add (\gx_add. k_add (fx_add + gx_add))).
+
+uPred.\f_pred.\k_pred. f_pred (\r_pred. k_pred (r_pred - 1)).
+
+===========================================
+S =u
+  [
+    (
+      (uMult.\acc2.\f2.\g2.\k2.
+        Check f2 (\b2.
+          (b2 = 0 => k2 acc2) /\
+          (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+        )
+      )
+      ((uAdd.\f_add.\g_add.\k_add. f_add (\fx_add. g_add (\gx_add. k_add (fx_add + gx_add)))) (\km1. km1 0)_acc1 (\km3. km3 9_n)_g1)
+      ((uPred.\f_pred.\k_pred. f_pred (\r_pred. k_pred (r_pred - 1))) (\km2. km2 9_n)_f1)
+      (\km3. km3 9_n)_g1
+      (\gm. Loop (\rm. true) gm)_k1
+    )_{km2,n,n_check,k_check,1_b1}
+  ]_{n,acc1,f1,g1,k1,f_check,k_check,f_check,km2,n_check,b1}.
+
+===========================================
+S =u
+  [
+    (
+      (uMult.\acc2.\f2.\g2.\k2.
+        Check f2 (\b2.
+          (b2 = 0 => k2 acc2) /\
+          (b2 = 1 => Mult (Add acc2 g2) (Pred f2) g2 k2)
+        )
+      )
+      [(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add}
+      [\k_pred. (\km2. km2 9_n)_{f1,f_pred} (\r_pred. k_pred (r_pred - 1))]_{f_pred}
+      (\km3. km3 9_n)_g1
+      (\gm. Loop (\rm. true) gm)_k1
+    )_{km2,n,n_check,k_check,1_b1}
+  ]_{n,acc1,f1,g1,k1,f_check,k_check,f_check,km2,n_check,b1}.
+
+===========================================
+S =u
+  [
+    (
+      (\acc2.\f2.\g2.\k2.
+        Check f2 (\b2.
+          (b2 = 0 => k2 acc2) /\
+          (b2 = 1 => (uMult.\acc3.\f3.\g3.\k3.
+            Check f3 (\b2.
+              (b2 = 0 => k3 acc3) /\
+            (b2 = 1 => Mult (Add acc3 g3) (Pred f3) 33 k3)
+            )
+          )
+          (Add acc2 g2) (Pred f2) g2 k2)
+        )
+      )
+      [(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add}
+      [\k_pred. (\km2. km2 9_n)_{f1,f_pred} (\r_pred. k_pred (r_pred - 1))]_{f_pred}
+      (\km3. km3 9_n)_g1
+      (\gm. Loop (\rm. true) gm)_k1
+    )_{km2,n,n_check,k_check,1_b1}
+  ]_{n,acc1,f1,g1,k1,f_check,k_check,f_check,km2,n_check,b1}.
+
+===========================================
+S =u
+  [
+    (
+      (\f_check.\k_check. f_check (\n_check. (n_check <= 0 => k_check 0) /\ (n_check > 0 => k_check 1))) ([\k_pred. (\km2. km2 9_n)_{f1,f_pred} (\r_pred. k_pred (r_pred - 1))]_{f_pred})_f2 (\b2.
+        (b2 = 0 => (\gm. Loop (\rm. true) gm)_{k1,k2} ([(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add})_{acc2}) /\
+        (b2 = 1 => (uMult.\acc3.\f3.\g3.\k3.
+          Check f3 (\b2.
+            (b2 = 0 => k3 acc3) /\
+          (b2 = 1 => Mult (Add acc3 g3) (Pred f3) 33 k3)
+          )
+        )
+        (Add ([(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add})_{acc2} (\km3. km3 9_n)_{g1,g2})
+        (Pred ([\k_pred. (\km2. km2 9_n)_{f1,f_pred} (\r_pred. k_pred (r_pred - 1))]_{f_pred})_{f2}) 
+        (\gm. Loop (\rm. true) gm)_{k1,k2})
+      )
+    )_{km2,n,n_check,k_check,1_b1}
+  ]_{n,acc1,f1,g1,k1,f_check,k_check,f_check,km2,n_check,b1,acc2,f2,g2,k2}.
+
+===========================================
+S =u
+  [
+    (
+      (([\k_pred. (\km2. km2 9_n)_{f1,f_pred} (\r_pred. k_pred (r_pred - 1))]_{f_pred})_{f2,f_check2} (\n_check2. (n_check2 <= 0 =>
+        (\b2.
+        (b2 = 0 => (\gm. Loop (\rm. true) gm)_{k1,k2} ([(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add})_{acc2}) /\
+        (b2 = 1 => (uMult.\acc3.\f3.\g3.\k3.
+          Check f3 (\b2.
+            (b2 = 0 => k3 acc3) /\
+          (b2 = 1 => Mult (Add acc3 g3) (Pred f3) 33 k3)
+          )
+        )
+        (Add ([(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add})_{acc2} (\km3. km3 9_n)_{g1,g2})
+        (Pred ([\k_pred. (\km2. km2 9_n)_{f1,f_pred} (\r_pred. k_pred (r_pred - 1))]_{f_pred})_{f2}) 
+        (\gm. Loop (\rm. true) gm)_{k1,k2})
+      )_k_check2 0
+      ) /\ (n_check2 > 0 =>
+        (\b2.
+        (b2 = 0 => (\gm. Loop (\rm. true) gm)_{k1,k2} ([(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add})_{acc2}) /\
+        (b2 = 1 => (uMult.\acc3.\f3.\g3.\k3.
+          Check f3 (\b2.
+            (b2 = 0 => k3 acc3) /\
+          (b2 = 1 => Mult (Add acc3 g3) (Pred f3) 33 k3)
+          )
+        )
+        (Add ([(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add})_{acc2} (\km3. km3 9_n)_{g1,g2})
+        (Pred ([\k_pred. (\km2. km2 9_n)_{f1,f_pred} (\r_pred. k_pred (r_pred - 1))]_{f_pred})_{f2}) 
+        (\gm. Loop (\rm. true) gm)_{k1,k2})
+      )_k_check2 1
+      )))
+    )_{km2,n,n_check,k_check,1_b1}
+  ]_{n,acc1,f1,g1,k1,f_check,k_check,f_check,km2,n_check,b1,acc2,f2,g2,k2,f_check2,k_check2}.
+
+===========================================
+S =u
+  [
+    (
+      (([\k_pred. (\km2. km2 9_n)_{f1,f_pred} (\r_pred. k_pred (r_pred - 1))]_{f_pred})_{f2,f_check2} (\n_check2. (n_check2 <= 0 =>
+        (\b2.
+        (b2 = 0 => (\gm. Loop (\rm. true) gm)_{k1,k2} ([(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add})_{acc2}) /\
+        (b2 = 1 => (uMult.\acc3.\f3.\g3.\k3.
+          Check f3 (\b2.
+            (b2 = 0 => k3 acc3) /\
+          (b2 = 1 => Mult (Add acc3 g3) (Pred f3) 33 k3)
+          )
+        )
+        (Add ([(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add})_{acc2} (\km3. km3 9_n)_{g1,g2})
+        (Pred ([\k_pred. (\km2. km2 9_n)_{f1,f_pred} (\r_pred. k_pred (r_pred - 1))]_{f_pred})_{f2}) 
+        (\gm. Loop (\rm. true) gm)_{k1,k2})
+      )_k_check2 0
+      ) /\ (n_check2 > 0 =>
+        (\b2.
+        (b2 = 0 => (\gm. Loop (\rm. true) gm)_{k1,k2} ([(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add})_{acc2}) /\
+        (b2 = 1 => (uMult.\acc3.\f3.\g3.\k3.
+          Check f3 (\b2.
+            (b2 = 0 => k3 acc3) /\
+          (b2 = 1 => Mult (Add acc3 g3) (Pred f3) 33 k3)
+          )
+        )
+        (Add ([(\k_add. (\km1. km1 0)_{acc1,f_add} (\fx_add. (\km3. km3 9_n)_{g1,g_add} (\gx_add. k_add (fx_add + gx_add))))]_{f_add,g_add})_{acc2} (\km3. km3 9_n)_{g1,g2})
+        (Pred ([\k_pred. (\km2. km2 9_n)_{f1,f_pred} (\r_pred. k_pred (r_pred - 1))]_{f_pred})_{f2}) 
+        (\gm. Loop (\rm. true) gm)_{k1,k2})
+      )_k_check2 1
+      )))
+    )_{km2,n,n_check,k_check,1_b1}
+  ]_{n,acc1,f1,g1,k1,f_check,k_check,f_check,km2,n_check,b1,acc2,f2,g2,k2,f_check2,k_check2}.
+

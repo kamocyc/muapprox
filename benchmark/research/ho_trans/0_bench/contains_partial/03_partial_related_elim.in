@@ -1,5 +1,5 @@
 %HES
-Sentry =v ∀x. ∀s. s < 1 * x + 0 \/ s < (-1) * x + 0 \/ A (M s (\k. k x)).
+S =v ∀x. ∀s. s < 1 * x + 0 \/ s < (-1) * x + 0 \/ A (M s (\k. k x)).
 A f =v ∀y. ∀s. s < 1 * y + 0 \/ s < (-1) * y + 0 \/ f s (\k. k y).
 M t g t2 h =v
   (∀s. 

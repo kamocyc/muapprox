@@ -1,0 +1,45 @@
+/* existsを1, 1でinstantiateしたもの (existsがあると、pcSATが必要で解けない) */
+%HES
+/* simplified */
+S =v 1 < 1 \/ M 1 1 (\k. k 1).
+
+M x t f =v
+   (∀recOuter. 
+        recOuter < 1 + 1 * t \/ recOuter < 1 + (-1) * t \/ recOuter < 1
+        \/ Outer recOuter x 1 f).
+
+/* instantiated */
+Outer recOuter x t fx =v
+  recOuter > 0
+  /\ Check fx
+      (\b. 
+        b = 0 /\ true
+        \/ b = 1
+           /\ /* (∀y. 
+                y < 1 \/ y < 1 * t \/ y < (-1) * t \/ Outer_e recOuter x fx t y
+              ) */
+              
+              (∀s. 
+                  s < 2 * /* y */ 1 + 0 \/ s < (-2) * /* y */ 1 + 0
+              \/ s < 2 * t + 0 \/ s < (-2) * t + 0
+              \/ Repeat recOuter (x + /* y */ 1) s (Add fx (\k. k /* y */ 1)))
+         
+              ).
+
+Repeat recOuter xy t fy =v
+  Check fy
+   (\b. 
+     b = 0
+     /\ (∀s. 
+          s < 1 * t + 0 \/ s < (-1) * t + 0 \/ Outer (recOuter - 1) (1 - xy) s (Neg fy))
+     \/ b = 1
+        /\ (∀s. 
+             s < 1 * t + 0 \/ s < (-1) * t + 0 \/ Repeat recOuter (xy - 1) s (Pred fy))).
+
+Check f k =v f (\x. (x != 0 \/ k 0) /\ (x = 0 \/ k 1)).
+
+Add f g k =v f (\x. g (\y. k (x + y))).
+
+Neg f k =v f (\x. k (-x)).
+
+Pred f k =v f (\x. k (x - 1)).

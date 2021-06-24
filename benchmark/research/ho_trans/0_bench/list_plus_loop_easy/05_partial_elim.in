@@ -1,6 +1,6 @@
 /* z3, 5 sec */
 %HES
-Sentry =v
+S =v
   ∀x. 
    ∀y. 
     ∀s. 

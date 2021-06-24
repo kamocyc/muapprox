@@ -1,7 +1,7 @@
 /* 03_partial_related_elim.in */
 /* z3 で 4 sec程度で解ける */
 %HES
-Sentry =v
+S =v
   ∀x. 
    ∀y. 
     Nil

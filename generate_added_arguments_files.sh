@@ -1,9 +1,9 @@
 #!/bin/bash
 
-dir=benchmark/research/ho_trans/0_bench/nested_loop_fact
+dir=benchmark/research/ho_trans/0_bench/mutual_fixpoints
 file="$dir"/original.in
-coe=1,1
-coe_a=1,0
+coe=2,1
+coe_a=1,1
 
 timeout 5s ./x --coe=$coe --coe-a=$coe_a --add-arg "$file"
 . ./killp.sh

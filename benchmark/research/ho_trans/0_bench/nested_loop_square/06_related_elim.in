@@ -1,5 +1,5 @@
 %HES
-Sentry =v
+S =v
   ∀n. 
    ∀s. 
     ∀s2. 
@@ -11,10 +11,10 @@ Sentry =v
                 \g. 
                  ∀recMain. 
                   recMain < 1 + 1 * t \/ recMain < 1 + (-1) * t \/ recMain < 1
-                  \/ Main recMain true g)).
-Main recMain k g =v
+                  \/ Loop recMain true g)).
+Loop recMain k g =v
   recMain > 0
-  /\ Check g (\b. (b != 0 \/ k) /\ (b = 0 \/ Main (recMain - 1) k (Pred g))).
+  /\ Check g (\b. (b != 0 \/ k) /\ (b = 0 \/ Loop (recMain - 1) k (Pred g))).
 Mult recMult t acc f t2 g k =v
   recMult > 0
   /\ Check f

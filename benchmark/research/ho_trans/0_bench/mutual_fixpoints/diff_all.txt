@@ -1,0 +1,31 @@
+3c3
+<   ∀x. x <= 0 \/ (∀s. s < 1 * x + 1 \/ s < (-1) * x + 1 \/ M s (\k. k x)).
+---
+>   ∀x. x <= 0 \/ (∀s. s < 1 * x + 1 \/ s < (-1) * x + 1 \/ M x s (\k. k x)).
+5c5
+< M t f =v ∀s. s < 1 * t + 1 \/ s < (-1) * t + 1 \/ Outer s f.
+---
+> M x t f =v ∀s. s < 1 * t + 1 \/ s < (-1) * t + 1 \/ Outer x s f.
+7c7
+< Outer t fx =v
+---
+> Outer x t fx =v
+20a21,22
+>                         \/ recRepeat < 1 + 2 * x 
+>                         \/ recRepeat < 1 + (-2) * x 
+22c24
+<                         \/ Repeat recRepeat s (Add fx (\k. k y))))))).
+---
+>                         \/ Repeat recRepeat (x + y) s (Add fx (\k. k y))))))).
+24c26
+< Repeat recRepeat t fy =v
+---
+> Repeat recRepeat xy t fy =v
+29c31
+<          \/ (∀s. s < 1 * t + 1 \/ s < (-1) * t + 1 \/ Outer s (Neg fy)))
+---
+>          \/ (∀s. s < 1 * t + 1 \/ s < (-1) * t + 1 \/ Outer (1 - xy) s (Neg fy)))
+33c35
+<                  \/ Repeat (recRepeat - 1) s (Pred fy)))).
+---
+>                  \/ Repeat (recRepeat - 1) (xy - 1) s (Pred fy)))).

@@ -1,0 +1,47 @@
+/* hoiceで30sec程度で解ける */
+/* 関数Mを入れて間接的にするとhoiceで320sec程度で解ける (第2引数をboundを作らないで直接渡すと40sec程度で解ける) */
+%HES
+S =v
+  ∀x. x <= 0 \/ (∀s. s < 1 * x + 1 \/ s < (-1) * x + 1 \/ M x s (\k. k x)).
+
+M x t f =v ∀s. s < 1 * t + 1 \/ s < (-1) * t + 1 \/ Outer x s f.
+
+Outer x t fx =v
+  Check fx
+   (\b. 
+     (b != 0 \/ false)
+     /\ (b != 1
+         \/ (∀y. 
+              y < 0
+              \/ (∀s. 
+                   s < 2 * y + 1 \/ s < (-2) * y + 1 \/ s < 2 * t + 1
+                   \/ s < (-2) * t + 1
+                   \/ (∀recRepeat. 
+                        /* boundがy, x, tの場合はhoiceで30sec程度で解ける */
+                        /* boundがy, tだけの場合 (引数追加でできる式の場合) はタイムアウト */
+                        /* 常に x <= t が成立することが分かれば、
+                          \/ recRepeat < 1 + 2 * x \/ recRepeat < 1 + (-2) * x を追加しても意味が変わらない
+                          実際に x <= t は成り立つ */
+                        recRepeat < 1 + 2 * y \/ recRepeat < 1 + 2 * t
+                        \/ recRepeat < 1 + (-2) * y
+                        \/ recRepeat < 1 + (-2) * t
+                        \/ recRepeat < 1 + 2 * x
+                        \/ recRepeat < 1 + (-2) * x
+                        \/ recRepeat < 1
+                        \/ Repeat recRepeat (x + y) s (Add fx (\k. k y))))))).
+
+Repeat recRepeat xy t fy =v
+  recRepeat > 0
+  /\ Check fy
+      (\b. 
+        (b != 0
+         \/ (∀s. s < 1 * t + 1 \/ s < (-1) * t + 1 \/ Outer (1 - xy) s (Neg fy)))
+        /\ (b != 1
+            \/ (∀s. 
+                 s < 1 * t + 1 \/ s < (-1) * t + 1
+                 \/ Repeat (recRepeat - 1) (xy - 1) s (Pred fy)))).
+
+Check f k =v f (\x. (x != 0 \/ k 0) /\ (x = 0 \/ k 1)).
+Add f g k =v f (\x. g (\y. k (x + y))).
+Neg f k =v f (\x. k (1 - x)).
+Pred f k =v f (\x. k (x - 1)).

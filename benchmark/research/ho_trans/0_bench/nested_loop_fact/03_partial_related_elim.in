@@ -1,5 +1,5 @@
 %HES
-Sentry =v
+S =v
   ∀n. 
    ∀s. 
     s < 1 * n + 1 \/ s < (-1) * n + 1

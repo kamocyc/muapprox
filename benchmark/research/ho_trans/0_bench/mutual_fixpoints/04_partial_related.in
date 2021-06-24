@@ -1,0 +1,67 @@
+%HES
+S =v
+  ∀x. 
+   x <= 0 \/ (∀s. s < 1 * x + 1 \/ s < (-1) * x + 1 \/ M x s (\t. \k. k x)).
+
+M x t f =v ∀s. s < 1 * t + 1 \/ s < (-1) * t + 1 \/ Outer x s f.
+
+Outer x t fx =v
+  ∀s. 
+   s < 1 * t + 1 \/ s < (-1) * t + 1
+   \/ Check s fx
+       (\b. 
+         (b != 0 \/ false)
+         /\ (b != 1
+             \/ (∀y. 
+                  y < 0
+                  \/ (∀s2. 
+                       ∀s3. 
+                        s2 < 2 * y + 1 \/ s2 < (-2) * y + 1 \/ s2 < 2 * t + 1
+                        \/ s2 < (-2) * t + 1
+                        \/ s3 < 2 * y + 1
+                        \/ s3 < (-2) * y + 1
+                        \/ s3 < 2 * t + 1
+                        \/ s3 < (-2) * t + 1
+                        \/ (∀recRepeat. 
+                             recRepeat < 1 + 2 * y \/ recRepeat < 1 + 2 * t
+                             \/ recRepeat < 1 + (-2) * y
+                             \/ recRepeat < 1 + (-2) * t
+                             \/ recRepeat < 1 + 2 * x
+                             \/ recRepeat < 1 + (-2) * x
+                             \/ recRepeat < 1
+                             \/ Repeat recRepeat (x + y) s2 (Add s3 fx (\t2. \k. k y))))))).
+Repeat recRepeat xy t fy =v
+  recRepeat > 0
+  /\ (∀s. 
+       s < 1 * t + 1 \/ s < (-1) * t + 1
+       \/ Check s fy
+           (\b. 
+             (b != 0
+              \/ (∀s2. 
+                   ∀s3. 
+                    s2 < 1 * t + 1 \/ s2 < (-1) * t + 1 \/ s3 < 1 * t + 1
+                    \/ s3 < (-1) * t + 1
+                    \/ Outer (1 - xy) s2 (Neg s3 fy)))
+             /\ (b != 1
+                 \/ (∀s2. 
+                      ∀s3. 
+                       s2 < 1 * t + 1 \/ s2 < (-1) * t + 1 \/ s3 < 1 * t + 1
+                       \/ s3 < (-1) * t + 1
+                       \/ Repeat (recRepeat - 1) (xy - 1) s2 (Pred s3 fy))))).
+Check t f k =v
+  ∀s. 
+   s < 1 * t + 1 \/ s < (-1) * t + 1
+   \/ f s (\x. (x != 0 \/ k 0) /\ (x = 0 \/ k 1)).
+Add t f g t2 k =v
+  ∀s. 
+   s < 1 * t + 1 \/ s < (-1) * t + 1 \/ s < 1 * t2 + 1 \/ s < (-1) * t2 + 1
+   \/ f s
+       (\x. 
+         ∀s2. 
+          s2 < 1 * x + 1 \/ s2 < (-1) * x + 1 \/ s2 < 1 * t2 + 1
+          \/ s2 < (-1) * t2 + 1
+          \/ g s2 (\y. k (x + y))).
+Neg t f t2 k =v
+  ∀s. s < 1 * t2 + 1 \/ s < (-1) * t2 + 1 \/ f s (\x. k (1 - x)).
+Pred t f t2 k =v
+  ∀s. s < 1 * t2 + 1 \/ s < (-1) * t2 + 1 \/ f s (\x. k (x - 1)).

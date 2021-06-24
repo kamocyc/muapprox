@@ -1,6 +1,6 @@
 /* 03_partial_related_elim.in の内容 */
 %HES
-Sentry =v
+S =v
   ∀x. 
    ∀y. 
     Make_array

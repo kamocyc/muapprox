@@ -2,7 +2,7 @@
 /* x, y を追加引数で渡す必要がある。 */
 
 %HES
-Sentry =v ∀x. A (M (\k. k x)).
+S =v ∀x. A (M (\k. k x)).
 
 A f =v ∀y. f (\k. k y).
 

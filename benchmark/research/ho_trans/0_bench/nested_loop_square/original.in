@@ -1,22 +1,22 @@
 /* 高階の情報を渡していないため、解けない */
 %HES
-Sentry =u
+S =u
   ∀n.
     Mult
       (\k. k 0)
       (\k. k n)
       (\k. k n)
       (\g.
-        Main (\r. true) g
+        Loop (\r. true) g
       ).
 
-Main k g =u
+Loop k g =u
   Check
     g
     (\b.
       (b =  0 => k 0) /\
       (b != 0 =>
-        Main k (Pred g)
+        Loop k (Pred g)
       )
     )
     .
@@ -33,4 +33,4 @@ Add f g k =u f (\fx. g (\gx. k (fx + gx))).
 Pred f k =u f (\r. k (r - 1)).
 
 Check f k =u
-  f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).
+  f (\n. (n = 0 => k 0) /\ (n != 0 => k 1)).

@@ -6,7 +6,7 @@ let outer m =
   event e_outer;
   if m <= 0 then fin
   else (
-    let n = <_forall> * in
+    let n = <d2> * in
     repeat n
   )
   
@@ -16,7 +16,7 @@ let repeat n =
   else repeat (n - 1)
 
 let () =
-  let n = <_forall> * in
+  let n = <d2> * in
   if n > 0 then
     outer n
   else fin

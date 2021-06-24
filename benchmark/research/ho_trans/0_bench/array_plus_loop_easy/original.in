@@ -2,7 +2,7 @@
 /* 再帰回数の算出と型付けのために、x, y, x+y をLoopに渡す必要がある */
 /* 引数追加の変換後にLoopにx, y, x+y を渡せば、z3 で 2 sec で解ける */
 %HES
-Sentry =u
+S =u
   ∀x. ∀y.
     Make_array (\ar.
       Update ar 0 x (\ar2.

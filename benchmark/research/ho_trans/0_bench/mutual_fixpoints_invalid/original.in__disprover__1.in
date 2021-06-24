@@ -1,0 +1,51 @@
+%HES
+S =v ∀x. x < 1 \/ Exists x.
+Exists x =v
+  (x > 0 /\ (∀s. s < 1 * x + 0 \/ s < (-1) * x + 0 \/ M s (\k. k x))
+   \/ -x > 0 /\ (∀s. s < 1 * -x + 0 \/ s < (-1) * -x + 0 \/ M s (\k. k (-x)))
+   \/ Exists (x - 1))
+  /\ x >= 0.
+M t f =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0
+   \/ (∀recOuter. 
+        recOuter < 1 + 1 * t \/ recOuter < 1 + (-1) * t \/ recOuter < 1
+        \/ Outer recOuter s f).
+Outer recOuter t fx =v
+  recOuter > 0
+  /\ Check fx
+      (\b. 
+        b = 0 /\ true
+        \/ b = 1
+           /\ (∀y. 
+                y < 1 \/ y < 1 * t \/ y < (-1) * t \/ Outer_e recOuter fx t y)).
+Outer_e recOuter fx t y =v
+  (y >= 0
+   /\ (∀s. 
+        ∀s2. 
+         s < 1 * y + 0 \/ s < (-1) * y + 0 \/ s < 1 * t + 0 \/ s < (-1) * t + 0
+         \/ s2 < 1 * y + 0
+         \/ s2 < (-1) * y + 0
+         \/ s2 < 1 * t + 0
+         \/ s2 < (-1) * t + 0
+         \/ Repeat recOuter s (Add fx (\k. k y)))
+   \/ -y >= 0
+      /\ (∀s. 
+           s < 1 * -y + 0 \/ s < (-1) * -y + 0 \/ s < 1 * t + 0
+           \/ s < (-1) * t + 0
+           \/ Repeat recOuter s (Add fx (\k. k (-y))))
+   \/ Outer_e recOuter fx t (y - 1))
+  /\ y >= 0.
+Repeat recOuter t fy =v
+  Check fy
+   (\b. 
+     b = 0
+     /\ (∀s. 
+          s < 1 * t + 0 \/ s < (-1) * t + 0 \/ Outer (recOuter - 1) s (Neg fy))
+     \/ b = 1
+        /\ (∀s. 
+             s < 1 * t + 0 \/ s < (-1) * t + 0 \/ Repeat recOuter s (Pred fy))).
+Check f k =v f (\x. (x != 0 \/ k 0) /\ (x = 0 \/ k 1)).
+Add f g k =v f (\x. g (\y. k (x + y))).
+Neg f k =v f (\x. k (-x)).
+Pred f k =v f (\x. k (x - 1)).

@@ -1,7 +1,7 @@
 /* 05_partial_elim.in */
 /* hoice で 2.4 sec */
 %HES
-Sentry =v
+S =v
   ∀n. 
    ∀s. 
     s < 1 * n + 0 \/ s < (-1) * n + 0
@@ -15,10 +15,10 @@ Sentry =v
                  \/ recMain < 1 + (-1) * t
                  \/ recMain < 1 + (-1) * n
                  \/ recMain < 1
-                 \/ Main recMain true g)).
-Main recMain k g =v
+                 \/ Loop recMain true g)).
+Loop recMain k g =v
   recMain > 0
-  /\ Check g (\b. (b != 0 \/ k) /\ (b = 0 \/ Main (recMain - 1) k (Pred g))).
+  /\ Check g (\b. (b != 0 \/ k) /\ (b = 0 \/ Loop (recMain - 1) k (Pred g))).
 Mult recMult t acc f g k =v
   recMult > 0
   /\ Check f

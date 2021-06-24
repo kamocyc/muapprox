@@ -1,0 +1,6 @@
+mutual_fixpoints/01_none.in
+mutual_fixpoints/02_partial.in
+mutual_fixpoints/03_partial_related_elim.in
+mutual_fixpoints/04_partial_related.in
+mutual_fixpoints/05_partial_elim.in
+mutual_fixpoints/06_related_elim.in
