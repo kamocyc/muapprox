@@ -1,6 +1,16 @@
 type process_status = Unix.process_status
 let partition = List.partition
-
+let partition_map t ~f =
+  let rec loop t fst snd =
+    match t with
+    | [] -> List.rev fst, List.rev snd
+    | x :: t ->
+      (match f x with
+       | `Fst y -> loop t (y :: fst) snd
+       | `Snd y -> loop t fst (y :: snd))
+  in
+  loop t [] []
+  
 let contains_duplicates ls = (List.length @@ List.sort_uniq compare ls) <> List.length ls
 
 let group_by f l1 =
