@@ -192,7 +192,7 @@ let unify (constraints : (R.ptype * R.ptype) list) =
       else begin
         match t1, t2 with
         | TFunc (t11, t12), TFunc (t21, t22) ->
-          unify ((t11, t21) :: (t12, t22) :: constraints)
+          unify ((t11, t21) :: (t12, t22) :: xs)
         | TVar t11, t2 -> begin
           if is_occur t11 t2 then failwith "occur1";
           compose_subst (t11, t2) (unify (subst xs (t11, t2)))
