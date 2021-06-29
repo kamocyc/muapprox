@@ -32,3 +32,7 @@ let remove (bounds : 'a Id.t list) (env : 'a t) : 'a t =
 let merge (envs : 'a t list) =
   envs |> List.flatten |> remove_dublicate
 let to_list x = x
+
+let show_list f ls = "[ " ^ (List.map f ls |> String.concat "; \n") ^ " ]"
+
+let show_env f (e: 'a t) = show_list f e
