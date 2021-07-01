@@ -75,12 +75,6 @@ let show_enter_flag_constraint = function
 
 module Print_temp = struct
   open Hflmc2_syntax.Print
-    
-  let pid : Stdlib__format.formatter -> int -> unit = fun fmt _i ->
-    (* Fmt.pf fmt "<%d>" i *)
-    Fmt.string fmt ""
-  
-  let p_id ppf id = Fmt.pf ppf "@[<h>%a@]" pid id.Id.id
 
   let rec gen_arith_ : 'avar t_with_prec -> ptype tarith t_with_prec =
     fun avar_ prec ppf a ->
@@ -109,17 +103,6 @@ module Print_temp = struct
     ignore_prec id
   let arith_ : Prec.t -> ptype tarith Fmt.t =
     fun prec ppf a -> gen_arith_ id_ prec ppf a
-  
-  let pred : Formula.pred t =
-    fun ppf pred -> match pred with
-      | Eq  -> Fmt.string ppf "="
-      | Neq -> Fmt.string ppf "!="
-      | Le  -> Fmt.string ppf "<="
-      | Ge  -> Fmt.string ppf ">="
-      | Lt  -> Fmt.string ppf "<"
-      | Gt  -> Fmt.string ppf ">"
-  let pred_ : Formula.pred t_with_prec =
-    ignore_prec pred
   
   let rec hflz_ : (Prec.t -> ptype Fmt.t) -> Prec.t -> ptype thflz Fmt.t =
     fun format_ty_ prec ppf (phi : ptype thflz) -> match phi with
@@ -186,7 +169,6 @@ module Print_temp = struct
   let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty thflz Fmt.t =
     fun format_ty_ -> hflz_ format_ty_ Prec.zero
 
-(* 'a Id.t * 'a Id.t list * 'a thflz * Fixpoint.t *)
   let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule Fmt.t =
     fun format_ty_ ppf {outer; inner; body; fix} ->
       let rec to_flags ty =
@@ -460,36 +442,31 @@ let to_thflzs hes is_recursive rec_flags =
       (fun {Hflz.var; body; fix} ->
         let args, body = Hflz.decompose_abs body in
         let arg_and_flags =
-          List.map (fun arg -> { arg with Id.ty = TVar (Id.gen ())}, arg, EFVar (Id.gen ())) args in
+          List.map (fun arg -> { arg with Id.ty = TVar (Id.gen ())}, EFVar (Id.gen ())) args in
         let outer =
           let rec go args = match args with
             | [] -> TBool
-            | (x, x', f)::xs ->
+            | (x, f)::xs ->
               let flag =
                 match fix with
                 | Greatest -> f
                 | Least -> begin
                   let (_, rec_f) = List.find (fun (id, _) -> Id.eq id var) is_recursive in
-                  if rec_f then begin
-                    match x'.Id.ty with
-                    | Type.TySigma (Type.TyArrow _) -> Enter
-                    | _ -> f
-                  end
-                  else
-                    f
+                  if rec_f then Enter
+                  else f
                 end
               in
               TFunc (x.Id.ty, go xs, flag)
           in 
-          {var={var with ty = go arg_and_flags}; args = List.map (fun (arg, _, _) -> arg) arg_and_flags}
+          {var={var with ty = go arg_and_flags}; args = List.map (fun (arg, _) -> arg) arg_and_flags}
         in
         let inner =
           let rec go args = match args with
             | [] -> TBool
-            | (x, _, f)::xs ->
+            | (x, f)::xs ->
               TFunc (x.Id.ty, go xs, f)
           in
-          {var={var with ty=go arg_and_flags}; args = List.map (fun (arg, _, _) -> arg) arg_and_flags}
+          {var={var with ty=go arg_and_flags}; args = List.map (fun (arg, _) -> arg) arg_and_flags}
         in
         ( outer, inner, body, fix )
       )
@@ -696,51 +673,6 @@ let subst_program (rules : ptype thes_rule list) (subst : (unit Id.t * ptype) li
     { outer; inner; body; fix }
   ) rules
 
-(* let to_hflz_with_same_type (rules : ptype thes_rule list) =
-  let is_int_type ty = ty = TInt in
-  let rec go (phi : ptype thflz) = match phi with
-    | Bool b -> Hflz.Bool b
-    | Var v -> Var v
-    | Or (p1, p2) -> Or (go p1, go p2)
-    | And (p1, p2) -> And (go p1, go p2)
-    | Abs (v, p) -> Abs ({v with ty = Type.TySigma v.ty}, go p)
-    | Forall (v, p) -> begin
-      match v.Id.ty with
-      | TVar _ -> go p
-      | _ -> begin
-        assert (is_int_type v.Id.ty);
-        Forall ({ v with Id.ty = Type.TySigma TInt }, go p)
-      end
-    end
-    | Exists (v, p) -> begin
-      match v.Id.ty with
-      | TVar _ -> go p
-      | _ -> begin
-        assert (is_int_type v.Id.ty);
-        Exists ({ v with Id.ty = Type.TySigma TInt }, go p)
-      end
-    end
-    | App (p1, p2) -> App (go p1, go p2)
-    | Arith a -> Arith (go_arith a)
-    | Pred (op, ps) -> Pred (op, List.map go_arith ps)
-  and go_arith (phi : ptype tarith) = match phi with
-    | Int i -> Arith.Int i
-    | Var v ->
-      assert (is_int_type v.ty);
-      Var { v with ty = `Int }
-    | Op (e, ps) -> Op (e, List.map go_arith ps)
-  in
-  List.map (fun (var, args, body, fix) ->
-    let var = var in
-    let args = List.map (fun v -> v) args in
-    let body = go body in
-    let rec go ls body = match ls with
-      | [] -> body
-      | x::xs -> Hflz.Abs ({x with ty=Type.TySigma x.Id.ty}, go xs body) in
-    let body = go args body in
-    { Hflz.var; body; fix }
-  ) rules *)
-  
 let rec to_ty = function
   | TFunc (arg, body, _) -> Type.TyArrow ({name = ""; id = 0; ty = to_argty arg}, to_ty body)
   | TBool -> Type.TyBool ()
@@ -1014,10 +946,7 @@ let construct_recursion_flags (rules : 'a Type.ty Hflz.hes_rule list) =
   in
   print_endline @@ Hflmc2_util.show_pairs Id.to_string (fun flags -> Hflmc2_util.show_pairs Id.to_string show_recursive_flag flags) map;
   map
-  
-  
-  
-(* TODO: debug *)
+
 let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
   let rules = Hflz.merge_entry_rule hes in
   let is_recursive = get_recursivity rules in
@@ -1027,8 +956,6 @@ let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
   print_endline @@ show_s_thes_rules rules;
   let rules = infer_thflz_type rules rec_flags in
   let () =
-    (* let rules = to_hflz_with_same_type rules in
-    let rules = Hflz.decompose_entry_rule rules in *)
     print_endline "result:";
     print_endline @@
       Hflmc2_util.fmt_string
