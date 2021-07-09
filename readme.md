@@ -4,7 +4,7 @@
 
 The full HFLz solver (by Tanahashi) uses the vHFLz solver (by Katsura) as a backend, which uses Z3, Hoice (the two is for solving CHC), Eldarica (for disproving vHFLz), and PCSat (for solving extended CHC).
 
-## Ubuntu 18.04
+**OS: Ubuntu 18.04**
 
 ### Create a directory to put repositories
 
