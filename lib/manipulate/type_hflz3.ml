@@ -1,4 +1,4 @@
-open Hflmc2_syntax
+(* open Hflmc2_syntax
 module Env = Env_no_value
 
 type 'ty tarith = 'ty Id.t Arith.gen_t
@@ -30,6 +30,9 @@ type 'a thes_rule = {outer: 'a fixpoint_type; inner: 'a fixpoint_type; body: 'a 
 [@@deriving eq,ord,show]
 
 type s_thes_rules = ptype thes_rule list
+[@@deriving eq,ord,show]
+
+type type_constraint = T_Equal of ptype * ptype | T_Le of ptype * ptype
 [@@deriving eq,ord,show]
 
 type enter_flag_constraint = EF_Equal of enter_flag * enter_flag | EF_Le of enter_flag * enter_flag
@@ -493,8 +496,24 @@ let to_thflzs hes is_recursive rec_flags =
       { outer; inner; body; fix }
     )
     rules
-  
-let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty Id.t * ('a Type.ty Id.t * recursive_flag) list) list) : (ptype * ptype) list * enter_flag_constraint list =
+
+let get_argument_types ty =
+  let rec go ty = match ty with
+    | TFunc (argty, bodyty, _) ->
+      argty :: (go bodyty)
+    | _ -> []
+  in
+  go ty
+
+let get_flags ty =
+  let rec go ty = match ty with
+    | TFunc (_, bodyty, f) ->
+      f :: (go bodyty)
+    | _ -> []
+  in
+  go ty
+
+let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty Id.t * ('a Type.ty Id.t * recursive_flag) list) list) : type_constraint list * enter_flag_constraint list =
   let filter_env env fvs =
     List.fold_left
       (fun env' fv ->
@@ -504,46 +523,50 @@ let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty
       (Env.create [])
       fvs
   in
-  let rec gen (env : (ptype * enter_flag) Env.t) (raw : ptype thflz)
-      : ptype * (ptype * ptype) list * enter_flag_constraint list = match raw with
+  let rec gen (env : (ptype) Env.t) (raw : ptype thflz)
+      : ptype * type_constraint list * enter_flag_constraint list = match raw with
     | Bool _ -> (TBool, [], [])
     | Var v ->
       let id = Env.lookup v env in
-      let ty, _ = id.ty in
+      let ty = id.ty in
       (ty, [], [])
     | Or (p1, p2) ->
       let t1, c1, f1 = gen env p1 in
       let t2, c2, f2 = gen env p2 in
-      (TBool, (TBool, t1) :: (TBool, t2) :: c1 @ c2, f1 @ f2)
+      (TBool, (T_Equal (TBool, t1)) :: (T_Equal (TBool, t2)) :: c1 @ c2, f1 @ f2)
     | And (p1, p2) ->
       let t1, c1, f1 = gen env p1 in
       let t2, c2, f2 = gen env p2 in
-      (TBool, (TBool, t1) :: (TBool, t2) :: c1 @ c2, f1 @ f2)
+      (TBool, (T_Equal (TBool, t1)) :: (T_Equal (TBool, t2)) :: c1 @ c2, f1 @ f2)
     | Abs (arg, body, ty_aux) -> begin
       let flag = Id.gen () in
-      let env = Env.update [{arg with ty = (arg.ty, EFVar flag)}] env in
+      let env = Env.update [{arg with ty = arg.ty}] env in
       let t, c, f = gen env body in
       let ty = TFunc (arg.Id.ty, t, EFVar flag) in
       (ty, (ty, ty_aux) :: c, f)
     end
     | Forall (arg, body) ->
-      let flag = Id.gen () in
-      let env = Env.update [{arg with ty = (arg.ty, EFVar flag)}] env in
+      let env = Env.update [{arg with ty = arg.ty}] env in
       let t, c, f = gen env body in
       (t, (* (arg.Id.ty, TInt) :: *) c, f)
     | Exists (arg, body) ->
-      let flag = Id.gen () in
-      let env = Env.update [{arg with ty = (arg.ty, EFVar flag)}] env in
+      let env = Env.update [{arg with ty = arg.ty}] env in
       let t, c, f = gen env body in
       (t, (* (arg.Id.ty, TInt) :: *) c, f)
     | App (p1, p2) ->
+      let t1, c1, f1 = gen env p1 in
+      let t2, c2, f2 = gen env p2 in
       let flag_a1 = Id.gen () in
+      let tvar = Id.gen () in
+      (TVar tvar, (t1, TFunc (t2, TVar tvar, EFVar flag_a1)) :: c1 @ c2, f1 @ f2 @ flag_constrs)
+      (* let flag_a1 = Id.gen () in
       let t1, c1, f1 = gen env p1 in
       let (t2, c2, f2), flag_constrs = (
         let fvs = get_free_variables p2 in
         let env' = filter_env env fvs in
         let flag_constrs =
-          Env.to_list env' |> List.map (fun id -> snd id.Id.ty)
+          Env.to_list env'
+          |> List.map (fun id -> id.Id.ty)
           |> List.map (fun f -> EF_Le (EFVar flag_a1, f)) in
         (* if List.length flag_constrs > 0 then (
           print_endline "fvs";
@@ -558,7 +581,7 @@ let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty
         ); *)
         gen env' p2, flag_constrs ) in
       let tvar = Id.gen () in
-      (TVar tvar, (t1, TFunc (t2, TVar tvar, EFVar flag_a1)) :: c1 @ c2, f1 @ f2 @ flag_constrs)
+      (TVar tvar, (t1, TFunc (t2, TVar tvar, EFVar flag_a1)) :: c1 @ c2, f1 @ f2 @ flag_constrs) *)
     | Arith a ->
       let ty, c = gen_arith env a in
       (TInt, (TInt, ty) :: c, [])
@@ -566,11 +589,11 @@ let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty
       let results = List.map (gen_arith env) ps in
       let tys, cs = List.split results in
       (TBool, (List.map (fun ty -> (TInt, ty)) tys) @ (List.flatten cs), [])
-  and gen_arith (env : (ptype * enter_flag) Env.t) (raw : ptype tarith)
+  and gen_arith (env : ptype Env.t) (raw : ptype tarith)
       : ptype * (ptype * ptype) list = match raw with
     | Var v ->
       let id = Env.lookup v env in
-      let ty, _ = id.ty in
+      let ty = id.ty in
       (ty, [(ty, TInt)])
     | Int _ -> (TInt, [])
     | Op (_, ps) ->
@@ -944,7 +967,6 @@ let construct_recursion_flags (rules : 'a Type.ty Hflz.hes_rule list) =
       )
       preds
   in
-  print_endline "recursion flags:";
   print_endline @@ Hflmc2_util.show_pairs Id.to_string (fun flags -> Hflmc2_util.show_pairs Id.to_string show_recursive_flag flags) map;
   map
 
@@ -969,4 +991,4 @@ let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
   let hes = Hflz.decompose_entry_rule rules in
   Hflz_typecheck.type_check hes;
   print_endline @@ Hflz.show_hes Type.pp_simple_ty hes; 
-  hes
+  hes *)

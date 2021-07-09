@@ -1,4 +1,3 @@
-/* 高階の情報を渡していないため、解けない */
 %HES
 S =u
   ∀n.
@@ -18,8 +17,7 @@ Loop k g =u
       (b != 0 =>
         Loop k (Pred g)
       )
-    )
-    .
+    ).
 
 Mult acc f g k =u
   Check f (\b.

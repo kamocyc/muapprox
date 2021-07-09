@@ -7,8 +7,6 @@ open Hflmc2_util
 (******************************************************************************)
 
 let format = ref (Obj.magic())
-let oneshot = ref (Obj.magic())
-let no_approx_mu = ref (Obj.magic())
 let timeout = ref (Obj.magic())
 let print_for_debug = ref (Obj.magic())
 let no_backend_inlining = ref (Obj.magic())
@@ -42,90 +40,86 @@ let set_ref ref x = ref := x
 type params =
   {
   input : string list [@pos 0] [@docv "FILE"]
-  (** input file path **)
+  (** input file path *)
   
   ; format : string [@default "auto"]
-  (** input file format ("auto" / "hes" / "in". Default is "auto") **)
+  (** input file format ("auto" / "hes" / "in". Default is "auto") *)
 
   ; no_inlining_backend : bool [@default false]
-  (** Disable inlining in a backend solver*)
+  (** Disable inlining in a backend solver *)
   
-  ; oneshot : bool [@default false]
-  (** Not used **)
-  
-  ; no_approx_mu : bool [@default false]
-  (** Do not perform approximation of mu and exists. This may cause wrong verification result **)
-    
   ; timeout : float [@default 240.0]
-  (** Timeout for a backend solver **)
+  (** Timeout for a backend solver *)
   
   ; print_for_debug : bool [@default true]
-  (** print for debug **)
+  (** Print for debug *)
   
   ; no_separate_original_formula_in_exists : bool [@default true]
-  (** If specified, when approximating exists do not create new predicate that reduces the formula size **)
+  (** If specified, when approximating exists, do not create new predicate that reduces the formula size *)
   
   ; solver : string [@default "katsura"]
-  (** Choose background nu-only-HFLz solver. Available: katsura, iwayama *)
+  (** Choose background nu-only-HFLz solver. Available: katsura, iwayama, suzuki *)
   
   ; solver_backend : string [@default ""]
   (** --solver option on the backend solver. (only used in the katsura solver) *)
   
   ; first_order_solver : bool [@default false]
-  (** If true, use z3 or hoice to solve first-order formulas. If empty (or default), always use a solver for higher-order formulas. **)
+  (** If true, use z3 or hoice to solve first-order formulas. If empty (or default), always use a solver for higher-order formulas. *)
   
   ; coe : string [@default "1,1"]
-  (** Initial coefficients. Speficfy such as "1,8" (default is "1,1") **)
+  (** Initial coefficients for approximating mu and exists. Speficfy such as "1,8" (default is "1,1") *)
   
   ; dry_run : bool [@default false]
-  (** Do not solve **)
+  (** Do not solve *)
   
   ; no_simplify : bool [@default false]
-  (** Do not simplify formula. It seems to get better results when false. (default: false) **)
+  (** Do not simplify formula. It seems to get better results when false. (default: false) *)
   
   ; stop_on_unknown : bool [@default false]
-  (** If true, skip "Unknown" result from a backend solver (the same behaviour as "Invalid" result). If false, stop solving when get "Unknown". (default: true) **)
+  (** If false, skip "Unknown" result from a backend solver (the same behaviour as "Invalid" result). If true, stop solving when get "Unknown". (default: false) *)
   
   ; always_approximate : bool [@default false]
-  (** Always approximate a HFLz formula even if the formula (or its dual) is v-HFLz. **)
+  (** Always approximate a HFLz formula even if the formula (or its dual) is v-HFLz. (debug purpose) *)
   
   ; instantiate_exists: bool [@defalut false]
-  (** At the first iteration (coe1=1, coe2=1), assign concrete values to existentially quantified variables. **)
+  (** At the first iteration (coe1=1, coe2=1), assign concrete values to existentially quantified variables. *)
   
   ; default_lexicographic_order: int [@default 1]
+  (** Default number of pairs when using lexicographic order *)
   
   ; simplify_bound : bool [@default false]
+  (** Simplify bound formulas for approximating mu *)
   
   ; use_simple_encoding_when_lexico_is_one: bool [@default true]
+  (* Use simple encoding when lexicographic order is one *)
   
   ; disable_lexicographic: bool [@default false]
+  (* Disable trying encoding of lexicographic order *)
   
   ; add_arguments : bool [@default false]
-  (** Add integer arguments that represent information of higher-order arguments **)
+  (** Add integer arguments that represent information of higher-order arguments *)
   
   ; coe_arguments : string [@default "1,0"]
-  (** Coefficients of added arguments (default: 1,0) **)
+  (** Coefficients of added arguments (default: 1,0) *)
   
   ; no_elim : bool [@default false]
-  (** Don't eliminate mu and exists (for debug) **)
+  (** Don't eliminate mu and exists (debug purpose) *)
   
   ; partial_analysis : bool [@default false]
-  (** Analyze partial applications to optimize added arguments **)
+  (** Analyze partial applications to optimize added arguments *)
   
   ; use_related : bool [@default false]
-  (** Analyze related integer variables to optimize added arguments **)
+  (** Analyze related integer variables to optimize added arguments *)
   
   ; use_all_variables : bool [@default false]
-  (** Use all variables (not only variables which are occured in arguments of application) to guess recursion bound to approximate least-fixpoints. (This may (or may not) help Hoice.) **)
+  (** Use all variables (not only variables which are occured in arguments of application) to guess a recursion bound to approximate least-fixpoints. (This may (or may not) help Hoice.) *)
   
   ; eliminate_unused_arguments : bool [@default false]
-  (** Eliminate unused arguments using type-based analysis **)
+  (** Eliminate unused arguments using type-based analysis *)
   }
 [@@deriving cmdliner,show]
 
 let set_up_params params =
-  set_ref no_approx_mu             params.no_approx_mu;
-  set_ref oneshot                  params.oneshot;
   set_ref format                   params.format;
   set_ref timeout                  params.timeout;
   set_ref print_for_debug          params.print_for_debug;

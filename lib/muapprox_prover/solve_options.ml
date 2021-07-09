@@ -7,7 +7,6 @@ type options =
     no_disprove: bool;
     timeout : float;
     print_for_debug : bool;
-    oneshot : bool;
     separate_original_formula_in_exists : bool;
     solver : solver_type;
     solver_backend: string option;

@@ -71,7 +71,6 @@ let get_solve_options file =
     no_disprove = true;
     timeout = !Options.timeout;
     print_for_debug = !Options.print_for_debug;
-    oneshot = !Options.oneshot;
     separate_original_formula_in_exists = not !Options.no_separate_original_formula_in_exists;
     solver = get_solver !Options.solver;
     first_order_solver = get_first_order_solver !Options.first_order_solver;

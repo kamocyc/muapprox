@@ -1,14 +1,22 @@
+%HES
+S =v ∀y. (\f. Y f y (\_. false)) (\g. Loop g).
+Y f y k =u k y \/ f (Y f y).
+Loop g =u g (\y. y <= 0 \/ Loop (\k. k (y - 1))).
+
+
 /*
 %HES
 S =v ∀z. (\f. f (\k. k z)) (\g. Loop g).
 Loop g =u g (\x. x <= 0 \/ Loop (\k. k (x - 1))).
 */
 
+/*
 %HES
 S =v (\f. ∀z. Y z f 0 (\x. false)) (\i g. Loop g (\j. true \/ i = i \/ j = j)).
 Y z f y k =u y != 0 \/ (X z f 0 /\ k z).
 X z f x =u f z (Y z f 1).
 Loop g k' =u g (\x. (x <= 0 \/ Loop (\k. k (x - 1)) k')).
+*/
 
 /*
 (\f. ∀z. (uY. \y. \k. y != 0 \/ ((uX. \x. f (Y 1)) 0 /\ k z)) 0 (\x. false)) (\g. Loop g)
