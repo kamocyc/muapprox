@@ -1,0 +1,4 @@
+%HES
+S =v Loop (\x. x = 0) (\z. z = 0) (\y. Loop2 y).
+Loop f g k =u Loop f g k \/ k g.
+Loop2 y' =u Loop2 y'.

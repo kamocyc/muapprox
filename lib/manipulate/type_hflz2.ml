@@ -1,6 +1,8 @@
 open Hflmc2_syntax
 module Env = Env_no_value
 
+let simplified_type = ref false
+
 type 'ty tarith = 'ty Id.t Arith.gen_t
 [@@deriving eq,ord,show]
 
@@ -126,7 +128,7 @@ module Print_temp = struct
             match ty with
             | TFunc (_, _, f) -> show_enter_flag f
             | _ -> "" in
-          show_paren (prec > Prec.abs) ppf "@[<1>λ%a:_{%s}%a.@,%a@]"
+          show_paren (prec > Prec.abs) ppf "@[<1>λ%a:{%s}%a.@,%a@]"
             id x
             f_str
             (format_ty_ Prec.(succ arrow)) x.ty
@@ -178,7 +180,7 @@ module Print_temp = struct
       in
       Fmt.pf ppf "@[<2>%s %a =%a@ %a@]"
         (Id.to_string outer.var)
-        (pp_print_list ~pp_sep:Print_syntax.PrintUtil.fprint_space (fun ppf ((arg, f1), f2) -> fprintf ppf "(%s :_{%s,%s} %a)" (Id.to_string arg) (show_enter_flag f1) (show_enter_flag f2) (format_ty_ Prec.zero) arg.Id.ty))
+        (pp_print_list ~pp_sep:Print_syntax.PrintUtil.fprint_space (fun ppf ((arg, _f1), f2) -> fprintf ppf "(%s : {%s}(%a))" (Id.to_string arg) (* show_enter_flag f1 *) (show_enter_flag f2) (format_ty_ Prec.zero) arg.Id.ty))
         (List.combine (List.combine outer.args (to_flags outer.var.Id.ty)) (to_flags inner.var.Id.ty))
         fixpoint fix
         (hflz format_ty_) body
@@ -191,19 +193,33 @@ module Print_temp = struct
 end
 
 let rec pp_ptype prec ppf ty =
-  match ty with
-  | TBool ->
-    Fmt.pf ppf "bool"
-  | TInt ->
-    Fmt.pf ppf "int"
-  | TFunc (ty1, ty2, f) ->
-    Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>%a -%s->@ %a@]"
-      (pp_ptype Print.Prec.(succ arrow)) ty1
-      (show_enter_flag f)
-      (pp_ptype Print.Prec.arrow) ty2
-  | TVar (id) ->
-    Fmt.pf ppf "%s" (Id.to_string id)
+  if !simplified_type then begin
+    match ty with
+    | TBool ->
+      Fmt.pf ppf "bool"
+    | TInt ->
+      Fmt.pf ppf "int"
+    | TFunc (ty1, ty2, _) ->
+      Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>%a ->@ %a@]"
+        (pp_ptype Print.Prec.(succ arrow)) ty1
+        (pp_ptype Print.Prec.arrow) ty2
+    | TVar (id) ->
+      Fmt.pf ppf "%s" (Id.to_string id)
+  end else begin
+    match ty with
+    | TBool ->
+      Fmt.pf ppf "bool"
+    | TInt ->
+      Fmt.pf ppf "int"
+    | TFunc (ty1, ty2, f) ->
+      Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>%a -%s->@ %a@]"
+        (pp_ptype Print.Prec.(succ arrow)) ty1
+        (show_enter_flag f)
+        (pp_ptype Print.Prec.arrow) ty2
+    | TVar (id) ->
+      Fmt.pf ppf "%s" (Id.to_string id)
     
+  end
 let get_free_variables phi =
   let rec go phi = match phi with
     | Bool _ -> []
