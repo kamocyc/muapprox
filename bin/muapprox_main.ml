@@ -19,7 +19,7 @@ let () =
             Muapprox.report_times ();
             print_endline @@ Muapprox.show_debug_contexts debug_contexts
           end else 
-            Fmt.pr "%s" (Muapprox.show_result r);
+            Fmt.pr "%s\n" (Muapprox.show_result r);
       | exception
           ( Muapprox.Util.Fn.Fatal e
           | Muapprox.Syntax.ParseError e

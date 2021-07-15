@@ -91,10 +91,10 @@ type params =
   (** Simplify bound formulas for approximating mu *)
   
   ; use_simple_encoding_when_lexico_is_one: bool [@default true]
-  (* Use simple encoding when lexicographic order is one *)
+  (** Use simple encoding when lexicographic order is one *)
   
   ; disable_lexicographic: bool [@default false]
-  (* Disable trying encoding of lexicographic order *)
+  (** Disable trying encoding of lexicographic order *)
   
   ; add_arguments : bool [@default false]
   (** Add integer arguments that represent information of higher-order arguments *)
