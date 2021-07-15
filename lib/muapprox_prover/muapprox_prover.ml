@@ -456,7 +456,7 @@ let summary_results (results : (Status.t * 'a) list) =
   end
 
 (* これ以降、本プログラム側での近似が入る *)
-let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : Solve_options.options) debug_output hes mode_name =
+let rec mu_elim_solver oneshot coe1 coe2 lexico_pair_number iter_count (solve_options : Solve_options.options) debug_output hes mode_name =
   Hflz_mani.simplify_bound := solve_options.simplify_bound;
   let nu_only_heses = elim_mu_exists coe1 coe2 solve_options.add_arguments solve_options.coe_arguments solve_options.no_elim solve_options.partial_analysis solve_options.use_related solve_options.use_all_variables lexico_pair_number solve_options.eliminate_unused_arguments debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
   let debug_context_ = Some {
@@ -548,23 +548,26 @@ let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : 
           else if (coe1,coe2)=(1,1) 
             then (1,8,solve_options.default_lexicographic_order)
             else (2*coe1, 2*coe2,solve_options.default_lexicographic_order) in
-        mu_elim_solver coe1' coe2' lexico_pair_number (iter_count + 1) solve_options false hes mode_name
+        mu_elim_solver oneshot coe1' coe2' lexico_pair_number (iter_count + 1) solve_options false hes mode_name
       in
       match result with
       | Status.Valid -> return (Status.Valid, debug_contexts)
-      | Status.Invalid -> retry coe1 coe2
-      | Status.Unknown -> 
+      | Status.Invalid ->
+        if oneshot then return (Status.Invalid, debug_contexts)
+        else retry coe1 coe2
+      | Status.Unknown ->
         if not solve_options.stop_on_unknown then (
           log_string ~header:"Result" @@ "return Unknown (" ^ show_debug_contexts debug_contexts ^ ")";
-          retry coe1 coe2
+          if oneshot then return (Status.Unknown, debug_contexts)
+          else retry coe1 coe2
         ) else return (Status.Unknown, debug_contexts)
       | Status.Fail -> return (Status.Fail, debug_contexts)))
 
 let check_validity_full coe1 coe2 (solve_options : Solve_options.options) hes cont =
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in
   let dresult = Deferred.any
-                  [mu_elim_solver coe1 coe2 solve_options.default_lexicographic_order 1 solve_options solve_options.print_for_debug hes "prover";
-                   (mu_elim_solver coe1 coe2 solve_options.default_lexicographic_order 1 solve_options solve_options.print_for_debug hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
+                  [mu_elim_solver false coe1 coe2 solve_options.default_lexicographic_order 1 solve_options solve_options.print_for_debug hes "prover";
+                   (mu_elim_solver false coe1 coe2 solve_options.default_lexicographic_order 1 solve_options solve_options.print_for_debug hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
   let dresult = dresult >>=
     (fun ri -> kill_processes (Some "prover") >>=
       (fun _ -> kill_processes (Some "disprover") >>|
@@ -575,10 +578,21 @@ let check_validity_full coe1 coe2 (solve_options : Solve_options.options) hes co
       shutdown 0);
   Core.never_returns(Scheduler.go())
 
-let solve_onlynu_onlyforall_with_schedule solve_options nu_only_hes cont =
+let solve_onlynu_onlyforall_with_schedule (solve_options : Solve_options.options) nu_only_hes cont =
+  let dresult = mu_elim_solver true 0 0 solve_options.default_lexicographic_order 1 {solve_options with no_elim = true; no_disprove = false} solve_options.print_for_debug nu_only_hes "solver" in
+  let dresult = dresult >>=
+    (fun ri -> kill_processes (Some "solver") >>|
+        (fun _ -> ri)) in
+  upon dresult (
+    fun (result, info) ->
+      cont (result, info);
+      shutdown 0);
+  Core.never_returns(Scheduler.go())
+  
+(* let solve_onlynu_onlyforall_with_schedule solve_options nu_only_hes cont =
   let dresult = Deferred.any [solve_onlynu_onlyforall { solve_options with no_disprove = false } None nu_only_hes true >>| (fun (s, _) -> s)] in
   upon dresult (fun result -> cont (result, [None]); Rfunprover.Solver.kill_z3(); shutdown 0);
-  Core.never_returns(Scheduler.go())
+  Core.never_returns(Scheduler.go()) *)
   
 (* 「shadowingが無い」とする。 *)
 (* timeoutは個別のsolverのtimeout *)  
