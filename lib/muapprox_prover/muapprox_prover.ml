@@ -15,6 +15,12 @@ open Unix_command
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
 
+let log_string ?header s =
+  let reporter = Logs.reporter () in
+  Logs.set_reporter (Logs.format_reporter ());
+  Log.app begin fun m -> m ?header "%s" s end;
+  Logs.set_reporter reporter
+  
 type debug_context = {
   coe1: int;
   coe2: int;
@@ -85,14 +91,14 @@ module FptProverRecLimitSolver : BackendSolver = struct
     | Sat | UnSat -> assert false
   
   let run option debug_context (hes : 'a Hflz.hes) with_par =
-    print_endline "FIRST-ORDER";
+    log_string "FIRST-ORDER";
     let path_ = Manipulate.Print_syntax.FptProverHes.save_hes_to_file hes in
-    print_endline @@ "HES PATH: " ^ path_;
+    log_string @@ "HES PATH: " ^ path_;
     let hes = Hflz_convert_rev.of_hes hes in
-    print_endline @@ "Converted Hes: " ^ Convert.Hesutil.str_of_hes hes;
+    log_string @@ "Converted Hes: " ^ Convert.Hesutil.str_of_hes hes;
     let hes' = Hflz_convert.of_hes hes in
     let path_ = Manipulate.Print_syntax.FptProverHes.save_hes_to_file hes' in
-    print_endline @@ "HES PATH 2: " ^ path_;
+    log_string @@ "HES PATH 2: " ^ path_;
     output_debug debug_context path_;
     (* Global.config := Config.update_hoice true Global.config; *)
     (* 1, 2番目の引数は使われていない *)
@@ -114,8 +120,7 @@ module SolverCommon = struct
         Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:true true hes 
       | None ->
         Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
-    print_string @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": ";
-    print_endline path';
+    log_string ~header:"Solve info" @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": " ^ path';
     output_debug debug_context path';
     (if dry_run then failwith "DRY RUN");
     ()
@@ -164,7 +169,7 @@ module SolverCommon = struct
       match exit_status with 
       | Ok () -> begin
         let status = status_parser stdout in
-        print_endline @@ "Parsed status: " ^ Status.string_of status ^ " " ^ (show_debug_context debug_context);
+        log_string ~header:"Result" @@ "Parsed status: " ^ Status.string_of status ^ " " ^ (show_debug_context debug_context);
         status, (
         match status with
         | Valid -> TValid
@@ -172,20 +177,20 @@ module SolverCommon = struct
         | _ -> TUnknown)
       end
       | Error (`Exit_non_zero 143) -> begin
-        print_endline @@ "Terminated " ^ (show_debug_context debug_context);
+        log_string ~header:"Result" @@ "Terminated " ^ (show_debug_context debug_context);
         Status.Unknown, TTerminated
       end
       | Error (`Exit_non_zero 128) -> begin
         (* why 128? *)
-        print_endline @@ "Terminated (128) " ^ (show_debug_context debug_context);
+        log_string ~header:"Result" @@ "Terminated (128) " ^ (show_debug_context debug_context);
         Status.Unknown, TTerminated
       end
       | _ -> begin
-        print_endline "error status";
+        log_string ~header:"Result" "error status";
         Status.Unknown, TError
       end in
     output_post_debug_info tmp_res elapsed stdout stderr debug_context;
-    print_endline @@ Status.string_of res;
+    log_string ~header:"Result" @@ Status.string_of res;
     res
 end
 
@@ -200,7 +205,6 @@ module KatsuraSolver : BackendSolver = struct
   let save_hes_to_file hes debug_context dry_run =
     output_pre_debug_info hes debug_context dry_run;
     let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
-    (* print_endline @@ "FILE: " ^ path; *)
     path
     
   let solver_command hes_path solver_options =
@@ -551,7 +555,7 @@ let rec mu_elim_solver coe1 coe2 lexico_pair_number iter_count (solve_options : 
       | Status.Invalid -> retry coe1 coe2
       | Status.Unknown -> 
         if not solve_options.stop_on_unknown then (
-          print_endline @@ "return Unknown (" ^ show_debug_contexts debug_contexts ^ ")";
+          log_string ~header:"Result" @@ "return Unknown (" ^ show_debug_contexts debug_contexts ^ ")";
           retry coe1 coe2
         ) else return (Status.Unknown, debug_contexts)
       | Status.Fail -> return (Status.Fail, debug_contexts)))

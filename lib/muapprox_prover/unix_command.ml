@@ -64,7 +64,12 @@ let unix_system ?(no_quote=false) commands mode =
   let stderr_name = Printf.sprintf "/tmp/%d_stderr.tmp" r in
   let pid_name = Printf.sprintf "/tmp/%d_pid.tmp" r in
   let commands = commands @ [">"; stdout_name; "2>"; stderr_name] in
-  print_endline @@ "run command (unix_system): " ^ (String.concat " " commands);
+  
+  let reporter = Logs.reporter () in
+  Logs.set_reporter (Logs.format_reporter ());
+  Logs.app (fun m -> m "%s" ("Run command: " ^ (String.concat " " commands)));
+  Logs.set_reporter reporter;
+  
   let command = String.concat " " commands in
   let command = command ^ " &\nbpid=$!\necho $bpid > " ^ pid_name ^ "\nwait $bpid" in
   (match mode with

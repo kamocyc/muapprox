@@ -14,11 +14,12 @@ let () =
     Muapprox.main file (fun (s, debug_contexts) -> 
       match s with
       | r ->
-          Fmt.pr "@[<v 2>[[MAIN]] Verification Result:@,%s@]@." @@ Muapprox.show_result r;
           if Logs.Src.level Muapprox.log_src <> None then begin
+            Fmt.pr "@[<v 2>[[MAIN]] Verification Result:@,%s@]@." @@ Muapprox.show_result r;
             Muapprox.report_times ();
             print_endline @@ Muapprox.show_debug_contexts debug_contexts
-          end
+          end else 
+            Fmt.pr "%s" (Muapprox.show_result r);
       | exception
           ( Muapprox.Util.Fn.Fatal e
           | Muapprox.Syntax.ParseError e
