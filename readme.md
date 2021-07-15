@@ -167,3 +167,44 @@ Profiling:
 Currently, you need to kill zombie processes if you interrupt the solver with Ctrl+C, or something.
 
 ``./killp.sh``
+
+# 
+
+## Parameters used in approximation of least fixpoints
+
+Using the coefficients ``coe1`` and ``coe2``, bounds of number of times fixpoints are expanded used in approximation of least fixpoints are created as follows (``x_1, ..., x_m`` are integer variables which should be used in bounds):
+
+```
+coe1 * x_1 + ... + coe1 * x_m + coe2
+```
+
+If ``lexico_pair_number`` is more than 1, the solver uses tuples (of ``lexico_pair_number`` elements) to represent number of recursions in fixpoints.
+
+
+### Values of paramters in each iteration
+
+| iteration                | coe1                   | coe2                   | lexico_pair_number                    |
+|--------------------------|------------------------|------------------------|---------------------------------------|
+|                        1 |                      1 |                      1 |                                     1 |
+|                        2 |                      1 |                      1 |                                     2 |
+|                        3 |                      1 |                      8 |                                     1 |
+|                        4 |                      2 |                     16 |                                     1 |
+|                        5 |                      4 |                     32 |                                     1 |
+|                      ... | *2 for each iterations | *2 for each iterations | always 1, except the second iteration |
+| (options to set default values) | --coe                  | --coe                  | --default-lexicographic-order         |
+
+### Code to determine the next parameters
+
+```ocaml
+(* default *)
+(* let (coe1, coe2, lexico_pair_number) = (1, 1, 1) *)
+
+(* parameters for the next iteration *)
+let (coe1',coe2',lexico_pair_number') =
+  if (coe1,coe2,lexico_pair_number)=(1,1,1) && not disable_lexicographic
+  then (1,1,2)
+  else if (coe1,coe2)=(1,1) 
+    then (1,8,default_lexicographic_order)
+    else (2*coe1, 2*coe2,default_lexicographic_order)
+```
+
