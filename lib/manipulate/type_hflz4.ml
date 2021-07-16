@@ -537,11 +537,11 @@ let generate_type_equal_constraint ty1 ty2 =
 let generate_subtype_constraint ty1 ty2 =
   print_endline "generate_subtype_constraint:";
   print_endline @@ show_ptype ty1 ^ " <= " ^ show_ptype ty2;
-  let go ty1 ty2 =
+  let rec go ty1 ty2 =
     match ty1, ty2 with
     | TFunc (argty1, bodyty1, flag1), TFunc (argty2, bodyty2, flag2) ->
-      (* (EF_Le (flag1, flag2)) :: (go argty2 argty1) @ (go bodyty1 bodyty2) *)
-      (EF_Le (flag1, flag2)) :: (generate_type_equal_constraint argty1 argty2) @ (generate_type_equal_constraint bodyty1 bodyty2)
+      (EF_Le (flag1, flag2)) :: (go argty2 argty1) @ (go bodyty1 bodyty2)
+      (* (EF_Le (flag1, flag2)) :: (generate_type_equal_constraint argty1 argty2) @ (generate_type_equal_constraint bodyty1 bodyty2) *)
     | TBool, TBool -> []
     | TInt, TInt -> []
     | _ -> assert false
@@ -680,7 +680,16 @@ let generate_flag_constraints (rules : ptype thes_rule list) is_recursive rec_fl
             |> List.map (fun f' -> EF_Le (f', f))
           )
           |> List.flatten in
-        ty, subtype_constrs @ body_flag_constrs @ env2_constrs @ c1 @ c2 @ (generate_type_equal_constraint tybody ty)
+        
+        let tags = get_flags_of_type ty2 in
+        let ctors2 =
+          List.map (fun tag ->
+            get_flags_of_type tybody
+            |> List.map (fun tag' -> EF_Le (tag', tag))
+          ) tags
+          |> List.flatten in
+        
+        ty, subtype_constrs @ body_flag_constrs @ env2_constrs @ c1 @ c2 @ ctors2 @ (generate_type_equal_constraint tybody ty)
       | _ -> assert false
     end
     | Bool _ -> TBool, []

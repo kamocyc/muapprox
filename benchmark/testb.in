@@ -1,0 +1,8 @@
+%HES
+S =v (\f. f 0 (\x. x = 0)) (C (\g. g 0)).
+C f dummy x =v f x.
+
+/*
+%HES
+S =v (\f. f (\x. x = 0)) (\g. g 0).
+*/

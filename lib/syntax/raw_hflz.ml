@@ -311,6 +311,7 @@ module Typing = struct
             let id = new_id() in
             let x = Id.{ name; id; ty = () } in
             let tv_arg = new_tyvar(InfoProg{expr=Var x.name}) in
+            unify tv_arg (TvInt(InfoProg{expr=Var x.name}));
             unify tv (TvBool(InfoProg{expr=Forall(name,psi)}));
             let id_env = StrMap.replace id_env ~key:name ~data:id in
             self#add_ty_env x tv_arg;
@@ -320,6 +321,7 @@ module Typing = struct
             let id = new_id() in
             let x = Id.{ name; id; ty = () } in
             let tv_arg = new_tyvar(InfoProg{expr=Var x.name}) in
+            unify tv_arg (TvInt(InfoProg{expr=Var x.name}));
             unify tv (TvBool(InfoProg{expr=Exists(name,psi)}));
             let id_env = StrMap.replace id_env ~key:name ~data:id in
             self#add_ty_env x tv_arg;
