@@ -704,7 +704,7 @@ let assign_flags rec_flags is_recursive (rules : ptype thes_rule list) =
               { var with Id.ty = gen_flag var.Id.ty }
             )
             rule_vars in
-        let a = get_rule_vars rec_flags var lfp_vars rule_vars in
+        (* let a = get_rule_vars rec_flags var lfp_vars rule_vars in *)
         let body = go (global_env @ args) body in
         {var; args; body; fix}
       )

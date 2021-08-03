@@ -24,22 +24,25 @@ type 'ty thflz =
   | Pred   of Formula.pred * 'ty tarith list
   [@@deriving eq,ord,show]
 
-type enter_flag = Enter | NotEnter | EFVar of unit Hflmc2_syntax.Id.t
+type use_flag = TUse | TNotUse | EFVar of unit Hflmc2_syntax.Id.t
 [@@deriving eq,ord,show]
 
-type ptype = TInt | TBool | TFunc of ptype * ptype * enter_flag | TVar of unit Hflmc2_syntax.Id.t
+type fixpoint = Least | Greatest | NonRecursive
 [@@deriving eq,ord,show]
 
-type 'a fixpoint_type = {var: 'a Id.t; args: 'a Id.t list}
+type ptype = TInt | TBool | TFunc of ptype * ptype * use_flag | TVar of unit Hflmc2_syntax.Id.t
 [@@deriving eq,ord,show]
 
-type 'a thes_rule = {outer: 'a fixpoint_type; inner: 'a fixpoint_type; body: 'a thflz; fix: Fixpoint.t}
+type 'a in_out = {inner_ty: 'a; outer_ty: 'a}
+[@@deriving eq,ord,show]
+
+type 'a thes_rule = {var: 'a in_out Id.t; body: 'a thflz; fix: fixpoint}
 [@@deriving eq,ord,show]
 
 type s_thes_rules = ptype thes_rule list
 [@@deriving eq,ord,show]
 
-type enter_flag_constraint = EF_Equal of enter_flag * enter_flag | EF_Le of enter_flag * enter_flag
+type use_flag_constraint = EF_Equal of use_flag * use_flag | EF_Le of use_flag * use_flag
 [@@deriving eq,ord,show]
 
 type recursive_flag = Recursive | NotRecursive
@@ -65,21 +68,35 @@ let get_thflz_type phi =
   in
   go phi
 
-let show_enter_flag = function
-  | Enter -> "T"
-  | NotEnter -> "_"
+let show_fixpoint = function
+  | Least -> "μ"
+  | Greatest -> "ν"
+  | NonRecursive -> ""
+
+let show_use_flag = function
+  | TUse -> "T"
+  | TNotUse -> "_"
   | EFVar id -> Hflmc2_syntax.Id.to_string id
 
 let rec show_ptype = function
   | TInt -> "int"
   | TBool -> "bool"
-  | TFunc (p1, p2, f) -> "(" ^ show_ptype p1 ^ "-" ^ (show_enter_flag f) ^ "->" ^ show_ptype p2 ^ ")"
+  | TFunc (p1, p2, f) -> "([" ^ show_ptype p1 ^ "," ^ (show_use_flag f) ^ "]->" ^ show_ptype p2 ^ ")"
   | TVar id -> Hflmc2_syntax.Id.to_string id
 
-let show_enter_flag_constraint = function
-  | EF_Equal (f1, f2) -> show_enter_flag f1 ^ "=" ^ show_enter_flag f2
-  | EF_Le (f1, f2) -> show_enter_flag f1 ^ "<=" ^ show_enter_flag f2
+let show_use_flag_constraint = function
+  | EF_Equal (f1, f2) -> show_use_flag f1 ^ "=" ^ show_use_flag f2
+  | EF_Le (f1, f2) -> show_use_flag f1 ^ "<=" ^ show_use_flag f2
 
+let get_args phi =
+  let rec go phi = match phi with
+    | Abs (x, p, _ty) ->
+      let xs, r = go p in
+      x :: xs, r
+    | _ -> [], phi
+  in
+  go phi
+  
 module Print_temp = struct
   open Hflmc2_syntax.Print
 
@@ -131,7 +148,7 @@ module Print_temp = struct
       | Abs (x, psi, ty) -> begin
           let f_str = 
             match ty with
-            | TFunc (_, _, f) -> show_enter_flag f
+            | TFunc (_, _, f) -> show_use_flag f
             | _ -> "" in
           show_paren (prec > Prec.abs) ppf "@[<1>λ%a:{%s}%a.@,%a@]"
             id x
@@ -152,8 +169,8 @@ module Print_temp = struct
             match get_thflz_type psi1 with
             | TFunc (_, _, f) -> begin
               match f with
-              | Enter -> "{T}"
-              | NotEnter -> "{_}"
+              | TUse -> "{T}"
+              | TNotUse -> "{_}"
               | EFVar _ -> ""
             end
             | _ -> ""
@@ -177,17 +194,19 @@ module Print_temp = struct
     fun format_ty_ -> hflz_ format_ty_ Prec.zero
 
   let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule Fmt.t =
-    fun format_ty_ ppf {outer; inner; body; fix} ->
+    fun format_ty_ ppf {var; body; fix} ->
       let rec to_flags ty =
         match ty with
         | TFunc (_, ty, f) -> f :: to_flags ty
         | _ -> []
       in
-      Fmt.pf ppf "@[<2>%s %a =%a@ %a@]"
-        (Id.to_string outer.var)
-        (pp_print_list ~pp_sep:Print_syntax.PrintUtil.fprint_space (fun ppf ((arg, _f1), f2) -> fprintf ppf "(%s : {%s}(%a))" (Id.to_string arg) (* show_enter_flag f1 *) (show_enter_flag f2) (format_ty_ Prec.zero) arg.Id.ty))
-        (List.combine (List.combine outer.args (to_flags outer.var.Id.ty)) (to_flags inner.var.Id.ty))
-        fixpoint fix
+      let {outer_ty; inner_ty} = var.ty in
+      let args, body = get_args body in
+      Fmt.pf ppf "@[<2>%s %a =%s@ %a@]"
+        (Id.to_string var)
+        (pp_print_list ~pp_sep:Print_syntax.PrintUtil.fprint_space (fun ppf ((arg, _f1), f2) -> fprintf ppf "(%s : {%s}(%a))" (Id.to_string arg) (show_use_flag f2) (format_ty_ Prec.zero) arg.Id.ty))
+        (List.combine (List.combine args (to_flags outer_ty)) (to_flags inner_ty))
+        (show_fixpoint fix)
         (hflz format_ty_) body
 
   let hflz_hes : (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule list Fmt.t =
@@ -218,8 +237,9 @@ let rec pp_ptype prec ppf ty =
       Fmt.pf ppf "int"
     | TFunc (ty1, ty2, f) ->
       Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>%a -%s->@ %a@]"
+      (* Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>[%a,%s] ->@ %a@]" *)
         (pp_ptype Print.Prec.(succ arrow)) ty1
-        (show_enter_flag f)
+        (show_use_flag f)
         (pp_ptype Print.Prec.arrow) ty2
     | TVar (id) ->
       Fmt.pf ppf "%s" (Id.to_string id)
@@ -320,22 +340,20 @@ let check_thflz_type rules rec_flags =
   let filter_global_env rules rec_flags var =
     let (_, nids) = List.find (fun (k, _) -> Id.eq k var) rec_flags in
     List.filter_map
-      (fun {outer; inner; _} ->
-        let x = Id.remove_ty outer.var in
-        match List.find_opt (fun (x', _) -> Id.eq x x') nids with
+      (fun {var; _} ->
+        match List.find_opt (fun (x', _) -> Id.eq var x') nids with
         | Some (_, Recursive) ->
-          Some (inner.var)
+          Some ({var with ty=var.ty.inner_ty})
         | Some (_, NotRecursive) ->
-          Some (outer.var)
+          Some ({var with ty=var.ty.outer_ty})
         | None -> None
       )
       rules
   in
   List.iter
-    (fun {outer; inner; body; _} ->
-      let global_env = filter_global_env rules rec_flags outer.var in
-      let args = inner.args in
-      assert (get_thflz_type (global_env @ args) body = TBool)
+    (fun {var; body; _} ->
+      let global_env = filter_global_env rules rec_flags var in
+      assert (get_thflz_type global_env body = var.ty.inner_ty)
     )
     rules
     
@@ -407,7 +425,7 @@ let unify (constraints : (ptype * ptype) list) =
   print_endline "unified:";
   print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_ptype r);
   print_endline "new flag_constraints:";
-  print_endline @@ (Hflmc2_util.show_list show_enter_flag_constraint !flag_constraints);
+  print_endline @@ (Hflmc2_util.show_list show_use_flag_constraint !flag_constraints);
   r, !flag_constraints
 
 (* TODO: IDを共通化？ => 再帰のときのフラグを別途持たせる？その場合、元の引数との関連はどうなるのか？ *)
@@ -416,7 +434,7 @@ let remove_argument_flags ty =
     | TFunc (ty1, ty2, f) -> begin
       let f =
         match f with
-        | Enter -> EFVar (Id.gen ())
+        | TUse -> EFVar (Id.gen ())
         | f -> f
       in
       TFunc (ty1, go ty2, f)
@@ -461,61 +479,59 @@ let to_thflzs hes is_recursive rec_flags =
   let rules =
     List.map
       (fun {Hflz.var; body; fix} ->
-        let args, body = Hflz.decompose_abs body in
-        let arg_and_flags =
-          List.map (fun arg -> { arg with Id.ty = TVar (Id.gen ())}, EFVar (Id.gen ())) args in
-        let outer =
-          let rec go args = match args with
-            | [] -> TBool
-            | (x, f)::xs ->
-              let flag =
-                match fix with
-                | Greatest -> f
-                | Least -> begin
-                  let (_, rec_f) = List.find (fun (id, _) -> Id.eq id var) is_recursive in
-                  if rec_f then Enter
-                  else f
-                end
-              in
-              TFunc (x.Id.ty, go xs, flag)
-          in 
-          {var={var with ty = go arg_and_flags}; args = List.map (fun (arg, _) -> arg) arg_and_flags}
-        in
-        let inner =
-          let rec go args = match args with
-            | [] -> TBool
-            | (x, f)::xs ->
-              TFunc (x.Id.ty, go xs, f)
+        let fix =
+          let (_, rec_f) = List.find (fun (id, _) -> Id.eq id var) is_recursive in
+          if rec_f then begin
+            match fix with
+            | Greatest -> Greatest
+            | Least -> Least
+          end else NonRecursive in
+        let var =
+          let args_num = List.length @@ fst @@ Hflz.decompose_abs body in
+          let rec create_type_temlate = function
+            | 0 -> TBool
+            | n -> TFunc (TVar (Id.gen ()), create_type_temlate (n - 1), EFVar (Id.gen ()))
           in
-          {var={var with ty=go arg_and_flags}; args = List.map (fun (arg, _) -> arg) arg_and_flags}
+          let inner_ty = create_type_temlate args_num in
+          let outer_ty =
+            match fix with
+            | Least ->
+              let rec go = function
+                | TFunc (argty, bodyty, _) -> TFunc (argty, go bodyty, TUse)
+                | TBool -> TBool
+                | _ -> assert false
+              in
+              go inner_ty
+            | Greatest | NonRecursive -> inner_ty
+          in
+          {var with ty={inner_ty; outer_ty}}
         in
-        ( outer, inner, body, fix )
+        ( var, body, fix )
       )
       hes in
   let filter_global_env rules rec_flags var =
     let (_, nids) = List.find (fun (k, _) -> Id.eq k var) rec_flags in
     Env.create @@
     List.filter_map
-      (fun (outer, inner, _, _) ->
-        let x = Id.remove_ty outer.var in
-        match List.find_opt (fun (x', _) -> Id.eq x x') nids with
+      (fun (var, _, _) ->
+        match List.find_opt (fun (x', _) -> Id.eq var x') nids with
         | Some (_, Recursive) ->
-          Some (inner.var)
+          Some ({var with ty=var.ty.inner_ty})
         | Some (_, NotRecursive) ->
-          Some (outer.var)
+          Some ({var with ty=var.ty.outer_ty})
         | None -> None
       )
       rules
   in
   List.map
-    (fun (outer, inner, body, fix) ->
-      let global_env = filter_global_env rules rec_flags outer.var in
-      let body = go (Env.update inner.args global_env) body in
-      { outer; inner; body; fix }
+    (fun (var, body, fix) ->
+      let global_env = filter_global_env rules rec_flags var in
+      let body = go global_env body in
+      { var; body; fix }
     )
     rules
   
-let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty Id.t * ('a Type.ty Id.t * recursive_flag) list) list) : (ptype * ptype) list * enter_flag_constraint list =
+let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty Id.t * ('a Type.ty Id.t * recursive_flag) list) list) : (ptype * ptype) list * use_flag_constraint list =
   let filter_env env fvs =
     List.fold_left
       (fun env' fv ->
@@ -525,8 +541,8 @@ let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty
       (Env.create [])
       fvs
   in
-  let rec gen (env : (ptype * enter_flag) Env.t) (raw : ptype thflz)
-      : ptype * (ptype * ptype) list * enter_flag_constraint list = match raw with
+  let rec gen (env : (ptype * use_flag) Env.t) (raw : ptype thflz)
+      : ptype * (ptype * ptype) list * use_flag_constraint list = match raw with
     | Bool _ -> (TBool, [], [])
     | Var v ->
       let id = Env.lookup v env in
@@ -575,7 +591,7 @@ let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty
           print_endline @@ 
             Hflmc2_util.fmt_string
               (Print_temp.hflz pp_ptype) raw;
-          print_endline @@ Hflmc2_util.show_list show_enter_flag_constraint flag_constrs
+          print_endline @@ Hflmc2_util.show_list show_use_flag_constraint flag_constrs
         ); *)
         gen env' p2, flag_constrs ) in
       let tvar = Id.gen () in
@@ -587,7 +603,7 @@ let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty
       let results = List.map (gen_arith env) ps in
       let tys, cs = List.split results in
       (TBool, (List.map (fun ty -> (TInt, ty)) tys) @ (List.flatten cs), [])
-  and gen_arith (env : (ptype * enter_flag) Env.t) (raw : ptype tarith)
+  and gen_arith (env : (ptype * use_flag) Env.t) (raw : ptype tarith)
       : ptype * (ptype * ptype) list = match raw with
     | Var v ->
       let id = Env.lookup v env in
@@ -600,35 +616,39 @@ let generate_constraints (rules : ptype thes_rule list) (rec_flags : ('a Type.ty
       (TInt, (List.map (fun ty -> (TInt, ty)) tys) @ (List.flatten cs))
     in
   let global_env =
-    List.map (fun {outer; inner; _} -> (outer, inner, EFVar (Id.gen ()))) rules in
+    List.map (fun {var; _} -> (var, EFVar (Id.gen ()))) rules in
   let filter_global_env global_env rec_flags var =
     let (_, nids) = List.find (fun (k, _) -> Id.eq k var) rec_flags in
     Env.create @@
     List.filter_map
-      (fun (outer, inner, var_flag) ->
-        let x = Id.remove_ty outer.var in
-        match List.find_opt (fun (x', _) -> Id.eq x x') nids with
+      (fun (var, var_flag) ->
+        match List.find_opt (fun (x', _) -> Id.eq var x') nids with
         | Some (_, Recursive) ->
-          Some {inner.var with ty=(inner.var.ty, var_flag)}
+          Some {var with ty=(var.ty.inner_ty, var_flag)}
         | Some (_, NotRecursive) ->
-          Some {outer.var with ty=(outer.var.ty, var_flag)}
+          Some {var with ty=(var.ty.outer_ty, var_flag)}
         | None -> None
       )
       global_env
   in
   List.map
-    (fun { outer; inner; body; fix=_fix } ->
-      let global_env = filter_global_env global_env rec_flags outer.var in
-      let flags =
+    (fun { var; body; fix=_fix } ->
+      let global_env = filter_global_env global_env rec_flags var in
+      (* let flags =
         let rec go ty = match ty with
           | TFunc (_, ty, f) -> f :: (go ty)
           | _ -> []
         in
-        go inner.var.Id.ty
+        go var.Id.ty.inner_ty
       in
-      let args = List.map (fun (arg, flag) -> {arg with Id.ty=(arg.Id.ty, flag)}) (List.combine inner.args flags) in
-      let _, constraints, flag_constraints = gen (Env.update args global_env) body in
-      (constraints, flag_constraints)
+      let args = List.map (fun (arg, flag) -> {arg with Id.ty=(arg.Id.ty, flag)}) (List.combine inner.args flags) in *)
+      let _, constraints, flag_constraints = gen global_env body in
+      (*  *)
+      let c =
+        match body with
+        | Abs (_, _, ty) -> (ty, var.ty.inner_ty)
+        | _ -> (TBool, var.ty.inner_ty) in
+      (c :: constraints, flag_constraints)
     )
     rules
   |> List.split
@@ -649,10 +669,10 @@ let rec subst_ptype_and_subst_flag ptype subst subst_flags =
         match List.find_opt (fun (k, _) -> Id.eq k id) subst_flags with
         | Some (_, v) -> begin
           match v with
-          | EFVar _ -> NotEnter
+          | EFVar _ -> TNotUse
           | v -> v
         end
-        | None -> NotEnter
+        | None -> TNotUse
       end
       | f -> f in
     TFunc (
@@ -661,11 +681,11 @@ let rec subst_ptype_and_subst_flag ptype subst subst_flags =
   end
   
   
-let subst_program (rules : ptype thes_rule list) (subst : (unit Id.t * ptype) list) (subst_flags : (unit Id.t * enter_flag) list) =
+let subst_program (rules : ptype thes_rule list) (subst : (unit Id.t * ptype) list) (subst_flags : (unit Id.t * use_flag) list) =
   let subst_ptype ty subst subst_flags =
     (* print_endline "subst_ptype 1";
     print_endline @@ show_ptype ty;
-    print_endline @@ Hflmc2_util.show_pairs Id.to_string show_enter_flag subst_flags; *)
+    print_endline @@ Hflmc2_util.show_pairs Id.to_string show_use_flag subst_flags; *)
     subst_ptype_and_subst_flag ty subst subst_flags in
   let rec go (phi : ptype thflz) = match phi with
     | Bool b -> Bool b
@@ -683,15 +703,12 @@ let subst_program (rules : ptype thes_rule list) (subst : (unit Id.t * ptype) li
     | Var v -> Var { v with ty = subst_ptype v.ty subst subst_flags }
     | Op (e, ps) -> Op (e, List.map go_arith ps)
   in
-  List.map (fun {outer = outer; inner = inner; body; fix} ->
-    let subst_var_args {var; args} =
-      let var = { var with Id.ty = subst_ptype var.Id.ty subst subst_flags } in
-      let args = List.map (fun v -> { v with Id.ty = subst_ptype v.Id.ty subst subst_flags }) args in
-      {var; args} in
-    let outer = subst_var_args outer in
-    let inner = subst_var_args inner in
+  List.map (fun {var; body; fix} ->
+    let outer_ty = subst_ptype var.Id.ty.outer_ty subst subst_flags in
+    let inner_ty = subst_ptype var.Id.ty.inner_ty subst subst_flags in
+    let var = { var with Id.ty = {outer_ty; inner_ty} } in
     let body = go body in
-    { outer; inner; body; fix }
+    { var; body; fix }
   ) rules
 
 let rec to_ty = function
@@ -703,7 +720,7 @@ and to_argty = function
   | TInt -> Type.TyInt
   | t -> Type.TySigma (to_ty t)
 
-let to_hflz (rules : ptype thes_rule list) =
+(* let to_hflz (rules : ptype thes_rule list) =
   let is_int_type ty = ty = TInt in
   let rec go (phi : ptype thflz) = match phi with
     | Bool b -> Hflz.Bool b
@@ -747,11 +764,11 @@ let to_hflz (rules : ptype thes_rule list) =
       | x::xs -> Hflz.Abs (x, go xs body) in
     let body = go args body in
     { Hflz.var; body; fix }
-  ) rules
+  ) rules *)
 
 let unify_flags constraints =
   print_endline "flag_constraints (to solve):";
-  print_endline @@ (Hflmc2_util.show_list show_enter_flag_constraint constraints);
+  print_endline @@ (Hflmc2_util.show_list show_use_flag_constraint constraints);
   let equals, les =
     Hflmc2_util.partition_map
       ~f:(fun c ->
@@ -808,8 +825,8 @@ let unify_flags constraints =
         match a1, a2 with
         | EFVar id1, _ -> Some (id1, a2)
         | _, EFVar id2 -> Some (id2, a1)
-        | Enter, Enter -> None
-        | NotEnter, NotEnter -> None
+        | TUse, TUse -> None
+        | TNotUse, TNotUse -> None
         | _ -> failwith "unify failed"
       in
       match pair_opt with
@@ -830,11 +847,11 @@ let unify_flags constraints =
       let determined = subst_flag id f determined in
       let subst, les = go_les_sub determined les in
       compose_flags_subst (id, f) subst, les
-    | (Enter, Enter)::determined ->
+    | (TUse, TUse)::determined ->
       go_les_sub determined les
-    | (NotEnter, NotEnter)::determined ->
+    | (TNotUse, TNotUse)::determined ->
       go_les_sub determined les
-    | (_, _)::_ -> (* print_endline @@ Hflmc2_util.show_pairs show_enter_flag show_enter_flag determined; *) assert false
+    | (_, _)::_ -> (* print_endline @@ Hflmc2_util.show_pairs show_use_flag show_use_flag determined; *) assert false
     | [] -> [], les
   in
   let rec go_les les =
@@ -842,8 +859,8 @@ let unify_flags constraints =
       Hflmc2_util.partition_map
         ~f:(fun le ->
           match le with
-          | (Enter, EFVar f2) -> `Fst (EFVar f2, Enter)
-          | (EFVar f1, NotEnter) -> `Fst (EFVar f1, NotEnter)
+          | (TUse, EFVar f2) -> `Fst (EFVar f2, TUse)
+          | (EFVar f1, TNotUse) -> `Fst (EFVar f1, TNotUse)
           | _ -> `Snd le
         )
         les in
@@ -861,10 +878,10 @@ let unify_flags constraints =
     List.filter
       (fun le ->
         match le with
-        | (Enter, Enter)
-        | (NotEnter, NotEnter)
-        | (NotEnter, Enter) -> false
-        | (Enter, NotEnter) -> failwith "a"
+        | (TUse, TUse)
+        | (TNotUse, TNotUse)
+        | (TNotUse, TUse) -> false
+        | (TUse, TNotUse) -> failwith "a"
         | _ -> true
       )
       les in
@@ -873,11 +890,11 @@ let unify_flags constraints =
       (fun le ->
         match le with
         | (EFVar id1, EFVar id2) ->
-          [(id1, NotEnter); (id2, NotEnter)]
-        | (EFVar id1, Enter) ->
-          [(id1, NotEnter)]
-        | (NotEnter, EFVar id2) ->
-          [(id2, NotEnter)]
+          [(id1, TNotUse); (id2, TNotUse)]
+        | (EFVar id1, TUse) ->
+          [(id1, TNotUse)]
+        | (TNotUse, EFVar id2) ->
+          [(id2, TNotUse)]
         | _ -> assert false
       )
       les
@@ -885,15 +902,15 @@ let unify_flags constraints =
     |> Hflmc2_util.remove_duplicates (=) in
   let composed = compose_flags_substs (compose_flags_substs subst_acc' subst_acc'') subst_acc in
   (* print_endline "flag_constraints (subst_acc):";
-  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_enter_flag subst_acc);
+  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_use_flag subst_acc);
   print_endline "flag_constraints (subst_acc'):";
-  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_enter_flag subst_acc');
+  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_use_flag subst_acc');
   print_endline "flag_constraints (subst_acc''):";
-  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_enter_flag subst_acc'');
+  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_use_flag subst_acc'');
   print_endline "flag_constraints (composed):";
-  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_enter_flag composed); *)
+  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_use_flag composed); *)
   (* print_endline "flag_constraints (solved):";
-  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_enter_flag composed); *)
+  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_use_flag composed); *)
   composed
   
 let infer_thflz_type (rules : ptype thes_rule list) rec_flags: ptype thes_rule list =
@@ -946,6 +963,7 @@ let construct_recursion_flags (rules : 'a Type.ty Hflz.hes_rule list) =
         let flag =
           List.map
             (fun (nid, flags) ->
+              (* prioritize NotRecursive *)
               match List.find_opt (fun f -> match f with NotRecursive -> true | Recursive -> false) flags with
               | Some _ -> (nid, NotRecursive)
               | None -> (nid, Recursive)
@@ -981,16 +999,17 @@ let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
     print_endline "result:";
     print_endline @@
       Hflmc2_util.fmt_string
-        (Print_temp.hflz_hes pp_ptype) rules;        
-    save_to_file "tmp_t2.txt" @@
+        (Print_temp.hflz_hes pp_ptype) rules;
+    save_to_file "tmp_t7.txt" @@
       Hflmc2_util.fmt_string
         (Print_temp.hflz_hes pp_ptype) rules;
     check_thflz_type rules rec_flags
     in
   print_endline "infer_thflz_type (2)";
   print_endline @@ show_s_thes_rules rules;
-  let rules = to_hflz rules in
+  print_endline "type hflz 7";
+  (* let rules = to_hflz rules in
   let hes = Hflz.decompose_entry_rule rules in
-  Hflz_typecheck.type_check hes;
-  print_endline @@ Hflz.show_hes Type.pp_simple_ty hes; 
+  Hflz_typecheck.type_check hes; *)
+  (* print_endline @@ Hflz.show_hes Type.pp_simple_ty hes;  *)
   hes

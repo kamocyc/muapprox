@@ -14,8 +14,10 @@ let main path1 old debug simplified_type new_f =
   (* let path2 = map_file_path path1 (fun (a, b, c) -> (a, b ^ "_infer_flag", c)) in *)
   let phi1' =
     if new_f then begin
-      Muapprox.Manipulate.Type_hflz5.output_debug_info := debug;
-      Muapprox.Manipulate.Type_hflz5.infer phi1
+      (* Muapprox.Manipulate.Type_hflz5.output_debug_info := debug;
+      Muapprox.Manipulate.Type_hflz5.infer phi1 *)
+      Muapprox.Manipulate.Type_hflz7.simplified_type := simplified_type;
+      Muapprox.Manipulate.Type_hflz7.infer phi1
     end else if old then begin
       Muapprox.Manipulate.Type_hflz2.simplified_type := simplified_type;
       Muapprox.Manipulate.Type_hflz2.infer phi1
