@@ -1,0 +1,33 @@
+/*
+%HES
+S =v
+  ∀n.
+    Mult
+      (\k. k 0)
+      (\g.
+        Loop (\r. r = 0) g
+      ).
+
+Loop k g =u
+  Check
+    g
+    (\b.
+      (b =  0 => k 0) /\
+      (b != 0 =>
+        Loop k (Pred g)
+      )
+    ).
+
+Mult acc k =v
+  k acc.
+
+Pred f k =v f (\r. k (r - 1)).
+
+Check f k =v
+  f (\n. (n = 0 => k 0) /\ (n != 0 => k 1)).
+*/
+
+%HES
+S =v A (\g. g (\x. x = 0)).
+
+A f =u f (\k. k 0) /\ A f.
