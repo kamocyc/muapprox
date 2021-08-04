@@ -1,102 +1,9 @@
 open Hflmc2_syntax
 module Env = Env_no_value
 
-let simplified_type = ref false
-let output_debug_info = ref false
+module Hflz = Hflmc2_syntax.Hflz
 
-let save_to_file file text =
-  let oc = open_out file in
-  output_string oc text;
-  close_out oc
-
-type 'ty tarith = 'ty Id.t Arith.gen_t
-[@@deriving eq,ord,show]
-
-type 'ty thflz =
-  | Bool   of bool
-  | Var    of 'ty Id.t
-  | Or     of 'ty thflz * 'ty thflz
-  | And    of 'ty thflz * 'ty thflz
-  | Abs    of 'ty Id.t * 'ty thflz * 'ty
-  | Forall of 'ty Id.t * 'ty thflz
-  | Exists of 'ty Id.t * 'ty thflz
-  | App    of 'ty thflz * 'ty thflz
-  | Arith  of 'ty tarith
-  | Pred   of Formula.pred * 'ty tarith list
-  [@@deriving eq,ord,show]
-
-type use_flag = TUse | TNotUse | EFVar of unit Hflmc2_syntax.Id.t
-[@@deriving eq,ord,show]
-
-type fixpoint = Least | Greatest | NonRecursive
-[@@deriving eq,ord,show]
-
-type ptype = TInt | TBool | TFunc of ptype * ptype * use_flag | TVar of unit Hflmc2_syntax.Id.t
-[@@deriving eq,ord,show]
-
-type 'a in_out = {inner_ty: 'a; outer_ty: 'a}
-[@@deriving eq,ord,show]
-
-type 'a thes_rule = {var: 'a in_out Id.t; body: 'a thflz; fix: fixpoint}
-[@@deriving eq,ord,show]
-
-type s_thes_rules = ptype thes_rule list
-[@@deriving eq,ord,show]
-
-type use_flag_constraint = EF_Equal of use_flag * use_flag | EF_Le of use_flag * use_flag
-[@@deriving eq,ord,show]
-
-type recursive_flag = Recursive | NotRecursive
-[@@deriving eq,ord,show]
-
-let get_thflz_type_without_check phi =
-  let rec go phi = match phi with
-    | Bool _ -> TBool
-    | Var v -> v.ty
-    | Or _ -> TBool
-    | And _ -> TBool
-    | Abs (_, _, lty) -> lty
-    | Forall (_, body) -> go body
-    | Exists (_, body) -> go body
-    | App (p1, _) -> begin
-      let ty1 = go p1 in
-      match ty1 with
-      | TFunc (_, t2, _) -> t2
-      | _ -> assert false
-    end
-    | Pred (_, _) -> TBool
-    | Arith _ -> TInt
-  in
-  go phi
-
-let show_fixpoint = function
-  | Least -> "μ"
-  | Greatest -> "ν"
-  | NonRecursive -> ""
-
-let show_use_flag = function
-  | TUse -> "T"
-  | TNotUse -> "_"
-  | EFVar id -> Hflmc2_syntax.Id.to_string id
-
-let rec show_ptype = function
-  | TInt -> "int"
-  | TBool -> "bool"
-  | TFunc (p1, p2, f) -> "([" ^ show_ptype p1 ^ "," ^ (show_use_flag f) ^ "]->" ^ show_ptype p2 ^ ")"
-  | TVar id -> Hflmc2_syntax.Id.to_string id
-
-let show_use_flag_constraint = function
-  | EF_Equal (f1, f2) -> show_use_flag f1 ^ "=" ^ show_use_flag f2
-  | EF_Le (f1, f2) -> show_use_flag f1 ^ "<=" ^ show_use_flag f2
-
-let get_args phi =
-  let rec go phi = match phi with
-    | Abs (x, p, _ty) ->
-      let xs, r = go p in
-      x :: xs, r
-    | _ -> [], phi
-  in
-  go phi
+open Type_hflz7_def
 
 let rec equal_type_modulo_flag ty1 ty2 =
   match ty1, ty2 with
@@ -106,166 +13,7 @@ let rec equal_type_modulo_flag ty1 ty2 =
   | TInt, TInt -> true
   | TVar _, TVar _ -> true (* TODO: *)
   | _ -> false
-  
-  
-module Print_temp = struct
-  open Hflmc2_syntax.Print
 
-  let rec gen_arith_ : 'avar t_with_prec -> ptype tarith t_with_prec =
-    fun avar_ prec ppf a ->
-      let show_op = function | (Arith.Op (op',[a1;a2])) -> begin
-        let op_prec = Prec.of_op op' in
-        let prec_l = Prec.(succ_if (not @@ op_is_leftassoc op') op_prec) in
-        let prec_r = Prec.(succ_if (not @@ op_is_rightassoc op') op_prec) in
-        show_paren (prec > op_prec) ppf "@[<1>%a@ %a@ %a@]"
-          (gen_arith_ avar_ prec_l) a1
-          op op'
-          (gen_arith_ avar_ prec_r) a2
-      end | _ -> assert false
-      in
-      match a with
-      | Int (n) ->
-        if n >= 0 then
-          Fmt.int ppf n
-        else
-          (Fmt.string ppf "("; Fmt.int ppf n; Fmt.string ppf ")";)
-      | Var (x) -> avar_ prec ppf x
-      | Op (_, _) -> show_op a
-      
-  let ignore_prec orig _prec ppf x =
-        orig ppf x
-  let id_ : 'ty Id.t t_with_prec =
-    ignore_prec id
-  let arith_ : Prec.t -> ptype tarith Fmt.t =
-    fun prec ppf a -> gen_arith_ id_ prec ppf a
-  
-  let rec hflz_ : (Prec.t -> ptype Fmt.t) -> Prec.t -> ptype thflz Fmt.t =
-    fun format_ty_ prec ppf (phi : ptype thflz) -> match phi with
-      | Bool true -> Fmt.string ppf "true"
-      | Bool false -> Fmt.string ppf "false"
-      | Var x ->
-        if !output_debug_info then
-          Fmt.pf ppf "(%a : %a)" id x (format_ty_ Prec.zero) x.ty
-        else
-          Fmt.pf ppf "%a" id x
-      | Or (phi1,phi2)  ->
-          (* p_id ppf sid;  *)
-          show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ \\/ %a@]"
-            (hflz_ format_ty_ Prec.or_) phi1
-            (hflz_ format_ty_ Prec.or_) phi2
-      | And (phi1,phi2)  ->
-          (* p_id ppf sid;  *)
-          show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ /\\ %a@]"
-            (hflz_ format_ty_ Prec.and_) phi1
-            (hflz_ format_ty_ Prec.and_) phi2
-      | Abs (x, psi, ty) -> begin
-          let f_str = 
-            match ty with
-            | TFunc (_, _, f) -> show_use_flag f
-            | _ -> "" in
-          if !output_debug_info then
-            show_paren (prec > Prec.abs) ppf "@[<1>(λ%a:{%s}%a.@,%a){%a}@]"
-              id x
-              f_str
-              (format_ty_ Prec.(succ arrow)) x.ty
-              (hflz_ format_ty_ Prec.abs) psi
-              (format_ty_ Prec.(succ arrow)) ty
-          else
-            show_paren (prec > Prec.abs) ppf "@[<1>λ%a:{%s}%a.@,%a@]"
-              id x
-              f_str
-              (format_ty_ Prec.(succ arrow)) x.ty
-              (hflz_ format_ty_ Prec.abs) psi
-      end
-      | Forall (x, psi) ->
-          show_paren (prec > Prec.abs) ppf "@[<1>∀%a.@,%a@]"
-            id x
-            (hflz_ format_ty_ Prec.abs) psi
-      | Exists (x, psi) ->
-          show_paren (prec > Prec.abs) ppf "@[<1>∃%a.@,%a@]"
-            id x
-            (hflz_ format_ty_ Prec.abs) psi
-      | App (psi1, psi2) -> begin
-          let f_str =
-            match get_thflz_type_without_check psi1 with
-            | TFunc (_, _, f) -> begin
-              match f with
-              | TUse -> "{T}"
-              | TNotUse -> "{_}"
-              | EFVar _ -> ""
-            end
-            | _ -> ""
-          in
-          show_paren (prec > Prec.app) ppf "@[<1>%a@ %s%a@]"
-            (hflz_ format_ty_ Prec.app) psi1
-            f_str
-            (hflz_ format_ty_ Prec.(succ app)) psi2
-      end
-      | Arith a ->
-        arith_ prec ppf a
-      | Pred (pred', [f1; f2]) ->
-          (* p_id ppf sid;  *)
-          Fmt.pf ppf "@[<1>%a@ %a@ %a@]"
-            (arith_ prec) f1
-            pred pred'
-            (arith_ prec) f2
-      | Pred _ -> assert false
-
-  let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty thflz Fmt.t =
-    fun format_ty_ -> hflz_ format_ty_ Prec.zero
-
-  let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule Fmt.t =
-    fun format_ty_ ppf {var; body; fix} ->
-      let rec to_flags ty =
-        match ty with
-        | TFunc (_, ty, f) -> f :: to_flags ty
-        | _ -> []
-      in
-      let {outer_ty; inner_ty} = var.ty in
-      let args, body = get_args body in
-      Fmt.pf ppf "@[<2>%s %a =%s@ %a@]"
-        (Id.to_string var)
-        (pp_print_list ~pp_sep:Print_syntax.PrintUtil.fprint_space (fun ppf ((arg, _f1), f2) -> fprintf ppf "(%s : {%s}(%a))" (Id.to_string arg) (show_use_flag f2) (format_ty_ Prec.zero) arg.Id.ty))
-        (List.combine (List.combine args (to_flags outer_ty)) (to_flags inner_ty))
-        (show_fixpoint fix)
-        (hflz format_ty_) body
-
-  let hflz_hes : (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule list Fmt.t =
-    fun format_ty_ ppf rules ->
-      Fmt.pf ppf "@[<v>%a@]"
-        (Fmt.list (hflz_hes_rule format_ty_)) rules
-  
-end
-
-let rec pp_ptype prec ppf ty =
-  if !simplified_type then begin
-    match ty with
-    | TBool ->
-      Fmt.pf ppf "bool"
-    | TInt ->
-      Fmt.pf ppf "int"
-    | TFunc (ty1, ty2, _) ->
-      Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>%a ->@ %a@]"
-        (pp_ptype Print.Prec.(succ arrow)) ty1
-        (pp_ptype Print.Prec.arrow) ty2
-    | TVar (id) ->
-      Fmt.pf ppf "%s" (Id.to_string id)
-  end else begin
-    match ty with
-    | TBool ->
-      Fmt.pf ppf "bool"
-    | TInt ->
-      Fmt.pf ppf "int"
-    | TFunc (ty1, ty2, f) ->
-      Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>%a -%s->@ %a@]"
-      (* Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>[%a,%s] ->@ %a@]" *)
-        (pp_ptype Print.Prec.(succ arrow)) ty1
-        (show_use_flag f)
-        (pp_ptype Print.Prec.arrow) ty2
-    | TVar (id) ->
-      Fmt.pf ppf "%s" (Id.to_string id)
-    
-  end
 let get_free_variables phi =
   let rec go phi = match phi with
     | Bool _ -> []
@@ -285,20 +33,18 @@ let get_free_variables phi =
   in
   go phi
 
-let dummy_use_flag = EFVar (Id.gen ())
-
 let get_thflz_type env phi =
   let rec go env phi = match phi with
     | Bool _ -> TBool
     | Var v -> begin
       match List.find_all (fun v' -> Id.eq v v') env with
       | [id'] -> begin
-        (* print_endline "Var";
+        print_endline "Var";
         print_endline @@ Id.to_string v;
         print_endline "id'.ty";
         print_endline @@ show_ptype @@ id'.ty;
         print_endline "v.ty";
-        print_endline @@ show_ptype @@ v.ty;  *)
+        print_endline @@ show_ptype @@ v.ty; 
         assert (id'.ty = v.ty);
         v.ty
       end
@@ -684,168 +430,11 @@ let set_not_use_in_undetermined_flags rules =
 and to_argty = function
   | TInt -> Type.TyInt
   | t -> Type.TySigma (to_ty t) *)
-
-let unify_flags constraints =
-  print_endline "flag_constraints (to solve):";
-  print_endline @@ (Hflmc2_util.show_list show_use_flag_constraint constraints);
-  List.iter
-    (function
-      | EF_Equal (a, b) ->
-        assert (a <> dummy_use_flag);
-        assert (b <> dummy_use_flag);
-      | EF_Le (a, b) ->
-        assert (a <> dummy_use_flag);
-        assert (b <> dummy_use_flag);
-    )
-    constraints;
-  let equals, les =
-    Hflmc2_util.partition_map
-      ~f:(fun c ->
-        match c with
-        | EF_Equal (x1, x2) -> `Fst (x1, x2)
-        | EF_Le (x1, x2) -> `Snd (x1, x2))
-      constraints
-  in
-  (* pairs[f/id] *)
-  let subst_flag id f pairs =
-    List.map
-      (fun (b1, b2) ->
-        (match b1 with
-        | EFVar v when Id.eq v id -> f
-        | _ -> b1),
-        (match b2 with
-        | EFVar v when Id.eq v id -> f
-        | _ -> b2)
-      )
-      pairs
-  in
-  let compose_flags_subst (id, flag) subst =
-    let flag =
-      match flag with
-      | EFVar fv -> begin
-        match List.find_opt (fun (id, _) -> Id.eq id fv) subst with
-        | Some (_, v) -> v
-        | None -> EFVar fv
-      end
-      | _ -> flag in
-    (id, flag) :: subst
-  in
-  (* subst1 \circ subst2 *)
-  let compose_flags_substs subst1 subst2 =
-    (List.map
-      (fun (id, v) ->
-        let v =
-          match v with
-          | EFVar x -> begin
-            match List.find_opt (fun (id', _) -> Id.eq id' x) subst1 with
-            | Some (_, v') -> v'
-            | None -> EFVar x
-          end
-          | _ -> v
-        in
-        (id, v)
-      )
-      subst2) @ subst1
-  in
-  let rec go equals les =
-    match equals with
-    | (a1, a2)::equals -> begin
-      let pair_opt =
-        match a1, a2 with
-        | EFVar id1, _ -> Some (id1, a2)
-        | _, EFVar id2 -> Some (id2, a1)
-        | TUse, TUse -> None
-        | TNotUse, TNotUse -> None
-        | _ -> failwith "unify failed"
-      in
-      match pair_opt with
-      | Some (id, a) ->
-        let equals = subst_flag id a equals in
-        let les = subst_flag id a les in
-        let subst, les = go equals les in
-        compose_flags_subst (id, a) subst, les
-      | None ->
-        go equals les
-    end
-    | [] -> [], les
-  in
-  let rec go_les_sub determined les =
-    match determined with
-    | (EFVar id, f)::determined ->
-      let les = subst_flag id f les in
-      let determined = subst_flag id f determined in
-      let subst, les = go_les_sub determined les in
-      compose_flags_subst (id, f) subst, les
-    | (TUse, TUse)::determined ->
-      go_les_sub determined les
-    | (TNotUse, TNotUse)::determined ->
-      go_les_sub determined les
-    | (_, _)::_ -> (* print_endline @@ Hflmc2_util.show_pairs show_use_flag show_use_flag determined; *) assert false
-    | [] -> [], les
-  in
-  let rec go_les les =
-    let determined, les =
-      Hflmc2_util.partition_map
-        ~f:(fun le ->
-          match le with
-          | (TUse, EFVar f2) -> `Fst (EFVar f2, TUse)
-          | (EFVar f1, TNotUse) -> `Fst (EFVar f1, TNotUse)
-          | _ -> `Snd le
-        )
-        les in
-    match determined with
-    | [] -> [], les
-    | _ ->
-      let subst_acc, les = go_les_sub determined les in
-      let subst_acc', les = go_les les in
-      compose_flags_substs subst_acc subst_acc', les
-  in
-  let subst_acc, les = go equals les in
-  let subst_acc', les = go_les les in
-  (* TODO: substitutionのcomposeを順番にやる *)
-  let les =
-    List.filter
-      (fun le ->
-        match le with
-        | (TUse, TUse)
-        | (TNotUse, TNotUse)
-        | (TNotUse, TUse) -> false
-        | (TUse, TNotUse) -> failwith "a"
-        | _ -> true
-      )
-      les in
-  let subst_acc'' =
-    List.map
-      (fun le ->
-        match le with
-        | (EFVar id1, EFVar id2) ->
-          [(id1, TNotUse); (id2, TNotUse)]
-        | (EFVar id1, TUse) ->
-          [(id1, TNotUse)]
-        | (TNotUse, EFVar id2) ->
-          [(id2, TNotUse)]
-        | _ -> assert false
-      )
-      les
-    |> List.concat
-    |> Hflmc2_util.remove_duplicates (=) in
-  let composed = compose_flags_substs (compose_flags_substs subst_acc' subst_acc'') subst_acc in
-  (* print_endline "flag_constraints (subst_acc):";
-  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_use_flag subst_acc);
-  print_endline "flag_constraints (subst_acc'):";
-  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_use_flag subst_acc');
-  print_endline "flag_constraints (subst_acc''):";
-  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_use_flag subst_acc'');
-  print_endline "flag_constraints (composed):";
-  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_use_flag composed);
-  print_endline "flag_constraints (solved):";
-  print_endline @@ (Hflmc2_util.show_pairs Id.to_string show_use_flag composed); *)
-  composed
   
 let infer_thflz_type (rules : ptype thes_rule list) rec_flags: ptype thes_rule list =
   let rules = assign_flags rules in
   let flag_constraints = generate_flag_constraints rules rec_flags in
-  let flag_substitution = unify_flags flag_constraints in
+  let flag_substitution = Type_hflz7_unify_flags.unify_flags flag_constraints in
   let rules = subst_flags_program rules flag_substitution in
   let rules = set_not_use_in_undetermined_flags rules in
   rules
