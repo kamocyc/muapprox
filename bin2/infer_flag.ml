@@ -16,6 +16,7 @@ let main path1 old debug simplified_type new_f =
     if new_f then begin
       (* Muapprox.Manipulate.Type_hflz5.output_debug_info := debug;
       Muapprox.Manipulate.Type_hflz5.infer phi1 *)
+      Muapprox.Manipulate.Type_hflz7.output_debug_info := debug;
       Muapprox.Manipulate.Type_hflz7.simplified_type := simplified_type;
       Muapprox.Manipulate.Type_hflz7.infer phi1
     end else if old then begin
