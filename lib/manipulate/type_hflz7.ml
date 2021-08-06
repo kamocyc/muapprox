@@ -1,8 +1,6 @@
 open Hflmc2_syntax
 module Env = Env_no_value
 
-module Hflz = Hflmc2_syntax.Hflz
-
 open Type_hflz7_def
 
 let rec equal_type_modulo_flag ty1 ty2 =
@@ -14,37 +12,18 @@ let rec equal_type_modulo_flag ty1 ty2 =
   | TVar _, TVar _ -> true (* TODO: *)
   | _ -> false
 
-let get_free_variables phi =
-  let rec go phi = match phi with
-    | Bool _ -> []
-    | Var v -> [v]
-    | Or (p1, p2) -> go p1 @ go p2
-    | And (p1, p2) -> go p1 @ go p2
-    | Abs (x, p, _) -> List.filter (fun v -> not @@ Id.eq x v) (go p)
-    | Forall (x, p) -> List.filter (fun v -> not @@ Id.eq x v) (go p)
-    | Exists (x, p) -> List.filter (fun v -> not @@ Id.eq x v) (go p)
-    | App (p1, p2) -> go p1 @ go p2
-    | Arith a -> go_arith a
-    | Pred (_, ps) -> List.map go_arith ps |> List.concat
-  and go_arith a = match a with
-    | Int _ -> []
-    | Var v -> [v]
-    | Op (_, ps) -> List.map go_arith ps |> List.concat
-  in
-  go phi
-
 let get_thflz_type env phi =
   let rec go env phi = match phi with
     | Bool _ -> TBool
     | Var v -> begin
       match List.find_all (fun v' -> Id.eq v v') env with
       | [id'] -> begin
-        print_endline "Var";
+        (* print_endline "Var";
         print_endline @@ Id.to_string v;
         print_endline "id'.ty";
         print_endline @@ show_ptype @@ id'.ty;
         print_endline "v.ty";
-        print_endline @@ show_ptype @@ v.ty; 
+        print_endline @@ show_ptype @@ v.ty;  *)
         assert (id'.ty = v.ty);
         v.ty
       end
@@ -262,29 +241,23 @@ let generate_flag_constraints (rules : ptype thes_rule list) (rec_flags : ('a Ty
     | Var v ->
       let id = Env.lookup v env in
       let ty, _ = id.ty in
-      assert (equal_type_modulo_flag ty v.ty);
-      let c = generate_type_equal_constraint ty v.ty in
-      (ty, c)
+      (ty, generate_type_equal_constraint ty v.ty)
     | Or (p1, p2) ->
       let t1, f1 = gen env p1 in
       let t2, f2 = gen env p2 in
-      assert (t1 = TBool);
-      assert (t2 = TBool);
+      assert (t1 = TBool && t2 = TBool);
       (TBool, f1 @ f2)
     | And (p1, p2) ->
       let t1, f1 = gen env p1 in
       let t2, f2 = gen env p2 in
-      assert (t1 = TBool);
-      assert (t2 = TBool);
+      assert (t1 = TBool && t2 = TBool);
       (TBool, f1 @ f2)
     | Abs (arg, body, ty_aux) -> begin
-      let flag = Id.gen () in
-      let env = Env.update [{arg with ty = (arg.ty, EFVar flag)}] env in
-      let t, f = gen env body in
-      let ty = TFunc (arg.Id.ty, t, EFVar flag) in
-      assert (equal_type_modulo_flag ty_aux ty);
-      let c = generate_type_equal_constraint ty_aux ty in
-      (ty, c @ f)
+      let flag = EFVar (Id.gen ()) in
+      let env = Env.update [{arg with ty = (arg.ty, flag)}] env in
+      let t, fc = gen env body in
+      let ty = TFunc (arg.Id.ty, t, flag) in
+      (ty, (generate_type_equal_constraint ty_aux ty) @ fc)
     end
     | Forall (arg, body) ->
       let flag = Id.gen () in
@@ -313,14 +286,10 @@ let generate_flag_constraints (rules : ptype thes_rule list) (rec_flags : ('a Ty
         let t2, f2 = gen env' p2 in
         t2, f2 @ flag_constrs
       in
-      assert (equal_type_modulo_flag tyarg t2);
-      let c = generate_type_equal_constraint tyarg t2 in
-      (tybody, c @ f1 @ flag_constrs)
+      (tybody, (generate_type_equal_constraint tyarg t2) @ f1 @ flag_constrs)
     end
-    | Arith _ ->
-      (TInt, [])
-    | Pred _ ->
-      (TBool, [])
+    | Arith _ -> (TInt, [])
+    | Pred _ -> (TBool, [])
   in
   let global_env =
     List.map (fun {var; _} -> (var, EFVar (Id.gen ()))) rules in
@@ -342,9 +311,7 @@ let generate_flag_constraints (rules : ptype thes_rule list) (rec_flags : ('a Ty
     (fun { var; body; fix=_fix } ->
       let global_env = filter_global_env global_env rec_flags var in
       let ty, flag_constraints = gen global_env body in
-      assert (equal_type_modulo_flag ty var.ty.inner_ty);
-      let c = generate_type_equal_constraint ty var.ty.inner_ty in
-      c @ flag_constraints
+      (generate_type_equal_constraint ty var.ty.inner_ty) @ flag_constraints
     )
     rules
   |> List.flatten
@@ -502,37 +469,65 @@ let construct_recursion_flags (rules : 'a Type.ty Hflz.hes_rule list) =
       )
       preds
   in
-  print_endline "recursion flags:";
-  print_endline @@ Hflmc2_util.show_pairs Id.to_string (fun flags -> Hflmc2_util.show_pairs Id.to_string show_recursive_flag flags) map;
+  (* print_endline "recursion flags:";
+  print_endline @@ Hflmc2_util.show_pairs Id.to_string (fun flags -> Hflmc2_util.show_pairs Id.to_string show_recursive_flag flags) map; *)
   map
 
+let show_id_map id_map show_f = 
+  "{" ^
+  (IdMap.to_alist id_map
+  |> List.map (fun (id, vt) -> "" ^ Id.to_string id ^ "=" ^ show_f vt)
+  |> String.concat ", ") ^
+  "}"
+
 let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
-  let rules = Hflz.merge_entry_rule hes in
-  let is_recursive = get_recursivity rules in
-  let rec_flags = construct_recursion_flags rules in
-  let rules = to_thflzs rules is_recursive in
-  print_endline "to_thflz";
+  let original_rules = Hflz.merge_entry_rule hes in
+  let is_recursive = get_recursivity original_rules in
+  let rec_flags = construct_recursion_flags original_rules in
+  let rules = to_thflzs original_rules is_recursive in
+  (* print_endline "to_thflz";
   print_endline @@ show_s_thes_rules rules;
   print_endline "to_thflz (simple)";
   print_endline @@
     Hflmc2_util.fmt_string
-      (Print_temp.hflz_hes pp_ptype) rules;
+      (Print_temp.hflz_hes pp_ptype) rules; *)
   let rules = infer_thflz_type rules rec_flags in
   let () =
     print_endline "result:";
     print_endline @@
       Hflmc2_util.fmt_string
         (Print_temp.hflz_hes pp_ptype) rules;
+    (* print_endline "result (full)";
+    print_endline @@ show_s_thes_rules rules; *)
     save_to_file "tmp_t7.txt" @@
       Hflmc2_util.fmt_string
         (Print_temp.hflz_hes pp_ptype) rules;
-    check_thflz_type rules rec_flags
+    check_thflz_type rules rec_flags;
     in
-  print_endline "infer_thflz_type (2)";
-  print_endline @@ show_s_thes_rules rules;
-  print_endline "type hflz 7";
+  
+  let arg_coe1 = 1 in
+  let arg_coe2 = 0 in
+  let coe1 = 1 in
+  let coe2 = 1 in
+  let lexico_pair_number = 1 in
+  let use_all_variables = false in
+  let rules, id_type_map = Type_hflz7_add_params.add_params arg_coe1 arg_coe2 rec_flags rules in
+  let original_fixpoint_pairs =
+    List.map (fun {Hflz.var; fix; _} -> (var, fix)) original_rules in
+  let rules = Type_hflz7_add_params.to_hes original_fixpoint_pairs rules in
+  let hes = Hflz.decompose_entry_rule rules in
+  (* print_endline @@ Hflz.show_hes Type.pp_simple_ty hes;  *)
+  let hes =
+    print_endline "id_map";
+    print_endline @@ show_id_map id_type_map Hflz_util.show_variable_type;
+    let hes = Hflz_typecheck.set_variable_ty hes in
+    ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"a.txt" ~without_id:false true hes;
+    let hes = Hflz_manipulate.encode_body_exists coe1 coe2 hes in
+    ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"b.txt" ~without_id:false true hes;
+    let hes = Hflz_manipulate.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables in
+    Eliminate_unused_argument.eliminate_unused_argument ~id_type_map hes in
+  (* print_endline "type hflz 7"; *)
   (* let rules = to_hflz rules in
   let hes = Hflz.decompose_entry_rule rules in
   Hflz_typecheck.type_check hes; *)
-  (* print_endline @@ Hflz.show_hes Type.pp_simple_ty hes;  *)
   hes

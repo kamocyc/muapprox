@@ -126,7 +126,7 @@ let get_args phi =
 module Print_temp = struct
   open Hflmc2_syntax.Print
 
-  let rec gen_arith_ : 'avar t_with_prec -> ptype tarith t_with_prec =
+  let rec gen_arith_ : 'avar t_with_prec -> 'pty tarith t_with_prec =
     fun avar_ prec ppf a ->
       let show_op = function | (Arith.Op (op',[a1;a2])) -> begin
         let op_prec = Prec.of_op op' in
@@ -147,15 +147,18 @@ module Print_temp = struct
       | Var (x) -> avar_ prec ppf x
       | Op (_, _) -> show_op a
       
-  let ignore_prec orig _prec ppf x =
-        orig ppf x
-  let id_ : 'ty Id.t t_with_prec =
-    ignore_prec id
-  let arith_ : Prec.t -> ptype tarith Fmt.t =
-    fun prec ppf a -> gen_arith_ id_ prec ppf a
+  let id_ (_prec : prec) (ppf : formatter) (x : 'pty Id.t) = id ppf x
+  let arith_ (prec : Prec.t) (ppf: formatter) (a : 'pty Id.t Arith.gen_t)
+    = gen_arith_ id_ prec ppf a
   
-  let rec hflz_ : (Prec.t -> ptype Fmt.t) -> Prec.t -> ptype thflz Fmt.t =
-    fun format_ty_ prec ppf (phi : ptype thflz) -> match phi with
+  let ptype_to_flag_string ty =
+    match ty with
+    | TFunc (_, _, f) -> show_use_flag f
+    | _ -> ""
+  
+  let thflz_to_ptype = get_thflz_type_without_check
+  
+  let rec hflz_ (get_type : 'pty thflz -> 'pty) (show_flag : 'pty -> string) (format_ty_ : Prec.t -> 'pty Fmt.t) (prec : Prec.t) (ppf : formatter) (phi : 'pty thflz) = match phi with
       | Bool true -> Fmt.string ppf "true"
       | Bool false -> Fmt.string ppf "false"
       | Var x ->
@@ -166,55 +169,44 @@ module Print_temp = struct
       | Or (phi1,phi2)  ->
           (* p_id ppf sid;  *)
           show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ \\/ %a@]"
-            (hflz_ format_ty_ Prec.or_) phi1
-            (hflz_ format_ty_ Prec.or_) phi2
+            (hflz_ get_type show_flag format_ty_ Prec.or_) phi1
+            (hflz_ get_type show_flag format_ty_ Prec.or_) phi2
       | And (phi1,phi2)  ->
           (* p_id ppf sid;  *)
           show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ /\\ %a@]"
-            (hflz_ format_ty_ Prec.and_) phi1
-            (hflz_ format_ty_ Prec.and_) phi2
+            (hflz_ get_type show_flag format_ty_ Prec.and_) phi1
+            (hflz_ get_type show_flag format_ty_ Prec.and_) phi2
       | Abs (x, psi, ty) -> begin
-          let f_str = 
-            match ty with
-            | TFunc (_, _, f) -> show_use_flag f
-            | _ -> "" in
+          let f_str = show_flag ty in
           if !output_debug_info then
             show_paren (prec > Prec.abs) ppf "@[<1>(λ%a:{%s}%a.@,%a){%a}@]"
               id x
               f_str
               (format_ty_ Prec.(succ arrow)) x.ty
-              (hflz_ format_ty_ Prec.abs) psi
+              (hflz_ get_type show_flag format_ty_ Prec.abs) psi
               (format_ty_ Prec.(succ arrow)) ty
           else
             show_paren (prec > Prec.abs) ppf "@[<1>λ%a:{%s}%a.@,%a@]"
               id x
               f_str
               (format_ty_ Prec.(succ arrow)) x.ty
-              (hflz_ format_ty_ Prec.abs) psi
+              (hflz_ get_type show_flag format_ty_ Prec.abs) psi
       end
       | Forall (x, psi) ->
           show_paren (prec > Prec.abs) ppf "@[<1>∀%a.@,%a@]"
             id x
-            (hflz_ format_ty_ Prec.abs) psi
+            (hflz_ get_type show_flag format_ty_ Prec.abs) psi
       | Exists (x, psi) ->
           show_paren (prec > Prec.abs) ppf "@[<1>∃%a.@,%a@]"
             id x
-            (hflz_ format_ty_ Prec.abs) psi
+            (hflz_ get_type show_flag format_ty_ Prec.abs) psi
       | App (psi1, psi2) -> begin
-          let f_str =
-            match get_thflz_type_without_check psi1 with
-            | TFunc (_, _, f) -> begin
-              match f with
-              | TUse -> "{T}"
-              | TNotUse -> "{_}"
-              | EFVar _ -> ""
-            end
-            | _ -> ""
-          in
+          let ty = get_type psi1 in
+          let f_str = show_flag ty in
           show_paren (prec > Prec.app) ppf "@[<1>%a@ %s%a@]"
-            (hflz_ format_ty_ Prec.app) psi1
+            (hflz_ get_type show_flag format_ty_ Prec.app) psi1
             f_str
-            (hflz_ format_ty_ Prec.(succ app)) psi2
+            (hflz_ get_type show_flag format_ty_ Prec.(succ app)) psi2
       end
       | Arith a ->
         arith_ prec ppf a
@@ -226,9 +218,12 @@ module Print_temp = struct
             (arith_ prec) f2
       | Pred _ -> assert false
 
-  let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty thflz Fmt.t =
-    fun format_ty_ -> hflz_ format_ty_ Prec.zero
+  let hflz_ : ('pty thflz -> 'pty) -> ('pty -> string) -> (Prec.t -> 'ty Fmt.t) -> 'ty thflz Fmt.t =
+    fun get_type show_flag format_ty_ -> hflz_ get_type show_flag format_ty_ Prec.zero
 
+  let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty thflz Fmt.t =
+    hflz_ thflz_to_ptype ptype_to_flag_string
+  
   let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule Fmt.t =
     fun format_ty_ ppf {var; body; fix} ->
       let rec to_flags ty =
@@ -243,12 +238,35 @@ module Print_temp = struct
         (pp_print_list ~pp_sep:Print_syntax.PrintUtil.fprint_space (fun ppf ((arg, _f1), f2) -> fprintf ppf "(%s : {%s}(%a))" (Id.to_string arg) (show_use_flag f2) (format_ty_ Prec.zero) arg.Id.ty))
         (List.combine (List.combine args (to_flags outer_ty)) (to_flags inner_ty))
         (show_fixpoint fix)
-        (hflz format_ty_) body
+        (hflz_ thflz_to_ptype ptype_to_flag_string format_ty_) body
 
-  let hflz_hes : (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule list Fmt.t =
+  let hflz_hes :  (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule list Fmt.t =
     fun format_ty_ ppf rules ->
       Fmt.pf ppf "@[<v>%a@]"
         (Fmt.list (hflz_hes_rule format_ty_)) rules
 end
 
 let dummy_use_flag = EFVar (Id.gen ())
+
+let get_free_variables phi =
+  let rec go phi = match phi with
+    | Bool _ -> []
+    | Var v -> [v]
+    | Or (p1, p2) -> go p1 @ go p2
+    | And (p1, p2) -> go p1 @ go p2
+    | Abs (x, p, _) -> List.filter (fun v -> not @@ Id.eq x v) (go p)
+    | Forall (x, p) -> List.filter (fun v -> not @@ Id.eq x v) (go p)
+    | Exists (x, p) -> List.filter (fun v -> not @@ Id.eq x v) (go p)
+    | App (p1, p2) -> go p1 @ go p2
+    | Arith a -> go_arith a
+    | Pred (_, ps) -> List.map go_arith ps |> List.concat
+  and go_arith a = match a with
+    | Int _ -> []
+    | Var v -> [v]
+    | Op (_, ps) -> List.map go_arith ps |> List.concat
+  in
+  go phi
+
+let id_gen ?name ty = 
+  let id = Id.gen ?name ty in
+  { id with name = id.name ^ string_of_int id.id }

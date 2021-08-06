@@ -11,7 +11,7 @@ let map_file_path path converter =
 
 let main path1 old debug simplified_type new_f =
   let phi1 = Muapprox.parse path1 false in
-  (* let path2 = map_file_path path1 (fun (a, b, c) -> (a, b ^ "_infer_flag", c)) in *)
+  let path2 = map_file_path path1 (fun (a, b, c) -> (a, b ^ "_infer_flag", c)) in
   let phi1' =
     if new_f then begin
       (* Muapprox.Manipulate.Type_hflz5.output_debug_info := debug;
@@ -28,8 +28,10 @@ let main path1 old debug simplified_type new_f =
       Muapprox.Manipulate.Type_hflz4.infer phi1
     end
   in
-  ignore @@ phi1'
-  (* ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 ~without_id:true true phi1'; *)
+  ignore @@ phi1';
+  ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 ~without_id:false true phi1';
+  let phi1' = Muapprox.abbrev_variable_numbers_hes phi1' in
+  ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 ~without_id:true true phi1'
   (* print_endline @@ "saved to " ^ path2 *)
 
 

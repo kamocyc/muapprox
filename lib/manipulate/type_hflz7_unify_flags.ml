@@ -2,8 +2,8 @@ open Hflmc2_syntax
 open Type_hflz7_def
 
 let unify_flags constraints =
-  print_endline "flag_constraints (to solve):";
-  print_endline @@ (Hflmc2_util.show_list show_use_flag_constraint constraints);
+  (* print_endline "flag_constraints (to solve):";
+  print_endline @@ (Hflmc2_util.show_list show_use_flag_constraint constraints); *)
   List.iter
     (function
       | EF_Equal (a, b) ->

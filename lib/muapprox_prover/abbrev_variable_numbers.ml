@@ -55,7 +55,7 @@ let abbrev_variable_numbers (env : 'a Type.arg Env.t) (phi : 'a Hflz.t) =
     | Var v -> begin
       match Env.lookup_by_old_id env v with
       | Some new_id -> Var (Manipulate.Hflz_util.unlift_id new_id)
-      | None -> failwith @@ "(abbrev_variable_numbers) unbounded variable: " ^ Id.to_string v
+      | None -> failwith @@ "(abbrev_variable_numbers) unbounded variable: " ^ Id.to_string v ^ " (" ^ string_of_int v.id ^ ")"
     end
     | Abs (x, p) ->
       let new_id, env = Env.add_arg env x in
@@ -82,7 +82,7 @@ let abbrev_variable_numbers (env : 'a Type.arg Env.t) (phi : 'a Hflz.t) =
         | TyInt -> Var { new_id with ty = `Int }
         | TySigma _ -> failwith "go_arith"
       end
-      | None -> failwith @@ "(abbrev_variable_numbers) unbounded variable: " ^ v.name
+      | None -> failwith @@ "(abbrev_variable_numbers) unbounded variable: " ^ v.name ^ " (" ^ string_of_int v.id ^ ")"
     end
     | Op (op, a) -> Op (op, List.map (go_arith env) a)
   in

@@ -107,7 +107,15 @@ let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env 
     | Some {ty=ty';_} -> 
       if Type.TySigma ty = ty'
       then ty
-      else failwith @@ "Var: `" ^ (show_id v) ^ "` type mismatch (type of variable in formula: " ^ (show_arg @@ Type.TySigma ty) ^ " / type in environment: " ^ (show_arg ty')  ^ ")"
+      else
+        failwith @@
+          "Var: `" ^ (show_id v) ^ "` type mismatch:\n" ^
+          "type of variable in formula:\n" ^
+          Hflmc2_util.fmt_string Print_syntax.simple_ty ty ^
+          " / type in environment:\n" ^
+          Hflmc2_util.fmt_string (Hflmc2_syntax.Print.argty Print_syntax.simple_ty) ty' ^
+          ") (type of variable in formula: " ^ (show_arg @@ Type.TySigma ty) ^
+          " / type in environment: " ^ (show_arg ty')  ^ ")"
     | None -> failwith @@ "Var: unbound variable (" ^ (show_id v) ^ ")"
   end
   | Or (f1, f2) -> begin
@@ -165,7 +173,53 @@ let get_duplicates cmp ls =
       | [] -> assert false
     )
     ls
-        
+
+let set_variable_ty (hes : Type.simple_ty hes) : Type.simple_ty hes =
+  let show_id = Id.show Fmt.nop in
+  let (entry, rules) = hes in
+  let env = List.map (fun {var;_} -> var) rules in
+  let rec go env phi = match phi with
+    | Var v -> begin
+      match List.find_opt (fun k -> Id.eq k v) env with
+      | Some {ty=ty';_} ->
+        if not @@ Type.eq_modulo_arg_ids v.ty ty' then
+          failwith @@
+            "Var: `" ^ (show_id v) ^ "`type mismatch (eq_modulo_arg_ids):\n" ^
+            "type of variable in formula:\n" ^
+            Hflmc2_util.fmt_string Print_syntax.simple_ty v.ty ^
+            " / type in environment:\n" ^
+            Hflmc2_util.fmt_string Print_syntax.simple_ty ty';
+        Var {v with ty=ty'}
+      | None -> failwith @@ "Var: unbound variable (" ^ (show_id v) ^ ")"
+    end
+    | Bool b -> Bool b
+    | Or (p1, p2) -> Or (go env p1, go env p2)
+    | And (p1, p2) -> And (go env p1, go env p2)
+    | Abs (x, p) -> begin
+      let env =
+        match x.ty with
+        | Type.TySigma ty ->
+          {x with ty=ty} :: env
+        | _ -> env
+      in
+      Abs (x, go env p)
+    end
+    | Forall (x, p) -> Forall (x, go env p)
+    | Exists (x, p) -> Exists (x, go env p)
+    | App (p1, p2) -> App (go env p1, go env p2)
+    | Arith a -> Arith a
+    | Pred (op, ps) -> Pred (op, ps)
+  in
+  let entry = go env entry in
+  let rules =
+    List.map
+      (fun {var; body; fix} ->
+        let body = go env body in
+        {var; body; fix}
+      )
+      rules in
+  (entry, rules)
+
 let type_check (hes : Type.simple_ty hes) : unit =
   (* let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
   print_endline @@ "Not checked HES path: " ^ path; *)
@@ -186,7 +240,11 @@ let type_check (hes : Type.simple_ty hes) : unit =
           | Abs (x, b) -> x :: (f b)
           | _ -> [] in
         let args = f body in
+        (* print_endline "args:";
+        print_endline (List.map (fun var -> var.Id.name) args |> String.concat ", "); *)
         let counts = get_duplicates (fun a b -> a.Id.name = b.Id.name) args in
+        (* print_endline "counts:";
+        print_endline (List.map (fun (var, i) -> var.Id.name ^ ":" ^ string_of_int i) counts |> String.concat ", "); *)
         match counts with
         | [] -> ()
         | xs -> failwith @@ "duplicated arguments (comparing only names of predicates) (predicate: " ^ Id.to_string var ^ ", args: " ^ (List.map (fun (var, _) -> Id.to_string var) xs |> String.concat ", ") ^ ")"

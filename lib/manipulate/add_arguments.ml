@@ -308,8 +308,8 @@ let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) (partial_analysis : bo
     )
     IdMap.empty
     !all_id_maps in
-  (* print_endline "id_map";
-  print_endline @@ show_id_map all_id_map Hflz_util.show_variable_type; *)
+  print_endline "id_map";
+  print_endline @@ show_id_map all_id_map Hflz_util.show_variable_type;
   hes, all_id_map
 
 let id_n n t = { Id.name = "x_" ^ string_of_int n; id = n; ty = t }
