@@ -32,6 +32,7 @@ val elim_mu_with_rec :
     IdMap.Key.comparator_witness)
     Base.Map.t ->
   bool ->
+  (unit Id.t * [ `Int ] Id.t) list ->
   unit Hflmc2_syntax.Type.ty Hflz.t *
   unit Hflmc2_syntax.Type.ty Hflz.hes_rule list
 

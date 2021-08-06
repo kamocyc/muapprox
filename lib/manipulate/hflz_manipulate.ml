@@ -512,7 +512,7 @@ let get_occuring_arith_terms id_type_map phi =
   in
   go_hflz phi |> List.map fst
 
-let get_guessed_terms id_type_map arg_terms scoped_variables =
+let get_guessed_terms id_type_map arg_terms scoped_variables id_ho_map =
   let open Hflmc2_syntax in
   let all_terms =
     (List.map (get_occuring_arith_terms id_type_map) arg_terms |> List.concat) @
@@ -521,7 +521,19 @@ let get_guessed_terms id_type_map arg_terms scoped_variables =
         | Type.TyInt -> Some (Arith.Var {var with Id.ty = `Int})
         | _ -> None
       )
-      scoped_variables)
+      scoped_variables) @
+    (
+      List.map Hflz.fvs_with_type arg_terms
+      |> List.concat
+      |> List.filter_map (fun var -> match var.Id.ty with
+        | Type.TySigma _ -> begin
+          match List.find_opt (fun (id, _) -> Id.eq id var) id_ho_map with
+          | Some (_, id_i) -> Some (Arith.Var id_i)
+          | None -> None
+        end
+        | Type.TyInt -> None
+      )
+    )
   in
   all_terms
   |> List.map
@@ -652,16 +664,37 @@ let replace_occurences
     (rec_lex_tvars : ('a Type.arg Id.t * 'a Type.arg Id.t list) list)
     id_type_map
     use_all_scoped_variables
+    id_ho_map
     (fml : 'a Hflz.t) : 'a Hflz.t =
   let is_lexi_one = List.map (fun e -> List.length (snd e)) rec_lex_tvars |> List.for_all ((=)1) in
   let rec go env (apps : Type.simple_ty t list) fml : 'a Hflz.t = 
     match fml with
     | Var pvar when is_pred pvar -> begin
       let formula_type_ids = pvar.ty |> to_args |> List.rev in
+      let id_ho_map = id_ho_map @
+        (if List.length apps = List.length formula_type_ids then begin
+          (* appsが単なる変数のときは、対応関係を取得 *)
+          (* TODO: 順番があっている？ *)
+          let assoc =
+            List.combine (List.rev apps) formula_type_ids
+            |> List.filter_map (fun (app, id) ->
+              match app with
+              | Var id' ->
+                Some (Id.remove_ty id, id')
+              | _ -> None
+            )
+            |> List.filter_map (fun (id, id_app) ->
+              match List.find_opt (fun (id_ho, _) -> Id.eq id_ho id_app) id_ho_map with
+              | Some (_, id_i) -> Some (Id.remove_ty id, id_i)
+              | None -> None
+            )
+            in
+          assoc
+        end else []) in
       let formula_type_terms = List.map argty_to_var formula_type_ids in
       let guessed_conditions =
         let guessed_terms =
-          get_guessed_terms id_type_map (apps @ formula_type_terms) (if use_all_scoped_variables then env else []) in
+          get_guessed_terms id_type_map (apps @ formula_type_terms) (if use_all_scoped_variables then env else []) id_ho_map in
         (* print_endline "guessed_terms: ";
         List.iter (fun t -> print_endline @@ Arith.show t) guessed_terms; *)
         get_guessed_conditions coe1 coe2 guessed_terms in
@@ -882,7 +915,7 @@ let remove_redundant_bounds id_type_map (phi : Type.simple_ty Hflz.t) =
   in 
   go phi
    
-let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map use_all_scoped_variables =
+let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map use_all_scoped_variables id_ho_map =
   (* calc outer_mu_funcs *)
   let rules = Hflz.merge_entry_rule (entry, rules) in
   let outer_mu_funcs = get_outer_mu_funcs rules in
@@ -917,10 +950,9 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map use
       let outer_pvars = Env.lookup mypvar outer_mu_funcs in
       let scoped_rec_tvars =
         Env.create (List.map (fun pvar -> (pvar, (Env.lookup pvar rec_tvars))) outer_pvars) in
-      let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars rec_lex_tvars id_type_map use_all_scoped_variables body in
+      let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars rec_lex_tvars id_type_map use_all_scoped_variables id_ho_map body in
       (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
       let formula_type_vars = Hflz_util.get_hflz_type body |> to_args |> List.rev in
-      (* 残りに受け取る引数をいったんlambdaで「受ける」 *)
       let rec_tvar_bounds' =
         List.map snd scoped_rec_tvars |>
         List.map (fun v -> Env.lookup v rec_lex_tvars) |>

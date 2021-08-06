@@ -138,9 +138,17 @@ let make_bounds_if_body_is_bool id_type_map psi ty add_args =
     psi
   end
   | TInt' -> assert false
+
+let show_thflz' rules =
+  List.map (fun (var, body, fix) ->
+    Id.to_string var ^ " =" ^ show_fixpoint fix ^ 
+    show_pt_thflz body
+  ) rules
+  |> String.concat ".\n"
   
 let add_params c1 c2 rec_flags (rules : ptype thes_rule list) =
   let id_type_map = ref IdMap.empty in
+  let id_ho_map = ref []  in
   let rec go global_env rho phi = match phi with
     | Abs (x, psi, ty) -> begin
       let f =
@@ -229,6 +237,7 @@ let add_params c1 c2 rec_flags (rules : ptype thes_rule list) =
               if should_add argty f then begin
                 let k = id_gen TInt' in
                 (* TODO: *)
+                id_ho_map := (Id.remove_ty x, {k with ty=`Int})::!id_ho_map;
                 (* id_type_map := IdMap.add !id_type_map k (VTVarMax [{x with ty=convert_ty x.ty}]); *)
                 Some k
               end else None in
@@ -258,14 +267,18 @@ let add_params c1 c2 rec_flags (rules : ptype thes_rule list) =
             body, TBool' in
         let rec make_app body params = match params with
           | (fst, snd, x) :: xs -> begin
+            let x =
+              match x.Id.ty with
+              | TInt' -> Arith (Var {x with ty=TInt'})
+              | _ -> Var x in
             if snd then begin
               let x' =
                 match fst with
                 | Some x' -> x'
                 | None -> assert false in
-              App (App (make_app body xs, Arith (Var x')), Var x)
+              App (App (make_app body xs, Arith (Var x')), x)
             end else
-              App (make_app body xs, Var x)
+              App (make_app body xs, x)
           end
           | [] -> body in
         let v' = { v' with ty = convert_ty' v'.ty} in
@@ -345,7 +358,8 @@ let add_params c1 c2 rec_flags (rules : ptype thes_rule list) =
         (var, body, fix)
       )
       rules in
-  rules, !id_type_map
+  print_endline @@ show_thflz' rules;
+  rules, !id_type_map, !id_ho_map
 
 let rec convert_ty ty = match ty with
   | TFunc' (argty, bodyty) ->
@@ -361,7 +375,7 @@ and convert_argty ty = match ty with
 let to_hes original_fixpoint_pairs rules =
   let rec go (phi : ptype' thflz) : unit Type.ty Hflz.t = match phi with
     | Var v ->
-      (* print_endline @@ "to_hes VAR: " ^ v.name ^ "_" ^ string_of_int v.id; *)
+      print_endline @@ "to_hes VAR: " ^ v.name ^ "_" ^ string_of_int v.id;
       Var {v with ty = convert_ty v.ty}
     | Bool b -> Bool b
     | Or (p1, p2) -> Or (go p1, go p2)

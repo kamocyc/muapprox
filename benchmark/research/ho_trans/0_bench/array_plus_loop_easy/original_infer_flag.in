@@ -1,0 +1,43 @@
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    Make_array
+     (\t. 
+       \ar. 
+        ∀s. 
+         s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+         \/ Update s ar 0 x
+             (\t2. 
+               \ar2. 
+                ∀s2. 
+                 s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0
+                 \/ Update s2 ar2 1 y
+                     (\t3. 
+                       \ar3. 
+                        ∀s3. 
+                         s3 < 0
+                         \/ (∀s4. 
+                              s4 < 1 * t3 + 0 \/ s4 < (-1) * t3 + 0 \/ s4 < 0
+                              \/ Main x y (x+y) s4 ar3 s3 true)))).
+Main x_ y_ xy_ t ar t2 k =v
+  ∀recLoop. 
+   recLoop < 1 + 2 * t2 \/ recLoop < 1 + (-2) * t2 \/ recLoop < 1 + 2 * t
+   \/ recLoop < 1 + (-2) * t
+   \/ recLoop < 1
+   \/ Loop recLoop x_ y_ xy_ 0 ar k.
+Loop recLoop x_ y_ xy_ i ar k =v
+  recLoop > 0
+  /\ ar 0
+      (\x. 
+        ar 1
+         (\y. 
+           (x + y > i \/ k) /\ (x + y <= i \/ Loop (recLoop - 1) x_ y_ xy_ (i + 1) ar k))).
+Make_array k =v ∀s. s < 0 \/ k s (\i. \k_ap_. k_ap_ 0).
+Update t ar i x k =v
+  ∀s. 
+   s < 1 * i + 0 \/ s < (-1) * i + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+   \/ s < 1 * t + 0
+   \/ s < (-1) * t + 0
+   \/ s < 0
+   \/ k s (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).

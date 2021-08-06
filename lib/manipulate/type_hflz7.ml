@@ -511,7 +511,7 @@ let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
   let coe2 = 1 in
   let lexico_pair_number = 1 in
   let use_all_variables = false in
-  let rules, id_type_map = Type_hflz7_add_params.add_params arg_coe1 arg_coe2 rec_flags rules in
+  let rules, id_type_map, id_ho_map = Type_hflz7_add_params.add_params arg_coe1 arg_coe2 rec_flags rules in
   let original_fixpoint_pairs =
     List.map (fun {Hflz.var; fix; _} -> (var, fix)) original_rules in
   let rules = Type_hflz7_add_params.to_hes original_fixpoint_pairs rules in
@@ -524,7 +524,7 @@ let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
     ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"a.txt" ~without_id:false true hes;
     let hes = Hflz_manipulate.encode_body_exists coe1 coe2 hes in
     ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"b.txt" ~without_id:false true hes;
-    let hes = Hflz_manipulate.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables in
+    let hes = Hflz_manipulate.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables id_ho_map in
     Eliminate_unused_argument.eliminate_unused_argument ~id_type_map hes in
   (* print_endline "type hflz 7"; *)
   (* let rules = to_hflz rules in

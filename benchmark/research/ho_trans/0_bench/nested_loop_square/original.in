@@ -31,4 +31,4 @@ Add f g k =u f (\fx. g (\gx. k (fx + gx))).
 Pred f k =u f (\r. k (r - 1)).
 
 Check f k =u
-  f (\n. (n = 0 => k 0) /\ (n != 0 => k 1)).
+  f (\n. (n > 0 => k 0) /\ (n <= 0 => k 1)).

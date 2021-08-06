@@ -421,7 +421,7 @@ let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim partial_analysi
       Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
       ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes;
       
-      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables in
+      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables [] in
       
       Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
       if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";

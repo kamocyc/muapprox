@@ -1,0 +1,47 @@
+%HES
+Sentry =v
+  ∀x. ∀s. s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0 \/ A (M s (\k. k x)).
+A f =v ∀y. ∀s. s < 1 * y + 0 \/ s < (-1) * y + 0 \/ s < 0 \/ f s (\k. k y).
+M t g t2 h =v
+  (∀s. 
+    s < 0
+    \/ (∀s2. 
+         s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0
+         \/ (∀recLoop. 
+              recLoop < 1 + 1 * t \/ recLoop < 1 + (-1) * t
+              \/ recLoop < 1 + 1 * t2
+              \/ recLoop < 1 + (-1) * t2
+              \/ recLoop < 1
+              \/ Loop recLoop g s2 h s true)))
+  /\ (∀s. 
+       s < 0
+       \/ (∀s2. 
+            s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+            \/ (∀recLoop. 
+                 recLoop < 1 + 1 * t2 \/ recLoop < 1 + (-1) * t2
+                 \/ recLoop < 1 + 1 * t
+                 \/ recLoop < 1 + (-1) * t
+                 \/ recLoop < 1
+                 \/ Loop recLoop h s2 g s true))).
+Loop recLoop g t h t2 k =v
+  recLoop > 0
+  /\ Check g
+      (\b. 
+        (b != 0
+         \/ (∀recLoop2. 
+              recLoop2 < 1 + 1 * t2 \/ recLoop2 < 1 + (-1) * t2
+              \/ recLoop2 < 1 + 1 * t
+              \/ recLoop2 < 1 + (-1) * t
+              \/ recLoop2 < 1
+              \/ Loop2 recLoop2 h k))
+        /\ (b != 1
+            \/ (∀s. 
+                 s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 0
+                 \/ (∀s2. 
+                      s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+                      \/ Loop (recLoop - 1) (Pred g) s2 h s k)))).
+Loop2 recLoop h k =v
+  recLoop > 0
+  /\ Check h (\b. (b != 0 \/ k) /\ (b != 1 \/ Loop2 (recLoop - 1) (Pred h) k)).
+Pred f k =v f (\r. k (r - 1)).
+Check f k =v f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).
