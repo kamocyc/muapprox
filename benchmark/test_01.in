@@ -1,3 +1,9 @@
+%HES
+S =v A (\x. x = 0) 0 /\ B (C 0).
+A f x =u f 0 /\ x = 0.
+B f =u f 1 /\ B f.
+C x y =u x = y.
+
 /*
 %HES
 S =v
@@ -27,7 +33,9 @@ Check f k =v
   f (\n. (n = 0 => k 0) /\ (n != 0 => k 1)).
 */
 
+/*
 %HES
 S =v A (\g. g (\x. x = 0)).
 
 A f =u f (\k. k 0) /\ A f.
+*/

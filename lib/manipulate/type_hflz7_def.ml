@@ -73,8 +73,10 @@ let show_fixpoint = function
   | Greatest -> "ν"
   | NonRecursive -> ""
 
+let show_tag_as_separator = ref true
+
 let show_use_flag = function
-  | TUse -> "T"
+  | TUse -> if !show_tag_as_separator then "|" else "T"
   | TNotUse -> "_"
   | EFVar id -> Hflmc2_syntax.Id.to_string id
 
@@ -121,8 +123,8 @@ let get_args phi =
       x :: xs, r
     | _ -> [], phi
   in
-  go phi  
-  
+  go phi
+
 module Print_temp = struct
   open Hflmc2_syntax.Print
 
@@ -185,12 +187,20 @@ module Print_temp = struct
               (format_ty_ Prec.(succ arrow)) x.ty
               (hflz_ get_type show_flag format_ty_ Prec.abs) psi
               (format_ty_ Prec.(succ arrow)) ty
-          else
+          else begin
+            if !show_tag_as_separator then
+              show_paren (prec > Prec.abs) ppf "@[<1>λ%a:%a{%s}.@,%a@]"
+                id x
+                (format_ty_ Prec.(succ arrow)) x.ty
+                f_str
+                (hflz_ get_type show_flag format_ty_ Prec.abs) psi
+            else
             show_paren (prec > Prec.abs) ppf "@[<1>λ%a:{%s}%a.@,%a@]"
               id x
               f_str
               (format_ty_ Prec.(succ arrow)) x.ty
               (hflz_ get_type show_flag format_ty_ Prec.abs) psi
+          end
       end
       | Forall (x, psi) ->
           show_paren (prec > Prec.abs) ppf "@[<1>∀%a.@,%a@]"
@@ -203,10 +213,16 @@ module Print_temp = struct
       | App (psi1, psi2) -> begin
           let ty = get_type psi1 in
           let f_str = show_flag ty in
-          show_paren (prec > Prec.app) ppf "@[<1>%a@ %s%a@]"
-            (hflz_ get_type show_flag format_ty_ Prec.app) psi1
-            f_str
-            (hflz_ get_type show_flag format_ty_ Prec.(succ app)) psi2
+          if !show_tag_as_separator then
+            show_paren (prec > Prec.app) ppf "@[<1>%a@ %a{%s}@]"
+              (hflz_ get_type show_flag format_ty_ Prec.app) psi1
+              (hflz_ get_type show_flag format_ty_ Prec.(succ app)) psi2
+              f_str
+          else
+            show_paren (prec > Prec.app) ppf "@[<1>%a@ {%s}%a@]"
+              (hflz_ get_type show_flag format_ty_ Prec.app) psi1
+              f_str
+              (hflz_ get_type show_flag format_ty_ Prec.(succ app)) psi2
       end
       | Arith a ->
         arith_ prec ppf a
@@ -235,7 +251,15 @@ module Print_temp = struct
       let args, body = get_args body in
       Fmt.pf ppf "@[<2>%s %a =%s@ %a@]"
         (Id.to_string var)
-        (pp_print_list ~pp_sep:Print_syntax.PrintUtil.fprint_space (fun ppf ((arg, _f1), f2) -> fprintf ppf "(%s : {%s}(%a))" (Id.to_string arg) (show_use_flag f2) (format_ty_ Prec.zero) arg.Id.ty))
+        (pp_print_list
+          ~pp_sep:Print_syntax.PrintUtil.fprint_space
+          (fun ppf ((arg, _f1), f2) ->
+            if !show_tag_as_separator then
+              fprintf ppf "(%s : (%a){%s})" (Id.to_string arg) (format_ty_ Prec.zero) arg.Id.ty (show_use_flag f2)
+            else
+              fprintf ppf "(%s : {%s}(%a))" (Id.to_string arg) (show_use_flag f2) (format_ty_ Prec.zero) arg.Id.ty
+          )
+        )
         (List.combine (List.combine args (to_flags outer_ty)) (to_flags inner_ty))
         (show_fixpoint fix)
         (hflz_ thflz_to_ptype ptype_to_flag_string format_ty_) body

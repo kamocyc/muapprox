@@ -1,0 +1,5 @@
+%HES
+Sentry =v A (\x. x = 0) 0 /\ (∀recB. recB < 1 \/ B recB (C 0)).
+A f x =v f 0 /\ x = 0.
+B recB f =v recB > 0 /\ f 1 /\ B (recB - 1) f.
+C x y =v x = y.
