@@ -121,7 +121,7 @@ let check_t1 rules =
 let make_bounds' id_type_map add_args body =
   let rec go = function
     | (xs, c1, c2, r)::add_args ->      
-      id_type_map := IdMap.add !id_type_map ({r with Id.ty=Type.TyInt}) (Hflz_util.VTVarMax (List.map (fun x -> {x with Id.ty=`Int}) xs));
+      id_type_map := IdMap.add !id_type_map ({r with Id.ty=Type.TyInt}) (Hflz_util.VTVarMax (List.map (fun x -> Arith.Var {x with Id.ty=`Int}) xs));
       let bounds = make_bounds xs c1 c2 r in
       Forall (r, Or (bounds, go add_args))
     | [] ->

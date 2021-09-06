@@ -528,7 +528,7 @@ let get_guessed_terms id_type_map arg_terms scoped_variables id_ho_map =
       |> List.filter_map (fun var -> match var.Id.ty with
         | Type.TySigma _ -> begin
           match List.find_opt (fun (id, _) -> Id.eq id var) id_ho_map with
-          | Some (_, id_i) -> Some (Arith.Var id_i)
+          | Some (_, id_i) -> print_endline @@ "get_guesssed_terms (1): " ^ Id.to_string id_i; Some (Arith.Var id_i)
           | None -> None
         end
         | Type.TyInt -> None
@@ -849,7 +849,7 @@ let get_occurring_variables_in_arith a =
 let substitute_arith a (before, after) =
   let rec go a = match a with
     | Arith.Var v -> begin
-      if Id.eq v before then Arith.Var after else Var v
+      if Id.eq v before then after else Arith.Var v
     end
     | Int i -> Int i
     | Op (op, xs) -> Op (op, List.map go xs)
@@ -1001,10 +1001,18 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map use
             |> List.flatten
           ) mypvar.ty in
         {mypvar with ty=ty} in
-      (* Log.app begin fun m -> m ~header:"body (before beta)" "%a" Print.(hflz simple_ty_) body end;
-      Log.app begin fun m -> m ~header:"body (after beta)" "%a" Print.(hflz simple_ty_) (Hflz_util.beta body) end;
-      Log.app begin fun m -> m ~header:"body (after beta 2)" "%a" Print.(hflz simple_ty_) (body |> Hflz_util.beta |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds) end; *)
-      {fix=Greatest; var=mypvar; body=body |> Hflz_util.beta |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds}
+      let id_type_map, body' = Hflz_util.beta id_type_map body in
+      print_endline "body (before beta)";
+      print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) body;
+      print_endline "body (after beta)";
+      print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) body';
+      print_endline "body (after beta 2)";
+      print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) (body' |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds);
+      (* print_endline "body (after beta 3)";
+      print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) (body |> (remove_redundant_bounds id_type_map) |> Hflz_util.beta |> remove_duplicate_bounds); *)
+      (* print_endline "body (after beta 4)";
+      print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) (body |> (remove_redundant_bounds id_type_map) |> Hflz_util.beta |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds); *)
+      {fix=Greatest; var=mypvar; body=body' |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds}
     )
     rules
   in

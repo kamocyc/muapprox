@@ -1,6 +1,7 @@
 open Hflmc2_syntax
 module Env = Env_no_value
 
+module T = Type_hflz7
 open Type_hflz7_def
 
 let rec equal_type_modulo_flag ty1 ty2 =
@@ -380,11 +381,70 @@ let show_id_map id_map show_f =
   |> String.concat ", ") ^
   "}"
 
+let construct_recursion_flags (rules : 'a Type.ty Hflz.hes_rule list) =
+  let preds, graph = Hflz_util.get_dependency_graph rules in
+  (* Depth first search *)
+  let rec dfs seen current =
+    let nids = Mygraph.get_next_nids current graph in
+    (* 既に見たなら、「再帰」とフラグを付ける *)
+    List.map
+      (fun nid ->
+        match List.find_opt (fun s -> s = nid) seen with
+        | Some _ -> [(current, (nid, Recursive))]
+        | None ->
+          let map = dfs (nid::seen) nid in
+          (current, (nid, NotRecursive)) :: map
+      )
+      nids
+    |> List.flatten
+  in
+  let map = dfs [0] 0 in
+  let map =
+    Hflmc2_util.group_by (fun (key, _) -> key) map
+    |> Hflmc2_util.list_of_hashtbl
+    |> List.map (fun (k, vs) -> (k, List.map snd vs)) in
+  let map =
+    List.map
+      (fun (k, flags) ->
+        let flags =
+          Hflmc2_util.group_by (fun (key, _) -> key) flags
+          |> Hflmc2_util.list_of_hashtbl
+          |> List.map (fun (k, vs) -> (k, List.map snd vs)) in
+        let flag =
+          List.map
+            (fun (nid, flags) ->
+              (* prioritize NotRecursive *)
+              match List.find_opt (fun f -> match f with NotRecursive -> true | Recursive -> false) flags with
+              | Some _ -> (nid, NotRecursive)
+              | None -> (nid, Recursive)
+            )
+            flags in
+        (k, flag)
+      )
+      map
+  in
+  let map =
+    List.map
+      (fun (i, id) ->
+        match List.find_opt (fun (j, _) -> i = j) map with
+        | Some (_, nids) ->
+          (id, List.map (fun (k, v) -> let (_, id) = List.find (fun (i, _) -> i = k) preds in (id, v)) nids)
+        | None -> (id, [])
+      )
+      preds
+  in
+  (* print_endline "recursion flags:";
+  print_endline @@ Hflmc2_util.show_pairs Id.to_string (fun flags -> Hflmc2_util.show_pairs Id.to_string show_recursive_flag flags) map; *)
+  map
+
 let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
   Type_hflz7_def.show_tag_as_separator := true;
+  let hes = Hes_optimizer.eliminate_unreachable_predicates hes in
+  let hes = Eliminate_unused_argument.eliminate_unused_argument hes in
   let original_rules = Hflz.merge_entry_rule hes in
   let is_recursive = get_recursivity original_rules in
   let rules = to_thflzs original_rules is_recursive in
+  let rec_flags = construct_recursion_flags original_rules in
   (* print_endline "to_thflz";
   print_endline @@ show_s_thes_rules rules;
   print_endline "to_thflz (simple)";
@@ -408,7 +468,8 @@ let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
   (* let rules = to_hflz rules in
   let hes = Hflz.decompose_entry_rule rules in
   Hflz_typecheck.type_check hes; *)
-  let a = Type_hflz7_tuple.to_thflz2 rules in
-  Type_hflz7_tuple.check_thflz2_type a;
+  let thflz2 = Type_hflz7_pa_tuple.to_thflz2 rules in
   Type_hflz7_def.show_tag_as_separator := false;
+  Type_hflz7_pa_tuple.check_thflz2_type thflz2;
+  let hes = Type_hflz7_pa_a.infer original_rules thflz2 rec_flags in
   hes

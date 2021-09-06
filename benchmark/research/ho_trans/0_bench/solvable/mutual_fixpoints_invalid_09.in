@@ -1,0 +1,38 @@
+%HES
+Sentry =v
+  ∀x. 
+   x <= 0
+   \/ (∀s. s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0 \/ M s (\k. k x)).
+M t f =v ∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ Outer s f.
+Outer t fx =v
+  Check fx
+   (\b. 
+     (b != 0 \/ false)
+     /\ (b != 1
+         \/ (∀y. 
+              y < 0
+              \/ (∀s. 
+                   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 1 * y + 0
+                   \/ s < (-1) * y + 0
+                   \/ s < 0
+                   \/ (∀recRepeat. 
+                        recRepeat < 1 + 1 * t \/ recRepeat < 1 + 1 * y
+                        \/ recRepeat < 1 + (-1) * t
+                        \/ recRepeat < 1 + (-1) * y
+                        \/ recRepeat < 1
+                        \/ Repeat recRepeat s (Add fx (\k. k y))))))).
+Repeat recRepeat t fy =v
+  recRepeat > 0
+  /\ Check fy
+      (\b. 
+        (b != 0
+         \/ (∀s. 
+              s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ Outer s (Neg fy)))
+        /\ (b != 1
+            \/ (∀s. 
+                 s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+                 \/ Repeat (recRepeat - 1) s (Pred fy)))).
+Check f k =v f (\x. (x != 0 \/ k 0) /\ (x = 0 \/ k 1)).
+Add f g k =v f (\x. g (\y. k (x + y))).
+Neg f k =v f (\x. k (-x)).
+Pred f k =v f (\x. k (x - 1)).

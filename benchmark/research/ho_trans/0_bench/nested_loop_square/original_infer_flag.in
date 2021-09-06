@@ -1,28 +1,8 @@
 %HES
-S =v
-  ∀n. 
-   ∀s. 
-    s < 1 * n + 0 \/ s < (-1) * n + 0
-    \/ (∀recMult. 
-        recMult < 1 + 1 * n \/ recMult < 1 + (-1) * n \/ recMult < 1
-        \/ Mult recMult s (\k. k 0) (\k. k n) (\k. k n)
-            (\t. 
-              \g. 
-                ∀recLoop. 
-                recLoop < 1 + 1 * t \/ recLoop < 1 + (-1) * t \/ recLoop < 1
-                \/ Loop recLoop true g)).
-Loop recLoop k g =v
-  recLoop > 0
-  /\ Check g (\b. (b != 0 \/ k) /\ (b = 0 \/ Loop (recLoop - 1) k (Pred g))).
-Mult recMult t acc f g k =v
-  recMult > 0
-  /\ Check f
-      (\b. 
-        (b != 0 \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ k s acc))
-        /\ (b != 1
-            \/ (∀s.
-                s < 2 * t + 0 \/ s < (-2) * t + 0
-                \/ Mult (recMult - 1) s (Add acc g) (Pred f) g k))).
-Add f g k =v f (\fx. g (\gx. k (fx + gx))).
-Pred f k =v f (\r. k (r - 1)).
-Check f k =v f (\n. (n != 0 \/ k 0) /\ (n <= 0 \/ k 1)).
+Sentry =v ∀n. Mult (\k. k 0) (\k. k n) (\k. k n) (\g. Loop (\r. true) g).
+Loop k g =u Check g (\b. (b != 0 \/ k 0) /\ (b = 0 \/ Loop k (Pred g))).
+Mult acc f g k =u
+  Check f (\b. (b != 0 \/ k acc) /\ (b != 1 \/ Mult (Add acc g) (Pred f) g k)).
+Add f g k =u f (\fx. g (\gx. k (fx + gx))).
+Pred f k =u f (\r. k (r - 1)).
+Check f k =u f (\n. (n <= 0 \/ k 0) /\ (n > 0 \/ k 1)).

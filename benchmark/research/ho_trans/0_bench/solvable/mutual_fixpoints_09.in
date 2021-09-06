@@ -1,0 +1,42 @@
+/* 70sec */
+%HES
+S =v
+  ∀x. 
+   x <= 0 \/ (∀s. s < 1 * x + 1 \/ s < (-1) * x + 1 \/ s < 0 \/ M x s (\k. k x)).
+
+M x t f =v ∀s. s < 1 * t + 1 \/ s < (-1) * t + 1 \/ s < 0 \/ Outer x s f.
+
+Outer x t fx =v
+  Check fx
+   (\b. 
+     (b != 0 \/ false)
+     /\ (b != 1
+         \/ (∀y. 
+              y < 0
+              \/ (∀s. 
+                   s < 2 * t + 1 \/ s < (-2) * t + 1 \/ s < 2 * y + 1
+                   \/ s < (-2) * y + 1
+                   \/ s < 0
+                   \/ (∀recRepeat. 
+                        recRepeat < 1 + 2 * t \/ recRepeat < 1 + 2 * y
+                        \/ recRepeat < 1 + (-2) * t
+                        \/ recRepeat < 1 + (-2) * y
+                        \/ recRepeat < 1
+                        \/ Repeat recRepeat (x + y) s (Add fx (\k. k y))))))).
+
+Repeat recRepeat xy t fy =v
+  recRepeat > 0
+  /\ Check fy
+      (\b. 
+        (b != 0
+         \/ (∀s. 
+              s < 1 * t + 1 \/ s < (-1) * t + 1 \/ s < 0 \/ Outer (1 - xy) s (Neg fy)))
+        /\ (b != 1
+            \/ (∀s. 
+                 s < 1 * t + 1 \/ s < (-1) * t + 1 \/ s < 0
+                 \/ Repeat (recRepeat - 1) (xy - 1) s (Pred fy)))).
+
+Check f k =v f (\x. (x != 0 \/ k 0) /\ (x = 0 \/ k 1)).
+Add f g k =v f (\x. g (\y. k (x + y))).
+Neg f k =v f (\x. k (1 - x)).
+Pred f k =v f (\x. k (x - 1)).

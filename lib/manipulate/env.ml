@@ -1,7 +1,9 @@
 open Hflmc2_syntax
 
+type ('a, 'b) t = ('a Id.t * 'b) list
+
 (* 環境に変数の重複があったときは、エラー *)
-let lookup (key : 'a Id.t) (env : ('b Id.t * 'c) list) : 'c =
+let lookup (key : 'a Id.t) (env : ('b, 'c) t) : 'c =
   match List.find_all (fun (k, _) -> Id.eq k key) env with
   | [(_, v)] -> v
   | [] -> raise Not_found
@@ -37,4 +39,4 @@ let has key env =
 
 let empty = []
 
-let create bounds = update bounds empty
+let create bounds : ('a, 'b) t = bounds

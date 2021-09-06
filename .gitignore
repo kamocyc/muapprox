@@ -6,6 +6,8 @@ _build
 **/*.status
 **/*.install
 output/
+compare/
+slides/
 a.out
 submit/
 **/*.tmp

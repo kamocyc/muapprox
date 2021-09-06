@@ -82,7 +82,7 @@ let type_check_arith : ty_env -> Arith.t -> bool = fun env arith ->
     List.length args = 2 &&
     List.for_all go args in
   go arith
-  
+
 let get_hflz_type : ty_env -> Type.simple_ty Hflz.t -> Type.simple_ty = fun env hfl ->
   let show_arg_ty = fun fmt ty -> Format.pp_print_string fmt @@ Type.show_ty Fmt.nop ty in
   let show_arg = Type.show_arg show_arg_ty in
@@ -221,8 +221,8 @@ let set_variable_ty (hes : Type.simple_ty hes) : Type.simple_ty hes =
   (entry, rules)
 
 let type_check (hes : Type.simple_ty hes) : unit =
-  (* let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
-  print_endline @@ "Not checked HES path: " ^ path; *)
+  let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
+  print_endline @@ "Not checked HES path: " ^ path;
   (* let path = Print_syntax.FptProverHes.save_hes_to_file hes in
   print_endline @@ "Not checked HES path (.hes): " ^ path; *)
   let show_ty = Type.show_ty Fmt.nop in
@@ -261,3 +261,47 @@ let type_check (hes : Type.simple_ty hes) : unit =
   print_endline @@ Print_syntax.show_hes (merge_entry_rule hes);
   ensure_all_variable_ids_are_unique hes; *)
   ()
+
+let ensure_no_shadowing_expr (env : ty_env) (phi : 'a Hflz.t) : 'a Type.arg Id.t list =
+  let rec go env phi = 
+    let get_duplicates x =
+      match List.find_opt (fun x' -> x.Id.name = x'.Id.name) env with
+      | Some x' -> [x']
+      | None -> []
+    in
+    match phi with
+    | Var _ -> []
+    | Arith _ -> []
+    | Bool _ -> []
+    | Pred _ -> []
+    | Abs (x, p) -> begin
+      (go (x::env) p) @ (get_duplicates x)
+    end
+    | Forall (x, p) -> 
+      (go (x::env) p) @ (get_duplicates x)
+    | Exists (x, p) -> 
+      (go (x::env) p) @ (get_duplicates x)
+    | App (p1, p2) ->
+      go env p1 @ go env p2
+    | And (p1, p2) ->
+      go env p1 @ go env p2
+    | Or (p1, p2) ->
+      go env p1 @ go env p2
+    in
+  go env phi
+
+(* shadowning is normally harmless *)
+let ensure_no_shadowing (hes : Type.simple_ty hes) : unit =
+  let (entry, rules) = hes in
+  let env = List.map (fun {var={ty;_} as var;_} -> {var with ty=Type.TySigma ty}) rules in
+  let () =
+    let pred_count = get_duplicates (fun a b -> a.Id.name = b.Id.name) env in
+    match pred_count with
+    | [] -> ()
+    | xs -> failwith @@ "duplicated predicates (comparing only names of predicates) (" ^ (List.map (fun (var, _) -> Id.to_string var) xs |> String.concat ", ") ^ ")" in
+  let dups =
+    (ensure_no_shadowing_expr env entry) @
+    (List.map (fun {body; _} -> ensure_no_shadowing_expr env body) rules |> List.flatten) in
+  match dups with
+  | [] -> ()
+  | dups -> failwith @@ "shadowed variables: (" ^ (List.map (fun var -> var.Id.name) dups |> String.concat ", ") ^ ")"

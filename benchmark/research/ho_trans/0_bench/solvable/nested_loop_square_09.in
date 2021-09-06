@@ -1,10 +1,13 @@
+/* 16sec */
 %HES
-S =v
+Sentry =v
   ∀n. 
    ∀s. 
-    s < 1 * n + 0 \/ s < (-1) * n + 0
+    s < 1 * n + 0 \/ s < (-1) * n + 0 \/ s < 0
     \/ (∀recMult. 
-         recMult < 1 + 1 * n \/ recMult < 1 + (-1) * n \/ recMult < 1
+         recMult < 1 + 1 * n \/ recMult < 1 + 1 * 0 \/ recMult < 1 + (-1) * n
+         \/ recMult < 1 + (-1) * 0
+         \/ recMult < 1
          \/ Mult recMult s (\k. k 0) (\k. k n) (\k. k n)
              (\t. 
                \g. 
@@ -18,10 +21,11 @@ Mult recMult t acc f g k =v
   recMult > 0
   /\ Check f
       (\b. 
-        (b != 0 \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ k s acc))
+        (b != 0
+         \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ k s acc))
         /\ (b != 1
             \/ (∀s. 
-                 s < 2 * t + 0 \/ s < (-2) * t + 0
+                 s < 2 * t + 0 \/ s < (-2) * t + 0 \/ s < 0
                  \/ Mult (recMult - 1) s (Add acc g) (Pred f) g k))).
 Add f g k =v f (\fx. g (\gx. k (fx + gx))).
 Pred f k =v f (\r. k (r - 1)).

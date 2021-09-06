@@ -145,8 +145,13 @@ let evaluate_trivial_boolean hes =
   Hflz.decompose_entry_rule
   
 let beta_hes (entry, rules) =
-  Hflz_util.beta entry,
-  List.map (fun rule -> { rule with Hflz.body = Hflz_util.beta rule.Hflz.body }) rules
+  Hflz_util.beta IdMap.empty entry |> snd,
+  List.map
+    (fun rule ->
+      let _, body = Hflz_util.beta IdMap.empty rule.Hflz.body in
+      { rule with Hflz.body = body }
+    )
+    rules
   
 let simplify (hes : Type.simple_ty Hflz.hes)=
   let hes = InlineExpansion.optimize hes in

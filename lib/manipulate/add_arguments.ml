@@ -127,7 +127,7 @@ let add_arguments_expr global_vars use_related (phi : PA.i_thflz) (coe1: int) (c
           (fun (id, related_ids) ->
             let ids =
               if use_related then related_ids else scoped_integer_variables in
-            new_ids := IdMap.add !new_ids ({id with Id.ty=Type.TyInt}) (Hflz_util.VTVarMax ids);
+            new_ids := IdMap.add !new_ids ({id with Id.ty=Type.TyInt}) (Hflz_util.VTVarMax (List.map (fun id -> Arith.Var id) ids));
           )
           generated_ids;
         let bound =

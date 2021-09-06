@@ -14,7 +14,7 @@ type 'ty thflz2 =
   | Pred   of Formula.pred * 'ty T.tarith list
   [@@deriving eq,ord,show]
 
-type ptype2 = TInt | TBool | TFunc of ptype2 list * ptype2
+type ptype2 = TInt | TBool | TFunc of (ptype2 * T.use_flag) list * ptype2 | TVar of unit Id.t
   [@@deriving eq,ord]
 
 let show_list f ls = "[" ^ (List.map f ls |> String.concat "; ") ^ "]"
@@ -25,19 +25,58 @@ let rec pp_ptype2 prec ppf ty =
     Fmt.pf ppf "bool"
   | TInt ->
     Fmt.pf ppf "int"
-  | TFunc (tys, argty) ->
-    Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>%s ->@ %a@]"
-      (show_list (Hflmc2_util.fmt_string (pp_ptype2 Print.Prec.zero)) tys)
-      (pp_ptype2 Print.Prec.arrow) argty
+  | TFunc (tts, argty) ->
+    if List.hd tts |> snd <> T.dummy_use_flag then
+      Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>%a ->@ %a@]"
+        pp_ptype2_arg
+        tts
+        (pp_ptype2 Print.Prec.arrow) argty
+    else
+      Print.show_paren (prec > Print.Prec.arrow) ppf "@[<1>%s ->@ %a@]"
+        (show_list (Hflmc2_util.fmt_string (pp_ptype2 Print.Prec.zero)) (List.map fst tts))
+        (pp_ptype2 Print.Prec.arrow) argty
+    | TVar (id) ->
+      Fmt.pf ppf "%s" (Id.to_string id)
+and pp_ptype2_arg ppf tts =
+  let fmt (formatter : Format.formatter) (ty, tag) =
+    Print.fprintf
+      formatter
+      "{%s,%s}"
+      (Hflmc2_util.fmt_string (pp_ptype2 Print.Prec.zero) ty)
+      (T.show_use_flag tag) in
+  let sep ppf () = Fmt.pf ppf "," in
+  Fmt.pf ppf "[%a]" (Fmt.list ~sep fmt) tts
 
 let show_ptype2 = Hflmc2_util.fmt_string (pp_ptype2 Print.Prec.zero)
 
 type 'a thes_rule = {var: 'a Id.t; body: 'a thflz2; fix: T.fixpoint}
 [@@deriving eq,ord,show]
 
+type 'a thes_rule_in_out = {var_in_out: 'a T.in_out Id.t; body: 'a thflz2; fix: T.fixpoint}
+[@@deriving eq,ord,show]
+
 let get_tag = function
   | T.TFunc (_, _, t) -> t
   | _ -> assert false
+
+let get_free_variables phi =
+  let rec go phi = match phi with
+    | Bool _ -> []
+    | Var v -> [v]
+    | Or (p1, p2) -> go p1 @ go p2
+    | And (p1, p2) -> go p1 @ go p2
+    | Abs (xs, p, _) -> List.filter (fun v -> not @@ List.exists (fun x' -> Id.eq x' v) xs) (go p)
+    | Forall (x, p) -> List.filter (fun v -> not @@ Id.eq x v) (go p)
+    | Exists (x, p) -> List.filter (fun v -> not @@ Id.eq x v) (go p)
+    | App (p1, p2) -> go p1 @ (List.map go p2 |> List.flatten)
+    | Arith a -> go_arith a
+    | Pred (_, ps) -> List.map go_arith ps |> List.concat
+  and go_arith a = match a with
+    | Int _ -> []
+    | Var v -> [v]
+    | Op (_, ps) -> List.map go_arith ps |> List.concat
+  in
+  go phi
 
 let rec get_thflz2_type_without_check phi =
   match phi with
@@ -59,9 +98,14 @@ let rec get_thflz2_type_without_check phi =
 
 let get_args phi =
   let rec go phi = match phi with
-    | Abs (x, p, _ty) ->
+    | Abs (x, p, ty) -> begin
+      let argty =
+        match ty with
+        | TFunc (argty, _) -> argty
+        | _ -> assert false in
       let xs, r = go p in
-      x :: xs, r
+      (x, argty) :: xs, r
+    end
     | _ -> [], phi
   in
   go phi
@@ -71,29 +115,36 @@ let show_fixpoint = function
   | Greatest -> "ν"
   | NonRecursive -> ""
 
+let thflz_to_ptype = get_thflz2_type_without_check
+
 module Print_temp = struct
   open Print
   open T.Print_temp
-  let thflz_to_ptype = get_thflz2_type_without_check
   
-  let rec hflz_ (get_type : 'pty thflz2 -> 'pty) (format_ty_ : Prec.t -> 'pty Fmt.t) (prec : Prec.t) (ppf : formatter) (phi : 'pty thflz2) = match phi with
+  let rec hflz_
+    (get_type : 'pty thflz2 -> 'pty)
+    (pp_t_arg : formatter -> ('pty * Type_hflz7_def.use_flag) list -> unit)
+    (format_ty_ : Prec.t -> 'pty Fmt.t)
+    (prec : Prec.t)
+    (ppf : formatter)
+    (phi : 'pty thflz2) = match phi with
       | Bool true -> Fmt.string ppf "true"
       | Bool false -> Fmt.string ppf "false"
       | Var x ->
         (* if !output_debug_info then
           Fmt.pf ppf "(%a : %a)" id x (format_ty_ Prec.zero) x.ty
         else *)
-        Fmt.pf ppf "%a" id x
+        Fmt.pf ppf "(%a : %a)" id x (format_ty_  Prec.zero) x.ty
       | Or (phi1,phi2)  ->
           (* p_id ppf sid;  *)
           show_paren (prec > Prec.or_) ppf "@[<hv 0>%a@ \\/ %a@]"
-            (hflz_ get_type format_ty_ Prec.or_) phi1
-            (hflz_ get_type format_ty_ Prec.or_) phi2
+            (hflz_ get_type pp_t_arg format_ty_ Prec.or_) phi1
+            (hflz_ get_type pp_t_arg format_ty_ Prec.or_) phi2
       | And (phi1,phi2)  ->
           (* p_id ppf sid;  *)
           show_paren (prec > Prec.and_) ppf "@[<hv 0>%a@ /\\ %a@]"
-            (hflz_ get_type format_ty_ Prec.and_) phi1
-            (hflz_ get_type format_ty_ Prec.and_) phi2
+            (hflz_ get_type pp_t_arg format_ty_ Prec.and_) phi1
+            (hflz_ get_type pp_t_arg format_ty_ Prec.and_) phi2
       | Abs (xs, psi, ty) -> begin
           (* let f_str = show_flag ty in
           if !output_debug_info then
@@ -112,22 +163,29 @@ module Print_temp = struct
                 (hflz_ get_type show_flag format_ty_ Prec.abs) psi
             else *)
             match ty with
-            | TFunc (tys, _) ->
-              show_paren (prec > Prec.abs) ppf "@[<1>λ%s:%s.@,%a@]"
-                (show_list Id.to_string xs)
-                (show_list (Hflmc2_util.fmt_string (pp_ptype2 Print.Prec.zero)) tys)
-                (hflz_ get_type format_ty_ Prec.abs) psi
+            | TFunc (tys, _) -> begin
+              if List.hd tys |> snd <> T.dummy_use_flag then
+                show_paren (prec > Prec.abs) ppf "@[<1>λ%s:%a.@,%a@]"
+                  (show_list Id.to_string xs)
+                  pp_t_arg tys
+                  (hflz_ get_type pp_t_arg format_ty_ Prec.abs) psi
+              else
+                show_paren (prec > Prec.abs) ppf "@[<1>λ%s:%s.@,%a@]"
+                  (show_list Id.to_string xs)
+                  (show_list (Hflmc2_util.fmt_string (pp_ptype2 Print.Prec.zero)) (List.map fst tys))
+                  (hflz_ get_type pp_t_arg format_ty_ Prec.abs) psi
+            end
             | _ -> assert false
           (* end *)
       end
       | Forall (x, psi) ->
           show_paren (prec > Prec.abs) ppf "@[<1>∀%a.@,%a@]"
             id x
-            (hflz_ get_type format_ty_ Prec.abs) psi
+            (hflz_ get_type pp_t_arg format_ty_ Prec.abs) psi
       | Exists (x, psi) ->
           show_paren (prec > Prec.abs) ppf "@[<1>∃%a.@,%a@]"
             id x
-            (hflz_ get_type format_ty_ Prec.abs) psi
+            (hflz_ get_type pp_t_arg format_ty_ Prec.abs) psi
       | App (psi1, psi2) -> begin
           (* let ty = get_type psi1 in *)
           (* let f_str = show_flag ty in
@@ -138,8 +196,8 @@ module Print_temp = struct
               f_str
           else *)
             show_paren (prec > Prec.app) ppf "@[<1>%a@ %s@]"
-              (hflz_ get_type format_ty_ Prec.app) psi1
-              (show_list (Hflmc2_util.fmt_string (hflz_ get_type format_ty_ Prec.zero)) psi2)
+              (hflz_ get_type pp_t_arg format_ty_ Prec.app) psi1
+              (show_list (Hflmc2_util.fmt_string (hflz_ get_type pp_t_arg format_ty_ Prec.zero)) psi2)
       end
       | Arith a ->
         arith_ prec ppf a
@@ -152,10 +210,10 @@ module Print_temp = struct
       | Pred _ -> assert false
 
   let hflz_ : ('pty thflz2 -> 'pty) -> (Prec.t -> 'ty Fmt.t) -> 'ty thflz2 Fmt.t =
-    fun get_type format_ty_ -> hflz_ get_type format_ty_ Prec.zero
+    fun get_type format_ty_ -> hflz_ get_type pp_ptype2_arg format_ty_ Prec.zero
 
   let hflz : (Prec.t -> 'ty Fmt.t) -> 'ty thflz2 Fmt.t =
-    hflz_ thflz_to_ptype
+    hflz_ get_thflz2_type_without_check
   
   let hflz_hes_rule : (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule Fmt.t =
     fun format_ty_ ppf {var; body; fix} ->
@@ -164,24 +222,51 @@ module Print_temp = struct
         (Id.to_string var)
         (pp_print_list
           ~pp_sep:Print_syntax.PrintUtil.fprint_space
-          (fun ppf args ->
+          (fun ppf (args, tts) ->
             (* if !show_tag_as_separator then
               fprintf ppf "(%s : (%a){%s})" (Id.to_string arg) (format_ty_ Prec.zero) arg.Id.ty (show_use_flag f2)
             else *)
               fprintf ppf "(%s : %s)"
                 (show_list Id.to_string args)
-                (show_list (Hflmc2_util.fmt_string (pp_ptype2 Print.Prec.zero)) (List.map (fun arg -> arg.Id.ty) args))
+                (Hflmc2_util.fmt_string pp_ptype2_arg tts)
               (* fprintf ppf "(%s : %a)" (Id.to_string arg) (format_ty_ Prec.zero) arg.Id.ty *)
           )
         )
         args
         (show_fixpoint fix)
-        (hflz_ thflz_to_ptype format_ty_) body
+        (hflz_ get_thflz2_type_without_check format_ty_) body
 
   let hflz_hes :  (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule list Fmt.t =
     fun format_ty_ ppf rules ->
       Fmt.pf ppf "@[<v>%a@]"
         (Fmt.list (hflz_hes_rule format_ty_)) rules
+  
+  let hflz_hes_rule_in_out : (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule_in_out Fmt.t =
+    fun format_ty_ ppf {var_in_out; body; fix} ->
+      let args, body = get_args body in
+      Fmt.pf ppf "@[<2>%s %a =%s@ %a@]"
+        (Id.to_string var_in_out)
+        (pp_print_list
+          ~pp_sep:Print_syntax.PrintUtil.fprint_space
+          (fun ppf (args, tts) ->
+            (* if !show_tag_as_separator then
+              fprintf ppf "(%s : (%a){%s})" (Id.to_string arg) (format_ty_ Prec.zero) arg.Id.ty (show_use_flag f2)
+            else *)
+              fprintf ppf "(%s : %s)"
+                (show_list Id.to_string args)
+                (Hflmc2_util.fmt_string pp_ptype2_arg tts)
+              (* fprintf ppf "(%s : %a)" (Id.to_string arg) (format_ty_ Prec.zero) arg.Id.ty *)
+          )
+        )
+        args
+        (show_fixpoint fix)
+        (hflz_ get_thflz2_type_without_check format_ty_) body
+
+  let hflz_hes_in_out :  (Prec.t -> 'ty Fmt.t) -> 'ty thes_rule_in_out list Fmt.t =
+    fun format_ty_ ppf rules ->
+      Fmt.pf ppf "@[<v>%a@]"
+        (Fmt.list (hflz_hes_rule_in_out format_ty_)) rules
+        
 end
 
 let rec convert_ty ty =
@@ -192,13 +277,16 @@ let rec convert_ty ty =
         let argtys = argty::argtys in
         match t with
         | TUse ->
-          let argtys = List.map convert_ty argtys |> List.rev in 
+          let argtys = List.map (fun argty -> convert_ty argty, T.dummy_use_flag) argtys |> List.rev in 
           let bodyty = convert_ty bodyty in
           TFunc (argtys, bodyty)
         | TNotUse ->
           go argtys bodyty
         | EFVar _ -> assert false
       end
+      (* TODO: 型が未確定のときの処理 *)
+      (* | T.TVar _ -> print_endline "conver_ty: tvar"; TBool
+      | T.TBool -> print_endline "conver_ty: tbool"; TBool *)
       | _ -> assert false
     in
     go [] ty
@@ -208,7 +296,7 @@ let rec convert_ty ty =
   | TVar _ -> assert false
 
 let to_thflz2 rules =
-  let convert_v_ty v = {v with Id.ty=convert_ty v.Id.ty} in
+  let convert_v_ty v = print_endline @@ "to_thflz2: " ^ T.show_ptype v.Id.ty; {v with Id.ty=convert_ty v.Id.ty} in
   let rec to_thflz2_sub phi : ptype2 thflz2 =
     match phi with
     | T.App _ -> begin
@@ -284,6 +372,7 @@ let to_thflz2 rules =
         {var = {var with ty = convert_ty var.ty.inner_ty}; body; fix}
       )
       rules in
+  print_endline "to_thflz2.tuple";
   print_endline @@
     Hflmc2_util.fmt_string
       (Print_temp.hflz_hes pp_ptype2) rules;
@@ -296,6 +385,10 @@ let check_thflz2_type rules =
     | Var v -> begin
       match List.find_opt (fun v' -> Id.eq v' v) env with
       | Some v' ->
+        (* print_endline "v'";
+        print_endline @@ show_ptype2 v'.ty;
+        print_endline "v";
+        print_endline @@ show_ptype2 v.ty; *)
         assert (v'.ty = v.ty);
         v.ty
       | None -> assert false
@@ -309,23 +402,23 @@ let check_thflz2_type rules =
       assert (go env p2 = TBool);
       TBool
     | Abs (xs, p, fty) -> begin
-      print_endline "formula";
-      print_endline @@ Hflmc2_util.fmt_string (Print_temp.hflz pp_ptype2) phi;
+      (* print_endline "formula";
+      print_endline @@ Hflmc2_util.fmt_string (Print_temp.hflz pp_ptype2) phi; *)
       let bodyty =
         (match fty with
         | TFunc (argtys, bodyty) ->
           List.iter
             (fun (x, a) ->
-              print_endline @@ show_ptype2 x.Id.ty;
-              print_endline @@ show_ptype2 a;
+              (* print_endline @@ show_ptype2 x.Id.ty;
+              print_endline @@ show_ptype2 a; *)
               assert (x.Id.ty = a)
             )
-            (List.combine xs argtys);
+            (List.combine xs (List.map fst argtys));
           bodyty
         | _ -> assert false) in
       let ty = go (xs @ env) p in
       assert (ty = bodyty);
-      TFunc (List.map (fun v -> v.Id.ty) xs, ty)
+      TFunc (List.map (fun v -> v.Id.ty, T.dummy_use_flag) xs, ty)
     end
     | Forall (x, body) ->
       go (x::env) body
@@ -336,15 +429,15 @@ let check_thflz2_type rules =
       match ty1 with
       | TFunc (argtys, bodyty) -> begin
         let tys = List.map (go env) ps in
-        print_endline "formula";
-        print_endline @@ Hflmc2_util.fmt_string (Print_temp.hflz pp_ptype2) phi;
+        (* print_endline "formula";
+        print_endline @@ Hflmc2_util.fmt_string (Print_temp.hflz pp_ptype2) phi; *)
         List.iter
           (fun (ty1, ty2) ->
-            print_endline @@ show_ptype2 ty1;
-            print_endline @@ show_ptype2 ty2;
+            (* print_endline @@ show_ptype2 ty1;
+            print_endline @@ show_ptype2 ty2; *)
             assert (ty1 = ty2)
           )
-          (List.combine argtys tys);
+          (List.combine (List.map fst argtys) tys);
         bodyty
       end
       | _ -> assert false

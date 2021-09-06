@@ -4,7 +4,7 @@ open Hflz
 type variable_type =
   (* | VTOrdinal
   | VTRec *)
-  | VTVarMax of [`Int] Id.t list
+  | VTVarMax of Arith.t list
   | VTHigherInfo
 [@@deriving show]
 
@@ -155,15 +155,45 @@ let assign_unique_variable_id (hes : Type.simple_ty Hflz.hes_rule list): Type.si
 let with_rules f hes = hes |> merge_entry_rule |> f |> decompose_entry_rule
 
 
-let rec beta (phi : 'a Hflz.t) : 'a Hflz.t = match phi with
-  | Or (phi1, phi2) -> Or (beta phi1, beta phi2)
-  | And(phi1, phi2) -> And(beta phi1, beta phi2)
+let rec beta id_type_map (phi : 'a Hflz.t) : ('b * 'a Hflz.t ) =
+  let update_id_type_map id_type_map x phi2 =
+    IdMap.map 
+      id_type_map
+      ~f:(function
+        | VTVarMax vs -> begin
+          let xs =
+            List.map  
+              (fun v ->
+                match Trans.Subst.Hflz.hflz (IdMap.of_list [x, phi2]) (Arith v) with
+                | Arith v -> v
+                | _ -> assert false
+              )
+              vs in
+          VTVarMax xs
+        end
+        | VTHigherInfo -> VTHigherInfo
+      )
+  in
+  match phi with
+  | Or (phi1, phi2) ->
+    let id_type_map, phi1 = beta id_type_map phi1 in
+    let id_type_map, phi2 = beta id_type_map phi2 in
+    id_type_map, Or (phi1, phi2)
+  | And(phi1, phi2) ->
+    let id_type_map, phi1 = beta id_type_map phi1 in
+    let id_type_map, phi2 = beta id_type_map phi2 in
+    id_type_map, And (phi1, phi2)
   | App(phi1, phi2) -> begin
-    let phi1, phi2 = beta phi1, beta phi2 in
+    let id_type_map, phi1 = beta id_type_map phi1 in
+    let id_type_map, phi2 = beta id_type_map phi2 in
     let reduced = ref false in
     let rec go acc phi1 = match phi1 with
-      | Forall (x, phi1) -> Forall (x, go (x::acc) phi1)
-      | Exists (x, phi1) -> Exists (x, go (x::acc) phi1)
+      | Forall (x, phi1) ->
+        let id_type_map, phi1 = go (x::acc) phi1 in
+        id_type_map, Forall (x, phi1)
+      | Exists (x, phi1) ->
+        let id_type_map, phi1 = go (x::acc) phi1 in
+        id_type_map, Exists (x, phi1)
       | Abs(x, phi1) -> begin
         let fvs = fvs_with_type phi2 in
         (* print_endline @@ Print_syntax.show_hflz phi1;
@@ -171,20 +201,27 @@ let rec beta (phi : 'a Hflz.t) : 'a Hflz.t = match phi with
         print_endline "acc:"; Hflmc2_util.print_list Id.to_string acc; *)
         if List.exists (fun a -> List.exists (fun v -> Id.eq a v) acc) fvs then failwith "[beta] free variable collision";
         reduced := true;
-        beta @@ Trans.Subst.Hflz.hflz (IdMap.of_list [x, phi2]) phi1
+        let id_type_map = update_id_type_map id_type_map x phi2 in
+        beta id_type_map @@ Trans.Subst.Hflz.hflz (IdMap.of_list [x, phi2]) phi1
       end
-      | phi1 -> phi1 in
-    let res = go [] phi1 in
+      | phi1 -> id_type_map, phi1 in
+    let id_type_map, res = go [] phi1 in
     if !reduced then
-      beta res
+      beta id_type_map res
     else (
       (* Log.app begin fun m -> m ~header:"not done" "%a" Print.(hflz simple_ty_) (App (phi1, phi2)) end; *)
-      App (phi1, phi2))
+      id_type_map, App (phi1, phi2))
   end
-  | Abs(x, phi) -> Abs(x, beta phi)
-  | Forall (x, phi) -> Forall (x, beta phi)
-  | Exists (x, phi) -> Exists (x, beta phi)
-  | Bool _ | Var _ | Arith _ | Pred _ -> phi
+  | Abs(x, phi) ->  
+    let id_type_map, phi = beta id_type_map phi in
+    id_type_map, Abs(x, phi)
+  | Forall (x, phi) ->
+    let id_type_map, phi = beta id_type_map phi in
+    id_type_map, Forall (x, phi)
+  | Exists (x, phi) ->
+    let id_type_map, phi = beta id_type_map phi in
+    id_type_map, Exists (x, phi)
+  | Bool _ | Var _ | Arith _ | Pred _ -> id_type_map, phi
 
 let update_id_type_map (id_type_map : (unit Id.t, 'a, IdMap.Key.comparator_witness) Base.Map.t) (id_change_map :  (unit Id.t * Type.simple_ty Type.arg Id.t) list) =
   (* id -> [id] というmap *)
@@ -196,27 +233,35 @@ let update_id_type_map (id_type_map : (unit Id.t, 'a, IdMap.Key.comparator_witne
       ~f:(fun ~key ~data m ->
         let key =
           match List.assoc_opt key id_change_map with
-          | Some key -> key
-          | None -> assert false in
-        let data =
-          match data with
-          | VTVarMax ids -> begin
-            VTVarMax
-              (List.filter_map
-                (fun id ->
-                  match List.assoc_opt (Id.remove_ty id) id_change_map with
-                  | Some key -> Some {key with ty=`Int}
-                  | None -> None (* instantiate-exists で変数が消去された場合 *)
-                )
-                ids)
-          end
-          | VTHigherInfo -> VTHigherInfo
-        in
-        if IdMap.mem m (Id.remove_ty key) then (
-          print_endline @@ "already exists: " ^ Id.to_string key;
-          m
-        ) else
-          IdMap.add m key data
+          | Some key -> Some key
+          | None -> print_endline @@ "update_id_type_map: NOT FOUND (" ^ Id.to_string key ^ ")"; None in
+        match key with
+        | Some key -> begin
+          let data =
+            match data with
+            | VTVarMax ariths -> begin
+              VTVarMax
+                (List.filter_map
+                  (fun arith ->
+                    match arith with
+                    | Arith.Var id -> begin
+                      match List.assoc_opt (Id.remove_ty id) id_change_map with
+                      | Some key -> Some (Arith.Var {key with ty=`Int})
+                      | None -> None (* instantiate-exists で変数が消去された場合 *)
+                    end
+                    | _ -> Some arith
+                  )
+                  ariths)
+            end
+            | VTHigherInfo -> VTHigherInfo
+          in
+          if IdMap.mem m (Id.remove_ty key) then (
+            print_endline @@ "already exists: " ^ Id.to_string key;
+            m
+          ) else
+            IdMap.add m key data
+        end
+        | None -> m
       )
   in
   m
