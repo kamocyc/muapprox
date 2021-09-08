@@ -453,10 +453,10 @@ let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
       (Print_temp.hflz_hes pp_ptype) rules; *)
   let rules = infer_thflz_type rules in
   let () =
-    print_endline "result (infer partial):";
+    (* print_endline "result (infer partial):";
     print_endline @@
       Hflmc2_util.fmt_string
-        (Print_temp.hflz_hes pp_ptype) rules;
+        (Print_temp.hflz_hes pp_ptype) rules; *)
     (* print_endline "result (full)";
     print_endline @@ show_s_thes_rules rules; *)
     save_to_file "tmp_t7.txt" @@

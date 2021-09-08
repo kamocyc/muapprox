@@ -6,6 +6,11 @@ open Hflz
 
 type ty_env = (Type.simple_ty Type.arg Id.t) list
 
+let log_src = Logs.Src.create "Typecheck"
+module Log = (val Logs.src_log @@ log_src)
+
+let log_string = Hflz_util.log_string Log.app
+
 let ensure_all_variable_ids_are_unique_expr env seen_ids (phi : 'a Hflz.t) =
   let rec go env (phi : 'a Hflz.t) = match phi with
     | Var v -> begin  
@@ -222,9 +227,9 @@ let set_variable_ty (hes : Type.simple_ty hes) : Type.simple_ty hes =
 
 let type_check (hes : Type.simple_ty hes) : unit =
   let path = Print_syntax.MachineReadable.save_hes_to_file true hes in
-  print_endline @@ "Not checked HES path: " ^ path;
+  log_string @@ "Not checked HES path: " ^ path;
   (* let path = Print_syntax.FptProverHes.save_hes_to_file hes in
-  print_endline @@ "Not checked HES path (.hes): " ^ path; *)
+  log_string @@ "Not checked HES path (.hes): " ^ path; *)
   let show_ty = Type.show_ty Fmt.nop in
   let (entry, rules) = hes in
   let env = List.map (fun {var={ty;_} as var;_} -> {var with ty=Type.TySigma ty}) rules in

@@ -83,8 +83,8 @@ module Simplify = struct
         g ls
     in
     let a = go_list a in
-    print_endline "go_list";
-    print_endline @@ show_arith2 a;
+    (* print_endline "go_list";
+    print_endline @@ show_arith2 a; *)
     let rec distribute a =
       (* print_endline "distribute (1)";
       print_endline @@ show_arith2 a; *)
@@ -161,8 +161,8 @@ module Simplify = struct
       if a' <> a then go a' else a
     in
     let a = go a in
-    print_endline "distribute";
-    print_endline @@ show_arith2 a;
+    (* print_endline "distribute";
+    print_endline @@ show_arith2 a; *)
     from_list a
   
   let standarize a =
@@ -484,19 +484,19 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
             )
             fvs)
           in
-        print_endline "phi 1";
+        (* print_endline "phi 1";
         print_endline @@ show_pt_thflz2 phi;
         print_endline "ty1_";
-        print_endline @@ show_ptype2 ty1_;
+        print_endline @@ show_ptype2 ty1_; *)
         let xs =
           xs @
           (List.filter_map
             (fun (p, (ty, tag)) ->
               if should_add ty tag then begin
-                print_endline "get11";
+                (* print_endline "get11";
                 print_endline @@ show_ptype2 ty;
                 print_endline @@ T.show_use_flag tag;
-                print_endline @@ show_pt_thflz p;
+                print_endline @@ show_pt_thflz p; *)
                 (* TODO: mutable referenceで良くない *)
                 let added_vars = IdMap.keys !id_type_map in
                 Some (get_occuring_arith_terms p added_vars)
@@ -694,8 +694,8 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
         (var_in_out, body, fix)
       )
       rules in
-  print_endline "pa_ad: add_params";
-  print_endline @@ show_thflz' rules;
+  (* print_endline "pa_ad: add_params";
+  print_endline @@ show_thflz' rules; *)
   rules, !id_type_map, !id_ho_map
 
 let rec convert_ty ty = match ty with

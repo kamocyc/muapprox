@@ -373,10 +373,10 @@ end
 let infer original_rules (rules : ptype2 thes_rule list) rec_flags : Type.simple_ty Hflz.hes =
   let rules = infer_thflz_type rules rec_flags in
   let () =
-    print_endline "result:";
+    (* print_endline "result:";
     print_endline @@
       Hflmc2_util.fmt_string
-        (Print_temp.hflz_hes_in_out pp_ptype2) rules;
+        (Print_temp.hflz_hes_in_out pp_ptype2) rules; *)
     T.save_to_file "tmp_t7.txt" @@
       Hflmc2_util.fmt_string
         (Print_temp.hflz_hes_in_out pp_ptype2) rules;
@@ -394,8 +394,8 @@ let infer original_rules (rules : ptype2 thes_rule list) rec_flags : Type.simple
   let rules = Type_hflz7_pa_ad.to_hes original_fixpoint_pairs rules in
   let hes = Hflz.decompose_entry_rule rules in
   let hes =
-    print_endline "id_map";
-    print_endline @@ show_id_map id_type_map Hflz_util.show_variable_type;
+    (* print_endline "id_map";
+    print_endline @@ show_id_map id_type_map Hflz_util.show_variable_type; *)
     let hes = Hflz_typecheck.set_variable_ty hes in
     ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"hes_01_original.txt" ~without_id:false true hes;
     let hes = Hflz_manipulate.encode_body_exists coe1 coe2 hes in

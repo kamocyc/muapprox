@@ -6,6 +6,7 @@ module Eliminate_unused_argument = Eliminate_unused_argument
 
 open Hflz_typecheck
 open Hflz
+
 (* module Util = Hflmc2_util *)
 
 let simplify_bound = ref false
@@ -14,6 +15,8 @@ let show_hflz = Print.show_hflz
 
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
+
+let log_string = Hflz_util.log_string Log.app
 
 (* Arrow type to list of types of the arguments conversion *)
 (* t1 -> t2 -> t3  ==> [t3; t2; t1]  *)
@@ -528,7 +531,7 @@ let get_guessed_terms id_type_map arg_terms scoped_variables id_ho_map =
       |> List.filter_map (fun var -> match var.Id.ty with
         | Type.TySigma _ -> begin
           match List.find_opt (fun (id, _) -> Id.eq id var) id_ho_map with
-          | Some (_, id_i) -> print_endline @@ "get_guesssed_terms (1): " ^ Id.to_string id_i; Some (Arith.Var id_i)
+          | Some (_, id_i) -> Some (Arith.Var id_i)
           | None -> None
         end
         | Type.TyInt -> None
@@ -695,8 +698,6 @@ let replace_occurences
       let guessed_conditions =
         let guessed_terms =
           get_guessed_terms id_type_map (apps @ formula_type_terms) (if use_all_scoped_variables then env else []) id_ho_map in
-        (* print_endline "guessed_terms: ";
-        List.iter (fun t -> print_endline @@ Arith.show t) guessed_terms; *)
         get_guessed_conditions coe1 coe2 guessed_terms in
       let arg_pvars = Env.lookup pvar outer_mu_funcs in
       let make_args env_guessed env =
@@ -886,13 +887,16 @@ let remove_redundant_bounds id_type_map (phi : Type.simple_ty Hflz.t) =
                   match Hflmc2_syntax.IdMap.find id_type_map v with
                   | Some var_category -> begin
                     match var_category with
-                    | Hflz_util.VTVarMax ids -> begin
+                    | Hflz_util.VTVarMax ariths -> begin
                       (* 整数変数のMAXを表す変数vの場合、vが集約している変数を直接利用する *)
-                      List.map
-                        (fun id ->
-                          Pred (Lt, [Var rec_v; substitute_arith rhs (v, id)])
-                        )
-                        ids
+                      match ariths with
+                      | [] -> [Pred (Lt, [Var rec_v; substitute_arith rhs (v, Int 0)])]
+                      | _ ->
+                        List.map
+                          (fun a ->
+                            Pred (Lt, [Var rec_v; substitute_arith rhs (v, a)])
+                          )
+                          ariths
                     end
                     | Hflz_util.VTHigherInfo -> [bound]
                   end
@@ -1002,12 +1006,12 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map use
           ) mypvar.ty in
         {mypvar with ty=ty} in
       let id_type_map, body' = Hflz_util.beta id_type_map body in
-      print_endline "body (before beta)";
+      (* print_endline "body (before beta)";
       print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) body;
       print_endline "body (after beta)";
       print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) body';
       print_endline "body (after beta 2)";
-      print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) (body' |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds);
+      print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) (body' |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds); *)
       (* print_endline "body (after beta 3)";
       print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) (body |> (remove_redundant_bounds id_type_map) |> Hflz_util.beta |> remove_duplicate_bounds); *)
       (* print_endline "body (after beta 4)";

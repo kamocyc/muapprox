@@ -16,6 +16,7 @@ let solver_backend = ref (Obj.magic())
 let first_order_solver = ref (Obj.magic())
 let coe = ref (Obj.magic())
 let dry_run = ref (Obj.magic())
+let oneshot = ref (Obj.magic())
 let no_simplify = ref (Obj.magic())
 let stop_on_unknown = ref (Obj.magic())
 let always_approximate = ref (Obj.magic())
@@ -66,11 +67,14 @@ type params =
   ; first_order_solver : bool [@default false]
   (** If true, use z3 or hoice to solve first-order formulas. If empty (or default), always use a solver for higher-order formulas. *)
   
-  ; coe : string [@default "1,1"]
+  ; coe : string [@default ""]
   (** Initial coefficients for approximating mu and exists. Speficfy such as "1,8" (default is "1,1") *)
   
   ; dry_run : bool [@default false]
   (** Do not solve *)
+  
+  ; oneshot : bool [@default false]
+  (** Try to solve only once **)
   
   ; no_simplify : bool [@default false]
   (** Do not simplify formula. It seems to get better results when false. (default: false) *)
@@ -96,10 +100,10 @@ type params =
   ; disable_lexicographic: bool [@default false]
   (** Disable trying encoding of lexicographic order *)
   
-  ; add_arguments : bool [@default false]
-  (** Add integer arguments that represent information of higher-order arguments *)
+  ; disable_add_arguments : bool [@default false]
+  (** Disable adding integer arguments that represent information of higher-order arguments *)
   
-  ; coe_arguments : string [@default "1,0"]
+  ; coe_arguments : string [@default ""]
   (** Coefficients of added arguments (default: 1,0) *)
   
   ; no_elim : bool [@default false]
@@ -130,6 +134,7 @@ let set_up_params params =
   set_ref first_order_solver       params.first_order_solver;
   set_ref coe                      params.coe;
   set_ref dry_run                  params.dry_run;
+  set_ref oneshot                  params.oneshot;
   set_ref no_simplify              params.no_simplify;
   set_ref stop_on_unknown           params.stop_on_unknown;
   set_ref always_approximate       params.always_approximate;
@@ -138,7 +143,7 @@ let set_up_params params =
   set_ref simplify_bound       params.simplify_bound;
   set_ref use_simple_encoding_when_lexico_is_one params.use_simple_encoding_when_lexico_is_one;
   set_ref disable_lexicographic params.disable_lexicographic;
-  set_ref add_arguments params.add_arguments;
+  set_ref add_arguments (not params.disable_add_arguments);
   set_ref coe_arguments params.coe_arguments;
   set_ref no_elim params.no_elim;
   set_ref eliminate_unused_arguments params.eliminate_unused_arguments;

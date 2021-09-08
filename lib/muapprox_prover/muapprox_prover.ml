@@ -15,15 +15,13 @@ open Unix_command
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
 
-let log_string ?header s =
-  let reporter = Logs.reporter () in
-  Logs.set_reporter (Logs.format_reporter ());
-  Log.app begin fun m -> m ?header "%s" s end;
-  Logs.set_reporter reporter
-  
+let log_string = Manipulate.Hflz_util.log_string Log.app
+
 type debug_context = {
   coe1: int;
   coe2: int;
+  add_arg_coe1: int;
+  add_arg_coe2: int;
   iter_count: int;
   mode: string;
   pid: int;
@@ -61,10 +59,12 @@ let show_debug_context debug =
     let unwrap_or alt opt = match opt with None -> alt | Some s -> s in
     show [
       ("mode", debug.mode);
+      ("solver_backend", unwrap_or "-" debug.solver_backend);
       ("iter_count", soi debug.iter_count);
       ("coe1", soi debug.coe1);
       ("coe2", soi debug.coe2);
-      ("solver_backend", unwrap_or "-" debug.solver_backend);
+      ("add_arg_coe1", if debug.add_arg_coe1 = 0 then "-" else soi debug.add_arg_coe1);
+      ("add_arg_coe2", if debug.add_arg_coe1 = 0 then "-" else soi debug.add_arg_coe2);
       ("default_lexicographic_order", string_of_int debug.default_lexicographic_order);
       ("exists_assignment", Option.map (fun m -> "[" ^ ((List.map (fun (id, v) -> id.Hflmc2_syntax.Id.name ^ "=" ^ string_of_int v) m) |> String.concat "; ") ^ "]") debug.exists_assignment |> unwrap_or "-");
       ("temp_file", debug.temp_file);
@@ -400,19 +400,23 @@ let is_onlymu_onlyexists (entry, rules) =
   is_onlyexists_body entry
   && (List.for_all is_onlymu_onlyexists_rule rules)
 
-let elim_mu_exists coe1 coe2 add_arguments coe_arguments no_elim partial_analysis use_related use_all_variables lexico_pair_number eliminate_unused_arguments _debug_output assign_values_for_exists_at_first_iteration (hes : 'a Hflz.hes) name =
+let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
+  let {no_elim; partial_analysis; use_related;
+    use_all_variables; eliminate_unused_arguments;
+    assign_values_for_exists_at_first_iteration; approx_parameter; _} = solve_options in
   (* TODO: use 2nd return value of add_arguments *)
-  let (arg_coe1, arg_coe2) = coe_arguments in
+  let {coe1; coe2; add_arg_coe1; add_arg_coe2; lexico_pair_number} = approx_parameter in
+  let add_arguments = add_arg_coe1 > 0 in
   if no_elim then begin
     let hes =
       if add_arguments
-        then (let hes, _ = Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2 partial_analysis use_related in hes)
+        then (let hes, _ = Manipulate.Add_arguments.add_arguments hes add_arg_coe1 add_arg_coe2 partial_analysis use_related in hes)
         else hes in
     [hes, []]
   end else begin
     let hes, id_type_map =
       if add_arguments
-        then Manipulate.Add_arguments.add_arguments hes arg_coe1 arg_coe2 partial_analysis use_related
+        then Manipulate.Add_arguments.add_arguments hes add_arg_coe1 add_arg_coe2 partial_analysis use_related
         else hes, Hflmc2_syntax.IdMap.empty in
     let heses =
       if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
@@ -455,19 +459,72 @@ let summary_results (results : (Status.t * 'a) list) =
     else Status.Unknown, List.map snd results
   end
 
+let get_next_approx_parameter ?param ?(iter_count=0) with_add_arguments =
+  let iter_count =
+    match param with
+    | None -> assert (iter_count = 0); 0
+    | Some _ -> iter_count in
+  let coeffs = 
+    if with_add_arguments then
+      [
+        (1, 1,  0, 0, 1);
+        (1, 1,  0, 0, 2);
+        (1, 8,  0, 0, 1);
+        (2, 16, 0, 0, 1);
+        (1, 1,  1, 0, 1);
+        (1, 1,  2, 0, 1);
+        (1, 8,  2, 1, 1);
+        (1, 8,  2, 1, 2);
+      ]
+    else
+      [
+        (1, 1,  0, 0, 1);
+        (1, 1,  0, 0, 2);
+        (1, 8,  0, 0, 1);
+        (2, 16, 0, 0, 1);
+        (2, 16, 0, 0, 2);
+      ] in
+  match List.nth_opt coeffs iter_count with
+  | Some (coe1, coe2, add_arg_coe1, add_arg_coe2, lexico_pair_number) ->
+    {
+      coe1 = coe1;
+      coe2 = coe2;
+      add_arg_coe1 = add_arg_coe1;
+      add_arg_coe2 = add_arg_coe2;
+      lexico_pair_number = lexico_pair_number;
+    }
+  | None -> begin
+    let param = Option.get param in
+    if param.lexico_pair_number = 1 then
+      { param with
+        lexico_pair_number = 2;
+      }
+    else
+      {
+        coe1 = param.coe1 * 2;
+        coe2 = param.coe2 * 2;
+        add_arg_coe1 = param.add_arg_coe1 * 2;
+        add_arg_coe2 = param.add_arg_coe2 * 2;
+        lexico_pair_number = 1;
+      }
+  end
+
 (* これ以降、本プログラム側での近似が入る *)
-let rec mu_elim_solver oneshot coe1 coe2 lexico_pair_number iter_count (solve_options : Solve_options.options) debug_output hes mode_name =
+let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mode_name =
   Hflz_mani.simplify_bound := solve_options.simplify_bound;
-  let nu_only_heses = elim_mu_exists coe1 coe2 solve_options.add_arguments solve_options.coe_arguments solve_options.no_elim solve_options.partial_analysis solve_options.use_related solve_options.use_all_variables lexico_pair_number solve_options.eliminate_unused_arguments debug_output solve_options.assign_values_for_exists_at_first_iteration hes mode_name in
+  let nu_only_heses = elim_mu_exists solve_options hes mode_name in
+  let approx_param = solve_options.approx_parameter in
   let debug_context_ = Some {
     mode = mode_name;
     iter_count = iter_count;
-    coe1 = coe1;
-    coe2 = coe2;
+    coe1 = approx_param.coe1;
+    coe2 = approx_param.coe2;
+    add_arg_coe1 = approx_param.add_arg_coe1;
+    add_arg_coe2 = approx_param.add_arg_coe2;
     pid = solve_options.pid;
     file = solve_options.file;
     solver_backend = None;
-    default_lexicographic_order = lexico_pair_number;
+    default_lexicographic_order = approx_param.lexico_pair_number;
     exists_assignment = None;
     temp_file = "";
   } in
@@ -535,39 +592,29 @@ let rec mu_elim_solver oneshot coe1 coe2 lexico_pair_number iter_count (solve_op
   >>= (fun _ ->
       let result, debug_contexts = summary_results results in
       let debug_contexts = List.flatten debug_contexts in
-      let retry coe1 coe2 =
-        (* let (coe1',coe2',lexico_pair_number) =
-          if (coe1,coe2,lexico_pair_number)=(1,1,1) then (1,1,2)
-          else if (coe1,coe2,lexico_pair_number)=(1,1,2) then (1,8,1)
-          else if lexico_pair_number=1 then (coe1,coe2,lexico_pair_number+1)
-          else (2*coe1,2*coe2,1)
-        in *)
-        let (coe1',coe2',lexico_pair_number) =
-          if (coe1,coe2,lexico_pair_number)=(1,1,1) && not solve_options.disable_lexicographic
-          then (1,1,2)
-          else if (coe1,coe2)=(1,1) 
-            then (1,8,solve_options.default_lexicographic_order)
-            else (2*coe1, 2*coe2,solve_options.default_lexicographic_order) in
-        mu_elim_solver oneshot coe1' coe2' lexico_pair_number (iter_count + 1) solve_options false hes mode_name
+      let retry approx_param =
+        let approx_param = get_next_approx_parameter ~param:approx_param ~iter_count:iter_count solve_options.add_arguments in
+        let solve_options = { solve_options with approx_parameter = approx_param } in
+        mu_elim_solver (iter_count + 1) solve_options hes mode_name
       in
       match result with
       | Status.Valid -> return (Status.Valid, debug_contexts)
       | Status.Invalid ->
-        if oneshot then return (Status.Invalid, debug_contexts)
-        else retry coe1 coe2
+        if solve_options.oneshot then return (Status.Invalid, debug_contexts)
+        else retry approx_param
       | Status.Unknown ->
         if not solve_options.stop_on_unknown then (
           log_string ~header:"Result" @@ "return Unknown (" ^ show_debug_contexts debug_contexts ^ ")";
-          if oneshot then return (Status.Unknown, debug_contexts)
-          else retry coe1 coe2
+          if solve_options.oneshot then return (Status.Unknown, debug_contexts)
+          else retry approx_param
         ) else return (Status.Unknown, debug_contexts)
       | Status.Fail -> return (Status.Fail, debug_contexts)))
 
-let check_validity_full coe1 coe2 (solve_options : Solve_options.options) hes cont =
+let check_validity_full (solve_options : Solve_options.options) hes cont =
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in
   let dresult = Deferred.any
-                  [mu_elim_solver false coe1 coe2 solve_options.default_lexicographic_order 1 solve_options solve_options.print_for_debug hes "prover";
-                   (mu_elim_solver false coe1 coe2 solve_options.default_lexicographic_order 1 solve_options solve_options.print_for_debug hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
+                  [ mu_elim_solver 1 solve_options hes "prover";
+                   (mu_elim_solver 1 solve_options hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
   let dresult = dresult >>=
     (fun ri -> kill_processes (Some "prover") >>=
       (fun _ -> kill_processes (Some "disprover") >>|
@@ -579,7 +626,10 @@ let check_validity_full coe1 coe2 (solve_options : Solve_options.options) hes co
   Core.never_returns(Scheduler.go())
 
 let solve_onlynu_onlyforall_with_schedule (solve_options : Solve_options.options) nu_only_hes cont =
-  let dresult = mu_elim_solver true 0 0 solve_options.default_lexicographic_order 1 {solve_options with no_elim = true; no_disprove = false} solve_options.print_for_debug nu_only_hes "solver" in
+  let solve_options =
+    { solve_options with
+      no_elim = true; no_disprove = false; oneshot = true } in
+  let dresult = mu_elim_solver 1 solve_options nu_only_hes "solver" in
   let dresult = dresult >>=
     (fun ri -> kill_processes (Some "solver") >>|
         (fun _ -> ri)) in
@@ -596,15 +646,22 @@ let solve_onlynu_onlyforall_with_schedule (solve_options : Solve_options.options
   
 (* 「shadowingが無い」とする。 *)
 (* timeoutは個別のsolverのtimeout *)  
-let check_validity coe1 coe2 solve_options (hes : 'a Hflz.hes) cont =
+let check_validity solve_options (hes : 'a Hflz.hes) cont =
+  let solve_options =
+    if solve_options.use_custom_parameter then  
+      solve_options
+    else
+      let initial_param =
+        get_next_approx_parameter solve_options.add_arguments in
+      { solve_options with approx_parameter = initial_param } in
   if solve_options.always_approximate then
-    check_validity_full coe1 coe2 solve_options hes cont
+    check_validity_full solve_options hes cont
   else begin
     if is_onlynu_onlyforall hes then
       solve_onlynu_onlyforall_with_schedule solve_options hes cont
     else if is_onlymu_onlyexists hes then
       solve_onlynu_onlyforall_with_schedule solve_options (Hflz_mani.get_dual_hes hes) (fun (status_pair, i) -> cont (Status.flip status_pair, i))
-    else check_validity_full coe1 coe2 solve_options hes cont
+    else check_validity_full solve_options hes cont
   end
 
 (* 

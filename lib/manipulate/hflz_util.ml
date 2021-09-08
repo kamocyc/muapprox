@@ -165,7 +165,10 @@ let rec beta id_type_map (phi : 'a Hflz.t) : ('b * 'a Hflz.t ) =
             List.map  
               (fun v ->
                 match Trans.Subst.Hflz.hflz (IdMap.of_list [x, phi2]) (Arith v) with
-                | Arith v -> v
+                | Arith v' -> begin
+                  (* if v <> v' then print_endline @@ "subst from " ^ Id.to_string x ^ " to " ^ Print_syntax.show_hflz phi2; *)
+                  v'
+                end
                 | _ -> assert false
               )
               vs in
@@ -265,3 +268,12 @@ let update_id_type_map (id_type_map : (unit Id.t, 'a, IdMap.Key.comparator_witne
       )
   in
   m
+
+let log_string
+    (log_fun : ((?header:string -> ?tags:Logs.Tag.set -> ('a, Format.formatter, unit, unit) format4 -> 'a) -> unit) -> unit)
+    ?header
+    s =
+  let reporter = Logs.reporter () in
+  Logs.set_reporter (Logs.format_reporter ());
+  log_fun (fun m -> m ?header "%s" s);
+  Logs.set_reporter reporter

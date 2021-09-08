@@ -518,8 +518,8 @@ let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
   let hes = Hflz.decompose_entry_rule rules in
   (* print_endline @@ Hflz.show_hes Type.pp_simple_ty hes;  *)
   let hes =
-    print_endline "id_map";
-    print_endline @@ show_id_map id_type_map Hflz_util.show_variable_type;
+    (* print_endline "id_map";
+    print_endline @@ show_id_map id_type_map Hflz_util.show_variable_type; *)
     let hes = Hflz_typecheck.set_variable_ty hes in
     ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"a.txt" ~without_id:false true hes;
     let hes = Hflz_manipulate.encode_body_exists coe1 coe2 hes in

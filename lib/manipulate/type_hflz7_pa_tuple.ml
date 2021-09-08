@@ -1,6 +1,11 @@
 module T = Type_hflz7_def
 open Hflmc2_syntax
 
+let log_src = Logs.Src.create "Pa_tuple"
+module Log = (val Logs.src_log @@ log_src)
+
+let log_string = Hflz_util.log_string Log.app
+
 type 'ty thflz2 =
   | Bool   of bool
   | Var    of 'ty Id.t
@@ -296,7 +301,7 @@ let rec convert_ty ty =
   | TVar _ -> assert false
 
 let to_thflz2 rules =
-  let convert_v_ty v = print_endline @@ "to_thflz2: " ^ T.show_ptype v.Id.ty; {v with Id.ty=convert_ty v.Id.ty} in
+  let convert_v_ty v = {v with Id.ty=convert_ty v.Id.ty} in
   let rec to_thflz2_sub phi : ptype2 thflz2 =
     match phi with
     | T.App _ -> begin
@@ -327,8 +332,6 @@ let to_thflz2 rules =
         end
         | _ ->
           conv phi apps
-          (* print_endline @@ show_list (Hflmc2_util.fmt_string (T.Print_temp.hflz T.pp_ptype)) apps;
-          assert false *)
       in
       go [] phi
     end
@@ -372,10 +375,10 @@ let to_thflz2 rules =
         {var = {var with ty = convert_ty var.ty.inner_ty}; body; fix}
       )
       rules in
-  print_endline "to_thflz2.tuple";
-  print_endline @@
+  (* log_string "to_thflz2.tuple";
+  log_string @@
     Hflmc2_util.fmt_string
-      (Print_temp.hflz_hes pp_ptype2) rules;
+      (Print_temp.hflz_hes pp_ptype2) rules; *)
   rules
 
 let check_thflz2_type rules =

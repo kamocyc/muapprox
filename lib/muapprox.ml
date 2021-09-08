@@ -66,6 +66,8 @@ let parse file is_hes =
 
 let get_solve_options file =
   let open Muapprox_prover.Solve_options in
+  let approx_parameter, use_custom_parameter =
+    get_approx_parameter !Options.coe !Options.coe_arguments !Options.default_lexicographic_order in
   {
     no_backend_inlining = !Options.no_backend_inlining;
     no_disprove = true;
@@ -75,7 +77,9 @@ let get_solve_options file =
     solver = get_solver !Options.solver;
     first_order_solver = get_first_order_solver !Options.first_order_solver;
     solver_backend = get_solver_backend !Options.solver_backend (get_solver !Options.solver);
-    coe = get_coe !Options.coe;
+    approx_parameter = approx_parameter;
+    use_custom_parameter = use_custom_parameter;
+    oneshot = use_custom_parameter || !Options.oneshot;
     dry_run = !Options.dry_run;
     no_simplify = !Options.no_simplify;
     stop_on_unknown = !Options.stop_on_unknown;
@@ -83,12 +87,10 @@ let get_solve_options file =
     file = file;
     always_approximate = !Options.always_approximate;
     assign_values_for_exists_at_first_iteration = !Options.assign_values_for_exists_at_first_iteration;
-    default_lexicographic_order = !Options.default_lexicographic_order;
     simplify_bound = !Options.simplify_bound;
     use_simple_encoding_when_lexico_is_one  = !Options.use_simple_encoding_when_lexico_is_one;
     disable_lexicographic = !Options.disable_lexicographic;
     add_arguments = !Options.add_arguments;
-    coe_arguments = get_coe !Options.coe_arguments;
     no_elim = !Options.no_elim;
     eliminate_unused_arguments = !Options.eliminate_unused_arguments;
     partial_analysis = !Options.partial_analysis;
@@ -127,14 +129,13 @@ let main file cont =
   let is_hes = check_format file !Options.format in
   let psi = parse file is_hes in
   (* coefficients's default values are 1, 1 (defined in solve_options.ml) *)
-  let coe1, coe2 = solve_options.coe in
   (* for debug *)
   (* let psi = if inlining then (
     let psi = Syntax.Trans.Simplify.hflz_hes psi inlining in
     Log.app begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
     psi
   ) else psi in *)
-  Muapprox_prover.check_validity coe1 coe2 solve_options psi (fun (s1, info) -> cont (s1, info))
+  Muapprox_prover.check_validity solve_options psi (fun (s1, info) -> cont (s1, info))
 
 let assign_serial_to_vars_hes = Muapprox_prover.Check_formula_equality.assign_serial_to_vars_hes
 let check_equal_hes = Muapprox_prover.Check_formula_equality.check_equal_hes
