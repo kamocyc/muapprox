@@ -1,6 +1,6 @@
 open Hflmc2_syntax
 open Hflz
-module PA = Infer_partial_application
+module PA = Add_arguments_old_infer_partial_application
 
 let id_gen ?name ty =
   let id = Id.gen ?name ty in
@@ -274,9 +274,9 @@ let show_id_map id_map show_f =
 let add_arguments (hes : 'ty hes) (coe1: int) (coe2: int) (partial_analysis : bool) (use_related : bool) =
   let rules =
     if partial_analysis then
-      Infer_partial_application.infer_partial_applications hes
+      Add_arguments_old_infer_partial_application.infer_partial_applications hes
     else
-      Infer_partial_application.insert_all hes in
+      Add_arguments_old_infer_partial_application.insert_all hes in
   let all_id_maps = ref [] in
   let rules =
     List.map

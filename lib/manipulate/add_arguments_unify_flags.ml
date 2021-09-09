@@ -1,5 +1,5 @@
 open Hflmc2_syntax
-open Type_hflz7_def
+open Add_arguments_definition
 
 let unify_flags constraints =
   (* print_endline "flag_constraints (to solve):";

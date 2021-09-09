@@ -34,9 +34,8 @@ type options =
     disable_lexicographic: bool;
     add_arguments: bool;
     no_elim: bool;
-    eliminate_unused_arguments: bool;
-    partial_analysis: bool;
-    use_related: bool;
+    unused_arguments_elimination: bool;
+    adding_arguments_optimization: bool;
     use_all_variables: bool;
   }
 let get_solver solver_name = 

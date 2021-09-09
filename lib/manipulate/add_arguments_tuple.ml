@@ -1,4 +1,4 @@
-module T = Type_hflz7_def
+module T = Add_arguments_definition
 open Hflmc2_syntax
 
 let log_src = Logs.Src.create "Pa_tuple"
@@ -128,7 +128,7 @@ module Print_temp = struct
   
   let rec hflz_
     (get_type : 'pty thflz2 -> 'pty)
-    (pp_t_arg : formatter -> ('pty * Type_hflz7_def.use_flag) list -> unit)
+    (pp_t_arg : formatter -> ('pty * Add_arguments_definition.use_flag) list -> unit)
     (format_ty_ : Prec.t -> 'pty Fmt.t)
     (prec : Prec.t)
     (ppf : formatter)

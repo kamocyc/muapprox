@@ -92,9 +92,8 @@ let get_solve_options file =
     disable_lexicographic = !Options.disable_lexicographic;
     add_arguments = !Options.add_arguments;
     no_elim = !Options.no_elim;
-    eliminate_unused_arguments = !Options.eliminate_unused_arguments;
-    partial_analysis = !Options.partial_analysis;
-    use_related = !Options.use_related;
+    unused_arguments_elimination = !Options.unused_arguments_elimination;
+    adding_arguments_optimization = !Options.adding_arguments_optimization;
     use_all_variables = !Options.use_all_variables;
   }
 
@@ -150,4 +149,3 @@ let infer_type = Ltl_program.infer_type
 let abbrev_variable_names = Ltl_program.abbrev_variable_names
 let branching_time_program = Branching_time_program.branching_time_program
 let main1 = Raw_program_2.Program_main.main1
-let add_arguments = Manipulate.Add_arguments.add_arguments

@@ -1,8 +1,7 @@
 open Hflmc2_syntax
 module Env = Env_no_value
 
-open Type_hflz7_pa_tuple
-
+open Add_arguments_tuple
 
 module Simplify = struct
   open Hflmc2_syntax
@@ -694,7 +693,7 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
         (var_in_out, body, fix)
       )
       rules in
-  (* print_endline "pa_ad: add_params";
+  (* print_endline "add_arguments_adding: add_params";
   print_endline @@ show_thflz' rules; *)
   rules, !id_type_map, !id_ho_map
 

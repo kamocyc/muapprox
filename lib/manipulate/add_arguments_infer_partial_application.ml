@@ -1,8 +1,7 @@
 open Hflmc2_syntax
 module Env = Env_no_value
 
-module T = Type_hflz7
-open Type_hflz7_def
+open Add_arguments_definition
 
 let rec equal_type_modulo_flag ty1 ty2 =
   match ty1, ty2 with
@@ -180,8 +179,7 @@ let rec assign_flags_to_type (ty : ptype) =
   match ty with
   | TFunc (tyarg, tybody, f) ->
     assert (f = dummy_use_flag);
-    TFunc (assign_flags_to_type tyarg, assign_flags_to_type tybody, EFVar (Id.gen ())
-    )
+    TFunc (assign_flags_to_type tyarg, assign_flags_to_type tybody, EFVar (Id.gen ()))
   | TInt -> TInt
   | TBool -> TBool
   | TVar v -> TVar v
@@ -369,7 +367,7 @@ let set_not_use_in_undetermined_flags rules =
 let infer_thflz_type (rules : ptype thes_rule list): ptype thes_rule list =
   let rules = assign_flags rules in
   let flag_constraints = generate_flag_constraints rules in
-  let flag_substitution = Type_hflz7_unify_flags.unify_flags flag_constraints in
+  let flag_substitution = Add_arguments_unify_flags.unify_flags flag_constraints in
   let rules = subst_flags_program rules flag_substitution in
   let rules = set_not_use_in_undetermined_flags rules in
   rules
@@ -437,8 +435,40 @@ let construct_recursion_flags (rules : 'a Type.ty Hflz.hes_rule list) =
   print_endline @@ Hflmc2_util.show_pairs Id.to_string (fun flags -> Hflmc2_util.show_pairs Id.to_string show_recursive_flag flags) map; *)
   map
 
-let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
-  Type_hflz7_def.show_tag_as_separator := true;
+(* let set_all_flags_to_use (rules: ptype thes_rule list) =
+  let rec set_all_flags_of_type_to_use (ty : ptype) =
+    match ty with
+    | TFunc (tyarg, tybody, f) ->
+      assert (f = dummy_use_flag);
+      TFunc (set_all_flags_of_type_to_use tyarg, set_all_flags_of_type_to_use tybody, TUse)
+    | TInt -> TInt
+    | TBool -> TBool
+    | TVar v -> TVar v
+  in
+  let rec go (raw : ptype thflz) : ptype thflz = match raw with
+    | Bool b -> Bool b
+    | Var v -> Var {v with ty = set_all_flags_of_type_to_use v.ty}
+    | Or (p1, p2) -> Or (go p1, go p2)
+    | And (p1, p2) -> And (go p1, go p2)
+    | Abs (x, p, ty) -> Abs ({x with ty = set_all_flags_of_type_to_use x.ty}, go p, set_all_flags_of_type_to_use ty)
+    | Forall (x, p) -> Forall ({x with ty=set_all_flags_of_type_to_use x.ty}, go p)
+    | Exists (x, p) -> Exists ({x with ty=set_all_flags_of_type_to_use x.ty}, go p)
+    | App (p1, p2) -> App (go p1, go p2)
+    | Arith a -> Arith a
+    | Pred (e, ps) -> Pred (e, ps)
+  in
+  List.map
+    (fun {var; body; fix} ->
+      let inner_ty = set_all_flags_of_type_to_use var.ty.inner_ty in
+      let outer_ty = inner_ty in
+      let var = {var with ty = {inner_ty; outer_ty}} in
+      let body = go body in
+      { var; body; fix}
+    )
+    rules *)
+  
+let infer (hes : 'a Hflz.hes) add_arg_coe1 add_arg_coe2 =
+  Add_arguments_definition.show_tag_as_separator := true;
   let hes = Hes_optimizer.eliminate_unreachable_predicates hes in
   let hes = Eliminate_unused_argument.eliminate_unused_argument hes in
   let original_rules = Hflz.merge_entry_rule hes in
@@ -451,6 +481,7 @@ let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
   print_endline @@
     Hflmc2_util.fmt_string
       (Print_temp.hflz_hes pp_ptype) rules; *)
+  
   let rules = infer_thflz_type rules in
   let () =
     (* print_endline "result (infer partial):";
@@ -464,12 +495,27 @@ let infer (hes : 'a Hflz.hes) : Type.simple_ty Hflz.hes =
         (Print_temp.hflz_hes pp_ptype) rules;
     check_thflz_type rules;
     in
-  (* print_endline "type hflz 7"; *)
-  (* let rules = to_hflz rules in
+  
+  let rules = Add_arguments_tuple.to_thflz2 rules in
+  Add_arguments_definition.show_tag_as_separator := false;
+  Add_arguments_tuple.check_thflz2_type rules;
+  let rules = Add_arguments_infer_usage.infer_thflz_type rules rec_flags in
+  let () =
+    (* print_endline "result:";
+    print_endline @@
+      Hflmc2_util.fmt_string
+        (Print_temp.hflz_hes_in_out pp_ptype2) rules; *)
+    Add_arguments_definition.save_to_file "tmp_t7.txt" @@
+      Hflmc2_util.fmt_string
+        (Add_arguments_tuple.Print_temp.hflz_hes_in_out Add_arguments_tuple.pp_ptype2) rules;
+  in
+  
+  let rules, id_type_map, id_ho_map =
+    Add_arguments_adding.add_params add_arg_coe1 add_arg_coe2 rec_flags rules in
+  let original_fixpoint_pairs =
+    List.map (fun {Hflz.var; fix; _} -> (var, fix)) original_rules in
+  let rules = Add_arguments_adding.to_hes original_fixpoint_pairs rules in
+  
   let hes = Hflz.decompose_entry_rule rules in
-  Hflz_typecheck.type_check hes; *)
-  let thflz2 = Type_hflz7_pa_tuple.to_thflz2 rules in
-  Type_hflz7_def.show_tag_as_separator := false;
-  Type_hflz7_pa_tuple.check_thflz2_type thflz2;
-  let hes = Type_hflz7_pa_a.infer original_rules thflz2 rec_flags in
-  hes
+  let hes = Hflz_typecheck.set_variable_ty hes in  
+  hes, id_type_map, id_ho_map

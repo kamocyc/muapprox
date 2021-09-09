@@ -28,9 +28,8 @@ let disable_lexicographic = ref (Obj.magic())
 let add_arguments = ref (Obj.magic())
 let coe_arguments = ref (Obj.magic())
 let no_elim = ref (Obj.magic())
-let eliminate_unused_arguments = ref (Obj.magic()) 
-let partial_analysis = ref (Obj.magic ())
-let use_related = ref (Obj.magic ())
+let unused_arguments_elimination = ref (Obj.magic()) 
+let adding_arguments_optimization = ref (Obj.magic ())
 let use_all_variables = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -107,19 +106,16 @@ type params =
   (** Coefficients of added arguments (default: 1,0) *)
   
   ; no_elim : bool [@default false]
-  (** Don't eliminate mu and exists (debug purpose) *)
+  (** DON'T eliminate mu and exists (debug purpose) *)
   
-  ; partial_analysis : bool [@default false]
-  (** Analyze partial applications to optimize added arguments *)
-  
-  ; use_related : bool [@default false]
-  (** Analyze related integer variables to optimize added arguments *)
+  ; no_adding_arguments_optimization : bool [@default false]
+  (** DON'T analyze partial applications and unsed adding arguments to optimize added arguments *)
   
   ; use_all_variables : bool [@default false]
   (** Use all variables (not only variables which are occured in arguments of application) to guess a recursion bound to approximate least-fixpoints. (This may (or may not) help Hoice.) *)
   
-  ; eliminate_unused_arguments : bool [@default false]
-  (** Eliminate unused arguments using type-based analysis *)
+  ; no_unused_arguments_elimination : bool [@default false]
+  (** DON'T eliminate unused arguments using type-based analysis (when adding arguments, the solver always eliminates unused arguments ) *)
   }
 [@@deriving cmdliner,show]
 
@@ -143,13 +139,12 @@ let set_up_params params =
   set_ref simplify_bound       params.simplify_bound;
   set_ref use_simple_encoding_when_lexico_is_one params.use_simple_encoding_when_lexico_is_one;
   set_ref disable_lexicographic params.disable_lexicographic;
-  set_ref add_arguments (not params.disable_add_arguments);
   set_ref coe_arguments params.coe_arguments;
   set_ref no_elim params.no_elim;
-  set_ref eliminate_unused_arguments params.eliminate_unused_arguments;
-  set_ref partial_analysis params.partial_analysis;
-  set_ref use_related params.use_related;
   set_ref use_all_variables params.use_all_variables;
+  set_ref add_arguments (not params.disable_add_arguments);
+  set_ref unused_arguments_elimination (not params.no_unused_arguments_elimination);
+  set_ref adding_arguments_optimization (not params.no_adding_arguments_optimization);
   params.input
 
 (******************************************************************************)

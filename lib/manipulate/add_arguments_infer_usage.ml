@@ -1,7 +1,7 @@
 open Hflmc2_syntax
 module Env = Env_no_value
 
-open Type_hflz7_pa_tuple
+open Add_arguments_tuple
 
 let generate_type_equal_constraint ty1 ty2 =
   let rec go ty1 ty2 =
@@ -261,7 +261,7 @@ let set_not_use_in_undetermined_flags rules =
 let infer_thflz_type (rules : ptype2 thes_rule list) rec_flags: ptype2 thes_rule_in_out list =
   let rules = assign_flags rules in
   let flag_constraints = generate_flag_constraints rules rec_flags in
-  let flag_substitution = Type_hflz7_unify_flags.unify_flags flag_constraints in
+  let flag_substitution = Add_arguments_unify_flags.unify_flags flag_constraints in
   let rules = subst_flags_program rules flag_substitution in
   let rules = set_not_use_in_undetermined_flags rules in
   rules
@@ -369,39 +369,3 @@ module Print_temp = struct
       Fmt.pf ppf "@[<v>%a@]"
         (Fmt.list (hflz_hes_rule format_ty_)) rules
 end
-
-let infer original_rules (rules : ptype2 thes_rule list) rec_flags : Type.simple_ty Hflz.hes =
-  let rules = infer_thflz_type rules rec_flags in
-  let () =
-    (* print_endline "result:";
-    print_endline @@
-      Hflmc2_util.fmt_string
-        (Print_temp.hflz_hes_in_out pp_ptype2) rules; *)
-    T.save_to_file "tmp_t7.txt" @@
-      Hflmc2_util.fmt_string
-        (Print_temp.hflz_hes_in_out pp_ptype2) rules;
-    in
-  let arg_coe1 = 1 in
-  let arg_coe2 = 0 in
-  let coe1 = 1 in
-  let coe2 = 1 in
-  let lexico_pair_number = 1 in
-  let use_all_variables = false in
-  let rules, id_type_map, id_ho_map =
-    Type_hflz7_pa_ad.add_params arg_coe1 arg_coe2 rec_flags rules in
-  let original_fixpoint_pairs =
-    List.map (fun {Hflz.var; fix; _} -> (var, fix)) original_rules in
-  let rules = Type_hflz7_pa_ad.to_hes original_fixpoint_pairs rules in
-  let hes = Hflz.decompose_entry_rule rules in
-  let hes =
-    (* print_endline "id_map";
-    print_endline @@ show_id_map id_type_map Hflz_util.show_variable_type; *)
-    let hes = Hflz_typecheck.set_variable_ty hes in
-    ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"hes_01_original.txt" ~without_id:false true hes;
-    let hes = Hflz_manipulate.encode_body_exists coe1 coe2 hes in
-    ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"hes_02_encode_body_exists.txt" ~without_id:false true hes;
-    let hes = Hflz_manipulate.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables id_ho_map in
-    Eliminate_unused_argument.eliminate_unused_argument ~id_type_map hes in
-  
-  ignore @@ Print_syntax.MachineReadable.save_hes_to_file ~file:"hes_03_elim_mu_with_rec.txt" ~without_id:false true hes;
-  hes

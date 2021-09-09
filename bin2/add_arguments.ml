@@ -9,37 +9,30 @@ let map_file_path path converter =
   Stdlib.Filename.concat dir (base ^ ext)
 
 
-let main path1 coe eliminate_unused_arguments partial_analysis use_related =
-  let coe1, coe2 =
-    match String.split coe ~on:',' with
-    | [coe1; coe2] ->
-      int_of_string coe1, int_of_string coe2
-    | _ -> failwith "illegal coe format"
-    in
-  let phi1 = Muapprox.parse path1 false in
-  let phi1', id_type_map = Muapprox.add_arguments phi1 coe1 coe2 partial_analysis use_related in
-  let phi1' =
-    if eliminate_unused_arguments then
-      Manipulate.Eliminate_unused_argument.eliminate_unused_argument ~id_type_map phi1'
-    else phi1' in
-  let path2 = map_file_path path1 (fun (a, b, c) -> (a, b ^ "_add_args", c)) in
-  let phi1' = Muapprox.abbrev_variable_numbers_hes phi1' in
-  ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 ~without_id:true true phi1';
+let main path1 debug simplified_type =
+  let is_hes = Muapprox.check_format path1 "auto" in
+  let phi1 = Muapprox.parse path1 is_hes in
+  let path2 = map_file_path path1 (fun (a, b, c) -> (a, b ^ "_infer_flag_2", c)) in
+  let phi1,  _, _ =
+    Muapprox.Manipulate.Add_arguments_definition.output_debug_info := debug;
+    Muapprox.Manipulate.Add_arguments_definition.simplified_type := simplified_type;
+    Muapprox.Manipulate.Add_arguments_infer_partial_application.infer phi1 1 0 true
+  in
+  let phi1 = Muapprox.abbrev_variable_numbers_hes phi1 in
+  ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 ~without_id:true true phi1;
   print_endline @@ "saved to " ^ path2
-  
-  
+
+
 let command =
   Command.basic
-    ~summary:"Check whether two hes files have differences"
+    ~summary:"Add arguments test"
     Command.Let_syntax.(
       let%map_open
-          path1 = anon ("path1" %: string)
-      and coe = anon ("coe" %: string) 
-      and partial_analysis = flag "--partial-analysis" no_arg ~doc:"Do partial analysis"
-      and eliminate_unused_arguments = flag "--eliminate-unused-arguments" no_arg ~doc:"Eliminate unused arguments"
-      and use_related = flag "--use-related" no_arg ~doc:"Do related arguments analysis"
+          path = anon ("path" %: string)
+      and debug = flag "--debug" no_arg ~doc:"Output debug info"
+      and simplified_type = flag "--simplified-type" no_arg ~doc:"Show types as simplified format"
       in
-      (fun () -> main path1 coe eliminate_unused_arguments partial_analysis use_related)
+      (fun () -> main path debug simplified_type)
     )
 
 let () = Command.run command

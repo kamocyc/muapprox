@@ -401,43 +401,63 @@ let is_onlymu_onlyexists (entry, rules) =
   && (List.for_all is_onlymu_onlyexists_rule rules)
 
 let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
-  let {no_elim; partial_analysis; use_related;
-    use_all_variables; eliminate_unused_arguments;
+  let {no_elim; adding_arguments_optimization;
+    use_all_variables; unused_arguments_elimination;
     assign_values_for_exists_at_first_iteration; approx_parameter; _} = solve_options in
   (* TODO: use 2nd return value of add_arguments *)
   let {coe1; coe2; add_arg_coe1; add_arg_coe2; lexico_pair_number} = approx_parameter in
-  let add_arguments = add_arg_coe1 > 0 in
+  let should_add_arguments = add_arg_coe1 > 0 in
+  
+  let add_arguments hes =
+    if adding_arguments_optimization then
+      Manipulate.Add_arguments_infer_partial_application.infer hes add_arg_coe1 add_arg_coe2
+    else
+      let hes, id_type_map = Manipulate.Add_arguments_old.add_arguments hes add_arg_coe1 add_arg_coe2 false false in
+      (hes, id_type_map, [])
+  in
+  
   if no_elim then begin
     let hes =
-      if add_arguments
-        then (let hes, _ = Manipulate.Add_arguments.add_arguments hes add_arg_coe1 add_arg_coe2 partial_analysis use_related in hes)
-        else hes in
+      if should_add_arguments then
+        let hes, _, _ = add_arguments hes in
+        hes
+      else hes in
     [hes, []]
   end else begin
-    let hes, id_type_map =
-      if add_arguments
-        then Manipulate.Add_arguments.add_arguments hes add_arg_coe1 add_arg_coe2 partial_analysis use_related
-        else hes, Hflmc2_syntax.IdMap.empty in
+    let hes, id_type_map, id_ho_map =
+      if should_add_arguments then
+        add_arguments hes
+      else
+        hes, Hflmc2_syntax.IdMap.empty, [] in
+
     let heses =
-      if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
-      else [Hflz_mani.encode_body_exists coe1 coe2 hes, []] in
+      if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then
+        Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
+      else
+        [Hflz_mani.encode_body_exists coe1 coe2 hes, []] in
+
     List.map (fun (hes, acc) ->
-      Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-      ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes;
+      let () =
+        Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+        ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes in
+
+      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables id_ho_map in
       
-      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables [] in
-      
-      Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-      if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu";
-      ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes;
-      
+      let () =
+        Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+        ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes;
+        if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu" in
+
       let hes =
-        if eliminate_unused_arguments then
-          Manipulate.Eliminate_unused_argument.eliminate_unused_argument ~id_type_map hes
+        if unused_arguments_elimination || should_add_arguments then
+          let hes = Manipulate.Eliminate_unused_argument.eliminate_unused_argument ~id_type_map hes in
+          let () =
+            Log.app begin fun m -> m ~header:("Eliminate unused arguments (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+            ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu_with_rec.txt") hes in
+          hes
         else
           hes
       in
-      (* forall, nu *)
       hes, acc
     ) heses
   end
