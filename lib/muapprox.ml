@@ -95,6 +95,7 @@ let get_solve_options file =
     unused_arguments_elimination = !Options.unused_arguments_elimination;
     adding_arguments_optimization = !Options.adding_arguments_optimization;
     use_all_variables = !Options.use_all_variables;
+    replacer = !Options.replacer;
   }
 
 let check_format file format_type =

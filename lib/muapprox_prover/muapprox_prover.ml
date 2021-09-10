@@ -103,10 +103,10 @@ module FptProverRecLimitSolver : BackendSolver = struct
     (* Global.config := Config.update_hoice true Global.config; *)
     (* 1, 2番目の引数は使われていない *)
     if with_par then
-      Rfunprover.Solver.solve_onlynu_onlyforall_par false (int_of_float option.timeout) option.print_for_debug hes
+      Rfunprover.Solver.solve_onlynu_onlyforall_par false option.timeout option.print_for_debug hes
         >>| (fun status -> convert_status status)
     else
-      Rfunprover.Solver.solve_onlynu_onlyforall_z3 true (int_of_float option.timeout) option.print_for_debug hes 
+      Rfunprover.Solver.solve_onlynu_onlyforall_z3 true option.timeout option.print_for_debug hes 
         >>| (fun status -> convert_status status)
 end
 
@@ -181,9 +181,13 @@ module SolverCommon = struct
         Status.Unknown, TTerminated
       end
       | Error (`Exit_non_zero 128) -> begin
-        (* why 128? *)
+        (* SIGTERMed. (why 128?) *)
         log_string ~header:"Result" @@ "Terminated (128) " ^ (show_debug_context debug_context);
         Status.Unknown, TTerminated
+      end
+      | Error (`Exit_non_zero 124) -> begin
+        log_string ~header:"Result" @@ "Timeout " ^ (show_debug_context debug_context);
+        Status.Unknown, TUnknown
       end
       | _ -> begin
         log_string ~header:"Result" "error status";
@@ -192,6 +196,10 @@ module SolverCommon = struct
     output_post_debug_info tmp_res elapsed stdout stderr debug_context;
     log_string ~header:"Result" @@ Status.string_of res;
     res
+  
+  let run_command_with_timeout ?no_quote timeout command mode =
+    unix_system ?no_quote timeout command mode
+    
 end
 
 module KatsuraSolver : BackendSolver = struct
@@ -202,9 +210,30 @@ module KatsuraSolver : BackendSolver = struct
     | None -> failwith "Please set environment variable `katsura_solver_path`"
     | Some s -> s
   
-  let save_hes_to_file hes debug_context dry_run =
+  let save_hes_to_file hes replacer debug_context dry_run =
     output_pre_debug_info hes debug_context dry_run;
-    let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
+    let path =
+      if replacer <> "" then
+        let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in
+        let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
+        let r = Random.int 0x10000000 in
+        let stdout_name = Printf.sprintf "/tmp/%d_stdout.tmp" r in
+        let command = "python3 benchmark/replacer.py " ^ replacer ^ " " ^ path ^ " > " ^ stdout_name in
+        log_string @@ "command: " ^ command;
+        Unix.system command 
+        >>= (fun code ->
+          Reader.file_contents stdout_name >>| (fun stdout ->
+            match code with
+            | Ok () ->
+              let stdout = String.trim stdout in
+              log_string @@ "REPLACED!!: " ^ stdout;
+              stdout
+            | Error _ -> failwith @@ "replacer error: " ^ stdout
+          )
+        )
+      else
+        let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
+        Deferred.return path in
     path
     
   let solver_command hes_path solver_options =
@@ -228,14 +257,16 @@ module KatsuraSolver : BackendSolver = struct
     )
     
   let run solve_options debug_context hes _ = 
-    let path = save_hes_to_file hes debug_context solve_options.dry_run in
-    let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
-    let command = solver_command path solve_options in
-    unix_system command (Option.map (fun c -> c.mode) debug_context) >>|
-      (fun (status_code, elapsed, stdout, stderr) ->
-        try
-          parse_results (status_code, stdout, stderr) debug_context elapsed
-        with _ -> Status.Unknown)
+    save_hes_to_file hes (if Option.map (fun d -> d.mode) debug_context = Some "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.dry_run
+    >>= (fun path ->
+      let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
+      let command = solver_command path solve_options in
+      run_command_with_timeout solve_options.timeout command (Option.map (fun c -> c.mode) debug_context) >>|
+        (fun (status_code, elapsed, stdout, stderr) ->
+          try
+            parse_results (status_code, stdout, stderr) debug_context elapsed
+          with _ -> Status.Unknown)
+    )
 end
 
 module IwayamaSolver : BackendSolver = struct
@@ -275,7 +306,7 @@ module IwayamaSolver : BackendSolver = struct
     let path = save_hes_to_file hes debug_context solve_options.dry_run in
     let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
-    unix_system command (Option.map (fun c -> c.mode) debug_context)
+    run_command_with_timeout solve_options.timeout command (Option.map (fun c -> c.mode) debug_context)
     >>| (fun (status_code, elapsed, stdout, stderr) ->
         try
           parse_results (status_code, stdout, stderr) debug_context elapsed
@@ -327,7 +358,7 @@ module SuzukiSolver : BackendSolver = struct
     let path = save_hes_to_file hes debug_context solve_options.dry_run in
     let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
-    unix_system ~no_quote:true command (Option.map (fun c -> c.mode) debug_context)
+    run_command_with_timeout ~no_quote:true solve_options.timeout command (Option.map (fun c -> c.mode) debug_context)
     >>| (fun (status_code, elapsed, stdout, stderr) ->
         try
           parse_results (status_code, stdout, stderr) debug_context elapsed
@@ -364,11 +395,6 @@ let solve_onlynu_onlyforall solve_options debug_context hes with_par =
       | Suzuki  -> SuzukiSolver.run
     ) in
   run solve_options debug_context hes with_par >>| (fun s -> (s, debug_context))
-
-let flip_solver solver =
-  fun timeout is_print_for_debug ->
-  let status, original_status = solver timeout is_print_for_debug in
-  Status.flip status, original_status
   
 let fold_hflz folder phi init =
   let rec go phi acc = match phi with
@@ -487,14 +513,15 @@ let get_next_approx_parameter ?param ?(iter_count=0) with_add_arguments =
   let coeffs = 
     if with_add_arguments then
       [
-        (1, 1,  0, 0, 1);
-        (1, 1,  0, 0, 2);
-        (1, 8,  0, 0, 1);
-        (2, 16, 0, 0, 1);
-        (1, 1,  1, 0, 1);
-        (1, 1,  2, 0, 1);
-        (1, 8,  2, 1, 1);
-        (1, 8,  2, 1, 2);
+        (1, 1,  0, 0, 1); (* 1 *)
+        (1, 1,  0, 0, 2); (* 2 *)
+        (1, 8,  0, 0, 1); (* 3 *)
+        (2, 16, 0, 0, 1); (* 4 *)
+        (1, 1,  1, 0, 1); (* 5 *)
+        (2, 1,  1, 0, 1); (* 6 *)
+        (1, 1,  2, 0, 1); (* 7 *)
+        (1, 8,  2, 1, 1); (* 8 *)
+        (1, 8,  2, 1, 2); (* 9 *)
       ]
     else
       [

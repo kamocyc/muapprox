@@ -31,6 +31,7 @@ let no_elim = ref (Obj.magic())
 let unused_arguments_elimination = ref (Obj.magic()) 
 let adding_arguments_optimization = ref (Obj.magic ())
 let use_all_variables = ref (Obj.magic())
+let replacer = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -48,7 +49,7 @@ type params =
   ; no_inlining_backend : bool [@default false]
   (** Disable inlining in a backend solver *)
   
-  ; timeout : float [@default 240.0]
+  ; timeout : int [@default 120]
   (** Timeout for a backend solver *)
   
   ; print_for_debug : bool [@default true]
@@ -116,6 +117,9 @@ type params =
   
   ; no_unused_arguments_elimination : bool [@default false]
   (** DON'T eliminate unused arguments using type-based analysis (when adding arguments, the solver always eliminates unused arguments ) *)
+  
+  ; replacer : string [@default ""]
+  (** Ad-hoc replacement of approximated forumula (for katsura-solver only) *)
   }
 [@@deriving cmdliner,show]
 
@@ -145,6 +149,7 @@ let set_up_params params =
   set_ref add_arguments (not params.disable_add_arguments);
   set_ref unused_arguments_elimination (not params.no_unused_arguments_elimination);
   set_ref adding_arguments_optimization (not params.no_adding_arguments_optimization);
+  set_ref replacer params.replacer;
   params.input
 
 (******************************************************************************)

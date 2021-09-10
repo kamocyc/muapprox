@@ -1,3 +1,5 @@
+type process_status = Unix.process_status
+
 open Async
 
 (* This mutable data structure is accessed by multiple threads.
@@ -16,7 +18,6 @@ let kill_processes mode =
   | None -> Deferred.return ()
   | Some mode -> begin
     (* eld and java are not executed when ran with --no-disprove because they are used only to prove invalid *)
-    (* TODO: main.exe should be renamed *)
     match Hashtbl.find_opt pids mode with
     | None -> Deferred.return ()
     | Some pid_filenames -> begin
@@ -31,6 +32,7 @@ let kill_processes mode =
         local _sig=${2:-TERM}
         kill -stop ${_pid} # needed to stop quickly forking parent from producing child between child killing and parent killing
         for _child in $(ps -o pid --no-headers --ppid ${_pid}); do
+            # echo pid: ${_pid} " V " ${_child}
             killtree ${_child} ${_sig}
         done
         kill -${_sig} ${_pid}
@@ -52,7 +54,28 @@ let kill_processes mode =
     end >>| (fun _ -> Hashtbl.remove pids mode; ())
   end
 
-let unix_system ?(no_quote=false) commands mode =
+  let pp_process_result fmt stat =
+    let show_process_status : process_status -> string = function
+      | WEXITED code -> "WEXITED(" ^ (string_of_int code) ^ ")"
+      | WSIGNALED code -> "WSIGNALED(" ^ (string_of_int code) ^ ")"
+      | WSTOPPED code -> "WSTOPPED(" ^ (string_of_int code) ^ ")" in
+    Format.pp_print_string fmt @@ "Process result:\n";
+    (* Format.pp_print_string fmt @@ "out: " ^ out ^ "\n"; *)
+    Format.pp_print_string fmt @@ "status: " ^ (show_process_status stat) ^ "\n"
+  
+  let show_code (code : (unit, [ `Exit_non_zero of int | `Signal of Hflmc2_util.Core.Signal.t ]) result) =
+    match code with
+    | Ok () -> "Ok"
+    | Error code -> begin
+      match code with
+      | `Exit_non_zero code ->
+        "`Exit_non_zero (" ^ string_of_int code ^ ")"
+      | `Signal signal -> begin
+        "`Signal (" ^ Signal.to_string signal ^ ")"
+      end
+    end
+  
+let unix_system ?(no_quote=false) timeout commands mode =
   (* quote *)
   (* 環境変数をセットするためにquoteしない *)
   let commands =
@@ -72,13 +95,20 @@ let unix_system ?(no_quote=false) commands mode =
   
   let command = String.concat " " commands in
   let command = command ^ " &\nbpid=$!\necho $bpid > " ^ pid_name ^ "\nwait $bpid" in
+  
   (match mode with
   | Some mode -> append_to_hashtbl_of_list pids mode pid_name
   | None -> ());
+  
   let start_time = Stdlib.Sys.time () in
-  Unix.system command 
+  
+  let deferred_main = Unix.system command in
+  let deferred_timeout = Clock.after (Core.Time.Span.of_sec (float_of_int timeout)) >>| (fun () -> Error (`Exit_non_zero 124)) in
+  
+  Deferred.any [deferred_main; deferred_timeout]
   >>= (fun code ->
     let elapsed = Stdlib.Sys.time () -. start_time in
+    (* print_endline @@ "ALL COMMAND: \"" ^ command ^ "\"\n" ^ "CODE: " ^ show_code code; *)
     Reader.file_contents stdout_name >>= (fun stdout ->
       Reader.file_contents stderr_name >>| (fun stderr ->
         code, elapsed, stdout, stderr

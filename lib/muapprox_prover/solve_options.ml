@@ -13,7 +13,7 @@ type options =
   {
     no_backend_inlining : bool;
     no_disprove: bool;
-    timeout : float;
+    timeout : int;
     approx_parameter: approx_parameter;
     use_custom_parameter: bool;
     oneshot: bool;
@@ -37,6 +37,7 @@ type options =
     unused_arguments_elimination: bool;
     adding_arguments_optimization: bool;
     use_all_variables: bool;
+    replacer: string;
   }
 let get_solver solver_name = 
   match solver_name with
