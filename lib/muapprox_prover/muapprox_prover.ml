@@ -15,7 +15,8 @@ open Unix_command
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
 
-let log_string = Manipulate.Hflz_util.log_string Log.app
+let log_string = Manipulate.Hflz_util.log_string Log.info
+let message_string = Manipulate.Hflz_util.log_string Log.app
 
 type debug_context = {
   coe1: int;
@@ -27,7 +28,7 @@ type debug_context = {
   pid: int;
   file: string;
   temp_file: string;
-  solver_backend: string option;
+  backend_solver: string option;
   default_lexicographic_order: int;
   exists_assignment: (unit Hflz_convert_rev.Id.t * int) list option;
 }
@@ -58,9 +59,9 @@ let show_debug_context debug =
     let soi = string_of_int in
     let unwrap_or alt opt = match opt with None -> alt | Some s -> s in
     show [
-      ("mode", debug.mode);
-      ("solver_backend", unwrap_or "-" debug.solver_backend);
       ("iter_count", soi debug.iter_count);
+      ("mode", debug.mode);
+      ("backend_solver", unwrap_or "-" debug.backend_solver);
       ("coe1", soi debug.coe1);
       ("coe2", soi debug.coe2);
       ("add_arg_coe1", if debug.add_arg_coe1 = 0 then "-" else soi debug.add_arg_coe1);
@@ -111,7 +112,7 @@ module FptProverRecLimitSolver : BackendSolver = struct
 end
 
 module SolverCommon = struct
-  let output_pre_debug_info hes debug_context dry_run =
+  let output_pre_debug_info hes debug_context dry_run path =
     let path' = 
       match debug_context with 
       | Some debug_context ->
@@ -120,7 +121,7 @@ module SolverCommon = struct
         Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:true true hes 
       | None ->
         Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
-    log_string ~header:"Solve info" @@ "HES for backend " ^ (show_debug_context debug_context) ^ ": " ^ path';
+    message_string ~header:"SolveInfo" @@ "νHFLz " ^ (show_debug_context (Option.map (fun d -> {d with temp_file = path}) debug_context)) ^ ": " ^ path';
     output_debug debug_context path';
     (if dry_run then failwith "DRY RUN");
     ()
@@ -152,9 +153,11 @@ module SolverCommon = struct
         match debug_context with
         | None -> []
         | Some debug_context ->
-          [("file", `String debug_context.file);
-          ("mode", `String debug_context.mode);
+          [
           ("iter_count", `Int debug_context.iter_count);
+          ("mode", `String debug_context.mode);
+          ("backend_solver", `String (Option.value debug_context.backend_solver ~default:""));
+          ("file", `String debug_context.file);
           ("coe1", `Int debug_context.coe1);
           ("coe2", `Int debug_context.coe2);
           ("pid", `Int debug_context.pid)]
@@ -165,36 +168,37 @@ module SolverCommon = struct
     Stdio.Out_channel.close oc
     
   let parse_results_inner (exit_status, stdout, stderr) debug_context elapsed status_parser =
-    let res, tmp_res = 
+    let res, tmp_res, log_message = 
       match exit_status with 
       | Ok () -> begin
         let status = status_parser stdout in
-        log_string ~header:"Result" @@ "Parsed status: " ^ Status.string_of status ^ " " ^ (show_debug_context debug_context);
         status, (
         match status with
-        | Valid -> TValid
+        | Status.Valid -> TValid
         | Invalid -> TInvalid
-        | _ -> TUnknown)
+        | _ -> TUnknown),
+        "Parsed status: " ^ Status.string_of status ^ " " ^ (show_debug_context debug_context)
       end
       | Error (`Exit_non_zero 143) -> begin
-        log_string ~header:"Result" @@ "Terminated " ^ (show_debug_context debug_context);
-        Status.Unknown, TTerminated
+        Status.Unknown, TTerminated,
+        "Terminated " ^ (show_debug_context debug_context)
       end
       | Error (`Exit_non_zero 128) -> begin
         (* SIGTERMed. (why 128?) *)
-        log_string ~header:"Result" @@ "Terminated (128) " ^ (show_debug_context debug_context);
-        Status.Unknown, TTerminated
+        Status.Unknown, TTerminated,
+        "Terminated (128) " ^ (show_debug_context debug_context)
       end
       | Error (`Exit_non_zero 124) -> begin
-        log_string ~header:"Result" @@ "Timeout " ^ (show_debug_context debug_context);
-        Status.Unknown, TUnknown
+        Status.Unknown, TUnknown,
+        "Timeout " ^ (show_debug_context debug_context)
       end
-      | _ -> begin
-        log_string ~header:"Result" "error status";
-        Status.Unknown, TError
-      end in
+      | Error code -> begin
+        Status.Unknown, TError,
+        "Error status (" ^ Unix_command.show_code (Error code) ^ ")"
+      end
+    in
     output_post_debug_info tmp_res elapsed stdout stderr debug_context;
-    log_string ~header:"Result" @@ Status.string_of res;
+    message_string ~header:"Result" @@ Status.string_of res ^ " / " ^ log_message;
     res
   
   let run_command_with_timeout ?no_quote timeout command mode =
@@ -211,7 +215,6 @@ module KatsuraSolver : BackendSolver = struct
     | Some s -> s
   
   let save_hes_to_file hes replacer debug_context dry_run =
-    output_pre_debug_info hes debug_context dry_run;
     let path =
       if replacer <> "" then
         let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in
@@ -227,12 +230,14 @@ module KatsuraSolver : BackendSolver = struct
             | Ok () ->
               let stdout = String.trim stdout in
               log_string @@ "REPLACED!!: " ^ stdout;
+              output_pre_debug_info hes debug_context dry_run stdout;
               stdout
             | Error _ -> failwith @@ "replacer error: " ^ stdout
           )
         )
       else
         let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
+        output_pre_debug_info hes debug_context dry_run path;
         Deferred.return path in
     path
     
@@ -242,12 +247,12 @@ module KatsuraSolver : BackendSolver = struct
       solver_path :: (if solver_options.no_disprove then ["--no-disprove"] else []) @
         (List.filter_map (fun x -> x)
           [if solver_options.no_backend_inlining then Some "--no-inlining" else None;
-          match solver_options.solver_backend with None -> None | Some s -> Some ("--solver=" ^ s)]) @
+          match solver_options.backend_solver with None -> None | Some s -> Some ("--solver=" ^ s)]) @
         [hes_path]
     )
 
   let parse_results result debug_context elapsed =
-    parse_results_inner result debug_context elapsed (fun stdout -> 
+    parse_results_inner result debug_context elapsed (fun stdout ->
       let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nProfiling:$" in
       try
         ignore @@ Str.search_forward reg stdout 0;
@@ -279,8 +284,9 @@ module IwayamaSolver : BackendSolver = struct
   
   let save_hes_to_file hes debug_context dry_run =
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
-    output_pre_debug_info hes debug_context dry_run;
-    Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes
+    let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes in
+    output_pre_debug_info hes debug_context dry_run path;
+    path
     
   let solver_command hes_path solver_options =
     let solver_path = get_solver_path () in
@@ -324,8 +330,9 @@ module SuzukiSolver : BackendSolver = struct
   let save_hes_to_file hes debug_context dry_run =
     Hflmc2_syntax.Print.global_not_output_zero_minus_as_negative_value := true;
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
-    output_pre_debug_info hes debug_context dry_run;
-    Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes
+    let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes in
+    output_pre_debug_info hes debug_context dry_run path;
+    path
     
   let solver_command hes_path solver_options =
     let solver_path = get_solver_path () in
@@ -382,7 +389,7 @@ let solve_onlynu_onlyforall solve_options debug_context hes with_par =
     then hes
     else (
       let hes = Manipulate.Hes_optimizer.simplify hes in
-      Log.app begin fun m -> m ~header:("Simplified") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+      Log.info begin fun m -> m ~header:("Simplified") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
       hes) in
   (* let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in *)
   let run =
@@ -464,13 +471,13 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
 
     List.map (fun (hes, acc) ->
       let () =
-        Log.app begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+        Log.info begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
         ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes in
 
       let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables id_ho_map in
       
       let () =
-        Log.app begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+        Log.info begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
         ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes;
         if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu" in
 
@@ -478,7 +485,7 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
         if unused_arguments_elimination || should_add_arguments then
           let hes = Manipulate.Eliminate_unused_argument.eliminate_unused_argument ~id_type_map hes in
           let () =
-            Log.app begin fun m -> m ~header:("Eliminate unused arguments (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+            Log.info begin fun m -> m ~header:("Eliminate unused arguments (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
             ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu_with_rec.txt") hes in
           hes
         else
@@ -570,7 +577,7 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
     add_arg_coe2 = approx_param.add_arg_coe2;
     pid = solve_options.pid;
     file = solve_options.file;
-    solver_backend = None;
+    backend_solver = None;
     default_lexicographic_order = approx_param.lexico_pair_number;
     exists_assignment = None;
     temp_file = "";
@@ -581,18 +588,18 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
     If one of instantiation of existential variables has returned "valid," then result of current iteration is "valid."
   *)
   let (solvers: (Status.t * debug_context option) Deferred.t list list) = 
-    match solve_options.solver_backend with
+    match solve_options.backend_solver with
     | None ->
       List.map (fun (nu_only_hes, exists_assignment) ->
         [
           solve_onlynu_onlyforall
-            { solve_options with solver_backend = Some "hoice" }
-            (Option.map (fun o -> { o with solver_backend = Some "hoice"; exists_assignment = Some exists_assignment }) debug_context_)
+            { solve_options with backend_solver = Some "hoice" }
+            (Option.map (fun o -> { o with backend_solver = Some "hoice"; exists_assignment = Some exists_assignment }) debug_context_)
             nu_only_hes
             false;
           solve_onlynu_onlyforall
-            { solve_options with solver_backend = Some "z3" }
-            (Option.map (fun o -> { o with solver_backend = Some "z3"; exists_assignment = Some exists_assignment }) debug_context_)
+            { solve_options with backend_solver = Some "z3" }
+            (Option.map (fun o -> { o with backend_solver = Some "z3"; exists_assignment = Some exists_assignment }) debug_context_)
             nu_only_hes
             false
         ]
@@ -651,7 +658,7 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
         else retry approx_param
       | Status.Unknown ->
         if not solve_options.stop_on_unknown then (
-          log_string ~header:"Result" @@ "return Unknown (" ^ show_debug_contexts debug_contexts ^ ")";
+          message_string ~header:"Result" @@ "return Unknown (" ^ show_debug_contexts debug_contexts ^ ")";
           if solve_options.oneshot then return (Status.Unknown, debug_contexts)
           else retry approx_param
         ) else return (Status.Unknown, debug_contexts)

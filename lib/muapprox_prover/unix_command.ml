@@ -2,6 +2,11 @@ type process_status = Unix.process_status
 
 open Async
 
+let log_src = Logs.Src.create "Unix_command"
+module Log = (val Logs.src_log @@ log_src)
+
+let log_string = Manipulate.Hflz_util.log_string Log.info
+
 (* This mutable data structure is accessed by multiple threads.
    However, this is safe because Async uses cooperative multithreading (not preemptive threads)
    therefore all operations, except ones have 'a Deferred.t type, are "atomic."
@@ -88,10 +93,7 @@ let unix_system ?(no_quote=false) timeout commands mode =
   let pid_name = Printf.sprintf "/tmp/%d_pid.tmp" r in
   let commands = commands @ [">"; stdout_name; "2>"; stderr_name] in
   
-  let reporter = Logs.reporter () in
-  Logs.set_reporter (Logs.format_reporter ());
-  Logs.app (fun m -> m "%s" ("Run command: " ^ (String.concat " " commands)));
-  Logs.set_reporter reporter;
+  log_string @@ "Run command: " ^ (String.concat " " commands);
   
   let command = String.concat " " commands in
   let command = command ^ " &\nbpid=$!\necho $bpid > " ^ pid_name ^ "\nwait $bpid" in

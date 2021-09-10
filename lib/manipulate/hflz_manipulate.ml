@@ -16,7 +16,7 @@ let show_hflz = Print.show_hflz
 let log_src = Logs.Src.create "Solver"
 module Log = (val Logs.src_log @@ log_src)
 
-let log_string = Hflz_util.log_string Log.app
+(* let log_string = Hflz_util.log_string Log.info *)
 
 (* Arrow type to list of types of the arguments conversion *)
 (* t1 -> t2 -> t3  ==> [t3; t2; t1]  *)
@@ -181,7 +181,7 @@ let decompose_lambda_ (phi : Type.simple_ty Hflz.t) (rule_id : Type.simple_ty Id
     | Abs(_, _)    -> begin
       (* let v, new_rule = extract_abstraction phi ((Id.remove_ty rule_id)::hes_var_names) rule_id.name in
       new_rules := new_rule :: !new_rules;
-      (* Log.app begin fun m -> m ~header:("Abs") "%a"
+      (* Log.info begin fun m -> m ~header:("Abs") "%a"
         Print.(hflz simple_ty_) v
       end; *)
       v *)
@@ -192,11 +192,11 @@ let decompose_lambda_ (phi : Type.simple_ty Hflz.t) (rule_id : Type.simple_ty Id
         ) @
         (Id.remove_ty rule_id :: hes_var_names) in
       let v, new_rule = extract_abstraction phi not_apply_vars rule_id.name in
-        (* Log.app begin fun m -> m ~header:("Forall 前" ^ x.name) "%a"
+        (* Log.info begin fun m -> m ~header:("Forall 前" ^ x.name) "%a"
           Print.(hflz simple_ty_) new_rule.body
         end; *)
         let new_rule = { new_rule with body = in_forall @@ mk_quant quant_acc new_rule.body } in
-        (* Log.app begin fun m -> m ~header:("Forall 後" ^ x.name) "%a"
+        (* Log.info begin fun m -> m ~header:("Forall 後" ^ x.name) "%a"
           Print.(hflz simple_ty_) new_rule.body
         end; *)
         new_rules := new_rule :: !new_rules;
@@ -212,14 +212,14 @@ let decompose_lambda_ (phi : Type.simple_ty Hflz.t) (rule_id : Type.simple_ty Id
     end
     | _ -> go [] phi
   in
-  (* Log.app begin fun m -> m ~header:"original formula" "%a"
+  (* Log.info begin fun m -> m ~header:"original formula" "%a"
     Print.(hflz simple_ty_) phi
   end; *)
   let res = go' phi in
-  (* Log.app begin fun m -> m ~header:"converted formula" "%a"
+  (* Log.info begin fun m -> m ~header:"converted formula" "%a"
     Print.(hflz simple_ty_) res
   end;
-  Log.app begin fun m -> m ~header:"added_rules" "%a"
+  Log.info begin fun m -> m ~header:"added_rules" "%a"
     Print.(hflz_hes simple_ty_) !new_rules
   end; *)
   (!new_rules, res)
@@ -248,7 +248,7 @@ let get_dual_hes ((entry, rules) : Type.simple_ty hes): Type.simple_ty hes =
   let entry = Hflz.negate_formula entry in
   let results = List.map (fun rule -> Hflz.negate_rule rule) rules in
   let hes = (entry, results) in
-  Log.app begin fun m -> m ~header:"get_dual_hes" "%a" Print.(hflz_hes simple_ty_) hes end;
+  Log.info begin fun m -> m ~header:"get_dual_hes" "%a" Print.(hflz_hes simple_ty_) hes end;
   type_check hes;
   entry, results
 
@@ -955,7 +955,7 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map use
       let scoped_rec_tvars =
         Env.create (List.map (fun pvar -> (pvar, (Env.lookup pvar rec_tvars))) outer_pvars) in
       let body = replace_occurences coe1 coe2 outer_mu_funcs scoped_rec_tvars rec_tvars rec_lex_tvars id_type_map use_all_scoped_variables id_ho_map body in
-      (* Log.app begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
+      (* Log.info begin fun m -> m ~header:"body" "%a" Print.(hflz simple_ty_) body end; *)
       let formula_type_vars = Hflz_util.get_hflz_type body |> to_args |> List.rev in
       let rec_tvar_bounds' =
         List.map snd scoped_rec_tvars |>

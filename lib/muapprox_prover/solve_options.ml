@@ -20,7 +20,7 @@ type options =
     print_for_debug : bool;
     separate_original_formula_in_exists : bool;
     solver : solver_type;
-    solver_backend: string option;
+    backend_solver: string option;
     first_order_solver: first_order_solver_type option;
     dry_run : bool;
     no_simplify: bool;
@@ -49,10 +49,10 @@ let get_solver solver_name =
 let get_first_order_solver use_fo_solver = 
   if use_fo_solver then Some FptProverRecLimit else None
   
-let get_solver_backend s solver =
+let get_backend_solver s solver =
   match solver with
   | Katsura -> begin
-    (* solver-backend option is only for katsura-solver *)
+    (* backend-solver option is only for katsura-solver *)
     let s = String.trim s in
     match s with
     | "" -> None

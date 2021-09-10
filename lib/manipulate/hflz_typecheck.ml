@@ -9,7 +9,7 @@ type ty_env = (Type.simple_ty Type.arg Id.t) list
 let log_src = Logs.Src.create "Typecheck"
 module Log = (val Logs.src_log @@ log_src)
 
-let log_string = Hflz_util.log_string Log.app
+let log_string = Hflz_util.log_string Log.info
 
 let ensure_all_variable_ids_are_unique_expr env seen_ids (phi : 'a Hflz.t) =
   let rec go env (phi : 'a Hflz.t) = match phi with

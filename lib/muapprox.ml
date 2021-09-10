@@ -54,11 +54,11 @@ let parse file is_hes =
         match Hes.HesParser.from_file file with
         | Ok hes -> Muapprox_prover.Hflz_convert.of_hes hes
         | Error _ -> failwith "hes_parser" in
-      Log.app begin fun m -> m ~header:"hes Input" "%a" Print.(hflz_hes simple_ty_) psi end;
+      Log.info begin fun m -> m ~header:"hes Input" "%a" Print.(hflz_hes simple_ty_) psi end;
       psi
     ) else (
       let psi, _ = Syntax.parse_file file in
-      Log.app begin fun m -> m ~header:"Input" "%a" Print.(hflz_hes simple_ty_) psi end;
+      Log.info begin fun m -> m ~header:"Input" "%a" Print.(hflz_hes simple_ty_) psi end;
       psi
     ) in
   check_predicate_name psi;
@@ -76,7 +76,7 @@ let get_solve_options file =
     separate_original_formula_in_exists = not !Options.no_separate_original_formula_in_exists;
     solver = get_solver !Options.solver;
     first_order_solver = get_first_order_solver !Options.first_order_solver;
-    solver_backend = get_solver_backend !Options.solver_backend (get_solver !Options.solver);
+    backend_solver = get_backend_solver !Options.backend_solver (get_solver !Options.solver);
     approx_parameter = approx_parameter;
     use_custom_parameter = use_custom_parameter;
     oneshot = use_custom_parameter || !Options.oneshot;
@@ -132,7 +132,7 @@ let main file cont =
   (* for debug *)
   (* let psi = if inlining then (
     let psi = Syntax.Trans.Simplify.hflz_hes psi inlining in
-    Log.app begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
+    Log.info begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
     psi
   ) else psi in *)
   Muapprox_prover.check_validity solve_options psi (fun (s1, info) -> cont (s1, info))

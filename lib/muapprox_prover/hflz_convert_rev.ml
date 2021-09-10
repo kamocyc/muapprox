@@ -86,7 +86,7 @@ let rec go env (f : Type.simple_ty Hflz.t) : L.Formula.t =
   | Var v ->
     mk_var_app env (v.name, v.ty, v.id, [])
   | _ ->
-    Log.app begin fun m -> m ~header:"illegal" "%a" Manipulate.Print_syntax.(hflz simple_ty_) f end;
+    Log.info begin fun m -> m ~header:"illegal" "%a" Manipulate.Print_syntax.(hflz simple_ty_) f end;
     failwith "go: illegal"
 
 let of_fix fix =
@@ -107,7 +107,7 @@ let of_func {Hflz.fix; body; var} =
 
 let of_hes hes =
   let (entry, rules) = hes in
-  Log.app begin fun m -> m ~header:"of_hes" "%a" Manipulate.Print_syntax.(hflz_hes simple_ty_) hes end;
+  Log.info begin fun m -> m ~header:"of_hes" "%a" Manipulate.Print_syntax.(hflz_hes simple_ty_) hes end;
   let ep = go [] entry in
   let funcs = List.map ~f:of_func rules in
   Hes.HesLogic.Hes (funcs, ep)

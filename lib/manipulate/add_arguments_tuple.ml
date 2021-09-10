@@ -4,7 +4,7 @@ open Hflmc2_syntax
 let log_src = Logs.Src.create "Pa_tuple"
 module Log = (val Logs.src_log @@ log_src)
 
-let log_string = Hflz_util.log_string Log.app
+(* let log_string = Hflz_util.log_string Log.info *)
 
 type 'ty thflz2 =
   | Bool   of bool

@@ -12,7 +12,7 @@ let print_for_debug = ref (Obj.magic())
 let no_backend_inlining = ref (Obj.magic())
 let no_separate_original_formula_in_exists = ref (Obj.magic())
 let solver = ref (Obj.magic())
-let solver_backend = ref (Obj.magic())
+let backend_solver = ref (Obj.magic())
 let first_order_solver = ref (Obj.magic())
 let coe = ref (Obj.magic())
 let dry_run = ref (Obj.magic())
@@ -61,7 +61,7 @@ type params =
   ; solver : string [@default "katsura"]
   (** Choose background nu-only-HFLz solver. Available: katsura, iwayama, suzuki *)
   
-  ; solver_backend : string [@default ""]
+  ; backend_solver : string [@default ""]
   (** --solver option on the backend solver. (only used in the katsura solver) *)
   
   ; first_order_solver : bool [@default false]
@@ -130,7 +130,7 @@ let set_up_params params =
   set_ref no_separate_original_formula_in_exists params.no_separate_original_formula_in_exists;
   set_ref no_backend_inlining      params.no_inlining_backend;
   set_ref solver                   params.solver;
-  set_ref solver_backend           params.solver_backend;
+  set_ref backend_solver           params.backend_solver;
   set_ref first_order_solver       params.first_order_solver;
   set_ref coe                      params.coe;
   set_ref dry_run                  params.dry_run;
@@ -164,39 +164,16 @@ module Logs_cli = Logs_cli
 module Logs_fmt = Logs_fmt
 
 (* Log *)
+  
 let term_setup_log () =
   (*{{{*)
   let setup style_renderer level =
     Format.set_margin 1000;
     Fmt_tty.setup_std_outputs ?style_renderer ();
-    let pp_header ppf (src, level, header) =
-      let src_str =
-        if Logs.Src.(equal src Logs.default)
-        then None
-        else Some (Logs.Src.name src)
-      in
-      let level_str, style = match (level : Logs.level) with
-        | App     -> "App"     , Logs_fmt.app_style
-        | Error   -> "Error"   , Logs_fmt.err_style
-        | Warning -> "Warning" , Logs_fmt.warn_style
-        | Info    -> "Info"    , Logs_fmt.info_style
-        | Debug   -> "Debug"   , Logs_fmt.debug_style
-      in
-      let (<+) x y = match x with None -> y | Some x -> x ^ ":" ^ y in
-      let (+>) x y = match y with None -> x | Some y -> x ^ ":" ^ y in
-      let str = src_str <+ level_str +> header in
-      Fmt.pf ppf "@[<v 2>[%a]@ @]" Fmt.(styled style string) str
-    in
-    let reporter =
-      { Logs.report = fun src level ~over k msgf ->
-          let k _ = over (); k () in
-          msgf @@ fun ?header ?tags:_ fmt ->
-            let ppf = Fmt.stdout in
-            Format.kfprintf k ppf ("%a@[" ^^ fmt ^^ "@]@.")
-              pp_header (src, level, header)
-      }
-    in
+    
+    let reporter = get_reporter "@[<v 2>[%a]@ @]" in
     Logs.set_reporter reporter;
+    
     Logs.set_level level
   in
     Cmdliner.Term.(const setup $ Fmt_cli.style_renderer () $ Logs_cli.level ())

@@ -490,3 +490,33 @@ let%expect_test "remove_duplicates" =
 let move_first f ls =
   let l1, l2 = partition f ls in
   l1 @ l2
+
+let get_reporter header_format =
+  let pp_header ppf (src, level, header) =
+    let src_str =
+      if Logs.Src.(equal src Logs.default)
+      then None
+      else Some (Logs.Src.name src)
+    in
+    let level_str, style = match (level : Logs.level) with
+      | App     -> "App"     , Logs_fmt.app_style
+      | Error   -> "Error"   , Logs_fmt.err_style
+      | Warning -> "Warning" , Logs_fmt.warn_style
+      | Info    -> "Info"    , Logs_fmt.info_style
+      | Debug   -> "Debug"   , Logs_fmt.debug_style
+    in
+    let (<+) x y = match x with None -> y | Some x -> x ^ ":" ^ y in
+    let (+>) x y = match y with None -> x | Some y -> x ^ ":" ^ y in
+    let str = src_str <+ level_str +> header in
+    Fmt.pf ppf header_format Fmt.(styled style string) str
+  in
+  let reporter =
+    { Logs.report = fun src level ~over k msgf ->
+        let k _ = over (); k () in
+        msgf @@ fun ?header ?tags:_ fmt ->
+          let ppf = Fmt.stdout in
+          Format.kfprintf k ppf ("%a@[" ^^ fmt ^^ "@]@.")
+            pp_header (src, level, header)
+    }
+  in
+  reporter

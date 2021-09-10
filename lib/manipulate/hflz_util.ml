@@ -212,7 +212,7 @@ let rec beta id_type_map (phi : 'a Hflz.t) : ('b * 'a Hflz.t ) =
     if !reduced then
       beta id_type_map res
     else (
-      (* Log.app begin fun m -> m ~header:"not done" "%a" Print.(hflz simple_ty_) (App (phi1, phi2)) end; *)
+      (* Log.info begin fun m -> m ~header:"not done" "%a" Print.(hflz simple_ty_) (App (phi1, phi2)) end; *)
       id_type_map, App (phi1, phi2))
   end
   | Abs(x, phi) ->  
@@ -269,11 +269,19 @@ let update_id_type_map (id_type_map : (unit Id.t, 'a, IdMap.Key.comparator_witne
   in
   m
 
+
+(* let log_string
+    (log_fun : ((?header:string -> ?tags:Logs.Tag.set -> ('a, Format.formatter, unit, unit) format4 -> 'a) -> unit) -> unit)
+    ?header
+    s =
+  log_fun (fun m -> m ?header "%s" s) *)
+
 let log_string
     (log_fun : ((?header:string -> ?tags:Logs.Tag.set -> ('a, Format.formatter, unit, unit) format4 -> 'a) -> unit) -> unit)
     ?header
     s =
   let reporter = Logs.reporter () in
-  Logs.set_reporter (Logs.format_reporter ());
+  let r = Hflmc2_util.get_reporter "@[<v 2>[%a] @]" in
+  Logs.set_reporter r;
   log_fun (fun m -> m ?header "%s" s);
   Logs.set_reporter reporter
