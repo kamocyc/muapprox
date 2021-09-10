@@ -33,6 +33,8 @@ type debug_context = {
   exists_assignment: (unit Hflz_convert_rev.Id.t * int) list option;
 }
 
+let has_solved = ref false
+
 let save_string_to_file path buf =
   let oc = Stdlib.open_out path in
   Stdlib.output_string oc buf;
@@ -58,10 +60,8 @@ let show_debug_context debug =
     in
     let soi = string_of_int in
     let unwrap_or alt opt = match opt with None -> alt | Some s -> s in
+    debug.mode ^ "-" ^ soi debug.iter_count ^ " (" ^ (Option.value debug.backend_solver ~default:"-") ^ "): " ^
     show [
-      ("iter_count", soi debug.iter_count);
-      ("mode", debug.mode);
-      ("backend_solver", unwrap_or "-" debug.backend_solver);
       ("coe1", soi debug.coe1);
       ("coe2", soi debug.coe2);
       ("add_arg_coe1", if debug.add_arg_coe1 = 0 then "-" else soi debug.add_arg_coe1);
@@ -121,7 +121,7 @@ module SolverCommon = struct
         Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:true true hes 
       | None ->
         Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
-    message_string ~header:"SolveInfo" @@ "νHFLz " ^ (show_debug_context (Option.map (fun d -> {d with temp_file = path}) debug_context)) ^ ": " ^ path';
+    message_string ~header:"SolveInfo" @@ "νHFLz, " ^ (show_debug_context (Option.map (fun d -> {d with temp_file = path}) debug_context)) ^ ": " ^ path';
     output_debug debug_context path';
     (if dry_run then failwith "DRY RUN");
     ()
@@ -181,12 +181,12 @@ module SolverCommon = struct
       end
       | Error (`Exit_non_zero 143) -> begin
         Status.Unknown, TTerminated,
-        "Terminated " ^ (show_debug_context debug_context)
+        "SIGTERMed " ^ (show_debug_context debug_context)
       end
       | Error (`Exit_non_zero 128) -> begin
         (* SIGTERMed. (why 128?) *)
         Status.Unknown, TTerminated,
-        "Terminated (128) " ^ (show_debug_context debug_context)
+        "SIGTERMed (128) " ^ (show_debug_context debug_context)
       end
       | Error (`Exit_non_zero 124) -> begin
         Status.Unknown, TUnknown,
@@ -497,9 +497,9 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
 
 exception Exit
 
-let summary_results (results : (Status.t * 'a) list) =
+let summarize_results (results : (Status.t * 'a) list) =
   let non_fail_results = List.filter (fun (r, _) -> match r with Status.Fail -> false | _ -> true) results in
-  if (List.length @@ non_fail_results == 0)
+  if (List.length non_fail_results == 0)
   then Status.Fail, List.map snd results
   else begin
     let results = non_fail_results in
@@ -628,7 +628,7 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
         ) s in
         (Deferred.any [Deferred.all s; deferred_mixed_solvers_result]) >>|
         (fun results ->
-          let result, d = summary_results results in
+          let result, d = summarize_results results in
           (match result with
           | Status.Valid ->
             (* if one of instantiation of existential variables has returned "valid," then result of current iteration is "valid" *)
@@ -644,12 +644,15 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
   Deferred.any [deferred_is_valid; deferred_all]
   >>= (fun results -> kill_processes (Option.map (fun a -> a.mode) debug_context_)
   >>= (fun _ ->
-      let result, debug_contexts = summary_results results in
+      let result, debug_contexts = summarize_results results in
       let debug_contexts = List.flatten debug_contexts in
       let retry approx_param =
-        let approx_param = get_next_approx_parameter ~param:approx_param ~iter_count:iter_count solve_options.add_arguments in
-        let solve_options = { solve_options with approx_parameter = approx_param } in
-        mu_elim_solver (iter_count + 1) solve_options hes mode_name
+        if !has_solved then
+          return (Status.Unknown, debug_contexts)
+        else
+          let approx_param = get_next_approx_parameter ~param:approx_param ~iter_count:iter_count solve_options.add_arguments in
+          let solve_options = { solve_options with approx_parameter = approx_param } in
+          mu_elim_solver (iter_count + 1) solve_options hes mode_name
       in
       match result with
       | Status.Valid -> return (Status.Valid, debug_contexts)
@@ -670,9 +673,13 @@ let check_validity_full (solve_options : Solve_options.options) hes cont =
                   [ mu_elim_solver 1 solve_options hes "prover";
                    (mu_elim_solver 1 solve_options hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
   let dresult = dresult >>=
-    (fun ri -> kill_processes (Some "prover") >>=
-      (fun _ -> kill_processes (Some "disprover") >>|
-        (fun _ -> ri))) in
+    (fun ri ->
+      has_solved := true; (* anyでいずれかがdetermineしても全てのdeferredがすぐに停止するとは限らない(？)ため、dualのソルバを停止させる *)
+      kill_processes (Some "prover") >>=
+        (fun _ -> kill_processes (Some "disprover") >>|
+          (fun _ -> ri)
+        )
+    ) in
   upon dresult (
     fun (result, info) ->
       cont (result, info);
