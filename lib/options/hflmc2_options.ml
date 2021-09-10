@@ -32,6 +32,7 @@ let unused_arguments_elimination = ref (Obj.magic())
 let adding_arguments_optimization = ref (Obj.magic ())
 let use_all_variables = ref (Obj.magic())
 let replacer = ref (Obj.magic())
+let auto_existential_quantifier_instantiation = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -120,6 +121,9 @@ type params =
   
   ; replacer : string [@default ""]
   (** Ad-hoc replacement of approximated forumula (for katsura-solver only) *)
+  
+  ; no_auto_existential_quantifier_instantiation : bool [@default false]
+  (** DON'T instantiate existential quantifiers even if instantiation seems to be effective *)
   }
 [@@deriving cmdliner,show]
 
@@ -150,6 +154,7 @@ let set_up_params params =
   set_ref unused_arguments_elimination (not params.no_unused_arguments_elimination);
   set_ref adding_arguments_optimization (not params.no_adding_arguments_optimization);
   set_ref replacer params.replacer;
+  set_ref auto_existential_quantifier_instantiation (not params.no_auto_existential_quantifier_instantiation);
   params.input
 
 (******************************************************************************)

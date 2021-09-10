@@ -96,6 +96,7 @@ let get_solve_options file =
     adding_arguments_optimization = !Options.adding_arguments_optimization;
     use_all_variables = !Options.use_all_variables;
     replacer = !Options.replacer;
+    auto_existential_quantifier_instantiation = !Options.auto_existential_quantifier_instantiation
   }
 
 let check_format file format_type =

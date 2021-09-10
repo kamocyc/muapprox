@@ -206,13 +206,13 @@ module SolverCommon = struct
     
 end
 
+let get_katsura_solver_path () =
+  match Stdlib.Sys.getenv_opt "katsura_solver_path" with
+  | None -> failwith "Please set environment variable `katsura_solver_path`"
+  | Some s -> s
+  
 module KatsuraSolver : BackendSolver = struct
   include SolverCommon
-  
-  let get_solver_path () =
-    match Stdlib.Sys.getenv_opt "katsura_solver_path" with
-    | None -> failwith "Please set environment variable `katsura_solver_path`"
-    | Some s -> s
   
   let save_hes_to_file hes replacer debug_context dry_run =
     let path =
@@ -242,7 +242,7 @@ module KatsuraSolver : BackendSolver = struct
     path
     
   let solver_command hes_path solver_options =
-    let solver_path = get_solver_path () in
+    let solver_path = get_katsura_solver_path () in
     Array.of_list (
       solver_path :: (if solver_options.no_disprove then ["--no-disprove"] else []) @
         (List.filter_map (fun x -> x)
@@ -433,10 +433,70 @@ let is_onlymu_onlyexists (entry, rules) =
   is_onlyexists_body entry
   && (List.for_all is_onlymu_onlyexists_rule rules)
 
+
+let is_nu_only_tractable hes =
+  let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
+  let solver_path = get_katsura_solver_path () in
+  let r = Random.int 0x10000000 in
+  let stdout_name = Printf.sprintf "/tmp/%d_stdout.tmp" r in
+  let command = "\"" ^ solver_path ^ "\" --tractable-check-only \"" ^ path ^ "\" > " ^ stdout_name in
+  print_endline @@ "command:\n" ^ command;
+  Unix.system command
+  >>= (fun _ ->
+    Reader.file_lines stdout_name >>| (fun stdout_lines ->
+      match (List.rev stdout_lines) with
+      | last_line::_ -> begin
+        match last_line with
+        | "tractable" -> true
+        | "intractable" -> false
+        | _ -> failwith @@ "run_tractable_check: Illegal result (" ^ last_line ^ ")"
+      end
+      | _ -> failwith @@ "run_tractable_check: No result"
+    )
+  )
+
+let count_exists (entry, rules) =
+  let rec go phi = match phi with
+    | Hflz.Exists (_, p) -> 1 + go p
+    | Var _ | Arith _ | Pred _ | Bool _ -> 0
+    | Forall (_, p) -> go p
+    | App (p1, p2) -> go p1 + go p2
+    | And (p1, p2) -> go p1 + go p2
+    | Or (p1, p2) -> go p1 + go p2
+    | Abs (_, p) -> go p
+  in
+  go entry
+  + List.fold_left (fun acc {Hflz.body; _} -> acc + go body) 0 rules
+  
+let should_instantiate_exists original_hes =
+  let existential_quantifier_number_threthold = 3 in
+  let coe1, coe2, lexico_pair_number = (1, 1, 1) in
+  
+  let exists_count_prover = count_exists original_hes in
+  let hes_ = Hflz_mani.encode_body_exists coe1 coe2 original_hes in
+  let hes_ = Hflz_mani.elim_mu_with_rec hes_ coe1 coe2 lexico_pair_number Hflmc2_syntax.IdMap.empty false [] in
+  if not @@ Hflz.ensure_no_mu_exists hes_ then failwith "elim_mu";
+  is_nu_only_tractable hes_
+  >>= (fun t_prover ->
+    let dual_hes = Hflz_mani.get_dual_hes original_hes in
+    let exists_count_disprover = count_exists dual_hes in
+    let dual_hes = Hflz_mani.encode_body_exists coe1 coe2 dual_hes in
+    let dual_hes = Hflz_mani.elim_mu_with_rec dual_hes coe1 coe2 lexico_pair_number Hflmc2_syntax.IdMap.empty false [] in
+    if not @@ Hflz.ensure_no_mu_exists dual_hes then failwith "elim_mu";
+    is_nu_only_tractable dual_hes
+    >>| (fun t_disprover ->
+      let should_instantiate =
+        (not t_prover || not t_disprover) &&
+          exists_count_prover <= existential_quantifier_number_threthold && exists_count_disprover <= existential_quantifier_number_threthold in
+      print_endline @@ "should_instantiate_exists: " ^ (string_of_bool should_instantiate) ^ " (tractable_prover=" ^ string_of_bool t_prover ^ ", tractable_disprover=" ^ string_of_bool t_disprover ^ ",exists_count_prover=" ^ string_of_int exists_count_prover ^ ", exists_count_disprover=" ^ string_of_int exists_count_disprover ^ ")";
+      should_instantiate
+    )
+  )
+  
 let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
   let {no_elim; adding_arguments_optimization;
     use_all_variables; unused_arguments_elimination;
-    assign_values_for_exists_at_first_iteration; approx_parameter; _} = solve_options in
+    assign_values_for_exists_at_first_iteration; approx_parameter;_ } = solve_options in
   (* TODO: use 2nd return value of add_arguments *)
   let {coe1; coe2; add_arg_coe1; add_arg_coe2; lexico_pair_number} = approx_parameter in
   let should_add_arguments = add_arg_coe1 > 0 in
@@ -462,7 +522,7 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
         add_arguments hes
       else
         hes, Hflmc2_syntax.IdMap.empty, [] in
-
+    
     let heses =
       if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then
         Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
@@ -667,38 +727,28 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
         ) else return (Status.Unknown, debug_contexts)
       | Status.Fail -> return (Status.Fail, debug_contexts)))
 
-let check_validity_full (solve_options : Solve_options.options) hes cont =
+let check_validity_full (solve_options : Solve_options.options) hes =
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in
   let dresult = Deferred.any
                   [ mu_elim_solver 1 solve_options hes "prover";
                    (mu_elim_solver 1 solve_options hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
-  let dresult = dresult >>=
+  dresult >>=
     (fun ri ->
       has_solved := true; (* anyでいずれかがdetermineしても全てのdeferredがすぐに停止するとは限らない(？)ため、dualのソルバを停止させる *)
       kill_processes (Some "prover") >>=
         (fun _ -> kill_processes (Some "disprover") >>|
           (fun _ -> ri)
         )
-    ) in
-  upon dresult (
-    fun (result, info) ->
-      cont (result, info);
-      shutdown 0);
-  Core.never_returns(Scheduler.go())
+    )
 
-let solve_onlynu_onlyforall_with_schedule (solve_options : Solve_options.options) nu_only_hes cont =
+let solve_onlynu_onlyforall_with_schedule (solve_options : Solve_options.options) nu_only_hes =
   let solve_options =
     { solve_options with
       no_elim = true; no_disprove = false; oneshot = true } in
   let dresult = mu_elim_solver 1 solve_options nu_only_hes "solver" in
-  let dresult = dresult >>=
+  dresult >>=
     (fun ri -> kill_processes (Some "solver") >>|
-        (fun _ -> ri)) in
-  upon dresult (
-    fun (result, info) ->
-      cont (result, info);
-      shutdown 0);
-  Core.never_returns(Scheduler.go())
+        (fun _ -> ri))
   
 (* let solve_onlynu_onlyforall_with_schedule solve_options nu_only_hes cont =
   let dresult = Deferred.any [solve_onlynu_onlyforall { solve_options with no_disprove = false } None nu_only_hes true >>| (fun (s, _) -> s)] in
@@ -715,15 +765,32 @@ let check_validity solve_options (hes : 'a Hflz.hes) cont =
       let initial_param =
         get_next_approx_parameter solve_options.add_arguments in
       { solve_options with approx_parameter = initial_param } in
-  if solve_options.always_approximate then
-    check_validity_full solve_options hes cont
-  else begin
-    if is_onlynu_onlyforall hes then
-      solve_onlynu_onlyforall_with_schedule solve_options hes cont
-    else if is_onlymu_onlyexists hes then
-      solve_onlynu_onlyforall_with_schedule solve_options (Hflz_mani.get_dual_hes hes) (fun (status_pair, i) -> cont (Status.flip status_pair, i))
-    else check_validity_full solve_options hes cont
-  end
+  
+  let dresult =
+    (if solve_options.auto_existential_quantifier_instantiation && not solve_options.assign_values_for_exists_at_first_iteration then
+      should_instantiate_exists hes
+      >>| (fun f ->
+        if f then { solve_options with assign_values_for_exists_at_first_iteration = true } else solve_options
+      )
+    else
+      return solve_options)
+    >>= (fun solve_options ->
+      if solve_options.always_approximate then
+        check_validity_full solve_options hes
+      else begin
+        if is_onlynu_onlyforall hes then
+          solve_onlynu_onlyforall_with_schedule solve_options hes
+        else if is_onlymu_onlyexists hes then
+          solve_onlynu_onlyforall_with_schedule solve_options (Hflz_mani.get_dual_hes hes)
+          >>| (fun (status_pair, i) -> (Status.flip status_pair, i))
+        else check_validity_full solve_options hes
+      end
+    ) in
+  upon dresult (
+    fun (result, info) ->
+      cont (result, info);
+      shutdown 0);
+  Core.never_returns(Scheduler.go())
 
 (* 
 CheckValidity(Φ, main) { /* Φ: HES, main: Entry formula */
