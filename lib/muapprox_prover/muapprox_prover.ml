@@ -440,7 +440,7 @@ let is_nu_only_tractable hes =
   let r = Random.int 0x10000000 in
   let stdout_name = Printf.sprintf "/tmp/%d_stdout.tmp" r in
   let command = "\"" ^ solver_path ^ "\" --tractable-check-only \"" ^ path ^ "\" > " ^ stdout_name in
-  print_endline @@ "command:\n" ^ command;
+  log_string @@ "command: " ^ command;
   Unix.system command
   >>= (fun _ ->
     Reader.file_lines stdout_name >>| (fun stdout_lines ->

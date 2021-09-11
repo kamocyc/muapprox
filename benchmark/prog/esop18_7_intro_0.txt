@@ -1,4 +1,9 @@
-/* this is invalid since "b" may NOT occur only finitely, and the result is negated in conversion */
+/* this is invalid since
+  there is a case that "a"s occur infinitely and "b"s occur only finitely,
+    * this means InfTraces(P) \cap L(A) != \emptyset
+      * L(A) includes this run (because this run has max infinite priority 0, which is even)
+    * which is equivalent to "|= \Phi does NOT hold" (since negated) */
+
 %PROGRAM
 let f = if * then (event a; f) else (event b; f)
 let () = f
