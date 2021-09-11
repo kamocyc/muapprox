@@ -19,28 +19,28 @@ let replace_var_name_with_upper_var v func_names =
   let name = replace_var_name_with_upper name func_names in
   {Id.name; id; ty}
 
-let to_exists args body =
+let to_forall args body =
   let rec go = function
     | [] -> body
-    | arg::xs -> Hflz.Exists(arg, go xs) in
+    | arg::xs -> Hflz.Forall (arg, go xs) in
   go args
   
 let to_hflz_from_function program func_names =
   let idMap = Hashtbl.create 10 in
-  let rec get_exists_vars prog = match prog with
+  let rec get_forall_vars prog = match prog with
     | PUnit | PVar _ -> prog
-    | PIf (p, p1, p2) -> PIf (p, get_exists_vars p1, get_exists_vars p2)
-    | PEvent (p, p1) -> PEvent (p, get_exists_vars p1)
+    | PIf (p, p1, p2) -> PIf (p, get_forall_vars p1, get_forall_vars p2)
+    | PEvent (p, p1) -> PEvent (p, get_forall_vars p1)
     | PNonDet (p1, p2, n, e) ->
-      PNonDet (get_exists_vars p1, get_exists_vars p2, n, e)
-    | PApp (p1, p2) -> PApp (get_exists_vars p1, get_exists_vars p2)
+      PNonDet (get_forall_vars p1, get_forall_vars p2, n, e)
+    | PApp (p1, p2) -> PApp (get_forall_vars p1, get_forall_vars p2)
     | PAppInt (p1, ANonDet (_, e)) ->
-      let id = Id.gen ~name:"exists_x" Type.TyInt in
+      let id = Id.gen ~name:"forall_x" Type.TyInt in
       Hashtbl.add idMap id.id id;
-      PAppInt (get_exists_vars p1, ANonDet (Some id.id, e))
-    | PAppInt (p1, p2) -> PAppInt (get_exists_vars p1, p2)
+      PAppInt (get_forall_vars p1, ANonDet (Some id.id, e))
+    | PAppInt (p1, p2) -> PAppInt (get_forall_vars p1, p2)
   in
-  let program = get_exists_vars program in
+  let program = get_forall_vars program in
   let rec go_program program: 'a Hflz.t = match program with
     | PUnit -> Bool true
     | PVar v -> Var (replace_var_name_with_upper_var v func_names)
@@ -57,7 +57,11 @@ let to_hflz_from_function program func_names =
       )
     | PEvent (_, p) -> go_program p
     | PNonDet (p1, p2, idn_opt, e) -> begin
-      match e with
+      And (
+        go_program p1,
+        go_program p2
+      )
+      (* match e with
       | Some e when e = Trans_ltl.nondet_demonic_event ->
         Or (
           go_program p1,
@@ -68,7 +72,7 @@ let to_hflz_from_function program func_names =
           go_program p1,
           go_program p2
         )
-      | Some _ | None -> assert false
+      | Some _ | None -> assert false *)
     end
     | PApp (p1, p2) ->
       App (go_program p1, go_program p2)
@@ -95,9 +99,9 @@ let to_hflz_from_function program func_names =
     | Or (p1, p2) -> Or (go_predicate p1, go_predicate p2)
     | Bool b -> Bool b
   in
-  let exists_bounded_vars = Hashtbl.fold (fun k v acc -> v::acc) idMap [] in
-  to_exists
-    exists_bounded_vars
+  let forall_bounded_vars = Hashtbl.fold (fun k v acc -> v::acc) idMap [] in
+  to_forall
+    forall_bounded_vars
     (go_program program)
 
 let to_abs' : 'ty Type.arg Id.t list -> ('ty2 Hflz.t -> 'ty2 Hflz.t) =
