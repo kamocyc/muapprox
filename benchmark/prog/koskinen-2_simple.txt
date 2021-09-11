@@ -3,6 +3,16 @@
 /* if * でdisjunctionが発生している。 */
 /* 解くときに --instantiate-exists で解ける */
 
+/*
+## オートマトンが表す性質
+printが出現した後、print, rumbleが無限に出現
+## プログラムの性質
+常にprintの無限再帰になる
+
+Trace /\ L != \emptyset
+<=> invalid
+*/
+
 %PROGRAM
 let print x =
   event print; print x

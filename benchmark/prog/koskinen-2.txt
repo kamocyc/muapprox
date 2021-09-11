@@ -1,3 +1,4 @@
+/* should be "invalid" */
 /* 機械的に全て無限パスに変換したもの */
 /* Taken from 
    Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014, Figure 10 */

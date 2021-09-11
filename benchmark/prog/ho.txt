@@ -1,3 +1,4 @@
+/* should be "invalid" */
 %PROGRAM
 /*
 let l = event a; l

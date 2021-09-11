@@ -1,3 +1,4 @@
+/* should be invalid */
 %PROGRAM
 let g = event b; g
 
@@ -10,6 +11,7 @@ let () = f
 %TRANSITION
 qa a -> qa
 qa b -> qb
+
 qb a -> qb
 qb b -> qb
 
@@ -17,3 +19,13 @@ qb b -> qb
 qa -> 2
 qb -> 1
 
+/*
+## オートマトンが表す言語
+qaが無限回現れるならば受理する
+
+## プログラムの性質
+qaが有限回のことも無限回のこともある
+
+Trace /\ L != \emptyset
+<=> "|= \phi" does NOT hold (invalid)
+*/

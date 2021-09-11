@@ -1,3 +1,4 @@
+/* should be "invalid" */
 /* Taken from 
    Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014, Figure 10 */
 /* 元の性質は FG(step \/ phi) なので、本来は、各関数の入り口にstepを挿入するなど変換が必要 */

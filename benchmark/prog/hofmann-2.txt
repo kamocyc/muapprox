@@ -1,9 +1,21 @@
-/* これはinvalidになってほしいがvalidである */
+/* これはinvalidになってほしいがvalidである. unsatなパスを表示するとかで原因を見たい */
 /*
-Example 1 of Hofmann and Chen, "Buchi Types for Infinite Traces and Liveness", CSL-LICS 2014
+Example 2 of Hofmann and Chen, "Buchi Types for Infinite Traces and Liveness", CSL-LICS 2014
 
 Trace(P) \subset L(A)
 <=> Trace(P) \cap L(A) != \emptyset
+<=> invalid
+*/
+
+/*
+## プログラムの性質
+(a*cb)^{\omega}
+aは無限回現れないかもしれない. cとbは無限回現れる
+
+## オートマトンが表す性質
+"infinitely many b OR finitely many c"
+
+Trace /\ L != \emptyset
 <=> invalid
 */
 
@@ -34,6 +46,7 @@ q1 a -> q0
 q1 b -> q0
 q1 c -> q0
 
+/* expresses "finitely many c" */
 q2 a -> q2
 q2 b -> q2
 q2 c -> qd

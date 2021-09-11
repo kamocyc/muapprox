@@ -1,3 +1,4 @@
+/* should be invalid */
 /* 機械的に全て無限パスに変換したもの */
 %PROGRAM
 let loop = event called; loop

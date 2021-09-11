@@ -3,6 +3,7 @@ prog/esop18_7_intro_0.in
 prog/esop18_7_intro_1.in
 prog/esop18_7_intro_2.in
 prog/esop18_ex11.in
+prog/esop18_ex11_ho.in
 prog/esop18_p_app.in
 prog/ho.in
 prog/ho2.in

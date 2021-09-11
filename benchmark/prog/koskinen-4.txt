@@ -1,3 +1,4 @@
+/* should be "invalid" */
 /* \t. \k. ... ではエラーになる（\t k. とする) */
 %PROGRAM
 let loop = event called; loop

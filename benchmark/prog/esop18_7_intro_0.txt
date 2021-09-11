@@ -1,4 +1,4 @@
-/* this is invalid since
+/* this is "invalid" since
   there is a case that "a"s occur infinitely and "b"s occur only finitely,
     * this means InfTraces(P) \cap L(A) != \emptyset
       * L(A) includes this run (because this run has max infinite priority 0, which is even)
