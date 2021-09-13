@@ -12,11 +12,11 @@ let g k = if * then (event a; k) else (event b; k)
 
 let f fx =
   check fx (\b.
-    if b = 1 then g (f (pred fx)) else (event b; f (\k. k 1))
+    if b = 1 then g (f (pred fx)) else (event b; f (\k. k 5))
   )
 
 let () =
-  let x = * in
+  let x = 5 in
   f (\k. k x)
 
 /* A_{ab} = \complement{(a*b)^{\omega}} = (a*b)*a^{\omega} */

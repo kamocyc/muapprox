@@ -1,0 +1,40 @@
+/* valid */
+%PROGRAM
+let call_twice f_ k = event called; f_ k
+
+let f k =
+  event called;
+  if <d> * then (
+    event b;
+    k
+  ) else (
+    event a;
+    call_twice f k
+  )
+
+let () =
+  f (\. ())
+
+%TRANSITION
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa called -> (1, q_called).
+qa d -> (1, qa) /\ (2, qa).
+qa nullary -> true.
+
+qb a -> (1, qa).
+qb b -> (1, qb).
+qb called -> (1, q_called).
+qb d -> (1, qb) /\ (2, qb).
+qb nullary -> true.
+
+q_called a -> (1, qa).
+q_called b -> (1, qb).
+q_called called -> (1, q_called).
+q_called d -> (1, q_called) /\ (2, q_called).
+q_called nullary -> true.
+
+%PRIORITY
+q_called -> 1.
+qa -> 2.
+qb -> 3.

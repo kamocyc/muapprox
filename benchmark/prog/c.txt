@@ -1,0 +1,33 @@
+/* should be invalid */
+%PROGRAM
+let finish = event b; finish
+
+let f x =
+  event a;
+  if x != 0 then f (x - 1)
+  else finish
+
+let () =
+  /* encode non-deterministic int as a forall quantifier */
+  let x = * in
+  f x
+
+%TRANSITION
+qa a -> qa
+qa b -> qb
+
+qb a -> qa
+qb b -> qb
+
+%PRIORITY
+qa -> 0
+qb -> 1
+
+/*
+## オートマトンが表す言語の性質
+L = 「bが有限回のみ現れる」言語
+
+## プログラムの性質
+x <= 0ならば、bが有限回のみ現れる
+このとき、Trace /\ L != \emptysetより invalid
+*/

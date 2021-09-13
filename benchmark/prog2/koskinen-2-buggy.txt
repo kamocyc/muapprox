@@ -1,0 +1,33 @@
+/* invalid */
+
+%PROGRAM
+let print x = event called; event print; print x
+
+let rumble x y k =
+  event called;
+  if x<y then
+    if <d> * then
+      rumble (x+1) y k
+    else rumble x y k /* /*POPL16:*/ else rumble x (y-1) k*/
+  else k x
+
+let () =
+  let a = <_forall> * in
+  let b = <_forall> * in
+  rumble a b (\r. rumble a r (\r2. print r2))
+
+/* fairness: (Print, Never) */
+%TRANSITION
+q_called print -> (1, q_print).
+q_called called -> (1, q_called).
+q_called d -> (1, q_called) /\ (2, q_called).
+
+q_print print -> (1, q_print).
+q_print called -> (1, q_called).
+q_print d -> (1, q_print) /\ (2, q_print).
+
+%PRIORITY
+q_called -> 1.
+q_print -> 2.
+
+/* if there is an infinite loop without events, an automaton accepts. because the event sequence is finite. */

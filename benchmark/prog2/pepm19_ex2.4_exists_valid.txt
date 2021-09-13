@@ -10,9 +10,8 @@ let repeat f x =
   )
 
 let () =
-  let y = <a1> * in
-  /* この条件を無くしてdemonicにするとinvalidになる */
-  repeat (\x k. k (x - y)) 3
+  let y = <_exists> * in
+  repeat (\x k. k (x - (y+1))) (<_forall> *)
 
 /*
    phi * *
@@ -21,14 +20,7 @@ let () =
 
 %TRANSITION
 q0 d1 -> (1, q0) /\ (2, q0).
-q0 a1 -> (1, q0) \/ (2, q1).
 q0 fin -> true.
-
-q1 d1 -> false.
-q1 a1 -> (1, q0) \/ (2, q1).
-q1 fin -> false.
 
 %PRIORITY
 q0 -> 1.
-/* demonicのときは偶数、angelicのときは奇数の大きな値にする */
-q1 -> 3.

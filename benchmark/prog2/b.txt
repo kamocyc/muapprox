@@ -1,4 +1,3 @@
-/* for brancing time converter */
 %PROGRAM
 let g = event b; g
 

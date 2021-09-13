@@ -1,0 +1,63 @@
+/* valid */
+%PROGRAM
+let ev_a k = event called; event a; k
+let ev_b k = event called; event b; k
+
+let f ev k =
+  event called;
+  ev (\.
+    let x = <_forall> * in
+    let y = <_forall> * in
+    if x < y then
+      if x >= y then
+        k
+      else
+        f ev_b k
+    else
+      f ev_a k
+  )
+
+let () =
+  f ev_a (\. ())
+
+/*
+let ev_a = event called; event a; ()
+let ev_b = event called; event b; ()
+
+let f ev =
+  event called;
+  let dummy = ev in
+  let x = <_forall> * in
+  let y = <_forall> * in
+  if x < y then
+    if x > y + 1 then
+      ()
+    else
+      f ev_b
+  else
+    f ev_a
+
+let () =
+  f ev_a
+*/
+
+%TRANSITION
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa called -> (1, q_called).
+qa nullary -> true.
+
+qb a -> (1, qa).
+qb b -> (1, qb).
+qb called -> (1, q_called).
+qb nullary -> true.
+
+q_called a -> (1, qa).
+q_called b -> (1, qb).
+q_called called -> (1, q_called).
+q_called nullary -> true.
+
+%PRIORITY
+q_called -> 1.
+qa -> 2.
+qb -> 3.

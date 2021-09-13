@@ -1,0 +1,37 @@
+/* invalid */
+%PROGRAM
+let succ x k = event called; k (x + 1)
+
+let op_loop op =
+  event called;
+  let x = <_forall> * in
+  op x (\y.
+    if y > 0 then
+      (event a;
+        op_loop succ)
+    else
+      (event b;
+        op_loop succ)
+  )
+
+let () =
+  op_loop succ
+
+
+%TRANSITION
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa called -> (1, q_called).
+
+qb a -> (1, qa).
+qb b -> (1, qb).
+qb called -> (1, q_called).
+
+q_called a -> (1, qa).
+q_called b -> (1, qb).
+q_called called -> (1, q_called).
+
+%PRIORITY
+q_called -> 1.
+qa -> 2.
+qb -> 3.

@@ -1,0 +1,39 @@
+/* vaild */
+%PROGRAM
+let const x k = event called; k x
+
+let finish k = event called; event a; finish k
+
+let f g k =
+  event called;
+  g (\n.
+    if n > 0 then
+      f (const (n-1)) k
+    else finish k
+  )
+
+let () =
+  let n = <_forall> * in
+  f (const n) (\. ())
+
+
+%TRANSITION
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa called -> (1, q_called).
+qa nullary -> true.
+
+qb a -> (1, qa).
+qb b -> (1, qb).
+qb called -> (1, q_called).
+qb nullary -> true.
+
+q_called a -> (1, qa).
+q_called b -> (1, qb).
+q_called called -> (1, q_called).
+q_called nullary -> true.
+
+%PRIORITY
+q_called -> 1.
+qa -> 2.
+qb -> 3.

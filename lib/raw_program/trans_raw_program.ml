@@ -382,15 +382,17 @@ let assign_id (raw : R.raw_program) : tv_program =
 
 exception ETVar
 
-let rec to_ty = function
-  | R.TFunc (arg, body) -> Type.TyArrow ({name = ""; id = 0; ty = to_argty arg}, to_ty body)
+let rec to_ty' = function
+  | R.TFunc (arg, body) -> Type.TyArrow ({name = ""; id = 0; ty = to_argty' arg}, to_ty' body)
   | R.TBool -> Type.TyBool ()
   | R.TUnit -> Type.TyBool ()
   | R.TInt -> assert false
-  | R.TVar _ -> raise ETVar
-and to_argty = function
+  | R.TVar _ ->
+    (* raise ETVar *)
+    Type.TyBool ()
+and to_argty' = function
   | R.TInt -> Type.TyInt
-  | t -> Type.TySigma (to_ty t)
+  | t -> Type.TySigma (to_ty' t)
 
 let convert_all (program : R.raw_program) =
   let program =
@@ -407,18 +409,19 @@ let convert_all (program : R.raw_program) =
       {R.var; args; body}::new_rules
     ) program
     |> List.flatten in
+  print_endline @@ "lambda lifted (infer_type)"; print_endline @@ show_tv_program pred_args;
   let program_funcs =
     let preds =
       List.map (fun {R.var} ->
         try
-          { var with Id.ty = to_ty var.Id.ty }
-        with ETVar -> failwith @@ "type variable in " ^ var.name ^ " (maybe unused predicate?)"
+          { var with Id.ty = to_ty' var.Id.ty }
+        with ETVar -> failwith @@ "type variable in " ^ var.name ^ " (maybe unused predicate?) (type: " ^ Program_raw.show_ptype var.Id.ty ^ ")"
       ) pred_args |> List.filter (fun a -> a.Id.name <> "")
       |> Env.create in
     List.map (
       fun {R.var; args; body} ->
-        let var = { var with Id.ty = to_ty var.Id.ty } in
-        let args = List.map (fun id -> {id with Id.ty = to_argty id.Id.ty}) args in
+        let var = { var with Id.ty = to_ty' var.Id.ty } in
+        let args = List.map (fun id -> {id with Id.ty = to_argty' id.Id.ty}) args in
         let body = convert body (Env.create args) preds in
         {Program.var; args; body}
     ) pred_args in

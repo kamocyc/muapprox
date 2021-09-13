@@ -58,7 +58,12 @@ let convert
     delta @
     List.map (fun state ->
       ((state, nondet_demonic_event), [[CVar (1, state); CVar (2, state)]])
+    ) st @
+    List.map (fun state ->
+      ((state, nondet_integer_demonic_event), [[CVar (1, state); CVar (2, state); CVar (3, state)]])
     ) st in
+    (* TODO: *)
+  (* check_branching_events program transition; *)
   let automata = {
     alpha = ranks;
     st;
