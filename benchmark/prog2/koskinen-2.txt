@@ -1,4 +1,4 @@
-/* invalid */
+/* valid */
 
 %PROGRAM
 let loop = event called; loop
@@ -14,7 +14,7 @@ let rumble x y k =
   if x < y then (
     if <d> * then
       rumble (x+1) y k
-    else rumble x y k
+    else rumble x (y-1) k
   ) else k x
 
 let () =

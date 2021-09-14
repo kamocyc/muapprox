@@ -1,0 +1,86 @@
+/* weak until version */
+%PROGRAM
+/* valid */
+
+let ha1 =
+  event ha1;
+  ha1
+
+let ha2 =
+  event ha2;
+  ha2
+
+let walk x =
+  event walk;
+  if x = 0 then ha1
+  else
+    walk (x - 1)
+
+let run x =
+  event run;
+  if x = 0 then ha2
+  else
+    /* run (x - 2) */
+    run (x - 1) /* solvable (valid) */
+
+let life x =
+  event called;
+  if <d> * then (
+    event p;
+    if x < 0 then walk x
+    else run x
+  ) else
+    life x
+
+let () =
+  let x = <_forall> * in
+  life x
+
+/* (G ( ( (p) && (NOT walk) && (NOT ha1) && (NOT run) && (NOT ha2) && (NOT called) ) || ( (NOT p) && (walk) && (NOT ha1) && (NOT run) && (NOT ha2) && (NOT called) ) || ( (NOT p) && (NOT walk) && (ha1) && (NOT run) && (NOT ha2) && (NOT called) ) || ( (NOT p) && (NOT walk) && (NOT ha1) && (run) && (NOT ha2) && (NOT called) ) || ( (NOT p) && (NOT walk) && (NOT ha1) && (NOT run) && (ha2) && (NOT called) ) || ( (NOT p) && (NOT walk) && (NOT ha1) && (NOT run) && (NOT ha2) && (called) ) )) && (G(p -> (     X(       (((walk || called) U ha1) || (G(walk || called))) ||       (((run  || called) U ha2) || (G(run  || called)))     )   ))) */
+%TRANSITION
+accept_init called -> (1, accept_init).
+accept_init run -> (1, accept_init).
+accept_init walk -> (1, accept_init).
+accept_init ha1 -> (1, accept_init).
+accept_init ha2 -> (1, accept_init).
+accept_init d -> (1, accept_init) /\ (2, accept_init).
+accept_init p -> (1, t0_s2) \/ (1, accept_S3) \/ (1, accept_S4) \/ (1, t1_s5).
+
+t0_s2 called -> (1, t0_s2).
+t0_s2 walk -> (1, t0_s2).
+t0_s2 ha1 -> (1, accept_init).
+t0_s2 d -> (1, t0_s2) /\ (2, t0_s2).
+t0_s2 run -> false.
+t0_s2 ha2 -> false.
+t0_s2 p -> false.
+
+accept_S3 called -> (1, accept_S3).
+accept_S3 run -> (1, accept_S3).
+accept_S3 d -> (1, accept_S3) /\ (2, accept_S3).
+accept_S3 walk -> false.
+accept_S3 ha1 -> false.
+accept_S3 ha2 -> false.
+accept_S3 p -> false.
+
+accept_S4 called -> (1, accept_S4).
+accept_S4 walk -> (1, accept_S4).
+accept_S4 d -> (1, accept_S4) /\ (2, accept_S4).
+accept_S4 run -> false.
+accept_S4 ha1 -> false.
+accept_S4 ha2 -> false.
+accept_S4 p -> false.
+
+t1_s5 called -> (1, t1_s5).
+t1_s5 run -> (1, t1_s5).
+t1_s5 ha2 -> (1, accept_init).
+t1_s5 d -> (1, t1_s5) /\ (2, t1_s5).
+t1_s5 walk -> false.
+t1_s5 ha1 -> false.
+t1_s5 p -> false.
+
+%PRIORITY
+accept_init -> 2.
+t0_s2 -> 1.
+accept_S3 -> 2.
+accept_S4 -> 2.
+t1_s5 -> 1.

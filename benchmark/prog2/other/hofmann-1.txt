@@ -1,0 +1,30 @@
+/* valid */
+/*
+Example 1 of Hofmann and Chen, "Buchi Types for Infinite Traces and Liveness", CSL-LICS 2014
+*/
+
+%PROGRAM
+let f = event a; event b; f
+let () = f
+
+%TRANSITION
+qa a -> (1, qa).
+qa b -> (1, qb).
+
+qb a -> (1, qa).
+qb b -> (1, qb).
+
+%PRIORITY
+qa -> 1.
+qb -> 2.
+
+/*
+## オートマトンが表す性質
+bが無限回出現
+## プログラムの性質
+aとbが無限回出現
+
+Trace /\ L(A) != \emptyset
+<=> invalid
+*/
+

@@ -1,4 +1,4 @@
-/* valid */
+/* valid  40sec */
 %PROGRAM
 let fin = event fin; ()
 
@@ -11,8 +11,7 @@ let repeat f x =
 
 let () =
   let y = <a1> * in
-  /* この条件を無くしてdemonicにするとinvalidになる */
-  repeat (\x k. k (x - (y+1))) 3
+  repeat (\x k. k (x - (y+1))) (<_forall> *)
 
 /*
    phi * *

@@ -13,12 +13,14 @@ let rec ha1 (x:int) =
    event "P"; (* added to capture the fact that P happened before *)
 (*   event "Ha1";*)
    event "Ha";
+   failwith "a";
    ha1 x (* added to turn "Ha1 happens" to "Ha1 happens infinitely often" *)
 
 let rec ha2 (x:int) =
    event "P"; (* added to capture the fact that P happened before *)
 (*   event "Ha2"; *)
    event "Ha";
+   failwith "a";
    ha2 x (* added to turn "Ha2 happens" to "Ha2 happens infinitely often" *)
 
 let rec walk x f k =
@@ -30,17 +32,17 @@ let rec walk x f k =
 let rec run x f k =
 (*  event "Run";*)
   event "P"; (* added to capture the fact that P happened before *)
-  if x<0 then k x
-  else f x (fun r -> f r (fun r' -> run r' f k))
+  if x=0 then k x
+  else f x (fun r -> print_int r; f r (fun r' -> print_int r'; run r' f k))
 
 let rec life x =
-  if Random.int(0)>0 then
+  if read_int ()>0 then
     (event "P";
      if x<0 then app walk x (1) (fun r -> ha1 r)
      else app run x 1 (fun r -> ha2 r))
   else life x
 
-let main() = life (Random.int 0)
+let () = life (read_int ())
 
 (* Property to be checked: if event P occurs infinitely often so does Ha *)
 (* The original property described in their paper is

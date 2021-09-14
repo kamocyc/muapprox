@@ -1,0 +1,118 @@
+%PROGRAM
+let f =
+  /* event called; */
+  g 0 (\. event b; f)
+
+let g i k =
+  /* event called; */
+  if <d> * then (
+    event a;
+    g (i+1) k
+  ) else (
+    event c;
+    k
+  )
+
+/*
+/* うまくいかない原因 */
+1. オートマトンが間違い
+2. 手法が間違い
+3. 実装が間違い
+4. プログラムが間違い
+5. Branching timeとして変換するときのsubtlety
+  特に分岐の扱い
+6. regularではないイベント列が生成されるため
+*/
+
+let () =
+  event a; f
+
+%TRANSITION
+q_init a -> (1, q_a) \/ (1, q_finite).
+q_init b -> (1, q_a) \/ (1, q_finite).
+q_init c -> (1, q_a) \/ (1, q_finite).
+q_init d -> (1, q_init) \/ (2, q_init).
+
+q_a a -> (1, q_a).
+q_a b -> (1, q_b).
+q_a c -> (1, q_c).
+q_a d -> (1, q_a) /\ (2, q_a).
+
+q_b a -> (1, q_a).
+q_b b -> (1, q_b).
+q_b c -> (1, q_c).
+q_b d -> (1, q_b) /\ (2, q_b).
+
+q_c a -> (1, q_a).
+q_c b -> (1, q_b).
+q_c c -> (1, q_c).
+q_c d -> (1, q_c) /\ (2, q_c).
+
+q_finite a -> (1, q_finite) \/ (1, q_infinite).
+q_finite b -> (1, q_finite) \/ (1, q_infinite).
+q_finite c -> (1, q_finite).
+q_finite d -> (1, q_finite) /\ (2, q_finite).
+
+q_infinite a -> (1, q_infinite).
+q_infinite b -> (1, q_infinite).
+q_infinite c -> false.
+q_infinite d -> (1, q_infinite) /\ (2, q_infinite).
+
+%PRIORITY
+q_init -> 0.
+q_a -> 1.
+q_b -> 2.
+q_c -> 1.
+
+q_finite -> 1.
+q_infinite -> 2.
+
+/*
+%TRANSITION
+q_a a -> (1, q_a).
+q_a b -> (1, q_b).
+q_a c -> (1, q_c).
+q_a d -> (1, q_a) /\ (2, q_a).
+
+q_b a -> (1, q_a).
+q_b b -> (1, q_b).
+q_b c -> (1, q_c).
+q_b d -> (1, q_b) /\ (2, q_b).
+
+q_c a -> (1, q_a).
+q_c b -> (1, q_b).
+q_c c -> (1, q_c).
+q_c d -> (1, q_c) /\ (2, q_c).
+
+%PRIORITY
+q_a -> 1.
+q_b -> 2.
+q_c -> 1.
+*/
+
+/*
+/* ************* */
+%TRANSITION
+q_finite a -> (1, q_finite) \/ (1, q_infinite).
+q_finite b -> (1, q_finite) \/ (1, q_infinite).
+q_finite c -> (1, q_finite).
+q_finite d -> (1, q_finite) /\ (2, q_finite).
+
+q_infinite a -> (1, q_infinite).
+q_infinite b -> (1, q_infinite).
+q_infinite c -> false.
+q_infinite d -> (1, q_infinite) /\ (2, q_infinite).
+
+%PRIORITY
+q_finite -> 1.
+q_infinite -> 2.
+*/
+
+
+/*
+aが有限回 \/ bが無限回 のときに受理
+
+bが無限 または cが有限
+
+aが無限 ならば cが有限
+*/
