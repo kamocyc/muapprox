@@ -164,6 +164,14 @@ module Subst = struct
       go phi
       
     and hflz ?(callback) (env_ : 'ty S.Hflz.t env) (phi : 'ty S.Hflz.t) : 'ty S.Hflz.t =
+      let fvs =
+        IdMap.fold
+          env_
+          ~init:(IdSet.empty)
+          ~f:(fun ~key:_key ~data acc ->
+            IdSet.union acc (Hflz.fvs data)
+          )
+         in
       let rec hflz_ s_env b_env (phi : 'ty S.Hflz.t): 'ty S.Hflz.t = match phi with
         | Var x ->
             begin match IdMap.lookup s_env x with
@@ -179,8 +187,12 @@ module Subst = struct
           And(hflz_ s_env b_env phi1, hflz_ s_env b_env phi2)
         | App(phi1,phi2) ->
           App(hflz_ s_env b_env phi1, hflz_ s_env b_env phi2)
-        | Abs(x, t)      ->
-          Abs(x, hflz_ (IdMap.remove s_env x) (IdSet.add b_env x) t)
+        | Abs(x, t)      -> begin
+          match IdSet.find ~f:(fun x' -> S.Id.eq x x') fvs with
+          | Some _ -> failwith @@ "Variable capture in substituion (" ^ S.Id.to_string x ^ ")"
+          | None -> 
+            Abs(x, hflz_ (IdMap.remove s_env x) (IdSet.add b_env x) t)
+        end
         | Forall(x, t)   ->
           Forall(x, hflz_ (IdMap.remove s_env x) (IdSet.add b_env x) t)
         | Exists(x, t)   ->

@@ -205,6 +205,10 @@ let rec beta id_type_map (phi : 'a Hflz.t) : ('b * 'a Hflz.t ) =
         if List.exists (fun a -> List.exists (fun v -> Id.eq a v) acc) fvs then failwith "[beta] free variable collision";
         reduced := true;
         let id_type_map = update_id_type_map id_type_map x phi2 in
+        (* print_endline "SUBST";
+        print_endline @@ Print_syntax.show_hflz phi1;
+        print_endline @@ Id.to_string x;
+        print_endline @@ Print_syntax.show_hflz phi2; *)
         beta id_type_map @@ Trans.Subst.Hflz.hflz (IdMap.of_list [x, phi2]) phi1
       end
       | phi1 -> id_type_map, phi1 in

@@ -84,6 +84,68 @@ end*) = struct
     |> List.filter (fun (id, _) -> not expanded.(id))
     |> List.map (fun (_, r) -> r)
     |> Hflz.decompose_entry_rule
+
+  let get_recursivity (rules : 'a Type.ty Hflz.hes_rule list) =
+    let preds, graph = Hflz_util.get_dependency_graph rules in
+    List.map
+      (fun (i, pred) ->
+        let reachables = Mygraph.reachable_nodes_from ~start_is_reachable_initially:false i graph in
+        match List.find_opt (fun r -> r = i) reachables with
+        | Some _ -> (pred, true)
+        | None -> (pred, false)
+      )
+      preds
+
+  let has_references (_, rules) {Hflz.body; _} =
+    let rec go phi =
+      match phi with
+      | Hflz.Var v -> List.exists (fun {Hflz.var; _} -> Id.eq var v) rules
+      | Pred _ | Arith _ | Bool _ -> false
+      | Or (p1, p2) -> go p1 || go p2
+      | And (p1, p2) -> go p1 || go p2
+      | App (p1, p2) -> go p1 || go p2
+      | Abs (_, p) -> go p
+      | Forall (_, p) -> go p
+      | Exists (_, p) -> go p
+    in
+    go body
+    
+  let inline_non_recursive_variables (no_ref_only : bool) (org_hes : 'a Hflz.hes) =
+    let org_rules = Hflz.merge_entry_rule org_hes in
+    let rec_flags = get_recursivity org_rules in
+    print_endline @@ Hflmc2_util.show_list (fun (id, f) -> id.Id.name ^ ": " ^ string_of_bool f) rec_flags;
+    let to_inlinings =
+      rec_flags
+      |> List.tl
+      |> List.filter
+        (fun (p, is_rec) ->
+          not is_rec &&
+          (
+            not no_ref_only ||
+            not @@ has_references org_hes (List.find (fun {Hflz.var; _} -> Id.eq var p) org_rules)
+          )
+        )
+      |> List.map (fun (p, _) -> p)
+    in
+    let rules =
+      List.fold_left
+        (fun rules to_inlining ->
+          let {Hflz.var; body; _} = List.find (fun {Hflz.var; _} -> Id.eq var to_inlining) rules in
+          
+          let subst_env = IdMap.of_list [(var, body)] in
+          
+          rules
+          |> List.filter (fun {Hflz.var; _} -> not @@ Id.eq var to_inlining) 
+          |> List.map
+            (fun {Hflz.var; body; fix} ->
+              let body = Trans.Subst.Hflz.hflz subst_env body in
+              let body = Trans.Simplify.hflz body in
+              {Hflz.var; body; fix}
+            )
+        )
+        org_rules
+        to_inlinings in
+    Hflz.decompose_entry_rule rules
 end
 
 let simple_partial_evaluate_hfl phi =
@@ -152,7 +214,23 @@ let beta_hes (entry, rules) =
       { rule with Hflz.body = body }
     )
     rules
-  
+
+let evaluate_trivial_fixpoints (entry, rules) =
+  let rules =
+    List.map
+      (fun ({Hflz.var; body; fix} as rule) ->
+        if body = Var var then begin
+          let body =
+            match fix with
+            | Least -> Hflz.Bool false
+            | Greatest -> Bool true in
+          {rule with body}
+        end else
+          rule
+      )
+      rules in
+  (entry, rules)
+
 let simplify (hes : Type.simple_ty Hflz.hes)=
   let hes = InlineExpansion.optimize hes in
   let hes = beta_hes hes in
@@ -160,7 +238,21 @@ let simplify (hes : Type.simple_ty Hflz.hes)=
   let hes = evaluate_trivial_boolean hes in
   (* let hes = Trans.Simplify.hflz_hes hes false in *)
   hes
-  
+
+let rec simplify_all hes =
+  let hes' = simplify hes in
+  if hes' <> hes then simplify_all hes' else hes'
+
+let simplify_agg hes =
+  let go hes =
+    let hes = InlineExpansion.inline_non_recursive_variables false hes in
+    let hes = beta_hes hes in
+    let hes = simple_partial_evaluate_hes hes in
+    let hes = evaluate_trivial_boolean hes in
+    evaluate_trivial_fixpoints hes
+  in
+  hes |> go |> go
+
 (* 2つ、1つで下、1つで上、1つで中、betaされる *)
 (* 1つの述語の中で2回参照される *)
 let%expect_test "InlineExpansition.optimize" =
