@@ -729,9 +729,31 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
 
 let check_validity_full (solve_options : Solve_options.options) hes =
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in
-  let dresult = Deferred.any
-                  [ mu_elim_solver 1 solve_options hes "prover";
-                   (mu_elim_solver 1 solve_options hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i))] in
+  let deferreds =
+    [ mu_elim_solver 1 solve_options hes "prover";
+      (mu_elim_solver 1 solve_options hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i)) ] in
+  let dresult =
+    if solve_options.oneshot then begin
+      Deferred.all deferreds >>|
+      (fun ris ->
+        match ris with
+        | [prover_ri; disprover_ri] -> begin
+          match fst prover_ri, fst disprover_ri with
+          | Status.Valid, Status.Valid -> assert false
+          | Status.Valid, _ -> prover_ri
+          | _, Status.Valid ->
+            let (s, i) = disprover_ri in
+            Status.flip s, i
+          (* ad-hoc *)
+          | Status.Fail, _ -> prover_ri
+          | _, Status.Fail -> disprover_ri
+          | Status.Invalid, _ -> prover_ri
+          | _, Status.Invalid -> disprover_ri
+          | _ -> prover_ri
+        end
+        | _ -> assert false
+      )
+    end else Deferred.any deferreds in
   dresult >>=
     (fun ri ->
       has_solved := true; (* anyでいずれかがdetermineしても全てのdeferredがすぐに停止するとは限らない(？)ため、dualのソルバを停止させる *)
