@@ -110,7 +110,7 @@ end*) = struct
     in
     go body
     
-  let inline_non_recursive_variables (no_ref_only : bool) (org_hes : 'a Hflz.hes) =
+  let inline_non_recursive_variables (no_ref_only : bool) (trivial_only : bool) (org_hes : 'a Hflz.hes) =
     let org_rules = Hflz.merge_entry_rule org_hes in
     let rec_flags = get_recursivity org_rules in
     print_endline @@ Hflmc2_util.show_list (fun (id, f) -> id.Id.name ^ ": " ^ string_of_bool f) rec_flags;
@@ -123,6 +123,13 @@ end*) = struct
           (
             not no_ref_only ||
             not @@ has_references org_hes (List.find (fun {Hflz.var; _} -> Id.eq var p) org_rules)
+          ) &&
+          (
+            not trivial_only ||
+            (
+              let {Hflz.body; _} = List.find (fun {Hflz.var; _} -> Id.eq var p) org_rules in
+              body = Bool true || body = Bool false
+            )
           )
         )
       |> List.map (fun (p, _) -> p)
@@ -243,9 +250,9 @@ let rec simplify_all hes =
   let hes' = simplify hes in
   if hes' <> hes then simplify_all hes' else hes'
 
-let simplify_agg hes =
+let simplify_agg trivial_only hes =
   let go hes =
-    let hes = InlineExpansion.inline_non_recursive_variables false hes in
+    let hes = InlineExpansion.inline_non_recursive_variables false trivial_only hes in
     let hes = beta_hes hes in
     let hes = simple_partial_evaluate_hes hes in
     let hes = evaluate_trivial_boolean hes in

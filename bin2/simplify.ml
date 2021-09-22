@@ -10,13 +10,13 @@ let map_file_path path converter =
   let dir, base, ext = converter (dir, base, ext) in
   Stdlib.Filename.concat dir (base ^ ext)
 
-let main filepath is_hes optimization agg show_style =
+let main filepath is_hes optimization agg show_style trivial_only_agg =
   let hes = Muapprox.parse filepath is_hes in
   let hes =
     if optimization then Muapprox.eliminate_unused_argument hes else hes in
   let hes = Muapprox.Manipulate.Hes_optimizer.simplify_all hes in
   let hes =
-    if agg then Manipulate.Hes_optimizer.simplify_agg hes else hes in
+    if agg then Manipulate.Hes_optimizer.simplify_agg trivial_only_agg hes else hes in
   let hes =
     match show_style with
     | Abbrev_id -> Muapprox.abbrev_variable_names hes
@@ -44,10 +44,11 @@ let command =
       and is_hes = flag "--hes" no_arg ~doc:"Load hes format"
       and optimization = flag "--optimization" no_arg ~doc:"eliminatate unused arguments"
       and agg = flag "--agg" no_arg ~doc:"aggressive inlining"
+      and trivial_only_agg = flag "--trivial-only-agg" no_arg ~doc:""
       and show_style =
         flag "--show-style" (optional_with_default Asis_id read_show_style) ~doc:"output id without escaping (for debug)"
       in
-      (fun () -> main filepath is_hes optimization agg show_style)
+      (fun () -> main filepath is_hes optimization agg show_style trivial_only_agg)
     )
 
 let () = Command.run command

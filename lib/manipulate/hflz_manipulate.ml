@@ -582,7 +582,7 @@ let to_ty argty basety =
 
 let is_pred pvar =
   String.length pvar.Id.name >= 0 &&
-  (String.uppercase_ascii @@ String.sub pvar.Id.name 0 1) = String.sub pvar.Id.name 0 1
+  String.sub pvar.Id.name 0 1 <> "_" && (String.uppercase_ascii @@ String.sub pvar.Id.name 0 1) = String.sub pvar.Id.name 0 1
   
 let range n m =
   let rec go i =
@@ -699,7 +699,13 @@ let replace_occurences
         let guessed_terms =
           get_guessed_terms id_type_map (apps @ formula_type_terms) (if use_all_scoped_variables then env else []) id_ho_map in
         get_guessed_conditions coe1 coe2 guessed_terms in
-      let arg_pvars = Env.lookup pvar outer_mu_funcs in
+      let arg_pvars =
+        try
+          Env.lookup pvar outer_mu_funcs
+        with Not_found ->
+          print_endline @@ "pvar: " ^ pvar.Id.name;
+          raise Not_found
+        in
       let make_args env_guessed env =
         (* when lexicographic order *)
         (* 述語 -> 再帰回数の変数 を受け取り、pvarの再帰変数は-1、ほかはそのまま適用する *)
