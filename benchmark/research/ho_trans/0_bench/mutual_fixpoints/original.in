@@ -1,6 +1,6 @@
 /* valid */
 /* Outerは無限に再帰、Repeatは有限回再帰. */
-/* 対応するプログラムのイメージは、 benchmark/prog2/ho_01.txt */
+/* 対応するプログラムのイメージは、 benchmark/prog2/simple/ho_01.txt */
 
 %HES
 S =v ∀x. x > 0 => M (\k. k x).

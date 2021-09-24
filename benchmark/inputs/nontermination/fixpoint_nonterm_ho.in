@@ -1,0 +1,50 @@
+%HES
+Sentry =v
+  ∀r.
+    Make_array (\ar.
+      Update ar 0 r (\ar_.
+        Main ar_
+      )
+    ).
+
+Main ar =v
+  Fix To_zero ar (\replaced_exc_. true).
+
+Fix f ar_n k =u
+  f ar_n
+    (\ar_n2.
+      IsEqual ar_n ar_n2 (\b.
+        (b  = 1 => k ar_n) /\
+        (b != 1 => Fix f ar_n2 k)
+      )
+    ).
+
+To_zero ar_n k =v
+  Check ar_n (\b.
+    (b  = 1 => Make_array (\ar. k ar)) /\
+    (b != 1 => Pred ar_n (\ar_n_. k ar_n_))
+  ).
+
+Check ar k =v
+  ar 0 (\n.
+    (n  = 0 => k 1) /\
+    (n != 0 => k 0)
+  ).
+
+IsEqual ar1 ar2 k =v
+  ar1 0 (\x1.
+    ar2 0 (\x2.
+      (x1 =  x2 => k 1) /\
+      (x1 != x2 => k 0)
+    )
+  ).
+
+Pred ar k =v
+  ar 0 (\x.
+    Update ar 0 (x - 1) k
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j != i => ar j k')).

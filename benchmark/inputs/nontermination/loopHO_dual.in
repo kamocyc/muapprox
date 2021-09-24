@@ -1,0 +1,4 @@
+%HES
+Sentry =v ∀r. Loop App r (\replaced_exc_. true).
+Loop h n k =u (n <= 0 \/ (∀d. h (n + d) (Loop h) k)) /\ (n > 0 \/ k false).
+App n f k =u f n k.

@@ -1,0 +1,153 @@
+%HES
+Sentry =u
+  ∀n.
+    Make_array (\ar.
+      Update ar 0 n (\ar2. X ar2)
+    ).
+
+X ar =v
+    F ar false (\r. true).
+
+F ar u k =u
+  Check1 ar (\b.
+    (b = 1 =>
+      ∀m.
+        Make_array (\ar_m.
+          Update ar_m 0 m (\ar_m2.
+            X2 ar u ar_m2 k
+          )
+        )
+    ) /\
+    (b = 0 => G u k)
+  ).
+
+X2 ar u ar_m k =v
+  Pred ar (\ar2. App ar_m F ar2 u k).
+  
+G u k =u k false.
+
+App fi h v u k =u
+  Check2 fi (\b.
+    (b = 1 =>
+      Pred
+        fi
+        (\fi2.
+          App fi2 h v u k
+        )
+    ) /\
+    (b = 0 => h v u k)
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+
+Check1 ar k =v
+  ar 0 (\x.
+    (x >  0 => k 1) /\
+    (x <= 0 => k 0)
+  ).
+
+Check2 ar k =v
+  ar 0 (\x.
+    (x >= 0 => k 1) /\
+    (x <  0 => k 0)
+  ).
+
+Pred ar k =v
+  ar 0 (\x.
+    Update ar 0 (x - 1) k
+  ).
+
+/*
+/* --coe=1,2 --coe-ar=1,0  +  additinal arguments for a backend solver */
+%HES
+Sentry =v
+  ∀n. 
+   Make_array
+    (\t. 
+      \ar. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Update s ar 0 n
+            (\t2. 
+              \ar2. 
+               ∀s2. 
+                s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0 \/ X s2 ar2)).
+X t ar =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ (∀recF. 
+        recF < 2 + 1 * t \/ recF < 2 + (-1) * t \/ recF < 2 \/ F recF s ar true).
+F recF t ar k =v
+  recF > 0
+  /\ Check ar
+      (\b. 
+        (b != 1
+         \/ (∀m. 
+              Make_array
+               (\t2. 
+                 \ar_m. 
+                  ∀s. 
+                   s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 0
+                   \/ Update s ar_m 0 m
+                       (\t3. 
+                         \ar_m2. 
+                          ∀s2. 
+                           s2 < 1 * t + 0 \/ s2 < (-1) * t + 0
+                           \/ s2 < 1 * t3 + 0
+                           \/ s2 < (-1) * t3 + 0
+                           \/ s2 < 0
+                           \/ X2 recF s2 ar ar_m2 k))))
+        /\ (b != 0 \/ G k)).
+X2 recF t ar ar_m k =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ Pred s ar
+       (\t2. 
+         \ar2. 
+          ∀s2. 
+           s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 1 * t2 + 0
+           \/ s2 < (-1) * t2 + 0
+           \/ s2 < 0
+           \/ (∀recApp. 
+                recApp < 2 + 1 * t \/ recApp < 2 + 1 * t2
+                \/ recApp < 2 + (-1) * t
+                \/ recApp < 2 + (-1) * t2
+                \/ recApp < 2
+                \/ App recApp recF s2 ar_m (F (recF - 1)) ar2 k)).
+G k =v k.
+App recApp _recF t fi h v k =v
+  recApp > 0
+  /\ Check2 fi
+      (\b. 
+        (b != 1
+         \/ (∀s. 
+              s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+              \/ Pred s fi
+                  (\t2. 
+                    \fi2. 
+                     ∀s2. 
+                      s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 1 * t + 0
+                      \/ s2 < (-1) * t + 0
+                      \/ s2 < 0
+                      \/ App (recApp - 1) _recF s2 fi2 h v k)))
+        /\ (b != 0
+            \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ h s v k))).
+Make_array k =v ∀s. s < 0 \/ k s (\i. \k_ap_. k_ap_ 0).
+Update t ar i x k =v
+  ∀s. 
+   s < 1 * i + 0 \/ s < (-1) * i + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+   \/ s < 1 * t + 0
+   \/ s < (-1) * t + 0
+   \/ s < 0
+   \/ k s (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).
+Check ar k =v ar 0 (\x. (x <= 0 \/ k 1) /\ (x > 0 \/ k 0)).
+Check2 ar k =v ar 0 (\x. (x < 0 \/ k 1) /\ (x >= 0 \/ k 0)).
+Pred t ar k =v
+  ar 0
+   (\x. 
+     ∀s. 
+      s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ Update s ar 0 (x - 1) k).
+*/

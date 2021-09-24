@@ -1,0 +1,67 @@
+%HES
+Sentry =v
+  ∀x. ∀y. /* error in iwayama solver (which seem not to be able to solve this formula) */
+    x < -1 \/ x > 1 \/ y < 1 + 1 * x \/ y < 1 + (-1) * x \/ y < 1 \/ Exists x (\k. k x) y.
+
+/* 追加引数_x が必要. ない場合はkatsura-solverでinvalidが返るが、バグか？ */
+Exists _x fx y =v
+  (fx (\x. x = y \/ x = -y) \/ Exists _x fx (y - 1)) /\ y >= 0.
+
+/*
+/* x is higher-order */
+/* invalid (??) */
+Sentry =v
+  ∀x. ∀y. /* error in iwayama solver (which seem not to be able to solve this formula) */
+    y < 1 + 1 * x \/ y < 1 + (-1) * x \/ y < 1 \/ Exists x (\k. k x) y.
+
+Exists _x fx y =v
+  (X _x fx y \/ X _x fx (-y) \/ Exists _x fx (y - 1))
+  /\ y >= 0.
+
+X _x fx y =v X _x fx y /\ fx (\x. x = y).
+*/
+
+/*
+/* first-order */
+/* valid */
+Sentry =v ∀x. ∀y. y < 1 + 1 * x \/ y < 1 + (-1) * x \/ y < 1 \/ Exists x y.
+
+Exists x y =v
+  (X x y \/ X x (-y) \/ Exists x (y - 1))
+  /\ y >= 0.
+
+X x y =v X x y /\ x = y.
+*/
+
+/*
+/* original */
+Sentry =v ∀x. ∀y. y < 1 + 1 * x \/ y < 1 + (-1) * x \/ y < 1 \/ Exists x y.
+
+Exists x y =v
+  (X (\k. k x) (\k. k y) \/ X (\k. k x) (\k. k (-y)) \/ Exists x (y - 1))
+  /\ y >= 0.
+
+X fx fy =v X fx fy /\ fx (\x. fy (\y. x = y)).
+*/
+
+/*
+/* xのみ1階 */
+Sentry =v ∀x. ∀y. y < 1 + 1 * x \/ y < 1 + (-1) * x \/ y < 1 \/ Exists x y.
+
+Exists x y =v
+  (X x (\k. k y) \/ X x (\k. k (-y)) \/ Exists x (y - 1))
+  /\ y >= 0.
+
+X x fy =v X x fy /\ fy (\y. x = y).
+*/
+
+/*
+/* x=1のときはvalid */
+Sentry =v y < 1 + 1 * 1 \/ y < 1 + (-1) * 1 \/ y < 1 \/ Exists 1 y.
+
+Exists x y =v
+  (X (\k. k x) (\k. k y) \/ X (\k. k x) (\k. k (-y)) \/ Exists x (y - 1))
+  /\ y >= 0.
+
+X fx fy =v X fx fy /\ fx (\x. fy (\y. x = y)).
+*/

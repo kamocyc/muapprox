@@ -1,0 +1,68 @@
+/* valid */
+%HES
+S =v
+  ∀x.
+    Make_array (\ar.
+      Update ar 0 x (\ar2. X ar2)
+    ).
+
+X ar =v Sum ar (\y. true).
+
+Sum ar k =u
+  ar 0 (\x.
+    (x <= 0 => (k 0)) /\
+    (x > 0 =>
+      Update ar 0 (x - 1) (\ar2.
+        Sum ar2 (\m. k (m + x))
+      )
+    )
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+
+/*
+%HES
+Sentry =v
+  ∀x. 
+   Make_array
+    (\t. 
+      \ar. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Update s ar 0 x
+            (\t2. 
+              \ar2. 
+               ∀s2. 
+                s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0 \/ X s2 ar2)).
+X t ar =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ (∀recSum. 
+        recSum < 1 + 1 * t \/ recSum < 1 + (-1) * t \/ recSum < 1
+        \/ Sum recSum s ar true).
+Sum recSum t ar k =v
+  recSum > 0
+  /\ ar 0
+      (\x. 
+        (x > 0 \/ k)
+        /\ (x <= 0
+            \/ (∀s. 
+                 s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+                 \/ Update s ar 0 (x - 1)
+                     (\t2. 
+                       \ar2. 
+                        ∀s2. 
+                         s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0
+                         \/ Sum (recSum - 1) s2 ar2 k)))).
+Make_array k =v ∀s. s < 0 \/ k s (\i. \k_ap_. k_ap_ 0).
+Update t ar i x k =v
+  ∀s. 
+   s < 1 * i + 0 \/ s < (-1) * i + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+   \/ s < 1 * t + 0
+   \/ s < (-1) * t + 0
+   \/ s < 0
+   \/ k s (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).
+*/

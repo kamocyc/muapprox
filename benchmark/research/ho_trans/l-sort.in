@@ -1,0 +1,59 @@
+%HES
+S =v ∀len. len >= 0 => Main len (\l len. true).
+
+Nil k =v k 0 (\i k. false).
+
+Cons a len l k =v
+  k (len + 1) (\i k. (i = 0 => k a) /\ (i != 0 => l (i - 1) k)).
+
+Hd len l k =v l 0 k.
+
+Tl len l k =v k (len - 1) (\i k. l (i + 1) k).
+
+Is_nil len l k =v (len = 0 => k 1) /\ (len != 0 => k 0).
+
+Insert x ys_l ys_len k =u
+  Is_nil ys_l ys_len (\b.
+    (b =  1 => Nil (\nlen nl. Cons x nlen nl k)) /\
+    (b != 1 =>
+      Hd ys_l ys_len (\x'.
+        (x <= x' => Cons x ys_l ys_len k) /\
+        (x > x' =>
+          Hd ys_l ys_len (\x''.
+            Tl ys_l ys_len (\l' len'.
+              Insert x l' len' (\l1 len1.
+                Cons x'' l1 len1 k
+              )
+            )
+          )
+        )
+      )
+    )
+  ).
+
+Isort xs_l xs_len k =u
+  Is_nil xs_l xs_len (\b.
+    (b  = 1 => Nil k) /\
+    (b != 1 =>
+      Hd xs_l xs_len (\a.
+        Tl xs_l xs_len (\l1 len1.
+          Isort l1 len1 (\l2 len2.
+            Insert a l2 len2 k
+          )
+        )
+      )
+    )
+  ).
+
+Make_list n k =v
+  (n  = 0 => Nil k) /\
+  (n != 0 =>
+    Make_list
+      (n - 1)
+      (\l len.
+        Cons n l len k
+      )
+  ).
+
+Main len k =v
+  Isort len (\i k2. k2 (len - i)) k.

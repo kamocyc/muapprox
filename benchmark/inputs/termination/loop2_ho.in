@@ -1,0 +1,88 @@
+%HES
+Sentry =u
+   ∀m. ∀n.
+      Make_array (\ar_m.
+        Update ar_m 0 m (\ar_m'.
+          Make_array (\ar_n.
+            Update ar_n 0 n (\ar_n'.
+              Main ar_m' ar_n'
+            )
+          )
+        )
+      ).
+
+Main ar_m ar_n =v
+  F ar_m ar_n (\r. true).
+
+F ar_m ar_n k =u
+  ∀r.
+    Check ar_m (\b_m.
+      Check ar_n (\b_n.
+        (      (r > 0 /\ b_m = 1)                                => Pred ar_m (\ar'. F ar' ar_n k)) /\
+        (((not (r > 0 /\ b_m = 1)) /\      (r <= 0 /\ b_n = 1))  => Pred ar_n (\ar'. F ar_m ar' k)) /\
+        (((not (r > 0 /\ b_m = 1)) /\ (not (r <= 0 /\ b_n = 1))) => k false)
+      )
+    ).
+
+Check ar k =v
+  ar 0 (\x.
+    (x >  0 => k 1) /\
+    (x <= 0 => k 0)
+  ).
+
+Pred ar k =v
+  ar 0 (\x.
+    Update2 ar 0 (x - 1) k
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+
+Update2 ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+  
+/*
+%HES
+Sentry =u
+   ∀m. ∀n.
+    Make_array (\ar.
+      Update ar 0 m (\ar'.
+        Update ar' 1 n (\ar''.
+          Main ar''
+        )
+      )
+    ).
+
+Main ar =v
+  F ar (\r. true).
+
+F ar k =u
+  ∀r.
+    Check ar 0 (\b_m.
+      Check ar 1 (\b_n.
+        (      (r > 0 /\ b_m = 1)                                => Pred ar 0 (\ar'. F ar' k)) /\
+        (((not (r > 0 /\ b_m = 1)) /\      (r <= 0 /\ b_n = 1))  => Pred ar 1 (\ar'. F ar' k)) /\
+        (((not (r > 0 /\ b_m = 1)) /\ (not (r <= 0 /\ b_n = 1))) => k false)
+      )
+    ).
+
+Check f i k =v
+  f i (\x.
+    (x >  0 => k 1) /\
+    (x <= 0 => k 0)
+  ).
+
+Pred ar i k =v
+  ar i (\x.
+    Update ar i (x - 1) k
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+*/
+
+/* HOにすると解けない！！！ */

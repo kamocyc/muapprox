@@ -1,0 +1,119 @@
+/* %HES
+Sentry =u
+  ∀t1. ∀t2.
+    Make_array (\ar1.
+      Update ar1 0 t1
+        (\ar1'.
+          Main ar1' (\r. true)
+        )
+    ).
+
+Main ar1 k =u
+  Check1 ar1 (\b.
+    (b =  1 => App Down ar1 k) /\
+    (b != 1 => k false)
+  ).
+
+Check1 ar k =v
+  ar 0 (\x.
+    (x > 0  => k 1) /\
+    (x <= 0 => k 0)
+  ).
+
+App f x k =v f x k.
+
+Down arx k =u
+  Check3 arx (\b.
+    (b =  1 => k false) /\
+    (b != 1 => Pred arx (\arx'. Down arx' k))
+  ).
+
+Pred ar k =v
+  ar 0 (\x.
+    Update ar 0 (x - 1) k
+  ).
+
+Check3 ar k =v
+  ar 0 (\x.
+    (x = 0  => k 1) /\
+    (x != 0 => k 0)
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+*/
+
+%HES
+Sentry =u
+  ∀t1. ∀t2.
+    Make_array (\ar1.
+      Update ar1 0 t1
+        (\ar1'.
+          Make_array (\ar2.
+            Update ar2 0 t2
+              (\ar2'.
+                Main ar1' ar2' (\r. true)
+              )
+          )
+        )
+    ).
+
+Main ar1 ar2 k =u
+  Check1 ar1 (\b.
+    (b =  1 => App Down ar1 k) /\
+    (b != 1 => (
+      Check2 ar2 (\b2.
+        (b2 =  1 => App Up ar2 k) /\
+        (b2 != 1 => k false)
+      )
+    ))
+  ).
+
+Check1 ar k =v
+  ar 0 (\x.
+    (x > 0  => k 1) /\
+    (x <= 0 => k 0)
+  ).
+
+Check2 ar k =v
+  ar 0 (\x.
+    (x <  0 => k 1) /\
+    (x >= 0 => k 0)
+  ).
+
+App f x k =v f x k.
+
+Down arx k =u
+  Check3 arx (\b.
+    (b =  1 => k false) /\
+    (b != 1 => Pred arx (\arx'. Down arx' k))
+  ).
+
+Up arx k =u
+  Check3 arx (\b.
+    (b =  1 => k false) /\
+    (b != 1 => Succ arx (\arx'. Up arx' k))
+  ).
+
+Pred ar k =v
+  ar 0 (\x.
+    Update ar 0 (x - 1) k
+  ).
+
+Succ ar k =v
+  ar 0 (\x.
+    Update ar 0 (x + 1) k
+  ).
+
+Check3 ar k =v
+  ar 0 (\x.
+    (x = 0  => k 1) /\
+    (x != 0 => k 0)
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).

@@ -1,0 +1,130 @@
+/* invalid */
+%HES
+Sentry =v
+  ∀r.
+    r >= 0 => 
+    Make_array (\ar.
+      Update ar 0 r (\ar'. Main ar' false (\r. true))
+    ).
+
+Main ar_r u c =u Fib ar_r Id c.
+
+Id n c =u c n.
+
+Cont2 a k b c =u k (a + b) c.
+
+Cont1 ar_ppn k a c =u Fib ar_ppn (Cont2 a k) c.
+
+Fib ar_n k c =u
+  Check1 ar_n (\b.
+       (b =  1 => k 1 c)
+    /\ (
+      b != 1 =>
+        Pred ar_n (\ar_n'.
+          Pred ar_n' (\ar_n''.
+            Fib ar_n' (Cont1 ar_n'' k) c
+          )
+        )
+    )
+  ).
+
+Check1 ar k =v
+  ar 0 (\n.
+    ((n  = 0 \/ n  = 1) => k 1) /\
+    ((n != 0 /\ n != 1) => k 0)
+  ).
+
+Pred ar k =v
+  ar 0 (\x.
+    Update ar 0 (x - 1) k
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+
+/*
+/* Valid   1630.732283 sec */
+%HES
+Sentry =v
+  ∀r. 
+   r < 0
+   \/ Make_array
+       (\t. 
+         \ar. 
+          ∀s. 
+           s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+           \/ Update s ar 0 r
+               (\t2. 
+                 \ar_ap_. 
+                  ∀s2. 
+                   s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0
+                   \/ Main r s2 ar_ap_ true)).
+Main _r t ar_r c =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ (∀recFib. 
+        ∀recCont. 
+         recFib < 1 + 1 * t \/ recFib < 1 + (-1) * t \/ recFib < 1
+         \/ recCont < 1 + 1 * t
+         \/ recCont < 1 + (-1) * t
+         \/ recCont < 1
+         \/ Fib recFib _r recCont s ar_r Id c).
+Id c =v c.
+Cont k c =v k c.
+Cont2 recCont _r t ar_ppn k c =v
+  recCont > 0
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+       \/ (∀recFib. 
+            recFib < 1 + 1 * t \/ recFib < 1 + (-1) * t \/ recFib < 1
+            \/ Fib recFib _r recCont s ar_ppn (Cont k) c)).
+Fib recFib _r recCont t ar_n k c =v
+  recFib > 0
+  /\ Check ar_n
+      (\b. 
+        (b != 1 \/ k c)
+        /\ (b = 1
+            \/ (∀s. 
+                 s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+                 \/ Pred s ar_n
+                     (\t2. 
+                       \ar_n_ap_. 
+                        ∀s2. 
+                         s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0
+                         \/ Pred s2 ar_n_ap_
+                             (\t3. 
+                               \ar_n_ap__ap_. 
+                                ∀s3. 
+                                 s3 < 1 * t2 + 0 \/ s3 < (-1) * t2 + 0
+                                 \/ s3 < 1 * t3 + 0
+                                 \/ s3 < 1 * t + 0
+                                 \/ s3 < (-1) * t3 + 0
+                                 \/ s3 < (-1) * t + 0
+                                 \/ s3 < 0
+                                 \/ (∀s4. 
+                                      s4 < 1 * t3 + 0 \/ s4 < (-1) * t3 + 0
+                                      \/ s4 < 1 * t + 0
+                                      \/ s4 < (-1) * t + 0
+                                      \/ s4 < 0
+                                      \/ Fib (recFib - 1) (_r - 1) recCont s3 ar_n_ap_
+                                          (\x. 
+                                            Cont2 (recCont - 1) (_r - 2) s4 ar_n_ap__ap_
+                                             k x)
+                                          c)))))).
+Check ar k =v ar 0 (\n. (n != 0 /\ n != 1 \/ k 1) /\ (n = 0 \/ n = 1 \/ k 0)).
+Pred t ar k =v
+  ar 0
+   (\x. 
+     ∀s. 
+      s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ Update s ar 0 (x - 1) k).
+Make_array k =v ∀s. s < 0 \/ k s (\i. \k_ap_. k_ap_ 0).
+Update t ar i x k =v
+  ∀s. 
+   s < 1 * i + 0 \/ s < (-1) * i + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+   \/ s < 1 * t + 0
+   \/ s < (-1) * t + 0
+   \/ s < 0
+   \/ k s (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).
+*/

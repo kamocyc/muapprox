@@ -1,0 +1,5 @@
+%HES
+Sentry =v ∀t. G t false (\f. true).
+App f x u k =u f x u k.
+Id u k =u k u.
+G x u k =u (x != 0 \/ Id u k) /\ (x = 0 \/ App G (x - 1) u k).

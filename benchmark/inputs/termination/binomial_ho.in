@@ -1,0 +1,34 @@
+/* 再帰回数はn回なのですぐ解ける */
+%HES
+Sentry =u
+  ∀n. ∀k.
+    ((n >= 0 /\ k >= 0) => X ar_n ar_k) /\
+    ((n < 0 \/ k < 0) => true).
+
+X ar_n ar_k =v
+  Bin ar_n ar_k (\r. true).
+
+Bin ar_n ar_k c =u
+  ( n = 0 => c 1) /\
+  ((n != 0 /\ (k <= 0 \/ k >= n)) => c 1) /\
+  ((n != 0 /\  k > 0  /\ k <  n) =>
+    Bin (n - 1) (k - 1) (\r.
+      Bin (n - 1) k (\rr.
+        c (r + rr)
+      )
+    )
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+
+Check1 ar k =v
+  ar 0 (\x.
+    (x =  0 => k 1) /\
+    (x != 0 => k 0)
+  ).
+
+Check2 ar_k ar_n k =v
+  

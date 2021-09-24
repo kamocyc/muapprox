@@ -1,0 +1,120 @@
+%HES
+Sentry =v
+  ∀n. 
+    Make_array (\ar.
+      Update ar 0 n (\ar2. X1 ar2)
+    ).
+
+X1 ar =v
+  Loop2 ar (\r. true).
+
+Loop2 ar_n2 k =u
+  Check ar_n2 (\b.
+    (b =  1 =>  
+      Loop1
+        ar_n2
+        (\r1.
+          Pred
+            ar_n2
+            (\ar_n2_2.
+              Loop2 ar_n2_2 (\r2. k (r1 + r2))
+            )
+        )
+    ) /\
+    (b != 1 => k 0)
+  ).
+
+Loop1 ar_n1 k =u
+  Check ar_n1 (\b.
+    (b =  1 => Pred ar_n1 (\ar_n1_2. Loop1 ar_n1_2 k)) /\
+    (b != 1 => k 0)
+  ).
+
+Check f k =v
+  f 0 (\x.
+    (x >  0 => k 1) /\
+    (x <= 0 => k 0)
+  ).
+
+Pred ar k =v
+  ar 0 (\x.
+    Update ar 0 (x - 1) k
+  ).
+
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+
+/*
+/*  --coe=1,1 --coe-ar=1,0  +  additinal arguments for a backend solver  (valid in 1.4 sec) */
+%HES
+Sentry =v
+  ∀n. 
+   Make_array
+    (\t. 
+      \ar. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Update s ar 0 n
+            (\t2. 
+              \ar2. 
+               ∀s2. 
+                s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0 \/ X n s2 ar2)).
+X _n t ar =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ (∀recLoop. 
+        recLoop < 1 + 1 * t \/ recLoop < 1 + (-1) * t \/ recLoop < 1
+        \/ Loop recLoop _n s ar true).
+Loop recLoop _n t ar_n k =v
+  recLoop > 0
+  /\ Check ar_n
+      (\b. 
+        (b != 1
+         \/ (∀s. 
+              s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+              \/ (∀s2. 
+                   s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+                   \/ (∀recLoop2. 
+                        recLoop2 < 1 + 1 * t \/ recLoop2 < 1 + (-1) * t
+                        \/ recLoop2 < 1
+                        \/ Loop2 recLoop2 s ar_n
+                            (Pred s2 ar_n
+                              (\t2. 
+                                \ar_n2. 
+                                 ∀s3. 
+                                  s3 < 1 * t2 + 0 \/ s3 < (-1) * t2 + 0
+                                  \/ s3 < 0
+                                  \/ Loop (recLoop - 1) _n s3 ar_n2 k))))))
+        /\ (b = 1 \/ k)).
+Loop2 recLoop t ar_n k =v
+  recLoop > 0
+  /\ Check ar_n
+      (\b. 
+        (b != 1
+         \/ (∀s. 
+              s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+              \/ Pred s ar_n
+                  (\t2. 
+                    \ar_n2. 
+                     ∀s2. 
+                      s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0
+                      \/ Loop2 (recLoop - 1) s2 ar_n2 k)))
+        /\ (b = 1 \/ k)).
+Check f k =v f 0 (\x. (x <= 0 \/ k 1) /\ (x > 0 \/ k 0)).
+Pred t ar k =v
+  ar 0
+   (\x. 
+     ∀s. 
+      s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ Update s ar 0 (x - 1) k).
+Make_array k =v ∀s. s < 0 \/ k s (\i. \k_ap_. k_ap_ 0).
+Update t ar i x k =v
+  ∀s. 
+   s < 1 * i + 0 \/ s < (-1) * i + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+   \/ s < 1 * t + 0
+   \/ s < (-1) * t + 0
+   \/ s < 0
+   \/ k s (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).
+*/

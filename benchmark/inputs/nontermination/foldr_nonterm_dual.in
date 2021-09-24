@@ -1,0 +1,12 @@
+%HES
+Sentry =v
+  ∀xs. 
+   (xs <= 0 \/ Foldr Sum_may_nonterm 0 xs (\replaced_exc_. true))
+   /\ (xs > 0 \/ true).
+Foldr f acc xs k =u
+  (xs != 0 \/ k acc)
+  /\ (xs = 0 \/ (∀elem. Foldr f acc (xs - 1) (\v. f elem v k))).
+Loop u =u Loop u.
+Sum_may_nonterm x y k =u
+  ∀isTerminate. 
+   (isTerminate <= 0 \/ k (x + y)) /\ (isTerminate > 0 \/ Loop false).

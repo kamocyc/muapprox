@@ -1,0 +1,568 @@
+%HES
+S =v
+  ∀x. ∀y.
+    (x >= 0 && y >= 0) =>
+      Pair x (\i k. k true) (\ls1.
+        Pair y (\i k. k false) (\ls2.
+          Main ls1 ls2
+        )
+      ).
+
+Main ls1 ls2 =u
+  Append
+    ls1
+    ls2
+    (\len_l.
+      Length_cps
+        (\rlen.
+          len_l (\len ll.
+            ls1 (\len1 ll1.
+              ls2 (\len2 ll2.
+                len <= len1 + len2
+              )
+            )
+          )
+        )
+        len_l
+    ).
+
+Append len_l1 len_l2 k =u
+  Is_nil len_l1 (\b.
+    (b = 1 => k len_l2) /\
+    (b != 1 =>
+      Tl len_l1 (\len_l1'.
+        Append len_l1' len_l2 (\ls_rec.
+          Hd len_l1 (\a.
+            Cons a ls_rec k
+          )
+        )
+      )
+    )
+  ).
+
+Length_cps k len_l =u
+  Is_nil len_l (\b.
+    (b = 1  => k 0) /\
+    (b != 1 =>
+      Tl len_l (\len_l'.
+        Length_cps
+          (\rlen. k (rlen + 1))
+          len_l'
+      )
+    )
+  ).
+
+Pair f s k_ =v k_ (\k. k f s).
+
+Cons a len_l k =v
+  len_l (\len l.
+    Pair (len + 1) (\i k2. (i = 0 => k2 a) /\ (i != 0 => l (i - 1) k2)) k
+  ).
+
+Hd len_l k =v len_l (\len l. l 0 k).
+
+Tl len_l k =v len_l (\len l. Pair (len - 1) (\i k2. l (i + 1) k2) k).
+
+Is_nil len_l k =v len_l (\len l. (len = 0 => k 1) /\ (len != 0 => k 0)).
+
+/*
+/* timeoout */
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    x < 0 \/ y < 0
+    \/ (∀s. 
+         s < 0
+         \/ Pair s x (\i. \k. k)
+             (\t. 
+               \ls. 
+                ∀s2. 
+                 s2 < 0
+                 \/ Pair s2 y (\i. \k. k)
+                     (\t2. 
+                       \ls2. 
+                        ∀s3. 
+                        ∀s_x. 
+                        ∀s_y. 
+                         s3 < 1 * t + 0 \/ s3 < (-1) * t + 0 \/ s3 < 1 * t2 + 0
+                         \/ s3 < (-1) * t2 + 0
+                         \/ s3 < 0
+                         
+                         \/ s_x < 1 * x + 0 \/ s_x < (-1) * x + 0
+                         \/ s_x < 0
+                         \/ s_y < 1 * y + 0 \/ s_y < (-1) * y + 0
+                         \/ s_y < 0
+                         
+                         \/ Main x y s_x s_y s3 ls ls2))).
+Main _x _y s_x s_y t ls ls2 =v
+  /* ∀recLength_cps. 
+    recLength_cps < 1 + 1 * t \/ recLength_cps < 1 + (-1) * t \/ recLength_cps < 1
+    \/ Length_cps recLength_cps
+        _x
+        (true)
+        ls */
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ (∀recAppend. 
+        recAppend < 1 + 2 * t \/ recAppend < 1 + (-2) * t \/ recAppend < 1
+        \/ Append recAppend _x _y s ls ls2
+            (\t2. 
+              \len_l. 
+               ∀recLength_cps. 
+                recLength_cps < 1 \/ recLength_cps < 1 + 1 * t2 \/ recLength_cps < 1 + (-1) * t2
+                \/ recLength_cps < 1 + 2 * s_x \/ recLength_cps < 1 + (-2) * s_x
+                 \/ recLength_cps < 1 + 2 * s_y \/ recLength_cps < 1 + (-2) * s_y
+                \/ Length_cps recLength_cps
+                    (_x + _y)
+                    /* (len_l
+                      (\t3. 
+                        \len. 
+                         \ll. 
+                          ls
+                           (\t4. 
+                             \len2. 
+                              \ll2. ls2 (\t5. \len3. \ll3. len <= len2 + len3)))) */
+                    len_l
+                    true)).
+Append recAppend _x _y t len_l len_l2 k =v
+  recAppend > 0
+  /\ Is_nil len_l
+      (\b. 
+        (b != 1
+         \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ k s len_l2))
+        /\ (b = 1
+            \/ Tl len_l
+                (\t2. 
+                  \len_l1_ap_. 
+                   ∀s. 
+                    s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+                    \/ Append (recAppend - 1) (_x - 1) _y s len_l1_ap_ len_l2
+                        (\t3. \ls_rec. Hd len_l (Cons ls_rec k))))).
+Length_cps recLength_cps _xy len_l k =v
+  recLength_cps > 0
+  /\ Is_nil len_l
+      (\b. 
+        (b != 1 \/ k)
+        /\ (b = 1
+            \/ Tl len_l
+                (\t. \len_l_ap_. Length_cps (recLength_cps - 1) (_xy - 1) len_l_ap_ k))).
+Pair t f s k =v
+  ∀s2. 
+   s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 1 * f + 0 \/ s2 < (-1) * f + 0
+   \/ s2 < 0
+   \/ k s2
+       (\k2. ∀s3. s3 < 1 * t + 0 \/ s3 < (-1) * t + 0 \/ s3 < 0 \/ k2 s3 f s).
+Cons len_l k =v
+  len_l
+   (\t. 
+     \len. 
+      \l. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Pair s (len + 1)
+            (\i. \k2. (i != 0 \/ k2) /\ (i = 0 \/ l (i - 1) k2)) k).
+Hd len_l k =v len_l (\t. \len. \l. l 0 k).
+Tl len_l k =v
+  len_l
+   (\t. 
+     \len. 
+      \l. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Pair s (len - 1) (\i. \k2. l (i + 1) k2) k).
+Is_nil len_l k =v len_l (\t. \len. \l. (len != 0 \/ k 1) /\ (len = 0 \/ k 0)).
+*/
+
+
+
+
+
+
+
+/* 
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    x < 0 \/ y < 0
+    \/ (∀s. 
+         s < 0
+         \/ Pair s x (\i. \k. k)
+             (\t. 
+               \ls. 
+                ∀s2. 
+                 s2 < 0
+                 \/ Pair s2 y (\i. \k. k)
+                     (\t2. 
+                       \ls2. 
+                        ∀s3. 
+                        ∀s4. 
+                         s3 < 1 * t + 0 \/ s3 < (-1) * t + 0
+                         \/ s3 < 0 \/
+                         s4 < 1 * t2 + 0 \/ s4 < (-1) * t2 + 0
+                         \/ s4 < 0
+                         \/ Main x y s3 s4 ls ls2))).
+Pair t f s k =v
+  ∀s2. 
+   s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 1 * f + 0 \/ s2 < (-1) * f + 0
+   \/ s2 < 0
+   \/ k s2
+       (\k2. ∀s3. s3 < 1 * t + 0 \/ s3 < (-1) * t + 0 \/ s3 < 0 \/ k2 s3 f s).
+Cons len_l k =v
+  len_l
+   (\t. 
+     \len. 
+      \l. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Pair s (len + 1)
+            (\i. \k2. (i != 0 \/ k2) /\ (i = 0 \/ l (i - 1) k2)) k).
+Hd len_l k =v len_l (\t. \len. \l. l 0 k).
+Tl len_l k =v
+  len_l
+   (\t. 
+     \len. 
+      \l. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Pair s (len - 1) (\i. \k2. l (i + 1) k2) k).
+Is_nil len_l k =v len_l (\t. \len. \l. (len != 0 \/ k 1) /\ (len = 0 \/ k 0)).
+
+Append recAppend _x _y t t2_ len_l len_l2 k =v
+  recAppend > 0
+  /\ Is_nil len_l
+      (\b. 
+        (b != 1
+         \/ (∀s. s < 1 * t2_ + 0 \/ s < (-1) * t2_ + 0 \/ s < 0 \/ k s len_l2))
+        /\ (b = 1
+            \/ Tl len_l
+                (\t2. 
+                  \len_l1_ap_. 
+                   ∀s. ∀s2. 
+                    s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/
+                    s2 < 2 * t2_ + 0 \/ s2 < (-2) * t2_ + 0 \/ s2 < 0
+                    \/ Append (recAppend - 1) (_x - 1) _y s s2 len_l1_ap_ len_l2
+                        (\t3. \ls_rec. Hd len_l (Cons ls_rec k))))).
+Length_cps recLength_cps _t2 xy k len_l =v
+  recLength_cps > 0
+  /\ Is_nil len_l
+      (\b. 
+        (b != 1 \/ k)
+        /\ (b = 1
+            \/ Tl len_l
+                (\t. \len_l_ap_. Length_cps (recLength_cps - 1) (_t2 - 1) (xy - 1) k len_l_ap_))).
+Main _x _y t t2_ ls ls2 =v
+  ∀s. ∀s2. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/
+   s2 < 1 * t2_ + 0 \/ s2 < (-1) * t2_ + 0 \/ s2 < 0
+   \/ (∀recAppend. 
+        recAppend < 1 + 1 * t \/ recAppend < 1 + (-1) * t \/ recAppend < 1
+        \/ Append recAppend _x _y s s2 ls ls2
+            (\t2. 
+              \len_l. 
+              ∀recLength_cps. 
+                recLength_cps < 1 + 1 * t2 \/ recLength_cps < 1 + (-1) * t2
+                \/ recLength_cps < 1
+                \/ Length_cps recLength_cps t2 (_x + _y)
+                    true
+                    len_l
+              )).
+
+/*
+理想
+t2 = len1 + len2
+t
+append ls1' ls2 = 
+ t = max(len1, len2)
+t * 2で十分ではある
+
+*/
+
+/* 
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    x < 0 \/ y < 0
+    \/ (∀s. 
+         s < 0
+         \/ Pair s x (\i. \k. k)
+             (\t. 
+               \ls. 
+                ∀s2. 
+                 s2 < 0
+                 \/ Pair s2 y (\i. \k. k)
+                     (\t2. 
+                       \ls2. 
+                        ∀s3. 
+                         s3 < 1 * t + 0 \/ s3 < (-1) * t + 0 \/ s3 < 1 * t2 + 0
+                         \/ s3 < (-1) * t2 + 0
+                         \/ s3 < 0
+                         \/ Main x y s3 ls ls2))).
+Pair t f s k =v
+  ∀s2. 
+   s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 1 * f + 0 \/ s2 < (-1) * f + 0
+   \/ s2 < 0
+   \/ k s2
+       (\k2. ∀s3. s3 < 1 * t + 0 \/ s3 < (-1) * t + 0 \/ s3 < 0 \/ k2 s3 f s).
+Cons len_l k =v
+  len_l
+   (\t. 
+     \len. 
+      \l. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Pair s (len + 1)
+            (\i. \k2. (i != 0 \/ k2) /\ (i = 0 \/ l (i - 1) k2)) k).
+Hd len_l k =v len_l (\t. \len. \l. l 0 k).
+Tl len_l k =v
+  len_l
+   (\t. 
+     \len. 
+      \l. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Pair s (len - 1) (\i. \k2. l (i + 1) k2) k).
+Is_nil len_l k =v len_l (\t. \len. \l. (len != 0 \/ k 1) /\ (len = 0 \/ k 0)).
+
+Length_cps recLength_cps _t2 xy k len_l =v
+  recLength_cps > 0
+  /\ Is_nil len_l
+      (\b. 
+        (b != 1 \/ k)
+        /\ (b = 1
+            \/ Tl len_l
+                (\t. \len_l_ap_. Length_cps (recLength_cps - 1) (_t2 - 1) (xy - 1) k len_l_ap_))).
+
+Main _x _y t ls ls2 =v
+  ∀recLength_cps. 
+  recLength_cps < 1 + 2 * _x \/ recLength_cps < 1 + (-2) * _x
+  \/ recLength_cps < 1
+  \/ Length_cps recLength_cps _x (_x + _y)
+      true
+      ls.
+*/
+/* should be valid */
+/*
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    x < 0 \/ y < 0
+    \/ (∀s. 
+         s < 0
+         \/ Pair s x (\i. \k. k)
+             (\t. 
+               \ls. 
+                ∀s2. 
+                 s2 < 0
+                 \/ Pair s2 y (\i. \k. k)
+                     (\t2. 
+                       \ls2. 
+                        ∀s3. 
+                         s3 < 1 * t + 0 \/ s3 < (-1) * t + 0 \/ s3 < 1 * t2 + 0
+                         \/ s3 < (-1) * t2 + 0
+                         \/ s3 < 0
+                         \/ Main x y s3 ls ls2))).
+Pair t f s k =v
+  ∀s2. 
+   s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 1 * f + 0 \/ s2 < (-1) * f + 0
+   \/ s2 < 0
+   \/ k s2
+       (\k2. ∀s3. s3 < 1 * t + 0 \/ s3 < (-1) * t + 0 \/ s3 < 0 \/ k2 s3 f s).
+Cons len_l k =v
+  len_l
+   (\t. 
+     \len. 
+      \l. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Pair s (len + 1)
+            (\i. \k2. (i != 0 \/ k2) /\ (i = 0 \/ l (i - 1) k2)) k).
+Hd len_l k =v len_l (\t. \len. \l. l 0 k).
+Tl len_l k =v
+  len_l
+   (\t. 
+     \len. 
+      \l. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Pair s (len - 1) (\i. \k2. l (i + 1) k2) k).
+Is_nil len_l k =v len_l (\t. \len. \l. (len != 0 \/ k 1) /\ (len = 0 \/ k 0)).
+Append recAppend _x _y t len_l len_l2 k 
+=v
+  recAppend > 0
+  /\ Is_nil len_l
+      (\b. 
+        (b != 1
+         \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ k s len_l2))
+        /\ (b = 1
+            \/ Tl len_l
+                (\t2. 
+                  \len_l1_ap_. 
+                   ∀s. 
+                    s < 2 * t + 0 \/ s < (-2) * t + 0 \/ s < 0
+                    \/ Append (recAppend - 1) (_x - 1) _y s len_l1_ap_ len_l2
+                        (\t3. \ls_rec. Hd len_l (Cons ls_rec k))))).
+Length_cps recLength_cps _t2 xy k len_l =v
+  recLength_cps > 0
+  /\ Is_nil len_l
+      (\b. 
+        (b != 1 \/ k)
+        /\ (b = 1
+            \/ Tl len_l
+                (\t. \len_l_ap_. Length_cps (recLength_cps - 1) (_t2 - 1) (xy - 1) k len_l_ap_))).
+Main _x _y t ls ls2 =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ (∀recAppend. 
+        recAppend < 1 + 2 * t \/ recAppend < 1 + (-2) * t \/ recAppend < 1
+        \/ Append recAppend _x _y s ls ls2
+            (\t2. 
+              \len_l. 
+               ∀recLength_cps. 
+                recLength_cps < 1 + 2 * t2 \/ recLength_cps < 1 + (-2) * t2
+                \/ recLength_cps < 1
+                \/ Length_cps recLength_cps t2 (_x + _y)
+                    (len_l
+                      (\t3. 
+                        \len. 
+                         \ll. 
+                          ls
+                           (\t4. 
+                             \len2. 
+                              \ll2. ls2 (\t5. \len3. \ll3. len <= len2 + len3))))
+                    len_l)).
+*/
+
+*/
+/*
+/* valid */
+S =v
+  ∀x. ∀y.
+    (x >= 0 && y >= 0) =>
+      Main (\k. k x (\i k. k true)) (\k. k y (\i k. k false)).
+
+Cons a len l k =v
+  k (len + 1) (\i k. (i = 0 => k a) /\ (i != 0 => l (i - 1) k)).
+
+Hd len l k =v l 0 k.
+
+Tl len l k =v k (len - 1) (\i k. l (i + 1) k).
+
+Is_nil len l k =v (len = 0 => k 1) /\ (len != 0 => k 0).
+
+Append len1 l1 len2 l2 k =u
+  Is_nil len1 l1 (\b.
+    (b = 1 => k len2 l2) /\
+    (b != 1 =>
+      Tl len1 l1 (\len1' l1'.
+        Append len1' l1' len2 l2 (\len l.
+          Hd len1 l1 (\a.
+            Cons a len l k
+          )
+        )
+      )
+    )
+  ).
+
+Length_cps k len l =u
+  Is_nil len l (\b.
+    (b = 1  => k 0) /\
+    (b != 1 =>
+      Tl len l (\len' l'.
+        Length_cps
+          (\rlen. k (rlen + 1))
+          len' l'
+      )
+    )
+  ).
+
+Main ls1 ls2 =u
+  ls1 (\len1 l1.
+    ls2 (\len2 l2.
+      Append
+        len1
+        l1
+        len2
+        l2
+        (\len l.
+          Length_cps
+            (\rlen. (len <= len1 + len2))
+            len
+            l
+        )
+    )
+  ).
+*/
+
+/*
+%HES
+S =v ∀len1. ∀len2. Main len1 len2.
+
+Main len1 len2 =v
+  
+      Length_cps
+        (\len. len <= len1 + len2) /* assert */
+        (
+          Append
+            (\k. k len1 (\i k2. k2 true))
+            (\k. k len2 (\i k2. k2 false))
+        )
+    .
+
+Append xs1 xs2 k =u
+  Is_nil xs1 (\b.
+    (b  = 1 => k xs2) /\
+    (b != 1 =>
+      Append (Tl xs1) xs2 (\xs.
+        Hd xs1 (\t2. Cons t2 xs k)
+      )
+    )
+  ).
+
+Length_cps k xs =u
+  Is_nil xs (\b.
+    (b  = 1 => k 0) /\
+    (b != 1 =>
+      Tl xs (\t.
+        Length_cps
+          (\len. k (len + 1))
+          t
+      )
+    )
+  ).
+
+
+Tl len l k =v k (len - 1) (\i k2. l (i + 1) k2).
+
+Hd len l k =v l 0 k.
+
+Cons a len l k =v
+  k (len + 1) (\i k2. (i = 0 => k2 a) /\ (i != 0 => l (i - 1) k2)).
+
+Nil k =v k 0 (\i k2. k2 0).
+
+
+Is_nil xs k =v
+  xs (\len l.
+    (len = 0 => k 1) /\
+    (len = 1 => k 0)
+  ).
+
+Tl xs k =v
+  xs (\len l.
+    k (len - 1) (\i k2. l (i + 1) k2)
+  ).
+
+Hd xs k =v
+  xs (\len l.
+    l 0 k
+  ).
+
+Cons a xs k =v
+  xs (\len l.
+    k (len + 1) (\i k2. (i = 0 => k2 a) /\ (i != 0 => l (i - 1) k2))
+  ).
+*/

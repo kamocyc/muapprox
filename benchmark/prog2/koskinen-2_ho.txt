@@ -1,0 +1,167 @@
+/* valid */
+
+%PROGRAM
+let loop = event called; loop
+
+let print ar_x =
+  event called;
+  event print;
+  loop
+
+let rumble ar_x ar_y k =
+  event called;
+  event rumble;
+  check ar_x ar_y (\b.
+    if b = 1 then (
+      if <d> * then
+        succ ar_x (\ar_x_. rumble ar_x_ ar_y k)
+      else pred ar_y (\ar_y_. rumble ar_x ar_y_ k)
+    ) else k ar_x
+  )
+
+let () =
+  let a = <_forall> * in
+  let b = <_forall> * in
+  make_array (\_ar_a.
+    update _ar_a 0 a (\ar_a.
+      make_array (\_ar_b.
+        update _ar_b 0 b (\ar_b.
+          rumble ar_b ar_a (\ar_r.
+            rumble ar_a ar_r (\ar_r2.
+              print ar_r2
+            )
+          )
+        )
+      )
+    )
+  )
+
+let pred ar k =
+  event called;
+  ar 0 (\x.
+    update ar 0 (x - 1) k
+  )
+
+let succ ar k =
+  event called;
+  ar 0 (\x.
+    update ar 0 (x + 1) k
+  )
+
+let make_array k =
+  event called;
+  k (\i k_. k_ 0)
+
+let update ar i x k =
+  event called;
+  k (\j k_. if j = i then k_ x else ar j k_)
+
+let check ar_x ar_y k =
+  event called;
+  ar_x 0 (\x.
+    ar_y 0 (\y.
+      if x <= y then k 1 else k 0
+    )
+  )
+
+/* 
+(G((rumble && NOT print && NOT called) || (NOT rumble && print && NOT called) || (NOT rumble && NOT print && called))) && F(print) */
+%TRANSITION
+q0 rumble -> (1, q0).
+q0 called -> (1, q0).
+q0 print -> (1, q1).
+q0 d -> (1, q0) /\ (2, q0).
+
+q1 rumble -> (1, q1).
+q1 called -> (1, q1).
+q1 print -> (1, q1).
+q1 d -> (1, q1) /\ (2, q1).
+
+
+%PRIORITY
+q0 -> 1.
+q1 -> 2.
+
+/* if there is an infinite loop without events, an automaton accepts. because the event sequence is finite. */
+
+/*
+/* should be valid */
+%HES
+Sentry =v
+  ∀x. 
+   ∀x2. 
+    ∀s. 
+     s < 1 * x2 + 0 \/ s < (-1) * x2 + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+     \/ s < 0
+     \/ (∀recRumble135__q. 
+          recRumble135__q < 2 + 1 * x2 \/ recRumble135__q < 2 + 1 * x
+          \/ recRumble135__q < 2 + (-1) * x2
+          \/ recRumble135__q < 2 + (-1) * x
+          \/ recRumble135__q < 2
+          \/ Rumble__q recRumble135__q x x2 s
+              (\j. \k___q. (j != 0 \/ k___q x2) /\ (j = 0 \/ k___q 0))
+              (\j. \k___q. (j != 0 \/ k___q x) /\ (j = 0 \/ k___q 0))
+              (\t. 
+                \ar_r__q. 
+                 ∀s2. 
+                  s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 1 * t + 0
+                  \/ s2 < (-1) * t + 0
+                  \/ s2 < 0
+                  \/ (∀recRumble135__q2. 
+                       recRumble135__q2 < 2 + 1 * x
+                       \/ recRumble135__q2 < 2 + 1 * t
+                       \/ recRumble135__q2 < 2 + (-1) * x
+                       \/ recRumble135__q2 < 2 + (-1) * t
+                       \/ recRumble135__q2 < 2
+                       \/ Rumble__q recRumble135__q2 x x2 s2
+                           (\j. 
+                             \k___q. (j != 0 \/ k___q x) /\ (j = 0 \/ k___q 0))
+                           ar_r__q (\t2. \ar_r2__q. true)))).
+Rumble135__q recRumble135__q _x _x2 t ar_x__q ar_y__q k__q k__q2 b =v
+  recRumble135__q > 0
+  /\ (b != 1
+      \/ ar_x__q 0
+          (\x. 
+            ∀s. 
+             s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 1 * t + 0
+             \/ s < (-1) * t + 0
+             \/ s < 1 * (x + 1) + 0
+             \/ s < (-1) * (x + 1) + 0
+             \/ s < 0
+             \/ Rumble__q recRumble135__q (_x - 1) _x2 s
+                 (\j. 
+                   \k___q. 
+                    (j != 0 \/ k___q (x + 1)) /\ (j = 0 \/ ar_x__q j k___q))
+                 ar_y__q k__q2)
+         /\ ar_y__q 0
+             (\x. 
+               ∀s. 
+                s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 1 * x + 0
+                \/ s < (-1) * x + 0
+                \/ s < 1 * (x - 1) + 0
+                \/ s < (-1) * (x - 1) + 0
+                \/ s < 0
+                \/ Rumble__q recRumble135__q _x (_x2 - 1) s ar_x__q
+                    (\j. 
+                      \k___q. 
+                       (j != 0 \/ k___q (x - 1)) /\ (j = 0 \/ ar_y__q j k___q))
+                    k__q2))
+     /\ (b = 1
+         \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ k__q s ar_x__q)).
+Rumble__q recRumble135__q _x _x2 t ar_x__q ar_y__q k__q =v
+  ar_x__q 0
+   (\x. 
+     ar_y__q 0
+      (\y. 
+        (x > y
+         \/ (∀s. 
+              s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+              \/ Rumble135__q (recRumble135__q - 1) _x _x2 s ar_x__q ar_y__q k__q k__q
+                  1))
+        /\ (x <= y
+            \/ (∀s. 
+                 s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+                 \/ Rumble135__q (recRumble135__q - 1) _x _x2 s ar_x__q ar_y__q k__q
+                     k__q 0)))).
+                    
+*/

@@ -2,28 +2,32 @@
 Sentry =v
   ∀n. 
    ∀s. 
-    s < 1 * n + 0 \/ s < (-1) * n + 0 \/ s < 0
-    \/ (∀recMult. 
-         recMult < 1 + 1 * n \/ recMult < 1 + (-1) * n \/ recMult < 1
-         \/ Mult recMult s (\k. k 0) (\k. k n) (\k. k n)
-             (\t. 
-               \g. 
-                ∀recLoop. 
-                 recLoop < 1 + 1 * t \/ recLoop < 1 + (-1) * t \/ recLoop < 1
-                 \/ Loop recLoop true g)).
-Loop recLoop k g =v
-  recLoop > 0
-  /\ Check g (\b. (b != 0 \/ k) /\ (b = 0 \/ Loop (recLoop - 1) k (Pred g))).
-Mult recMult t acc f g k =v
-  recMult > 0
-  /\ Check f
-      (\b. 
-        (b != 0
-         \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ k s acc))
-        /\ (b != 1
-            \/ (∀s. 
-                 s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
-                 \/ Mult (recMult - 1) s (Add acc g) (Pred f) g k))).
-Add f g k =v f (\fx. g (\gx. k (fx + gx))).
-Pred f k =v f (\r. k (r - 1)).
-Check f k =v f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).
+    s < 1 * n + 0 \/ s < (-1) * n + 0 \/ s < 1 * n + 0 \/ s < (-1) * n + 0
+    \/ s < 1 * n + 0
+    \/ s < (-1) * n + 0
+    \/ s < 1 * n + 0
+    \/ s < (-1) * n + 0
+    \/ s < 0
+    \/ (\x. \x2. \x3. \x4. \x5. Mult x x2 x3 x4 x5) s (\k. k 0) (\k. k n)
+        (\k. k n)
+        (\t. 
+          \g. 
+           ∀s2. 
+            s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+            \/ (\x. \x2. \x3. Loop x2 x3) s2 true g).
+Loop k g =u Check g (\b. (b != 0 \/ k) /\ (b = 0 \/ Loop k (Pred g))).
+Mult t acc f g k =u
+  Check f
+   (\b. 
+     (b != 0 \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ k s acc))
+     /\ (b != 1
+         \/ (∀s. 
+              s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 1 * t + 0
+              \/ s < (-1) * t + 0
+              \/ s < 1 * t + 0
+              \/ s < (-1) * t + 0
+              \/ s < 0
+              \/ Mult s (Add acc g) (Pred f) g k))).
+Add f g k =u f (\fx. g (\gx. k (fx + gx))).
+Pred f k =u f (\r. k (r - 1)).
+Check f k =u f (\n. (n > 0 \/ k 0) /\ (n <= 0 \/ k 1)).

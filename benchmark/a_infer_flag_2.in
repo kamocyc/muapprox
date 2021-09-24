@@ -1,0 +1,10 @@
+%HES
+Sentry =v
+  ∀x. 
+   ∀s. 
+    s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+    \/ s < 0
+    \/ X s (\k. k x).
+X t fx =v ∃y. X2 fx (\k. k y).
+X2 fx fy =v X3 fx fy.
+X3 fx fy =v X3 fx fy /\ fx (\x. fy (\y. x = y)).

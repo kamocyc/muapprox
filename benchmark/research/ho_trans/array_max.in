@@ -1,0 +1,50 @@
+%HES
+S =v
+  ∀n. ∀x. 
+    (n > 0 /\ x >= 0) => 
+    Main n (Rand_array x) (\m.
+      m <= x
+    ).
+
+Main n ar k =v
+  Array_max 0 n ar (-1) k.
+
+Array_max i n ar m k =u
+  (i >= n => k m) /\
+  (i <  n =>
+    ar i (\x.
+      (\k2.
+        (x > m => k2 x) /\ (x <= m => k2 m)
+      ) (\z.
+        Array_max (i + 1) n ar z k
+      )
+    )
+  ).
+
+Rand_array x i k =v
+  ∀y. y <= x => k y.
+
+/*
+/* valid */
+/* 引数は追加していないで解ける */
+%HES
+Sentry =v ∀n. ∀x. n <= 0 \/ x < 0 \/ Main x n (Rand_array x) (\m. m <= x).
+Main _x n ar k =v
+  ∀recArray_max. 
+   recArray_max < 1 + 1 * -1 \/ recArray_max < 1 + (-1) * -1
+   \/ recArray_max < 1 + 1 * n
+   \/ recArray_max < 1 + (-1) * n
+   \/ recArray_max < 1 + 1 * 0
+   \/ recArray_max < 1 + (-1) * 0
+   \/ recArray_max < 1
+   \/ Array_max recArray_max _x 0 n ar (-1) k.
+Array_max recArray_max _x i n ar m k =v
+  recArray_max > 0
+  /\ (i < n \/ k m)
+     /\ (i >= n
+         \/ ar
+             (\x. 
+               (x <= m \/ Array_max (recArray_max - 1) _x (i + 1) n ar x k)
+               /\ (x > m \/ Array_max (recArray_max - 1) _x (i + 1) n ar m k))).
+Rand_array x k =v ∀y. y > x \/ k y.
+*/

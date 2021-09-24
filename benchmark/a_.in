@@ -1,0 +1,4 @@
+%HES
+S =v ∀x. ∃y. X x (\k. k x) y (\k. k y).
+
+X x fx y fy =v X x fx y fy /\ fx (\x_. fy (\y_. x_ = y_)).

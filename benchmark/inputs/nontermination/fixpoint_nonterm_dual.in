@@ -1,0 +1,4 @@
+%HES
+Sentry =v ∀r. Fix To_zero r (\replaced_exc_. true).
+Fix f n k =u f n (\n2. (n2 != n \/ k n) /\ (n2 = n \/ Fix f n2 k)).
+To_zero n k =u (n != 0 \/ k 0) /\ (n = 0 \/ k (n - 1)).

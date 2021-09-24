@@ -61,3 +61,34 @@ q0 -> 1.
 /* demonicのときは偶数 = 無限に分岐する場合を受理、angelicのときは奇数の大きな値 = (ORで繋がる)無限に分岐する場合は受理しない にする */
 q1 -> 2.
 q2 -> 2.
+
+/*
+/* 変換後、解けるバージョン */
+%HES
+Sentry =v ∀x. x <= 0 \/ Outer__q x (\k__q. k__q x).
+Check__q f__q k__q =v f__q (\x. (x > 0 \/ k__q 0) /\ (x <= 0 \/ k__q 1)).
+Neg1__q fn__q k__q =v fn__q (\n. k__q (1 - n)).
+Pred__q fn__q k__q =v fn__q (\n. k__q (n - 1)).
+Outer64__q _x b =v
+  ∀x. 
+   b != 0
+   /\ (b = 0
+       \/ Check__q2 (\k__q. k__q x)
+           (\x2. 
+             ∀recRepeat67__q. 
+              recRepeat67__q < 1 + 2 * x \/ recRepeat67__q < 1 + (-2) * x
+              \/ recRepeat67__q < 1 + 2 * x2
+              \/ recRepeat67__q < 1 + (-2) * x2
+              \/ recRepeat67__q < 1
+              \/ Repeat67__q recRepeat67__q x (\k__q. k__q x) (\k__q. k__q x) x2)).
+Check__q2 f__q k__q =v f__q (\x. (x > 0 \/ k__q 0) /\ (x <= 0 \/ k__q 1)).
+Pred__q2 fn__q k__q =v fn__q (\n. k__q (n - 1)).
+Repeat67__q recRepeat67__q _x fn__q fn__q2 b =v
+  recRepeat67__q > 0
+  /\ (b != 0 \/ Outer__q (1 - _x) (Neg1__q fn__q2))
+     /\ (b = 0
+         \/ Check__q2 (Pred__q2 fn__q)
+             (Repeat67__q (recRepeat67__q - 1) (_x - 1) (Pred__q2 fn__q)
+               (Pred__q fn__q2))).
+Outer__q x fm__q =v Check__q fm__q (Outer64__q x).
+*/

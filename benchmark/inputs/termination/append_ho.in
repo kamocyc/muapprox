@@ -1,0 +1,52 @@
+%HES
+S =v
+  ∀l1. ∀l2.
+    Make_array (\ar1.
+      Update ar1 0 l1 (\ar1_.
+        Make_array (\ar2.
+          Update ar2 0 l2 (\ar2_.
+            X ar1_ ar2_
+          )
+        )
+      )
+    ).
+
+X ar1 ar2 =v
+  Append ar1 ar2 (\r. true).
+
+Append ar_x ar_y k =u
+  Check ar_x (\b. 
+    (b =  1 => k ar_y) /\
+    (b != 1 =>
+      Pred ar_x (\ar_x_.
+        Append  
+          ar_x_
+          ar_y
+          (\ar_r.
+            Succ ar_r (\ar_r_. k ar_r_)
+          )
+      )
+    )
+  ).
+  
+Check ar k =v
+  ar 0 (\x.
+    (x <= 0 => k 1) /\
+    (x >  0 => k 0)
+  ).
+
+Pred ar k =v
+  ar 0 (\x.
+    Update ar 0 (x - 1) k
+  ).
+
+
+Succ ar k =v
+  ar 0 (\x.
+    Update ar 0 (x + 1) k
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).

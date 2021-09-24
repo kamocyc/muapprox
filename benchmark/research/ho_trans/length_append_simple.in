@@ -1,0 +1,60 @@
+/* valid */
+%HES
+S =v
+  ∀x. ∀y.
+    /* 2 */
+    (x >= 0 && y >= 0) =>
+      Main (\k. k x (\i k. k true)) (\k. k y (\i k. k false)).
+
+Cons a len l k =v
+  k (len + 1) (\i k. (i = 0 => k a) /\ (i != 0 => l (i - 1) k)).
+
+Hd len l k =v l 0 k.
+
+Tl len l k =v k (len - 1) (\i k. l (i + 1) k).
+
+Is_nil len l k =v (len = 0 => k 1) /\ (len != 0 => k 0).
+
+Append len1 l1 len2 l2 k =u
+  Is_nil len1 l1 (\b.
+    (b = 1 => k len2 l2) /\
+    (b != 1 =>
+      Tl len1 l1 (\len1' l1'.
+        Append len1' l1' len2 l2 (\len l.
+          Hd len1 l1 (\a.
+            Cons a len l k
+          )
+        )
+      )
+    )
+  ).
+
+Length_cps k len l =u
+  Is_nil len l (\b.
+    (b = 1  => k 0) /\
+    (b != 1 =>
+      Tl len l (\len' l'.
+        Length_cps
+          (\rlen. k (rlen + 1))
+          len' l'
+      )
+    )
+  ).
+
+Main ls1 ls2 =u
+  ls1 (\len1 l1.
+    ls2 (\len2 l2.
+      Append
+        len1
+        l1
+        len2
+        l2
+        (\len l.
+          Length_cps
+            /* 1 */
+            (\rlen. (len <= len1 + len2))
+            len
+            l
+        )
+    )
+  ).

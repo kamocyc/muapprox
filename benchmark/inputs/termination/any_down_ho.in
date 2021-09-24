@@ -1,0 +1,82 @@
+%HES
+Sentry =u 
+  ∀n.
+    Make_array (\ar.
+      Update ar 0 n (\ar2.
+        X ar2
+      )
+    ).
+
+X ar =v F ar (\r. true).
+
+F ar k =u
+  ∀r.
+    (r >  0 => F1 ar r k) /\
+    (r <= 0 => F1 ar (1 - r) k).
+
+F1 ar delta k =u
+  ar 0 (\n.
+    ((n - delta) >  0 =>
+      Update ar 0 (n - delta) (\ar2.
+        F ar2 k
+      )
+    ) /\
+    ((n - delta) <= 0 => k true)
+  ).
+
+Make_array k =v k (\i.\k'. k' 0).
+
+Update ar i x k =v
+  k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).
+
+/*
+%HES
+Sentry =v
+  ∀n. 
+   Make_array
+    (\t. 
+      \ar. 
+       ∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Update s ar 0 n
+            (\t2. 
+              \ar2. 
+               ∀s2. 
+                s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0 \/ X s2 ar2)).
+X t ar =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ (∀recF. 
+        recF < 1 + 1 * t \/ recF < 1 + (-1) * t \/ recF < 1 \/ F recF s ar true).
+F recF t ar k =v
+  recF > 0
+  /\ (∀r. 
+       (r <= 0
+        \/ (∀s. 
+             s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ F2 recF s ar r k))
+       /\ (r > 0
+           \/ (∀s. 
+                s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+                \/ F2 recF s ar (1 - r) k))).
+F2 recF t ar delta k =v
+  ar 0
+   (\n. 
+     (n - delta <= 0
+      \/ (∀s. 
+           s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+           \/ Update s ar 0 (n - delta)
+               (\t2. 
+                 \ar2. 
+                  ∀s2. 
+                   s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 0
+                   \/ F (recF - 1) s2 ar2 k)))
+     /\ (n - delta > 0 \/ k)).
+Make_array k =v ∀s. s < 0 \/ k s (\i. \k_ap_. k_ap_ 0).
+Update t ar i x k =v
+  ∀s. 
+   s < 1 * i + 0 \/ s < (-1) * i + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+   \/ s < 1 * t + 0
+   \/ s < (-1) * t + 0
+   \/ s < 0
+   \/ k s (\j. \k_ap_. (j != i \/ k_ap_ x) /\ (j = i \/ ar j k_ap_)).
+*/
