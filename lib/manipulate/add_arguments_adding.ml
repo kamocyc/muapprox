@@ -377,7 +377,34 @@ let get_occuring_arith_terms phi added_vars =
   in
   go_hflz phi |> List.map fst
 
-let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
+type will_create_bound = CreateBound | NotCreateBound
+
+let get_global_env {var_in_out; body; _} outer_mu_funcs (global_env : ptype2 T.in_out Id.t list) =
+  let lookup v env =
+    List.find (fun (id, _) -> Id.eq id v) env |> snd in
+  let env_has v env =
+    match List.find_opt (fun v' -> Id.eq v' v) env with
+    | Some _ -> true
+    | None -> false
+  in
+  let current_outer_pvars = lookup var_in_out outer_mu_funcs in
+  let global_preds =
+    get_free_variables body
+    |> List.filter (fun v -> Hflz_manipulate.is_pred v) in
+  global_preds
+  |> List.map (fun pvar ->
+    let arg_pvars = lookup pvar outer_mu_funcs in
+    let new_pvars =
+      List.filter (fun pvar -> not @@ env_has pvar current_outer_pvars) arg_pvars in
+    (* var_in_outと、追加するpredicateが一致しないことがある。しかし、どちらにせよその引数として渡されている値は最小不動点の中で使う可能性があるので、単にタグをTにすればよい *)
+    let pvar_e = List.find (fun v -> Id.eq v pvar) global_env in
+    if new_pvars = [] then
+      {pvar with ty=pvar_e.ty.T.inner_ty}, NotCreateBound, pvar_e.ty.T.inner_ty
+    else
+      {pvar with ty=pvar_e.ty.outer_ty}, CreateBound, pvar_e.ty.T.inner_ty
+  )
+
+let add_params c1 c2 outer_mu_funcs (rules : ptype2 thes_rule_in_out list) =
   let simplifier = fun x -> x in
   (* let simplifier = Simplify.simplify in *)
   let id_type_map = ref IdMap.empty in  (* 整数変数 -> その「タイプ」 *)
@@ -396,7 +423,7 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
     | [] -> body, bodyty
   in
   let rec go
-      (global_env : (('a Id.t * bool * ptype2 Id.t) list))
+      (global_env : (ptype2 Id.t * will_create_bound * ptype2) list)
       (rho : (ptype' Id.t * ptype' Id.t) list)
       (phi : ptype2 thflz2) : ptype' T.thflz * ptype' * ((ptype' Id.t Arith.gen_t list * int * int * ptype' Id.t) list) = match phi with
     | Abs (xs, psi, ty) -> begin
@@ -543,10 +570,10 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
     end
     | Var v -> begin
       match List.find_opt (fun (id, _, _) -> Id.eq id v) global_env with
-      | Some (_, true, v') ->
-        (* 最小不動点の最初の出現のとき *)
+      | Some (_, CreateBound, vt') ->
+        (* boundを作るとき *)
         (* print_endline @@ "Var(before): " ^ Id.to_string v ^ ": " ^ show_ptype2 v.ty; *)
-        (* 最小不動点の最初の出現（の可能性がある）ときは、eta-展開を行う *)
+        (* eta-展開を行う *)
         (* 外側（Tが多い方）で引数を受け取る *)
         let rec go ty ty' = match ty, ty' with
           | TFunc (argtys, bodyty), TFunc (argtys', bodyty') -> begin
@@ -568,7 +595,7 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
           | TInt, TInt | TVar _, TVar _ -> assert false
           | _ -> assert false in
         (* go outer_ty inner_ty *)
-        let params = go v.ty v'.Id.ty in
+        let params = go v.ty vt' in
         let rec make_abs body (params : (ptype' Id.t option * bool * ptype' Id.t list) list) = match params with
           | (fst, _, xs)::xss -> begin
             let b, ty = make_abs body xss in
@@ -607,7 +634,7 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
               go_app (make_app body xss) (List.rev xs)
           end
           | [] -> body in
-        let v' = { v' with ty = convert_ty' v'.ty} in
+        let v' = { v with ty = convert_ty' vt'} in
         (* print_endline "v'";
         print_endline @@ show_ptype' v'.ty; *)
         let b = make_app (Var v') (List.rev params) in
@@ -615,7 +642,7 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
         (* print_endline @@ "Var(after): " ^ show_pt_thflz psi ^ ": " ^ show_ptype2 v.ty; *)
         assert (ty'' = convert_ty' v.ty);
         psi, ty'', []
-      | Some (_, false, _) | None ->
+      | Some (_, NotCreateBound, _) | None ->
         (* print_endline @@ Id.to_string v;
         print_endline @@ "Var(after): " ^ show_ptype2 v.ty; *)
         let ty = convert_ty' v.ty in
@@ -655,29 +682,11 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
     | Op (o, ps) -> Op (o, List.map go_arith ps)
   in
   let global_env = List.map (fun {var_in_out; _} -> var_in_out) rules in
-  let filter_global_env global_env rec_flags var =
-    let (_, nids) = List.find (fun (k, _) -> Id.eq k var) rec_flags in
-    List.filter_map
-      (fun var_in_out ->
-        match List.find_opt (fun (x', _) -> Id.eq var_in_out x') nids with
-        | Some (_, T.Recursive) ->
-          Some ({var_in_out with ty=var_in_out.ty.T.inner_ty}, T.Recursive)
-        | Some (_, NotRecursive) ->
-          Some ({var_in_out with ty=var_in_out.ty.T.outer_ty}, NotRecursive)
-        | None -> None
-      )
-      global_env
-  in
   let rules =
     List.map
-      (fun {var_in_out; body; fix} ->
-        (* global_env: (id, 最小不動点の最初の出現か否か, 最小不動点の内側での型) *)
-        let global_env =  
-          filter_global_env global_env rec_flags var_in_out
-          |> List.map (fun (v, f) ->
-            let {var_in_out; fix; _} = List.find (fun {var_in_out;_} -> Id.eq var_in_out v) rules in
-            (v, fix = Least && f = T.NotRecursive, {var_in_out with ty=var_in_out.ty.inner_ty})
-          ) in
+      (fun ({var_in_out; body; fix} as rule) ->
+        let global_env =
+          get_global_env rule outer_mu_funcs global_env in
         (* print_endline "start";
         print_endline @@ Id.to_string var_in_out;
         List.iter
@@ -709,7 +718,7 @@ and convert_argty ty = match ty with
   | TFunc' _ | TBool' ->
     TySigma (convert_ty ty)
   
-let to_hes original_fixpoint_pairs (rules : (ptype' Id.t * ptype' T.thflz * T.fixpoint) list) =
+let to_hes (rules : (ptype' Id.t * ptype' T.thflz * T.fixpoint) list) =
   let rec go phi : unit Type.ty Hflz.t = match phi with
     | T.Var v ->
       (* print_endline @@ "to_hes VAR: " ^ v.name ^ "_" ^ string_of_int v.id; *)
@@ -756,8 +765,6 @@ let to_hes original_fixpoint_pairs (rules : (ptype' Id.t * ptype' T.thflz * T.fi
         match fix with
         | T.Greatest -> Fixpoint.Greatest
         | Least -> Fixpoint.Least
-        | NonRecursive ->
-          snd @@ List.find (fun (id, _) -> Id.eq id var) original_fixpoint_pairs
       in
       {Hflz.var; body; fix}
     )

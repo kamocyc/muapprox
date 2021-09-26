@@ -35,7 +35,7 @@ let rec assign_flags_to_type (ty : ptype2) =
   | TInt -> TInt
   | TBool -> TBool
   | TVar v -> TVar v
-  
+
 let assign_flags (rules : ptype2 thes_rule list) : ptype2 thes_rule_in_out list =
   let rec go (raw : ptype2 thflz2) : ptype2 thflz2 = match raw with
     | Bool b -> Bool b
@@ -53,19 +53,16 @@ let assign_flags (rules : ptype2 thes_rule list) : ptype2 thes_rule_in_out list 
     (fun {var; body; fix} ->
       let inner_ty = assign_flags_to_type var.ty in
       let outer_ty =
-        match fix with
-        | Least ->
-          let rec go = function
-            | TFunc (argty, bodyty) ->
-              TFunc (
-                List.map (fun (arg, _) -> arg, T.TUse) argty,
-                go bodyty
-              )
-            | TBool -> TBool
-            | _ -> assert false
-          in
-          go inner_ty
-        | Greatest | NonRecursive -> inner_ty
+        let rec go = function
+          | TFunc (argty, bodyty) ->
+            TFunc (
+              List.map (fun (arg, _) -> arg, T.TUse) argty,
+              go bodyty
+            )
+          | TBool -> TBool
+          | _ -> assert false
+        in
+        go inner_ty
       in
       let var = {var with ty = {T.inner_ty; outer_ty}} in
       let body = go body in
@@ -73,7 +70,36 @@ let assign_flags (rules : ptype2 thes_rule list) : ptype2 thes_rule_in_out list 
     )
     rules
 
-let generate_flag_constraints (rules : ptype2 thes_rule_in_out list) (rec_flags : ('a Type.ty Id.t * ('a Type.ty Id.t * T.recursive_flag) list) list) : T.use_flag_constraint list =
+let get_global_env {var_in_out; body; _} outer_mu_funcs global_env =
+  let lookup v env =
+    List.find (fun (id, _) -> Id.eq id v) env |> snd in
+  let env_has v env =
+    match List.find_opt (fun v' -> Id.eq v' v) env with
+    | Some _ -> true
+    | None -> false
+  in
+  let current_outer_pvars = lookup var_in_out outer_mu_funcs in
+  let global_preds =
+    get_free_variables body
+    |> List.filter (fun v -> Hflz_manipulate.is_pred v) in
+  global_preds
+  |> List.map (fun pvar ->
+    let arg_pvars = lookup pvar outer_mu_funcs in
+    let new_pvars =
+      List.filter (fun pvar -> not @@ env_has pvar current_outer_pvars) arg_pvars in
+    (* var_in_outと、追加するpredicateが一致しないことがある。しかし、どちらにせよその引数として渡されている値は最小不動点の中で使う可能性があるので、単にタグをTにすればよい *)
+    let (pvar_e, tag) = List.find (fun (v, _) -> Id.eq v pvar) global_env in
+    if new_pvars = [] then
+      {pvar with ty=(pvar_e.ty.T.inner_ty, tag)}
+    else
+      {pvar with ty=(pvar_e.ty.outer_ty, tag)}
+  )
+  |> Env.create
+
+let generate_flag_constraints
+    (rules : ptype2 thes_rule_in_out list)
+    (outer_mu_funcs : ('a Id.t * 'a Id.t list) list)
+    : T.use_flag_constraint list =
   let filter_env env fvs =
     List.fold_left
       (fun env' fv ->
@@ -156,23 +182,11 @@ let generate_flag_constraints (rules : ptype2 thes_rule_in_out list) (rec_flags 
   in
   let global_env =
     List.map (fun {var_in_out; _} -> (var_in_out, T.EFVar (Id.gen ()))) rules in
-  let filter_global_env global_env rec_flags var =
-    let (_, nids) = List.find (fun (k, _) -> Id.eq k var) rec_flags in
-    Env.create @@
-    List.filter_map
-      (fun (var, var_flag) ->
-        match List.find_opt (fun (x', _) -> Id.eq var x') nids with
-        | Some (_, T.Recursive) ->
-          Some {var with ty=(var.ty.T.inner_ty, var_flag)}
-        | Some (_, NotRecursive) ->
-          Some {var with ty=(var.ty.outer_ty, var_flag)}
-        | None -> None
-      )
-      global_env
-  in
   List.map
-    (fun { var_in_out; body; fix=_fix } ->
-      let global_env = filter_global_env global_env rec_flags var_in_out in
+    (fun ({ var_in_out; body; fix=_fix } as rule) ->
+      let global_env =
+        get_global_env rule outer_mu_funcs global_env
+      in
       let ty, flag_constraints = gen global_env body in
       (generate_type_equal_constraint ty var_in_out.ty.inner_ty) @ flag_constraints
     )
@@ -268,9 +282,11 @@ let set_tag_in_undetermined_tags rules to_set_tag =
     )
     rules
 
-let infer_thflz_type (rules : ptype2 thes_rule list) rec_flags: ptype2 thes_rule_in_out list =
+let infer_thflz_type
+    (rules : ptype2 thes_rule list)
+    (outer_mu_funcs : ('a Id.t * 'a Id.t list) list): ptype2 thes_rule_in_out list =
   let rules = assign_flags rules in
-  let flag_constraints = generate_flag_constraints rules rec_flags in
+  let flag_constraints = generate_flag_constraints rules outer_mu_funcs in
   let flag_substitution = Add_arguments_unify_flags.unify_flags flag_constraints in
   let rules = subst_flags_program rules flag_substitution in
   let rules = set_tag_in_undetermined_tags rules T.TNotUse in
@@ -281,73 +297,7 @@ let set_use_tag (rules : ptype2 thes_rule list): ptype2 thes_rule_in_out list =
   let rules = set_tag_in_undetermined_tags rules T.TUse in
   rules
 
-let get_recursivity (rules : 'a Type.ty Hflz.hes_rule list) =
-  let preds, graph = Hflz_util.get_dependency_graph rules in
-  List.map
-    (fun (i, pred) ->
-      let reachables = Mygraph.reachable_nodes_from ~start_is_reachable_initially:false i graph in
-      match List.find_opt (fun r -> r = i) reachables with
-      | Some _ -> (pred, true)
-      | None -> (pred, false)
-    )
-    preds
-  
-let construct_recursion_flags (rules : 'a Type.ty Hflz.hes_rule list) =
-  let preds, graph = Hflz_util.get_dependency_graph rules in
-  (* Depth first search *)
-  let rec dfs seen current =
-    let nids = Mygraph.get_next_nids current graph in
-    (* 既に見たなら、「再帰」とフラグを付ける *)
-    List.map
-      (fun nid ->
-        match List.find_opt (fun s -> s = nid) seen with
-        | Some _ -> [(current, (nid, T.Recursive))]
-        | None ->
-          let map = dfs (nid::seen) nid in
-          (current, (nid, NotRecursive)) :: map
-      )
-      nids
-    |> List.flatten
-  in
-  let map = dfs [0] 0 in
-  let map =
-    Hflmc2_util.group_by (fun (key, _) -> key) map
-    |> Hflmc2_util.list_of_hashtbl
-    |> List.map (fun (k, vs) -> (k, List.map snd vs)) in
-  let map =
-    List.map
-      (fun (k, flags) ->
-        let flags =
-          Hflmc2_util.group_by (fun (key, _) -> key) flags
-          |> Hflmc2_util.list_of_hashtbl
-          |> List.map (fun (k, vs) -> (k, List.map snd vs)) in
-        let flag =
-          List.map
-            (fun (nid, flags) ->
-              (* prioritize NotRecursive *)
-              match List.find_opt (fun f -> match f with T.NotRecursive -> true | Recursive -> false) flags with
-              | Some _ -> (nid, T.NotRecursive)
-              | None -> (nid, Recursive)
-            )
-            flags in
-        (k, flag)
-      )
-      map
-  in
-  let map =
-    List.map
-      (fun (i, id) ->
-        match List.find_opt (fun (j, _) -> i = j) map with
-        | Some (_, nids) ->
-          (id, List.map (fun (k, v) -> let (_, id) = List.find (fun (i, _) -> i = k) preds in (id, v)) nids)
-        | None -> (id, [])
-      )
-      preds
-  in
-  (* print_endline "recursion flags:";
-  print_endline @@ Hflmc2_util.show_pairs Id.to_string (fun flags -> Hflmc2_util.show_pairs Id.to_string show_recursive_flag flags) map; *)
-  map
-
+(* 
 let show_id_map id_map show_f = 
   "{" ^
   (IdMap.to_alist id_map
@@ -383,4 +333,4 @@ module Print_temp = struct
     fun format_ty_ ppf rules ->
       Fmt.pf ppf "@[<v>%a@]"
         (Fmt.list (hflz_hes_rule format_ty_)) rules
-end
+end *)

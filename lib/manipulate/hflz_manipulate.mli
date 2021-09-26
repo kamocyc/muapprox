@@ -41,3 +41,7 @@ val elim_mu_with_rec :
 
 (* flag *)
 val simplify_bound : bool ref
+
+val get_outer_mu_funcs : 'a Hflz.hes_rule list -> ('a Id.t * 'a Id.t list) list
+
+val is_pred : 'a Id.t -> bool

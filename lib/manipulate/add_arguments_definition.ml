@@ -27,7 +27,7 @@ type 'ty thflz =
 type use_flag = TUse | TNotUse | EFVar of unit Hflmc2_syntax.Id.t
 [@@deriving eq,ord,show]
 
-type fixpoint = Least | Greatest | NonRecursive
+type fixpoint = Least | Greatest
 [@@deriving eq,ord,show]
 
 type ptype = TInt | TBool | TFunc of ptype * ptype * use_flag | TVar of unit Hflmc2_syntax.Id.t
@@ -71,7 +71,6 @@ let get_thflz_type_without_check phi =
 let show_fixpoint = function
   | Least -> "μ"
   | Greatest -> "ν"
-  | NonRecursive -> ""
 
 let show_tag_as_separator = ref true
 

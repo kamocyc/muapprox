@@ -118,7 +118,6 @@ let get_args phi =
 let show_fixpoint = function
   | T.Least -> "μ"
   | Greatest -> "ν"
-  | NonRecursive -> ""
 
 let thflz_to_ptype = get_thflz2_type_without_check
 
