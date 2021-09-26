@@ -246,7 +246,7 @@ module Typing = struct
             in
             self#add_ty_env x (TvInt (InfoProg {expr=Var name})); Arith.mk_var x
         | Op (op, as') -> Op (op, List.map ~f:(self#arith id_env) as')
-        | _ -> failwith "annot.arith"
+        | _ -> failwith @@ "annot.arith (should be arithmetic expression. but found \"" ^ show_raw_hflz a ^ "\")"
 
     method term : id_env -> raw_hflz -> tyvar -> unit Hflz.Sugar.t =
       fun id_env psi tv ->

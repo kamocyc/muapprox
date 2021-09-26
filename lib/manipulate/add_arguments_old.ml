@@ -160,7 +160,7 @@ let add_arguments_expr global_vars use_related (phi : PA.i_thflz) (coe1: int) (c
       match l with
       | Insert ->
         let id = id_gen ~name:"t" Type.TyInt in
-        new_ids := IdMap.add !new_ids id Hflz_util.VTHigherInfo;
+        new_ids := IdMap.add !new_ids id (Hflz_util.VTHigherInfo None);
         (* TODO: 関連する高階引数を追加 *)
         let rec get_abs acc phi = match phi with
           | PA.Abs (l, x, p) -> begin

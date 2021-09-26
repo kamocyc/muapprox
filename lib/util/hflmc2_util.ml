@@ -443,7 +443,7 @@ let sexp_of_unit      = sexp_of_unit
 
 type ('a, 'b) result = Ok of 'a | Error of 'b
 
-let show_list f ls = "[ " ^ (List.map ~f:f ls |> String.concat ~sep:"; \n") ^ " ]"
+let show_list ?(sep="; \n") f ls = "[ " ^ (List.map ~f:f ls |> String.concat ~sep) ^ " ]"
 let show_pairs pr1 pr2 ls =
   show_list (fun (p1, p2) -> "(" ^ pr1 p1 ^ ", " ^ pr2 p2 ^ ")") ls
 let print_list f ls = print_endline @@ show_list f ls

@@ -10,6 +10,8 @@ open Syntax
 let log_src = Logs.Src.create "Main"
 module Log = (val Logs.src_log @@ log_src)
 
+let log_string = Manipulate.Hflz_util.log_string Log.info
+
 let measure_time f =
   let start  = Unix.gettimeofday () in
   let result = f () in
@@ -96,7 +98,9 @@ let get_solve_options file =
     adding_arguments_optimization = !Options.adding_arguments_optimization;
     use_all_variables = !Options.use_all_variables;
     replacer = !Options.replacer;
-    auto_existential_quantifier_instantiation = !Options.auto_existential_quantifier_instantiation
+    auto_existential_quantifier_instantiation = !Options.auto_existential_quantifier_instantiation;
+    with_partial_analysis = !Options.with_partial_analysis;
+    with_usage_analysis = !Options.with_usage_analysis;
   }
 
 let check_format file format_type =
@@ -125,6 +129,19 @@ let check_format file format_type =
   end
   | _ -> failwith "format should be \"hes\", \"in\" or \"auto\""
 
+let simplify_agg_ hes =
+  let hes =
+    Ltl_program.eliminate_unused_argument hes in
+  let hes = Manipulate.Hes_optimizer.simplify_all hes in
+  let hes = Manipulate.Hes_optimizer.simplify_agg false hes in
+  let path =
+    let r = Random.int 0x10000000 in
+    Printf.sprintf "/tmp/%d.tmp" r in
+  ignore @@ Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path ~without_id:false true hes;
+  log_string @@ "simplified formula: " ^ path;
+  let hes = parse path false in
+  hes
+  
 let main file cont =
   let solve_options = get_solve_options file in
   let is_hes = check_format file !Options.format in
@@ -136,6 +153,7 @@ let main file cont =
     Log.info begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
     psi
   ) else psi in *)
+  let psi = if !Options.agg then simplify_agg_ psi else psi in
   Muapprox_prover.check_validity solve_options psi (fun (s1, info) -> cont (s1, info))
 
 let assign_serial_to_vars_hes = Muapprox_prover.Check_formula_equality.assign_serial_to_vars_hes

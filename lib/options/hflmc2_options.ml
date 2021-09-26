@@ -33,6 +33,9 @@ let adding_arguments_optimization = ref (Obj.magic ())
 let use_all_variables = ref (Obj.magic())
 let replacer = ref (Obj.magic())
 let auto_existential_quantifier_instantiation = ref (Obj.magic())
+let with_partial_analysis = ref (Obj.magic())
+let with_usage_analysis = ref (Obj.magic())
+let agg = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -89,7 +92,7 @@ type params =
   ; instantiate_exists: bool [@defalut false]
   (** At the first iteration (coe1=1, coe2=1), assign concrete values to existentially quantified variables. *)
   
-  ; default_lexicographic_order: int [@default 1]
+  ; lexicographic_order: int [@default 1]
   (** Default number of pairs when using lexicographic order *)
   
   ; simplify_bound : bool [@default false]
@@ -124,6 +127,13 @@ type params =
   
   ; no_auto_existential_quantifier_instantiation : bool [@default false]
   (** DON'T instantiate existential quantifiers even if instantiation seems to be effective *)
+  
+  ; no_partial_analysis : bool [@default false]
+  
+  ; no_usage_analysis : bool [@default false]
+  
+  ; agg : bool [@default false]
+  (* for debug *)
   }
 [@@deriving cmdliner,show]
 
@@ -143,7 +153,7 @@ let set_up_params params =
   set_ref stop_on_unknown           params.stop_on_unknown;
   set_ref always_approximate       params.always_approximate;
   set_ref assign_values_for_exists_at_first_iteration params.instantiate_exists;
-  set_ref default_lexicographic_order params.default_lexicographic_order;
+  set_ref default_lexicographic_order params.lexicographic_order;
   set_ref simplify_bound       params.simplify_bound;
   set_ref use_simple_encoding_when_lexico_is_one params.use_simple_encoding_when_lexico_is_one;
   set_ref disable_lexicographic params.disable_lexicographic;
@@ -155,6 +165,9 @@ let set_up_params params =
   set_ref adding_arguments_optimization (not params.no_adding_arguments_optimization);
   set_ref replacer params.replacer;
   set_ref auto_existential_quantifier_instantiation (not params.no_auto_existential_quantifier_instantiation);
+  set_ref with_partial_analysis (not params.no_partial_analysis);
+  set_ref with_usage_analysis (not params.no_usage_analysis);
+  set_ref agg params.agg;
   params.input
 
 (******************************************************************************)

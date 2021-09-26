@@ -19,6 +19,9 @@ val encode_body_exists :
   int ->
   int ->
   Hflmc2_syntax.Type.simple_ty Hflz.hes ->
+  (unit Id.t, Hflz_util.variable_type, Hflmc2_syntax.IdMap.Key.comparator_witness) Base.Map.t ->
+  (unit Id.t * [ `Int ] Id.t) list ->
+  bool ->
   unit Hflmc2_syntax.Type.ty Hflz.t *
   unit Hflmc2_syntax.Type.ty Hflz.hes_rule list
 

@@ -1,0 +1,33 @@
+%HES
+S =v ∀x. X (\k. k x).
+
+X f =v ∃y. A y f.
+
+A y f =v f (\x. x = y) /\ A y f.
+
+/*
+/* inferred type */
+/* f548 has T (use) tag */
+MAIN__  =
+  ∀x546.
+   (X : [{[{[{int,_}] -> bool,_}] -> bool,T}] -> bool)
+    [λ[k547]:[{[{int,_}] -> bool,_}].(k547 : [{int,_}] -> bool) [x546]]
+X ([f548] : [{[{[{int,_}] -> bool,_}] -> bool,T}]) =
+  ∃y549.
+   (A : [{int,_},{[{[{int,_}] -> bool,_}] -> bool,_}] -> bool)
+    [y549; (f548 : [{[{int,_}] -> bool,_}] -> bool)]
+A ([y550; f551] : [{int,_},{[{[{int,_}] -> bool,_}] -> bool,_}]) =ν
+  (f551 : [{[{int,_}] -> bool,_}] -> bool) [λ[x552]:[{int,_}].x552 = y550]
+  /\ (A : [{int,_},{[{[{int,_}] -> bool,_}] -> bool,_}] -> bool)
+      [y550; (f551 : [{[{int,_}] -> bool,_}] -> bool)]
+*/
+
+/*
+/* with extra arguments */
+%HES
+Sentry =v
+  ∀x. ∀s. s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0 \/ X s (\k. k x).
+X t f =v ∀y. y < 1 + 1 * t \/ y < 1 + (-1) * t \/ y < 1 \/ X_e f y.
+X_e f y =v (A y f \/ A (-y) f \/ X_e f (y - 1)) /\ y >= 0.
+A y f =v f (\x. x = y) /\ A y f.
+*/

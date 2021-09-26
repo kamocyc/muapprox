@@ -112,11 +112,21 @@ let generate_flag_constraints (rules : ptype2 thes_rule_in_out list) (rec_flags 
       let env = Env.update [{arg with ty = (arg.ty, T.EFVar flag)}] env in
       let t, f = gen env body in
       (t, f)
-    | Exists (arg, body) ->
-      let flag = Id.gen () in
-      let env = Env.update [{arg with ty = (arg.ty, T.EFVar flag)}] env in
-      let t, f = gen env body in
-      (t, f)
+    | Exists (arg, body) -> begin
+      let t, f =
+        let flag = Id.gen () in
+        let env' = Env.update [{arg with ty = (arg.ty, T.EFVar flag)}] env in
+        gen env' body in
+      let flag_constrs =
+        let fvs =
+          get_free_variables body 
+          |> List.filter (fun x' -> not @@ Id.eq x' arg) in
+        let env' = filter_env env fvs in
+        Env.to_list env'
+        |> List.map (fun id -> snd id.Id.ty)
+        |> List.map (fun f -> T.EF_Equal (f, TUse)) in        
+      (t, f @ flag_constrs)
+    end
     | App (p1, ps) -> begin
       let t1, f1 = gen env p1 in
       let tyargs, tybody =
@@ -125,7 +135,8 @@ let generate_flag_constraints (rules : ptype2 thes_rule_in_out list) (rec_flags 
         | _ -> assert false
       in
       let flag_constrs =
-        List.map
+        (List.combine ps tyargs)
+        |> List.map
           (fun (p2, (ty2, tag)) ->
             let fvs = get_free_variables p2 in
             let env' = filter_env env fvs in
@@ -136,7 +147,6 @@ let generate_flag_constraints (rules : ptype2 thes_rule_in_out list) (rec_flags 
             let t2, f2 = gen env' p2 in
             f2 @ flag_constrs @ (generate_type_equal_constraint ty2 t2)
           )
-          (List.combine ps tyargs)
         |> List.flatten
       in
       (tybody, f1 @ flag_constrs)
@@ -216,43 +226,43 @@ let subst_flags_program (rules : ptype2 thes_rule_in_out list) (subst : (unit Id
     )
     rules
 
-let rec set_not_use_in_undetermined_flags_ty ty =
+let rec set_tag_in_undetermined_tags_ty ty to_set_tag =
   match ty with
   | TFunc (argtys, bodyty) -> begin
     TFunc (
       List.map
         (fun (argty, tag) ->
-          set_not_use_in_undetermined_flags_ty argty,
+          set_tag_in_undetermined_tags_ty argty to_set_tag,
           let tag =
             match tag with
-            | T.EFVar _ -> T.TNotUse
+            | T.EFVar _ -> to_set_tag
             | tag -> tag in
           tag
         )
         argtys,
-      set_not_use_in_undetermined_flags_ty bodyty
+      set_tag_in_undetermined_tags_ty bodyty to_set_tag
     )
   end
   | TBool -> TBool
   | TInt -> TInt
   | TVar _ -> assert false
-    
-let set_not_use_in_undetermined_flags rules =
+
+let set_tag_in_undetermined_tags rules to_set_tag =
   let rec go (phi : ptype2 thflz2) = match phi with
     | Bool b -> Bool b
-    | Var v -> Var {v with ty=set_not_use_in_undetermined_flags_ty v.ty}
+    | Var v -> Var {v with ty=set_tag_in_undetermined_tags_ty v.ty to_set_tag}
     | Or (p1, p2) -> Or (go p1, go p2)
     | And (p1, p2) -> And (go p1, go p2)
-    | Abs (xs, p, ty) -> Abs (List.map (fun x -> {x with Id.ty=set_not_use_in_undetermined_flags_ty x.Id.ty}) xs, go p, set_not_use_in_undetermined_flags_ty ty)
-    | Forall (x, p) -> Forall ({x with ty=set_not_use_in_undetermined_flags_ty x.ty}, go p)
-    | Exists (x, p) -> Exists ({x with ty=set_not_use_in_undetermined_flags_ty x.ty}, go p)
+    | Abs (xs, p, ty) -> Abs (List.map (fun x -> {x with Id.ty=set_tag_in_undetermined_tags_ty x.Id.ty to_set_tag}) xs, go p, set_tag_in_undetermined_tags_ty ty to_set_tag)
+    | Forall (x, p) -> Forall ({x with ty=set_tag_in_undetermined_tags_ty x.ty to_set_tag}, go p)
+    | Exists (x, p) -> Exists ({x with ty=set_tag_in_undetermined_tags_ty x.ty to_set_tag}, go p)
     | App (p1, p2) -> App (go p1, List.map go p2)
     | Arith a -> Arith a
     | Pred (op, ps) -> Pred (op, ps)
   in
   List.map
     (fun {var_in_out; body; fix} ->
-      let var_in_out = { var_in_out with ty = {T.inner_ty = set_not_use_in_undetermined_flags_ty var_in_out.ty.inner_ty; outer_ty = set_not_use_in_undetermined_flags_ty var_in_out.ty.outer_ty }} in
+      let var_in_out = { var_in_out with ty = {T.inner_ty = set_tag_in_undetermined_tags_ty var_in_out.ty.inner_ty to_set_tag; outer_ty = set_tag_in_undetermined_tags_ty var_in_out.ty.outer_ty to_set_tag}} in
       let body = go body in
       { var_in_out; body; fix }
     )
@@ -263,7 +273,12 @@ let infer_thflz_type (rules : ptype2 thes_rule list) rec_flags: ptype2 thes_rule
   let flag_constraints = generate_flag_constraints rules rec_flags in
   let flag_substitution = Add_arguments_unify_flags.unify_flags flag_constraints in
   let rules = subst_flags_program rules flag_substitution in
-  let rules = set_not_use_in_undetermined_flags rules in
+  let rules = set_tag_in_undetermined_tags rules T.TNotUse in
+  rules
+
+let set_use_tag (rules : ptype2 thes_rule list): ptype2 thes_rule_in_out list =
+  let rules = assign_flags rules in
+  let rules = set_tag_in_undetermined_tags rules T.TUse in
   rules
 
 let get_recursivity (rules : 'a Type.ty Hflz.hes_rule list) =

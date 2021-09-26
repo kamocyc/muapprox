@@ -1,0 +1,95 @@
+%HES
+S =v ∀x. ∀y. X (\k. k x) (\k. k y).
+
+X f g =v A f g.
+
+A f g =u
+  f (\x. x = 0) \/ g (\y. y = 0) \/ A f g.
+
+/*
+/* no analysis */
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    ∀s. 
+     s < 1 * y + 0 \/ s < (-1) * y + 0 \/ s < 0
+     \/ (∀s2. 
+          s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 0
+          \/ X s2 (\k. k x) s (\k. k y)).
+X t f t2 g =v
+  ∀s. 
+   s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 0
+   \/ (∀s2. 
+        s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+        \/ (∀recA. 
+             recA < 1 + 1 * t2 \/ recA < 1 + (-1) * t2 \/ recA < 1 + 1 * t
+             \/ recA < 1 + (-1) * t
+             \/ recA < 1
+             \/ A recA s2 f s g)).
+A recA t f t2 g =v
+  recA > 0
+  /\ ((∀s. s < 0 \/ f (\x. x = 0)) \/ (∀s. s < 0 \/ g (\y. y = 0))
+      \/ (∀s. 
+           s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 0
+           \/ (∀s2. 
+                s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+                \/ A (recA - 1) s2 f s g))).
+*/
+
+/*
+/* usage analysis */
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    ∀s. 
+     s < 1 * y + 0 \/ s < (-1) * y + 0 \/ s < 0
+     \/ (∀s2. 
+          s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 0
+          \/ X s2 (\k. k x) s (\k. k y)).
+X t f t2 g =v
+  ∀recA. 
+   recA < 1 + 1 * t2 \/ recA < 1 + (-1) * t2 \/ recA < 1 + 1 * t
+   \/ recA < 1 + (-1) * t
+   \/ recA < 1
+   \/ A recA f g.
+A recA f g =v recA > 0 /\ (f (\x. x = 0) \/ g (\y. y = 0) \/ A (recA - 1) f g).
+*/
+
+/*
+/* partial analysis */
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    ∀s. 
+     s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 1 * y + 0 \/ s < (-1) * y + 0
+     \/ s < 0
+     \/ X s (\k. k x) (\k. k y).
+X t f g =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ (∀recA. 
+        recA < 1 + 1 * t \/ recA < 1 + (-1) * t \/ recA < 1 \/ A recA s f g).
+A recA t f g =v
+  recA > 0
+  /\ ((∀s. s < 0 \/ f (\x. x = 0)) \/ (∀s. s < 0 \/ g (\y. y = 0))
+      \/ (∀s. 
+           s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ A (recA - 1) s f g)).
+*/
+
+/*
+/* usage + partial analysis */
+%HES
+Sentry =v
+  ∀x. 
+   ∀y. 
+    ∀s. 
+     s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 1 * y + 0 \/ s < (-1) * y + 0
+     \/ s < 0
+     \/ X s (\k. k x) (\k. k y).
+X t f g =v
+  ∀recA. recA < 1 + 1 * t \/ recA < 1 + (-1) * t \/ recA < 1 \/ A recA f g.
+A recA f g =v recA > 0 /\ (f (\x. x = 0) \/ g (\y. y = 0) \/ A (recA - 1) f g).
+*/

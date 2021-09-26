@@ -55,7 +55,7 @@ let show_debug_context debug =
     let show assoc =
       let rec go = function 
         | [] -> []
-        | (k, v)::xs -> (k ^ "=" ^ v)::(go xs) in
+        | (k, v)::xs -> (k ^ ": " ^ v)::(go xs) in
       "(" ^ (go assoc |> String.concat ", ") ^ ")"
     in
     let soi = string_of_int in
@@ -473,14 +473,14 @@ let should_instantiate_exists original_hes =
   let coe1, coe2, lexico_pair_number = (1, 1, 1) in
   
   let exists_count_prover = count_exists original_hes in
-  let hes_ = Hflz_mani.encode_body_exists coe1 coe2 original_hes in
+  let hes_ = Hflz_mani.encode_body_exists coe1 coe2 original_hes Hflmc2_syntax.IdMap.empty [] false in
   let hes_ = Hflz_mani.elim_mu_with_rec hes_ coe1 coe2 lexico_pair_number Hflmc2_syntax.IdMap.empty false [] in
   if not @@ Hflz.ensure_no_mu_exists hes_ then failwith "elim_mu";
   is_nu_only_tractable hes_
   >>= (fun t_prover ->
     let dual_hes = Hflz_mani.get_dual_hes original_hes in
     let exists_count_disprover = count_exists dual_hes in
-    let dual_hes = Hflz_mani.encode_body_exists coe1 coe2 dual_hes in
+    let dual_hes = Hflz_mani.encode_body_exists coe1 coe2 dual_hes Hflmc2_syntax.IdMap.empty [] false  in
     let dual_hes = Hflz_mani.elim_mu_with_rec dual_hes coe1 coe2 lexico_pair_number Hflmc2_syntax.IdMap.empty false [] in
     if not @@ Hflz.ensure_no_mu_exists dual_hes then failwith "elim_mu";
     is_nu_only_tractable dual_hes
@@ -503,7 +503,7 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
   
   let add_arguments hes =
     if adding_arguments_optimization then
-      Manipulate.Add_arguments_infer_partial_application.infer hes add_arg_coe1 add_arg_coe2
+      Manipulate.Add_arguments_infer_partial_application.infer solve_options.with_partial_analysis solve_options.with_usage_analysis hes add_arg_coe1 add_arg_coe2
     else
       let hes, id_type_map = Manipulate.Add_arguments_old.add_arguments hes add_arg_coe1 add_arg_coe2 false false in
       (hes, id_type_map, [])
@@ -523,11 +523,29 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
       else
         hes, Hflmc2_syntax.IdMap.empty, [] in
     
-    let heses =
+    let () =
+      let open Hflmc2_syntax in
+      let strs = Hflmc2_syntax.IdMap.fold id_type_map ~init:[] ~f:(fun ~key ~data acc -> (key.Id.name ^ ": " ^ Manipulate.Hflz_util.show_variable_type data) :: acc) in
+      log_string @@ "id_type_map: " ^ Hflmc2_util.show_list (fun s -> s) strs;
+      log_string @@ "id_ho_map: " ^ Hflmc2_util.show_list (fun (t, id) -> "(" ^ t.Id.name ^ ", " ^ id.Id.name ^ ")") id_ho_map
+      in
+    
+    let heses, id_type_map =
+      (* (unit Id.t, Hflz_util.variable_type, Hflmc2_syntax.IdMap.Key.comparator_witness) Map.t *)
       if assign_values_for_exists_at_first_iteration && coe1 = 1 && coe2 = 1 then
-        Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes
+        let heses = Manipulate.Hflz_manipulate_2.eliminate_exists_by_assinging coe1 hes in
+        let accs = List.map (fun (_, acc) -> acc) heses |> List.flatten in
+        (* for id_ho_map ? *)
+        let id_type_map =
+          List.fold_left
+            (fun id_type_map (x, integer) ->
+              Manipulate.Hflz_util.beta_id_type_map id_type_map x (Arith (Int integer))
+            )
+            id_type_map
+            accs in
+        heses, id_type_map
       else
-        [Hflz_mani.encode_body_exists coe1 coe2 hes, []] in
+        (log_string "AAAA"; [Hflz_mani.encode_body_exists coe1 coe2 hes id_type_map id_ho_map use_all_variables, []], id_type_map) in
 
     List.map (fun (hes, acc) ->
       let () =
@@ -543,7 +561,10 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
 
       let hes =
         if unused_arguments_elimination || should_add_arguments then
-          let hes = Manipulate.Eliminate_unused_argument.eliminate_unused_argument ~id_type_map hes in
+          let hes =
+            Manipulate.Eliminate_unused_argument.eliminate_unused_argument
+              ~id_type_map:(if solve_options.with_usage_analysis then  id_type_map else Hflmc2_syntax.IdMap.empty)
+              hes in
           let () =
             Log.info begin fun m -> m ~header:("Eliminate unused arguments (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
             ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu_with_rec.txt") hes in
@@ -732,28 +753,7 @@ let check_validity_full (solve_options : Solve_options.options) hes =
   let deferreds =
     [ mu_elim_solver 1 solve_options hes "prover";
       (mu_elim_solver 1 solve_options hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i)) ] in
-  let dresult =
-    if solve_options.oneshot then begin
-      Deferred.all deferreds >>|
-      (fun ris ->
-        match ris with
-        | [prover_ri; disprover_ri] -> begin
-          match fst prover_ri, fst disprover_ri with
-          | Status.Valid, Status.Valid -> assert false
-          | Status.Valid, _ -> prover_ri
-          | _, Status.Valid ->
-            let (s, i) = disprover_ri in
-            Status.flip s, i
-          (* ad-hoc *)
-          | Status.Fail, _ -> prover_ri
-          | _, Status.Fail -> disprover_ri
-          | Status.Invalid, _ -> prover_ri
-          | _, Status.Invalid -> disprover_ri
-          | _ -> prover_ri
-        end
-        | _ -> assert false
-      )
-    end else Deferred.any deferreds in
+  let dresult = Deferred.any deferreds in
   dresult >>=
     (fun ri ->
       has_solved := true; (* anyでいずれかがdetermineしても全てのdeferredがすぐに停止するとは限らない(？)ため、dualのソルバを停止させる *)
@@ -762,6 +762,74 @@ let check_validity_full (solve_options : Solve_options.options) hes =
           (fun _ -> ri)
         )
     )
+
+let check_validity_full_oneshot (solve_options : Solve_options.options) hes =
+  let hes_for_disprove = Hflz_mani.get_dual_hes hes in
+  let deferreds =
+    [ mu_elim_solver 1 solve_options hes "prover";
+      mu_elim_solver 1 solve_options hes_for_disprove "disprover" ] in
+  let dresult =
+    let deferred_got_result = Ivar.create () in
+    let deferred_deferred_got_result = Ivar.read deferred_got_result in
+    let deferred_wait_all = 
+      deferreds
+      |> List.map
+        (fun deferred ->
+          deferred >>| (fun ri ->
+            (match ri with
+            | (Status.Valid, _) ->
+              if Ivar.is_empty deferred_got_result
+                then Ivar.fill deferred_got_result [ri]
+                else ()
+            | _ -> ());
+            ri
+          )
+        )
+      |> Deferred.all in
+    Deferred.any [deferred_wait_all; deferred_deferred_got_result]
+    >>|
+    (fun ris ->
+      match ris with
+      | [ri] -> begin
+        log_string "with deferred_got_result";
+        match List.hd @@ snd ri with
+        | Some ({mode; _}) -> begin
+          match mode with
+          | "prover" -> ri
+          | "disprover" ->
+            let (s, d) = ri in
+            (Status.flip s, d)
+          | _ -> assert false
+        end
+        | None -> assert false
+      end
+      | [prover_ri; disprover_ri] -> begin
+        match fst prover_ri, fst disprover_ri with
+        | Status.Valid, Status.Valid -> assert false
+        | Status.Valid, _ -> prover_ri
+        | _, Status.Valid ->
+          let (s, d) = disprover_ri in
+          (Status.flip s, d)
+        (* ad-hoc *)
+        | Status.Fail, _ -> prover_ri
+        | _, Status.Fail -> disprover_ri
+        | Status.Invalid, _ -> (Status.Unknown, snd prover_ri)
+        | _, Status.Invalid -> (Status.Unknown, snd disprover_ri)
+        | _ -> (Status.Unknown, snd prover_ri)
+      end
+      | _ -> assert false
+    ) in
+  dresult >>=
+    (fun ri ->
+      has_solved := true; (* anyでいずれかがdetermineしても全てのdeferredがすぐに停止するとは限らない(？)ため、dualのソルバを停止させる *)
+      kill_processes (Some "prover") >>=
+        (fun _ -> kill_processes (Some "disprover") >>|
+          (fun _ -> ri)
+        )
+    )
+
+let check_validity_full_entry solve_options hes =
+  if solve_options.oneshot then check_validity_full_oneshot solve_options hes else check_validity_full solve_options hes 
 
 let solve_onlynu_onlyforall_with_schedule (solve_options : Solve_options.options) nu_only_hes =
   let solve_options =
@@ -798,14 +866,14 @@ let check_validity solve_options (hes : 'a Hflz.hes) cont =
       return solve_options)
     >>= (fun solve_options ->
       if solve_options.always_approximate then
-        check_validity_full solve_options hes
+        check_validity_full_entry solve_options hes
       else begin
         if is_onlynu_onlyforall hes then
           solve_onlynu_onlyforall_with_schedule solve_options hes
         else if is_onlymu_onlyexists hes then
           solve_onlynu_onlyforall_with_schedule solve_options (Hflz_mani.get_dual_hes hes)
           >>| (fun (status_pair, i) -> (Status.flip status_pair, i))
-        else check_validity_full solve_options hes
+        else check_validity_full_entry solve_options hes
       end
     ) in
   upon dresult (

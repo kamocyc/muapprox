@@ -39,6 +39,8 @@ type options =
     use_all_variables: bool;
     replacer: string;
     auto_existential_quantifier_instantiation: bool;
+    with_partial_analysis: bool;
+    with_usage_analysis: bool;
   }
 let get_solver solver_name = 
   match solver_name with

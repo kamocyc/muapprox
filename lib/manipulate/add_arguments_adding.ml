@@ -317,7 +317,7 @@ ref
   let rec go = function
     | (xs, c1, c2, r)::add_args ->
       (* TDOO: *)
-      id_type_map := IdMap.add !id_type_map ({r with Id.ty=Type.TyInt}) (Hflz_util.VTVarMax (List.map to_int_type xs));
+      id_type_map := IdMap.add !id_type_map ({r with Id.ty=Type.TyInt}) (Hflz_util.VTVarMax (List.map to_int_type xs |> Hflmc2_util.remove_duplicates (=)));
       let bounds = make_bounds simplifier xs c1 c2 r in
       T.Forall (r, Or (bounds, go add_args))
     | [] ->
@@ -423,7 +423,7 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
         let psi = make_bounds_if_body_is_bool simplifier id_type_map psi ty add_args in
         let psi, ty = go_abs psi ty xs in
         let ty2 = TFunc' (TInt', ty) in
-        id_type_map := IdMap.add !id_type_map k Hflz_util.VTHigherInfo;
+        id_type_map := IdMap.add !id_type_map k (Hflz_util.VTHigherInfo (Some (Id.remove_ty k, List.map Id.remove_ty xs)));
         T.Abs (k, psi, ty2), ty2, []
       end else begin
         let psi, ty, add_args = go global_env rho psi in
@@ -544,8 +544,9 @@ let add_params c1 c2 rec_flags (rules : ptype2 thes_rule_in_out list) =
     | Var v -> begin
       match List.find_opt (fun (id, _, _) -> Id.eq id v) global_env with
       | Some (_, true, v') ->
+        (* 最小不動点の最初の出現のとき *)
         (* print_endline @@ "Var(before): " ^ Id.to_string v ^ ": " ^ show_ptype2 v.ty; *)
-        (* 最小不動点の最初の出現（の可能性がある）ときは、eta-展開を一律で行う *)
+        (* 最小不動点の最初の出現（の可能性がある）ときは、eta-展開を行う *)
         (* 外側（Tが多い方）で引数を受け取る *)
         let rec go ty ty' = match ty, ty' with
           | TFunc (argtys, bodyty), TFunc (argtys', bodyty') -> begin

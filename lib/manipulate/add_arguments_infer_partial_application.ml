@@ -330,35 +330,35 @@ let subst_flags_program (rules : ptype thes_rule list) (subst : (unit Id.t * use
     )
     rules
 
-let rec set_not_use_in_undetermined_flags_ty ty =
+let rec set_tag_in_undetermined_tags_ty ty to_set_tag =
   match ty with
   | TFunc (argty, bodyty, f) -> begin
     let f =
       match f with
-      | EFVar _ -> TNotUse
+      | EFVar _ -> to_set_tag
       | f -> f in
-    TFunc (set_not_use_in_undetermined_flags_ty argty, set_not_use_in_undetermined_flags_ty bodyty, f)
+    TFunc (set_tag_in_undetermined_tags_ty argty to_set_tag, set_tag_in_undetermined_tags_ty bodyty to_set_tag, f)
   end
   | TBool -> TBool
   | TInt -> TInt
   | TVar _ -> assert false
     
-let set_not_use_in_undetermined_flags rules =
+let set_tag_in_undetermined_tags rules to_set_tag =
   let rec go (phi : ptype thflz) = match phi with
     | Bool b -> Bool b
-    | Var v -> Var {v with ty=set_not_use_in_undetermined_flags_ty v.ty}
+    | Var v -> Var {v with ty=set_tag_in_undetermined_tags_ty v.ty to_set_tag}
     | Or (p1, p2) -> Or (go p1, go p2)
     | And (p1, p2) -> And (go p1, go p2)
-    | Abs (x, p, ty) -> Abs ({x with ty=set_not_use_in_undetermined_flags_ty x.ty}, go p, set_not_use_in_undetermined_flags_ty ty)
-    | Forall (x, p) -> Forall ({x with ty=set_not_use_in_undetermined_flags_ty x.ty}, go p)
-    | Exists (x, p) -> Exists ({x with ty=set_not_use_in_undetermined_flags_ty x.ty}, go p)
+    | Abs (x, p, ty) -> Abs ({x with ty=set_tag_in_undetermined_tags_ty x.ty to_set_tag}, go p, set_tag_in_undetermined_tags_ty ty to_set_tag)
+    | Forall (x, p) -> Forall ({x with ty=set_tag_in_undetermined_tags_ty x.ty to_set_tag}, go p)
+    | Exists (x, p) -> Exists ({x with ty=set_tag_in_undetermined_tags_ty x.ty to_set_tag}, go p)
     | App (p1, p2) -> App (go p1, go p2)
     | Arith a -> Arith a
     | Pred (op, ps) -> Pred (op, ps)
   in
   List.map
     (fun {var; body; fix} ->
-      let var = { var with ty = {inner_ty = set_not_use_in_undetermined_flags_ty var.ty.inner_ty; outer_ty = set_not_use_in_undetermined_flags_ty var.ty.outer_ty }} in
+      let var = { var with ty = {inner_ty = set_tag_in_undetermined_tags_ty var.ty.inner_ty to_set_tag; outer_ty = set_tag_in_undetermined_tags_ty var.ty.outer_ty to_set_tag}} in
       let body = go body in
       { var; body; fix }
     )
@@ -369,7 +369,7 @@ let infer_thflz_type (rules : ptype thes_rule list): ptype thes_rule list =
   let flag_constraints = generate_flag_constraints rules in
   let flag_substitution = Add_arguments_unify_flags.unify_flags flag_constraints in
   let rules = subst_flags_program rules flag_substitution in
-  let rules = set_not_use_in_undetermined_flags rules in
+  let rules = set_tag_in_undetermined_tags rules TNotUse in
   rules
 
 let show_id_map id_map show_f = 
@@ -466,49 +466,64 @@ let construct_recursion_flags (rules : 'a Type.ty Hflz.hes_rule list) =
       { var; body; fix}
     )
     rules *)
+
+let set_use_tag (rules : ptype thes_rule list): ptype thes_rule list =
+  let rules = assign_flags rules in
+  let rules = set_tag_in_undetermined_tags rules TUse in
+  rules
   
-let infer (hes : 'a Hflz.hes) add_arg_coe1 add_arg_coe2 =
-  Add_arguments_definition.show_tag_as_separator := true;
+let infer with_partial_analysis with_usage_analysis (hes : 'a Hflz.hes) add_arg_coe1 add_arg_coe2 =
+  print_endline @@ "with_partial_analysis: " ^ string_of_bool with_partial_analysis;
+  print_endline @@ "with_usage_analysis: " ^ string_of_bool with_usage_analysis;
   let hes = Hes_optimizer.eliminate_unreachable_predicates hes in
   let hes = Eliminate_unused_argument.eliminate_unused_argument hes in
   let original_rules = Hflz.merge_entry_rule hes in
-  let is_recursive = get_recursivity original_rules in
-  let rules = to_thflzs original_rules is_recursive in
-  let rec_flags = construct_recursion_flags original_rules in
-  (* print_endline "to_thflz";
-  print_endline @@ show_s_thes_rules rules;
-  print_endline "to_thflz (simple)";
-  print_endline @@
-    Hflmc2_util.fmt_string
-      (Print_temp.hflz_hes pp_ptype) rules; *)
   
-  let rules = infer_thflz_type rules in
-  let () =
-    (* print_endline "result (infer partial):";
+  let rules =
+    Add_arguments_definition.show_tag_as_separator := true;
+    let is_recursive = get_recursivity original_rules in
+    let rules = to_thflzs original_rules is_recursive in
+    (* print_endline "to_thflz";
+    print_endline @@ show_s_thes_rules rules;
+    print_endline "to_thflz (simple)";
     print_endline @@
       Hflmc2_util.fmt_string
         (Print_temp.hflz_hes pp_ptype) rules; *)
-    (* print_endline "result (full)";
-    print_endline @@ show_s_thes_rules rules; *)
-    save_to_file "tmp_t7.txt" @@
-      Hflmc2_util.fmt_string
-        (Print_temp.hflz_hes pp_ptype) rules;
-    check_thflz_type rules;
-    in
+    
+    let rules =
+      if with_partial_analysis then infer_thflz_type rules else set_use_tag rules in
+    let () =
+      (* print_endline "result (infer partial):";
+      print_endline @@
+        Hflmc2_util.fmt_string
+          (Print_temp.hflz_hes pp_ptype) rules; *)
+      (* print_endline "result (full)";
+      print_endline @@ show_s_thes_rules rules; *)
+      save_to_file "tmp_t7.txt" @@
+        Hflmc2_util.fmt_string
+          (Print_temp.hflz_hes pp_ptype) rules;
+      check_thflz_type rules;
+      in
+    Add_arguments_definition.show_tag_as_separator := false;
+    rules in
   
-  let rules = Add_arguments_tuple.to_thflz2 rules in
-  Add_arguments_definition.show_tag_as_separator := false;
-  Add_arguments_tuple.check_thflz2_type rules;
-  let rules = Add_arguments_infer_usage.infer_thflz_type rules rec_flags in
-  let () =
-    (* print_endline "result:";
-    print_endline @@
-      Hflmc2_util.fmt_string
-        (Print_temp.hflz_hes_in_out pp_ptype2) rules; *)
-    Add_arguments_definition.save_to_file "tmp_t7.txt" @@
-      Hflmc2_util.fmt_string
-        (Add_arguments_tuple.Print_temp.hflz_hes_in_out Add_arguments_tuple.pp_ptype2) rules;
-  in
+  let rec_flags = construct_recursion_flags original_rules in
+  
+  let rules =
+    let rules = Add_arguments_tuple.to_thflz2 rules in
+    Add_arguments_tuple.check_thflz2_type rules;
+    let rules =
+      if with_usage_analysis then Add_arguments_infer_usage.infer_thflz_type rules rec_flags else Add_arguments_infer_usage.set_use_tag rules in
+    let () =
+      (* print_endline "result:";
+      print_endline @@
+        Hflmc2_util.fmt_string
+          (Print_temp.hflz_hes_in_out pp_ptype2) rules; *)
+      Add_arguments_definition.save_to_file "tmp_t8.txt" @@
+        Hflmc2_util.fmt_string
+          (Add_arguments_tuple.Print_temp.hflz_hes_in_out Add_arguments_tuple.pp_ptype2) rules;
+    in
+    rules in
   
   let rules, id_type_map, id_ho_map =
     Add_arguments_adding.add_params add_arg_coe1 add_arg_coe2 rec_flags rules in
