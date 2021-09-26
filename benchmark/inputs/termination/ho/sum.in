@@ -1,0 +1,27 @@
+%HES
+S =v
+  ∀x. X (\k. k x).
+
+X fx =v Sum fx (\y. true) /\ X fx.
+
+Sum fx k =u
+  Check fx (\b.
+    (b =  1 => k (\k2. k2 0)) /\
+    (b != 1 => Sum (Pred fx) (\fm. k (Add fm fx)))
+  ).
+
+Pred fx k =v
+  fx (\x. k (x - 1)).
+
+Check fx k =v
+  fx (\x.
+    (x <= 0 => k 1) /\
+    (x >  0 => k 0)
+  ).
+
+Add fm fx k =v
+  fm (\m.
+    fx (\x.
+      k (m + x)
+    )
+  ).

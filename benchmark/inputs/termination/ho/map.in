@@ -1,0 +1,105 @@
+/*
+%HES
+Sentry =v
+  Main (\r. true).
+
+Main k =v
+  ∀l.
+    (l >= 0 => X (\k. k l) (\k. k 1) (\k. k 2) k) /\
+    (l <  0 => k (\k. k 0)).
+
+X fl addf1 addf2 k =v
+  Map (Compose (Add addf1) (Add addf2)) fl k /\ X fl addf1 addf2 k.
+  
+Add fx fy k =v k (AddF fx fy).
+
+Compose f g x k =v g x (\r. f r k).
+
+Map f fxs k =u
+  Check1 fxs (\b.
+    (b =  1 => k (\k. k 0)) /\
+    (b != 1 =>
+      ∀m.
+        f (\k. k m) (\fr.
+          Map f (Pred fxs) (\fr'. k (Add fr fr'))
+        )
+    )
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x =  0 => k 1) /\
+    (x != 0 => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+AddF f1 f2 k =v
+  f1 (\x1.
+    f2 (\x2.
+      k (x1 + x2)
+    )
+  ).
+*/
+
+
+%HES
+Sentry =v
+  Main (\r. true).
+
+Main k =v
+  ∀l.
+    (l >= 0 => X (\k. k l) k) /\
+    (l < 0 => k 0).
+
+X fl k =v
+  Map (Compose (Add 1) (Add 2)) fl k /\ X fl k.
+  
+Add x y k =v k (x + y).
+
+Compose f g x k =v g x (\r. f r k).
+
+Map f fxs k =u
+  Check1 fxs (\b.
+    (b =  1 => k 0) /\
+    (b != 1 =>
+      ∀m.
+        f m (\r.
+          Map f (Pred fxs) (\r'. k (r + r'))
+        )
+    )
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x =  0 => k 1) /\
+    (x != 0 => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+/*
+/* valid with z3  --coe=1,1 --coe-arg=1,0  +  extra arguments */
+%HES
+Sentry =v
+  ∀l. 
+   l < 0
+   \/ (∀s. s < 1 * l + 0 \/ s < (-1) * l + 0 \/ s < 0 \/ X s l (\k. k l) true).
+X t _l fl k =v
+  (∀recMap. 
+    recMap < 1 + 1 * t \/ recMap < 1 + (-1) * t \/ recMap < 1
+    \/ Map recMap (\k2. k2) _l fl k)
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X s _l fl k).
+Map recMap f _l fxs k =v
+  recMap > 0
+  /\ fxs
+      (\x. 
+        (x != 0 \/ k)
+        /\ (x = 0 \/ f (Map (recMap - 1) f (_l - 1) (\k2. fxs (\x2. k2 (x2 - 1))) k))).
+*/

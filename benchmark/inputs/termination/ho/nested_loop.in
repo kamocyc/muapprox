@@ -1,0 +1,37 @@
+%HES
+Sentry =v
+  ∀n. X (\k. k n) (\r. true).
+
+X fn k =v Loop2 fn k /\ X fn k.
+
+Loop2 fn2 k =u
+  Check1 fn2 (\b.
+    (b =  1 => Loop1 fn2 (\r1. Loop2 (Pred fn2) (\r2. k (Add r1 r2)))) /\
+    (b != 1 => k (\k. k 0))
+  ).
+
+Loop1 fn1 k =u
+  Check1 fn1 (\b.
+    (b =  1 => Loop1 (Pred fn1) k) /\
+    (b != 1 => k (\k. k 0))
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x >  0 => k 1) /\
+    (x <= 0 => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+Add f1 f2 k =v
+  f1 (\x1.
+    f2 (\x2.
+      k (x1 + x2)
+    )
+  ).
+
+/* valid --coe=1,1 --coe-arg=1,0 */

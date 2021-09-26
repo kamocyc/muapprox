@@ -1,0 +1,36 @@
+%HES
+Sentry =u
+  ∀l1. ∀l2.
+    X (\k. k l1) (\k. k l2) (\r. true).
+
+X fxs fys k =v
+  Zip fxs fys k /\ X fxs fys k.
+
+Zip fxs fys k =u
+  Check1 fxs (\bx.
+    Check1 fys (\by.
+      ( bx =  1 => k (\k. k 0)) /\
+      ((bx != 1 /\ by =  1) => k (\k. k 0)) /\
+      ((bx != 1 /\ by != 1) =>
+        Zip (Pred fxs) (Pred fys) (\r. k (Succ r))
+      )
+    )
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x <= 0 => k 1) /\
+    (x >  0 => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+Succ fx k =v
+  fx (\x.
+    k (x + 1)
+  ).
+
+/* --coe=1,1 --coe-arg=1,0 valid */

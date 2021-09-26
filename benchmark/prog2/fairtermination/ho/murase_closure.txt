@@ -1,0 +1,65 @@
+%PROGRAM
+/* まだ解けていない */
+/* invalidなのはおかしいはず */
+let const x k = event called; k x
+
+let finish k = event called; event a; finish k
+
+let f g k =
+  event called;
+  g (\fn.
+    check fn (\b.
+      if b = 1 then
+        f (const (pred fn)) k
+      else finish k
+    )
+  )
+
+let xx g k =
+  event inf_called;
+  if <d> * then
+    f g k
+  else
+    xx g k
+
+let check f_ k =
+  event inf_called;
+  if <d> * then
+    f_ (\x.
+      if x > 0 then k 1 else k 0
+    )
+  else check f_ k
+
+let pred f_ k =
+  f_ (\x.
+    k (x - 1)
+  )
+
+let () =
+  let n = <_forall> * in
+  xx (const (\k. k n)) (\. ())
+
+
+%TRANSITION
+qa a -> (1, qa).
+qa called -> (1, q_called).
+qa inf_called -> (1, q_ic).
+qa nullary -> true.
+qa d -> (1, qa) /\ (2, qa).
+
+q_called a -> (1, qa).
+q_called called -> (1, q_called).
+q_called inf_called -> (1, q_ic).
+q_called nullary -> true.
+q_called d -> (1, q_called) /\ (2, q_called).
+
+q_ic a -> (1, qa).
+q_ic called -> (1, q_called).
+q_ic inf_called -> (1, q_ic).
+q_ic nullary -> true.
+q_ic d -> (1, q_ic) /\ (2, q_ic).
+
+%PRIORITY
+q_ic -> 0.
+q_called -> 1.
+qa -> 2.

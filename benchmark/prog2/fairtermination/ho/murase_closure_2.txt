@@ -1,0 +1,53 @@
+/* vaild */
+%PROGRAM
+let const x k = event called; k x
+
+let finish k = event called; event a; finish k
+
+let f g k =
+  event called;
+  g (\n.
+    if n > 0 then
+      f (const (n-1)) k
+    else finish k
+  )
+
+/* called の無限列は非受理 */
+/* called, a の無限列だと受理される */
+/* xxのみの無限列は受理される */
+/* called, xx の無限列は受理されないべき. xxは優先度が低いeven priority */
+let xx g k =
+  event inf_called;
+  if <d> * then
+    f g k
+  else
+    xx g k
+
+let () =
+  let n = <_forall> * in
+  xx (const n) (\. ())
+
+
+%TRANSITION
+qa a -> (1, qa).
+qa called -> (1, q_called).
+qa inf_called -> (1, q_ic).
+qa nullary -> true.
+qa d -> (1, qa) /\ (2, qa).
+
+q_called a -> (1, qa).
+q_called called -> (1, q_called).
+q_called inf_called -> (1, q_ic).
+q_called nullary -> true.
+q_called d -> (1, q_called) /\ (2, q_called).
+
+q_ic a -> (1, qa).
+q_ic called -> (1, q_called).
+q_ic inf_called -> (1, q_ic).
+q_ic nullary -> true.
+q_ic d -> (1, q_ic) /\ (2, q_ic).
+
+%PRIORITY
+q_ic -> 0.
+q_called -> 1.
+qa -> 2.

@@ -1,0 +1,62 @@
+%HES
+Sentry =v
+  Main (\r. true).
+
+Main k =v
+  ∀n. ∀x.
+    ((n >= 0 /\ x >= 0) => X (\k2. k2 n) (\k2. k2 x) k) /\
+    ((n <  0 \/ x <  0) => k (\k2. k2 0)).
+
+X fn fm k =v
+  F fn fm k /\ X fn fm k.
+
+F fn fm k =u
+  Check1 fn (\bn.
+    (bn =  1 => Succ fm k) /\
+    (bn != 1 => G (F (Pred fn)) fm k)
+  ).
+
+G r a k =u
+  r a (\r'. r r' k).
+
+Succ fn k =u
+  fn (\n.
+    k (\k2. k2 (n + 1))
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x =  0 => k 1) /\
+    (x != 0 => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+/*
+/* valid with z3  --coe=1,1 --coe-arg=1,0  +  extra arguments */
+%HES
+Sentry =v
+  ∀n. 
+   ∀x. 
+    n < 0 \/ x < 0
+    \/ (∀s. 
+         s < 1 * n + 0 \/ s < (-1) * n + 0 \/ s < 0
+         \/ X s n (\k. k n) (\k. k) (\r. true)).
+
+X t _n fn fm k =v
+  (∀recF. 
+    recF < 1 + 1 * t \/ recF < 1 + (-1) * t \/ recF < 1 \/ F recF _n fn fm k)
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X s _n fn fm k).
+
+F recF _n fn fm k =v
+  recF > 0
+  /\ fn
+      (\x. 
+        (x != 0 \/ fm (k (\k2. k2)))
+        /\ (x = 0
+            \/ F (recF - 1) (_n - 1) (\k2. fn (\x2. k2 (x2 - 1))) fm
+                (\r_ap. F (recF - 1) (_n - 1) (\k2. fn (\x2. k2 (x2 - 1))) r_ap k))).
+*/

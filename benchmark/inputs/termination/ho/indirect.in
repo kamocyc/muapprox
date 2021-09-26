@@ -1,0 +1,27 @@
+%HES
+Sentry =v
+  ∀n. X (\k. k n) false (\r. true).
+
+X fx y k =v
+  F fx y k /\ X fx y k.
+
+F fx y k =u
+  Check1 fx (\b.
+    (b =  1 => App F (Pred fx) y k) /\
+    (b != 1 => Id y k)
+  ).
+
+App h v u k =v h v u k.
+
+Id x k =v k x.
+
+Check1 f k =v
+  f (\x.
+    (x >  0 => k 1) /\
+    (x <= 0 => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).

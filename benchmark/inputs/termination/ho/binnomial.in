@@ -1,0 +1,50 @@
+/* 再帰回数はn回なのですぐ解ける */
+%HES
+Sentry =v
+  ∀n. ∀k.
+    ((n >= 0 /\ k >= 0) => X (\k1. k1 n) (\k1. k1 k) (\r. true)) /\
+    ((n <  0 \/ k <  0) => true).
+
+X fn fk c =v Bin fn fk c /\ X fn fk c.
+
+Bin fn fk c =u
+  Check1 fn (\bn.
+    Check2 fk fn (\bk.
+      ( bn =  1 => c (\k1. k1 1)) /\
+      ((bn != 1 /\ bk =  1) => c (\k1. k1 1)) /\
+      ((bn != 1 /\ bk != 1) =>
+        Bin (Pred fn) (Pred fk) (\fr.
+          Bin (Pred fn) fk (\frr.
+            c (Add fr frr)
+          )
+        )
+      )
+    )
+  ).
+
+
+Check1 f k =v
+  f (\x.
+    (x =  0 => k 1) /\
+    (x != 0 => k 0)
+  ).
+
+Check2 fk fn k1 =v
+  fk (\k.
+    fn (\n.
+      ((k <= 0 \/ k >= n) => k1 1) /\
+      ((k > 0  /\ k <  n) => k1 0)
+    )
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+Add f1 f2 k =v
+  f1 (\x1.
+    f2 (\x2.
+      k (x1 + x2)
+    )
+  ).

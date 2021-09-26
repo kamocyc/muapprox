@@ -1,0 +1,79 @@
+%HES
+Sentry =v
+  ∀n. X (\k. k n) false (\r. true).
+
+X fn u k =v
+  F fn u k /\ X fn u k.
+
+F fx u k =u
+  Check1 fx (\b.
+    (b =  1 => ∀m. App (\k. k m) F (Pred fx) u k) /\
+    (b != 1 => G u k)
+  ).
+
+G u k =v k false.
+
+App fi h fv u k =u
+  Check2 fi (\b.
+    (b =  1 => App (Pred fi) h fv u k) /\
+    (b != 1 => h fv u k)
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x >  0 => k 1) /\
+    (x <= 0 => k 0)
+  ).
+
+Check2 f k =v
+  f (\x.
+    (x >= 0 => k 1) /\
+    (x <  0 => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+/*
+/* valid, prover__8 + extra arguments */
+%HES
+Sentry =v
+  ∀n. ∀s. s < 2 * n + 1 \/ s < (-2) * n + 1 \/ s < 1 \/ X s (\k. k n) true.
+X t fn k =v
+  (∀s. 
+    s < 2 * t + 1 \/ s < (-2) * t + 1 \/ s < 1
+    \/ (∀recF. 
+         recF < 8 + 1 * t \/ recF < 8 + (-1) * t \/ recF < 8 \/ F recF s fn k))
+  /\ (∀s. s < 2 * t + 1 \/ s < (-2) * t + 1 \/ s < 1 \/ X s fn k).
+F recF t fx k =v
+  recF > 0
+  /\ fx
+      (\x. 
+        (x <= 0
+         \/ (∀m. 
+              ∀s. 
+               s < 2 * m + 1 \/ s < (-2) * m + 1 \/ s < 2 * t + 1
+               \/ s < (-2) * t + 1
+               \/ s < 1
+               \/ (∀recApp. 
+                    recApp < 8 + 1 * m \/ recApp < 8 + 1 * t
+                    \/ recApp < 8 + (-1) * m
+                    \/ recApp < 8 + (-1) * t
+                    \/ recApp < 8
+                    \/ App recApp recF s (\k2. k2 m) (F (recF - 1))
+                        (\k2. fx (\x2. k2 (x2 - 1))) k)))
+        /\ (x > 0 \/ k)).
+App recApp recF t fi h fv k =v
+  recApp > 0
+  /\ fi
+      (\x. 
+        (x < 0
+         \/ (∀s. 
+              s < 2 * t + 1 \/ s < (-2) * t + 1 \/ s < 1
+              \/ App (recApp - 1) recF s (\k2. fi (\x2. k2 (x2 - 1))) h fv k))
+        /\ (x >= 0
+            \/ (∀s. s < 2 * t + 1 \/ s < (-2) * t + 1 \/ s < 1 \/ h s fv k))).
+*/
+            

@@ -1,0 +1,27 @@
+%HES
+Sentry =u 
+  ∀n. X (\k. k n).
+
+X fn =v F fn (\r. true) /\ X fn.
+
+F fn k =u
+  ∀r.
+    (r >  0 => F1 (Sub fn r) k) /\
+    (r <= 0 => F1 (Sub fn (1 - r)) k).
+
+F1 fn_next k =u
+  Check fn_next (\b.
+    (b  = 1 => F fn_next k) /\
+    (b != 1 => k true)
+  ).
+
+Sub fn r k =v
+  fn (\n.
+    k (n - r)
+  ).
+
+Check f k =v
+  f (\x.
+    (x >  0 => k 1) /\
+    (x <= 0 => k 0)
+  ).

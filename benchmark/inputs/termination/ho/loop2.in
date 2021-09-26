@@ -1,0 +1,154 @@
+%HES
+Sentry =u
+  ∀m. ∀n. X (\k. k m) (\k. k n) (\r. true).
+
+X fm fn k =v
+  F fm fn k /\ X fm fn k.
+
+F fm fn k =u
+  Check1 fm (\bm.
+    Check1 fn (\bn.
+      ∀r.
+        (      (r > 0 /\ bm = 1)                               => F (Pred fm) fn k) /\
+        (((not (r > 0 /\ bm = 1)) /\      (r <= 0 /\ bn = 1))  => F fm (Pred fn) k) /\
+        (((not (r > 0 /\ bm = 1)) /\ (not (r <= 0 /\ bn = 1))) => k false)
+    )
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x >  0 => k 1) /\
+    (x <= 0 => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+/*
+/* valid in 80 sec with hoice --coe-arg=1,0 --coe=2,1 */
+%HES
+Sentry =v
+  ∀m. 
+   ∀n. 
+    ∀s. 
+     s < 1 * m + 0 \/ s < (-1) * m + 0 \/ s < 1 * n + 0 \/ s < (-1) * n + 0
+     \/ s < 0
+     \/ X s m n (\k. k m) (\k. k n) true.
+X t _m _n fm fn k =v
+  (∀recF. 
+    recF < 1 + 2 * t \/ recF < 1 + (-2) * t \/ recF < 1 \/ F recF _m _n fm fn k)
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X s _m _n fm fn k).
+F recF _m _n fm fn k =v
+  recF > 0
+  /\ fm
+      (\x. 
+        (x <= 0
+         \/ fn
+             (\x2. 
+               (x2 <= 0
+                \/ (∀r. 
+                     (r <= 0 \/ F (recF - 1) (_m - 1) _n (\k2. fm (\x3. k2 (x3 - 1))) fn k)
+                     /\ (r > 0
+                         \/ F (recF - 1) _m (_n - 1) fm (\k2. fn (\x3. k2 (x3 - 1))) k)
+                     /\ (r > 0 \/ r <= 0 \/ k)))
+               /\ (x2 > 0
+                   \/ (∀r. 
+                        (r <= 0
+                         \/ F (recF - 1) (_m - 1) _n (\k2. fm (\x3. k2 (x3 - 1))) fn k)
+                        /\ (r > 0 \/ k)))))
+        /\ (x > 0
+            \/ fn
+                (\x2. 
+                  (x2 <= 0
+                   \/ (∀r. 
+                        (r > 0
+                         \/ F (recF - 1) _m (_n - 1) fm (\k2. fn (\x3. k2 (x3 - 1))) k)
+                        /\ (r <= 0 \/ k)))
+                  /\ (x2 > 0 \/ k)))).
+*/
+
+/*
+/* 解けない (unknown or invalid) */
+/* --coe-arg=1,0 --coe=1,1 --lex=2 */ /* + extra arguments */
+*/
+
+/*
+/* 解けない (timeout) */
+/* --coe-arg=2,1 --coe=1,8 --lex=2 */
+%HES
+Sentry =v
+  ∀m. 
+   ∀n. 
+    ∀s. 
+     s < 2 * m + 1 \/ s < (-2) * m + 1 \/ s < 2 * n + 1 \/ s < (-2) * n + 1
+     \/ s < 1
+     \/ X s m n (\k. k m) (\k. k n) true.
+X t _m _n fm fn k =v
+  (∀recF. 
+    ∀recF2. 
+     recF < 8 + 1 * t \/ recF < 8 + (-1) * t \/ recF < 8 \/ recF2 < 8 + 1 * t
+     \/ recF2 < 8 + (-1) * t
+     \/ recF2 < 8
+     \/ F recF recF2 _m _n fm fn k)
+  /\ (∀s. s < 2 * t + 1 \/ s < (-2) * t + 1 \/ s < 1 \/ X s _m _n fm fn k).
+F recF recF2 _m _n fm fn k =v
+  recF > 0 /\ recF2 > 0
+  /\ fm
+      (\x. 
+        (x <= 0
+         \/ fn
+             (\x2. 
+               (x2 <= 0
+                \/ (∀r. 
+                     (r <= 0
+                      \/ (∀recF4322_n. 
+                           ∀recF4322_2_n. 
+                            (recF <= 1 \/ recF4322_n < recF - 1
+                             \/ recF4322_2_n < recF2)
+                            /\ (recF > 1 \/ recF4322_n < 8
+                                \/ recF4322_2_n < recF2 - 1)
+                            \/ F recF4322_n recF4322_2_n
+                                (_m - 1) _n (\k2. fm (\x3. k2 (x3 - 1))) fn k))
+                     /\ (r > 0
+                         \/ (∀recF4322_n. 
+                              ∀recF4322_2_n. 
+                               (recF <= 1 \/ recF4322_n < recF - 1
+                                \/ recF4322_2_n < recF2)
+                               /\ (recF > 1 \/ recF4322_n < 8
+                                   \/ recF4322_2_n < recF2 - 1)
+                               \/ F recF4322_n recF4322_2_n _m (_n - 1) fm
+                                   (\k2. fn (\x3. k2 (x3 - 1))) k))
+                     /\ (r > 0 \/ r <= 0 \/ k)))
+               /\ (x2 > 0
+                   \/ (∀r. 
+                        (r <= 0
+                         \/ (∀recF4322_n. 
+                              ∀recF4322_2_n. 
+                               (recF <= 1 \/ recF4322_n < recF - 1
+                                \/ recF4322_2_n < recF2)
+                               /\ (recF > 1 \/ recF4322_n < 8
+                                   \/ recF4322_2_n < recF2 - 1)
+                               \/ F recF4322_n recF4322_2_n
+                                   (_m - 1) _n (\k2. fm (\x3. k2 (x3 - 1))) fn k))
+                        /\ (r > 0 \/ k)))))
+        /\ (x > 0
+            \/ fn
+                (\x2. 
+                  (x2 <= 0
+                   \/ (∀r. 
+                        (r > 0
+                         \/ (∀recF4322_n. 
+                              ∀recF4322_2_n. 
+                               (recF <= 1 \/ recF4322_n < recF - 1
+                                \/ recF4322_2_n < recF2)
+                               /\ (recF > 1 \/ recF4322_n < 8
+                                   \/ recF4322_2_n < recF2 - 1)
+                               \/ F recF4322_n recF4322_2_n _m (_n - 1) fm
+                                   (\k2. fn (\x3. k2 (x3 - 1))) k))
+                        /\ (r <= 0 \/ k)))
+                  /\ (x2 > 0 \/ k)))).
+*/
+
+

@@ -1,0 +1,44 @@
+%HES
+Sentry =u
+  ∀n. X (\k. k n) (\r. true).
+
+X fn k =v
+  Mc fn k /\ X fn k.
+
+Mc fn k =u
+  Check1 fn (\b.
+    (b =  1 => k (AddInt fn (-10))) /\
+    (b != 1 => Mc (AddInt fn 11) (\r. Mc r k))
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x >  100 => k 1) /\
+    (x <= 100 => k 0)
+  ).
+
+AddInt fx i k =v
+  fx (\x.
+    k (x + i)
+  ).
+
+/*
+/* --coe-arg=1,0 --coe=1,20 */
+/* timeout */
+%HES
+Sentry =v
+  ∀n. 
+   ∀s. s < 1 * n + 0 \/ s < (-1) * n + 0 \/ s < 0 \/ X s (\k. k n) (\r. true).
+X t fn k =v
+  (∀recMc. 
+    recMc < 20 + 1 * t \/ recMc < 20 + (-1) * t \/ recMc < 20 \/ Mc recMc fn k)
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X s fn k).
+Mc recMc fn k =v
+  recMc > 0
+  /\ Check fn
+      (\b. 
+        (b != 1 \/ k (AddInt fn (-10)))
+        /\ (b = 1 \/ Mc (recMc - 1) (AddInt fn 11) (\r. Mc (recMc - 1) r k))).
+Check f k =v f (\x. (x <= 100 \/ k 1) /\ (x > 100 \/ k 0)).
+AddInt fx i k =v fx (\x. k (x + i)).
+*/

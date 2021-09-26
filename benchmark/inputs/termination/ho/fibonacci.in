@@ -1,0 +1,42 @@
+/* 再帰回数はn回 */
+%HES
+Sentry =v
+  ∀n.
+    X (\k. k n) (\r. true).
+
+X fn k =v Fib fn k /\ X fn k.
+
+Fib fn k =u
+  Check1 fn (\b.
+    (b =  1 => k (\k2. k2 1)) /\
+    (b != 1 =>
+      Fib (Pred fn) (\fr.
+        Fib (Pred2 fn) (\frr.
+          k (Add fr frr)
+        )
+      )
+    )
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x <  2 => k 1) /\
+    (x >= 2 => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+Pred2 fx k =v
+  fx (\x.
+    k (x - 2)
+  ).
+
+Add f1 f2 k =v
+  f1 (\x1.
+    f2 (\x2.
+      k (x1 + x2)
+    )
+  ).

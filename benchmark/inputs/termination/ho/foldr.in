@@ -1,0 +1,55 @@
+/* need extra arguments for backend */
+%HES
+Sentry =v
+  ∀l.
+    (l >= 0 => ∀m. X (\k. k m) (\k. k l) (\r. true)) /\
+    (l <  0 => true).
+
+X fm fl k =v
+  Foldr Sum fm fl k /\ X fm fl k.
+
+Sum fm fn k =v k (Add fm fn).
+
+Foldr h fe fl k =u
+  Check1 fl (\b.
+    (b =  1 => k fe) /\
+    (b != 1 => ∀m. Foldr h fe (Pred fl) (\fr. h (\k2. k2 m) fr k))
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x =  0 => k 1) /\
+    (x != 0 => k 0)
+  ).
+
+Add f1 f2 k =v
+  f1 (\x1.
+    f2 (\x2.
+      k (x1 + x2)
+    )
+  ).
+
+/*
+/* valid, prover__5 + extra argumetns */
+%HES
+Sentry =v
+  ∀l. 
+   l < 0
+   \/ (∀s. s < 1 * l + 0 \/ s < (-1) * l + 0 \/ s < 0 \/ X s l (\k. k l) true).
+X t _l fl k =v
+  (∀recFoldr. 
+    recFoldr < 1 + 1 * t \/ recFoldr < 1 + (-1) * t \/ recFoldr < 1
+    \/ Foldr recFoldr (\k2. k2) _l fl k)
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X s _l fl k).
+Foldr recFoldr h _l fl k =v
+  recFoldr > 0
+  /\ fl
+      (\x. 
+        (x != 0 \/ k)
+        /\ (x = 0 \/ Foldr (recFoldr - 1) h (_l - 1) (\k2. fl (\x2. k2 (x2 - 1))) (h k))).
+*/

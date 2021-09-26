@@ -1,0 +1,34 @@
+%HES
+Sentry =v
+  ∀m. ∀n.
+    (     (n > 0 /\ m > 0)  => X (\k. k m) (\k. k n) (\fr. fr (\_. true))) /\
+    ((not (n > 0 /\ m > 0)) => true).
+
+X fm fn k =v Ack fm fn k /\ X fm fn k.
+
+Ack fm fn k =u
+  Check fm (\bm.
+    (bm =  1 => k (Succ fn)) /\
+    (bm != 1 =>
+      Check fn (\bn.
+        (bn =  1 => Ack (Pred fm) (\k. k 1) k) /\
+        (bn != 1 => Ack fm (Pred fn) (\fr. Ack (Pred fm) fr k))
+      )
+    )
+  ).
+
+Check f k =v
+  f (\x.
+    (x =  0 => k 1) /\
+    (x != 0 => k 0)
+  ).
+
+Succ f k =v
+  f (\x.
+    k (x + 1)
+  ).
+
+Pred f k =v
+  f (\x.
+    k (x - 1)
+  ).

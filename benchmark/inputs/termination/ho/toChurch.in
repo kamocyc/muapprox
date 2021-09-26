@@ -1,0 +1,61 @@
+%HES
+Sentry =v
+  ∀x.
+    (x >= 0 => ∀y. X (\k. k x) Succ (\k. k y) (\_. true)) /\
+    (x <  0 => true).
+
+X fn f fx k =v
+  ToChurch fn f fx k /\ X fn f fx k.
+
+ToChurch fn f fx k =u
+  Check fn (\bn.
+    (bn =  1 => Id fx k) /\
+    (bn != 1 => Compose f (ToChurch (Pred fn) f) fx k)
+  ).
+
+Check f k =v
+  f (\x.
+    (x =  0 => k 1) /\
+    (x != 0 => k 0)
+  ).
+
+Succ fx k =v
+  fx (\x.
+    k (\k2. k2 (x + 1))
+  ).
+
+Id x k =v k x.
+
+Compose f g x k =v g x (\r. f r k).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+/*
+/* valid with hoice --coe=1,1 --coe-arg=1,0 + extra arguments*/
+%HES
+Sentry =v
+  ∀x. 
+   x < 0
+   \/ (∀s. 
+        s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0
+        \/ X s x (\k. k x) (\fx. \k. fx (k (\k2. k2))) (\k. k)
+            (\replaced_exc. true)).
+
+X t _x fn f fx k =v
+  (∀recToChurch. 
+    recToChurch < 1 + 1 * t \/ recToChurch < 1 + (-1) * t \/ recToChurch < 1
+    \/ ToChurch recToChurch _x fn f fx k)
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X s _x fn f fx k).
+
+ToChurch recToChurch _x fn f fx k =v
+  recToChurch > 0
+  /\ fn
+      (\x. 
+        (x != 0 \/ k fx)
+        /\ (x = 0
+            \/ ToChurch (recToChurch - 1) (_x - 1) (\k2. fn (\x2. k2 (x2 - 1))) f fx
+                (\r. f r k))).
+*/

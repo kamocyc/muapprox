@@ -1,7 +1,7 @@
 /* hoiceとz3を併用すると3.5sec。
   hoiceのみでは、0.26sec ~ 35sec */
 %HES
-Sentry =u ∀n. ∀m. F n m (\r. true).
+Sentry =u ∀m. ∀n. F m n (\r. true).
 F m n k =u
   ∀r.
     (      (r > 0 /\ m > 0)                              => F (m-1) n k) /\

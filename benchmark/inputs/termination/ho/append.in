@@ -1,0 +1,31 @@
+%HES
+Sentry =v
+  ∀l1. ∀l2.
+    X (\k. k l1) (\k. k l2) (\r. true).
+
+X fxs fys k =v
+  Append fxs fys k /\ X fxs fys k.
+
+Append fxs fys k =u
+  Check fxs (\b.
+    (b  = 1 => k fys) /\
+    (b != 1 =>
+      Append (Pred fxs) fys (\fr. k (Succ fr))
+    )
+  ).
+
+Check f k =v
+  f (\x.
+    (x <= 0 => k 1) /\
+    (x >  0 => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+Succ fx k =v
+  fx (\x.
+    k (x + 1)
+  ).

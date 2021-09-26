@@ -1,0 +1,45 @@
+%HES
+Sentry =v
+  ∀n.
+    X (\k. k n) (Gt 0) (\r. true).
+
+X fn p k =v F fn p k /\ X fn p k.
+
+F fx p k =u
+  p fx (\b.
+    (b = 1 => F (Pred fx) p k) /\
+    (b = 0 => k false)
+  ).
+
+Gt lb fn k =v
+  fn (\n.
+    ((n >  lb) => k 1) /\
+    ((n <= lb) => k 0)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+/*
+/* valid  --coe=1,1 --coe-arg=1,0 +  extra arguments */
+%HES
+Sentry =v
+  ∀n. 
+   ∀s. 
+    s < 1 * n + 0 \/ s < (-1) * n + 0 \/ s < 1 * 1 + 0 \/ s < (-1) * 1 + 0
+    \/ s < 0
+    \/ X s n (\k. k n) (\__n. \fn. \k. fn (\n2. (n2 <= 0 \/ k 1) /\ (n2 > 0 \/ k 0)))
+        true.
+X t _n fn p k =v
+  (∀recF. 
+    recF < 1 + 1 * t \/ recF < 1 + (-1) * t \/ recF < 1 \/ F recF _n fn p k)
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X s _n fn p k).
+F recF _n fx p k =v
+  recF > 0
+  /\ p _n fx
+      (\b. 
+        (b != 1 \/ F (recF - 1) (_n - 1) (\k2. fx (\x. k2 (x - 1))) p k)
+        /\ (b != 0 \/ k)).
+*/

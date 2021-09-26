@@ -1,0 +1,128 @@
+
+%HES
+Sentry =v
+  ∀n. X Comp (\k. k n) (\r. true).
+
+X f fn k =v
+  Qs f fn k /\ X f fn k.
+
+Qs cmp fn k =u
+  Check1 fn (\b.
+    (b =  1 => k (\k2. k2 0)) /\
+    (b != 1 =>
+      ∀m.
+        X2 cmp (\k2. k2 m) (\k2. k2 0) (\k2. k2 0) (Pred fn) k
+    )
+  ).
+
+X2 cmp fx fl fr fxs k =v
+  Par cmp fx fl fr fxs k /\ X2 cmp fx fl fr fxs k.
+
+Par cmp fx fl fr fxs k =u
+  Check1 fxs (\bxs.
+    (bxs =  1 => Qs cmp fl (\r'. Qs cmp fr (\r''. k (AddP1 r' r'')))) /\
+    (bxs != 1 =>
+      ∀m.
+        cmp (\k. k m) fx (\r'.
+          ((r' = 1 => Par cmp fx (Succ fl) fr (Pred fxs) k) /\
+          (r' != 1 => Par cmp fx fl (Succ fr) (Pred fxs) k)))
+    )
+  ).
+
+Comp fx fy k =u
+  fx (\x.
+    fy (\y.
+      (x >= y => k 1) /\
+      (x <  y => k 0)
+    )
+  ).
+
+Check1 f k =v
+  f (\x.
+    (x <= 0 => k 1) /\
+    (x >  0 => k 0)
+  ).
+
+Succ fx k =v
+  fx (\x.
+    k (x + 1)
+  ).
+
+Pred fx k =v
+  fx (\x.
+    k (x - 1)
+  ).
+
+AddP1 f1 f2 k =v
+  f1 (\x1.
+    f2 (\x2.
+      k (x1 + 1 + x2)
+    )
+  ).
+
+/*
+/* timeout  --coe=1,1 --coe-arg=1,0  +  extra arugments */
+%HES
+Sentry =v
+  ∀n. 
+   ∀s. 
+    s < 1 * n + 0 \/ s < (-1) * n + 0 \/ s < 1 * 1 + 0 \/ s < (-1) * 1 + 0
+    \/ s < 0
+    \/ X n s (\_x. \_y. \fx. \fy. \k. fx (\x. fy (\y. (x < y \/ k 1) /\ (x >= y \/ k 0))))
+        (\k. k n) true.
+X _n t f fn k =v
+  (∀s. 
+    s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+    \/ (∀recQs. 
+         recQs < 1 + 1 * t \/ recQs < 1 + (-1) * t \/ recQs < 1
+         \/ Qs recQs _n s f fn k))
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X _n s f fn k).
+Qs recQs _n t cmp fn k =v
+  recQs > 0
+  /\ fn
+      (\x. 
+        (x > 0 \/ k)
+        /\ (x <= 0
+            \/ (∀m. 
+                 ∀s. 
+                  s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 1 * m + 0
+                  \/ s < (-1) * m + 0
+                  \/ s < 0
+                  \/ X2 recQs m 0 0 (_n - 1) s cmp (\k2. k2 m) (\k2. k2 0) (\k2. k2 0)
+                      (\k2. fn (\x2. k2 (x2 - 1))) k))).
+X2 recQs _x _l _r _xs t cmp fx fl fr fxs k =v
+  (∀s. 
+    s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+    \/ (∀recPar. 
+         recPar < 1 + 1 * t \/ recPar < 1 + (-1) * t \/ recPar < 1
+         \/ Par recPar recQs _x _l _r _xs s cmp fx fl fr fxs k))
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+       \/ X2 recQs _x _l _r _xs s cmp fx fl fr fxs k).
+Par recPar recQs _x _l _r _xs t cmp fx fl fr fxs k =v
+  recPar > 0
+  /\ fxs
+      (\x. 
+        (x > 0
+         \/ (∀s. 
+              s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+              \/ (∀s2. 
+                   s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+                   \/ Qs (recQs - 1) _l s cmp fl (Qs (recQs - 1) _r s2 cmp fr k))))
+        /\ (x <= 0
+            \/ (∀m. 
+                 cmp m _x (\k2. k2 m) fx
+                  (\r_ap. 
+                    (r_ap != 1
+                     \/ (∀s. 
+                          s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+                          \/ Par (recPar - 1) recQs _x (_l + 1) _r (_xs - 1) s cmp fx
+                              (\k2. fl (\x2. k2 (x2 + 1))) fr
+                              (\k2. fxs (\x2. k2 (x2 - 1))) k))
+                    /\ (r_ap = 1
+                        \/ (∀s. 
+                             s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+                             \/ Par (recPar - 1) recQs _x _l (1 + _r) (_xs - 1) s cmp fx fl
+                                 (\k2. fr (\x2. k2 (x2 + 1)))
+                                 (\k2. fxs (\x2. k2 (x2 - 1))) k)))))).
+*/
