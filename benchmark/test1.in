@@ -1,3 +1,0 @@
-%HES
-Main =v ∀n. Down n (\_. true).
-Down x next =u (x = 0 => next 0) /\ (x != 0 => Down (x - 1) next).

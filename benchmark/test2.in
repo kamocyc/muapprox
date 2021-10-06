@@ -1,6 +1,0 @@
-%HES
-Sentry =v Fb 5.
-App h x =u h x.
-Fb x =v (x > 0 => App Fa (x-1)) /\ (x <= 0 => App Fb 5).
-Fa x =u (x > 0 => App Fa (x-1)) /\ (x <= 0 => App Fb 5).
-

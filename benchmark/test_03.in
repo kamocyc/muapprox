@@ -1,3 +1,0 @@
-%HES
-S =v X (\g. g (\x1. x1 0)).
-X f =u f (\k. k (\y. y = 0)) /\ X f.

@@ -1,8 +1,0 @@
-%HES
-S =v ∀x. X1 x.
-
-X1 x =v ∃y. X2 x y.
-
-X2 x y =v X x y.
-
-X x y =v X x y /\ x = y.

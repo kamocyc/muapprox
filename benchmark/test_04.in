@@ -1,9 +1,0 @@
-/*
-%HES
-S =v (uX. \f. (\g. g 0) f \/ X f) (\x. x = 0).
-*/
-
-
-%HES
-S =v X (\x. x = 0).
-X f =u (\g. g 0) f \/ X f.
