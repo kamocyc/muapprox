@@ -1,0 +1,177 @@
+/* valid */
+%PROGRAM
+
+let xx g fx k =
+  event inf_called;
+  if <d> * then
+    g fx k
+  else
+    xx g fx k
+
+let check fx k =
+  event inf_called;
+  fx (\x.
+    if x > 0 then k 1 else k 0
+  )
+
+let pred fx k =
+  fx (\x.
+    k (x - 1)
+  )
+
+let repeat g k =
+  event called;
+  let v = <_forall> * in
+  xx g (\k. k v) (\.
+    repeat g k
+  )
+
+let f fx k =
+  event called;
+  check fx (\b.
+    if b = 1 then
+      f (pred fx) k
+    else
+      (event a; k)
+  )
+  
+let () =
+  repeat f (\. ())
+
+
+%TRANSITION
+qa a -> (1, qa).
+qa called -> (1, q_called).
+qa inf_called -> (1, q_ic).
+qa nullary -> true.
+qa d -> (1, qa) /\ (2, qa).
+
+q_called a -> (1, qa).
+q_called called -> (1, q_called).
+q_called inf_called -> (1, q_ic).
+q_called nullary -> true.
+q_called d -> (1, q_called) /\ (2, q_called).
+
+q_ic a -> (1, qa).
+q_ic called -> (1, q_called).
+q_ic inf_called -> (1, q_ic).
+q_ic nullary -> true.
+q_ic d -> (1, q_ic) /\ (2, q_ic).
+
+%PRIORITY
+q_ic -> 0.
+q_called -> 1.
+qa -> 2.
+
+/*
+/* valid */
+/*  --coe=1,1 --coe-arg=1,0  (no extra arguments) */
+%HES
+Sentry =v
+  Repeat__qa
+   (\fx__q_ic. 
+     \k__qa. 
+      fx__q_ic
+       (\x. 
+         (x <= 0
+          \/ (∀recF67__q_ic. 
+               recF67__q_ic < 1 + 1 * 1 \/ recF67__q_ic < 1 + (-1) * 1
+               \/ recF67__q_ic < 1
+               \/ F67__q_ic recF67__q_ic fx__q_ic k__qa 1))
+         /\ (x > 0
+             \/ (∀recF67__q_ic. 
+                  recF67__q_ic < 1 + 1 * 0 \/ recF67__q_ic < 1 + (-1) * 0
+                  \/ recF67__q_ic < 1
+                  \/ F67__q_ic recF67__q_ic fx__q_ic k__qa 0))))
+   (\fx__q_ic. 
+     \k__qa. 
+      fx__q_ic
+       (\x. 
+         (x <= 0
+          \/ (∀recF67__q_ic. 
+               recF67__q_ic < 1 + 1 * 1 \/ recF67__q_ic < 1 + (-1) * 1
+               \/ recF67__q_ic < 1
+               \/ F67__q_ic recF67__q_ic fx__q_ic k__qa 1))
+         /\ (x > 0
+             \/ (∀recF67__q_ic. 
+                  recF67__q_ic < 1 + 1 * 0 \/ recF67__q_ic < 1 + (-1) * 0
+                  \/ recF67__q_ic < 1
+                  \/ F67__q_ic recF67__q_ic fx__q_ic k__qa 0)))).
+Repeat6465__qa g__q_ic g__q_ic2 =v Repeat__qa g__q_ic g__q_ic2.
+Repeat64__q_called g__q_ic g__q_ic2 v =v
+  g__q_ic (\k__q_ic. k__q_ic v) (Repeat6465__qa g__q_ic2 g__q_ic2)
+  /\ Xx__q_ic g__q_ic (\k__q_ic. k__q_ic v) (Repeat6465__qa g__q_ic2 g__q_ic2).
+F67__q_ic recF67__q_ic fx__q_ic k__qa b =v
+  recF67__q_ic > 0
+  /\ (b != 1
+      \/ fx__q_ic
+          (\x. 
+            (x - 1 <= 0
+             \/ F67__q_ic (recF67__q_ic - 1)
+                 (\k__q_ic. fx__q_ic (\x2. k__q_ic (x2 - 1))) k__qa 1)
+            /\ (x - 1 > 0
+                \/ F67__q_ic (recF67__q_ic - 1)
+                    (\k__q_ic. fx__q_ic (\x2. k__q_ic (x2 - 1))) k__qa 0)))
+     /\ (b = 1 \/ k__qa).
+Xx__q_ic g__q_ic fx__q_ic k__qa =v
+  g__q_ic fx__q_ic k__qa /\ Xx__q_ic g__q_ic fx__q_ic k__qa.
+Repeat__qa g__q_ic g__q_ic2 =v ∀x. Repeat64__q_called g__q_ic g__q_ic2 x.
+*/
+
+/*
+/* version where check is recursive */
+/* valid */
+/*  --coe=1,1 --coe-arg=1,0  +  extra arguments */
+%HES
+Sentry =v
+  Repeat__qa
+   (\v_. \t. 
+     \fx__q_ic. 
+      \k__qa. 
+       Check__q_called v_ fx__q_ic
+        (\x. 
+          ∀recF69__q_ic. 
+           recF69__q_ic < 1 + 1 * t \/ recF69__q_ic < 1 + (-1) * t
+           \/ recF69__q_ic < 1 + 1 * x
+           \/ recF69__q_ic < 1 + (-1) * x
+           \/ recF69__q_ic < 1
+           \/ F69__q_ic recF69__q_ic v_ fx__q_ic k__qa x))
+   (\v_. \t. 
+     \fx__q_ic. 
+      \k__qa. 
+       Check__q_called v_ fx__q_ic
+        (\x. 
+          ∀recF69__q_ic. 
+           recF69__q_ic < 1 + 1 * t \/ recF69__q_ic < 1 + (-1) * t
+           \/ recF69__q_ic < 1 + 1 * x
+           \/ recF69__q_ic < 1 + (-1) * x
+           \/ recF69__q_ic < 1
+           \/ F69__q_ic recF69__q_ic v_ fx__q_ic k__qa x)).
+Repeat6667__qa g__q_ic g__q_ic2 =v Repeat__qa g__q_ic g__q_ic2.
+Check__q_called v_ fx__q_ic k__q_ic =v
+  fx__q_ic (Check64__q_ic k__q_ic) /\ Check__q_ic v_ fx__q_ic k__q_ic.
+Pred__q_ic fx__q_ic k__q_ic =v fx__q_ic (\x. k__q_ic (x - 1)).
+Repeat66__q_called g__q_ic g__q_ic2 v =v
+  (∀s. 
+    s < 1 * v + 0 \/ s < (-1) * v + 0 \/ s < 0
+    \/ g__q_ic v s (\k__q_ic. k__q_ic v) (Repeat6667__qa g__q_ic2 g__q_ic2))
+  /\ (∀s. 
+       s < 1 * v + 0 \/ s < (-1) * v + 0 \/ s < 0
+       \/ Xx__q_ic v s g__q_ic (\k__q_ic. k__q_ic v)
+           (Repeat6667__qa g__q_ic2 g__q_ic2)).
+F69__q_ic recF69__q_ic v_ fx__q_ic k__qa b =v
+  recF69__q_ic > 0
+  /\ (b != 1
+      \/ Check__q_called (v_ - 1) (Pred__q_ic fx__q_ic)
+          (F69__q_ic (recF69__q_ic - 1) (v_ - 1) (Pred__q_ic fx__q_ic) k__qa))
+     /\ (b = 1 \/ k__qa).
+Xx__q_ic _v t g__q_ic fx__q_ic k__qa =v
+  (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ g__q_ic _v s fx__q_ic k__qa)
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+       \/ Xx__q_ic _v s g__q_ic fx__q_ic k__qa).
+Check__q_ic v_ fx__q_ic k__q_ic =v
+  fx__q_ic (Check64__q_ic k__q_ic) /\ Check__q_ic v_ fx__q_ic k__q_ic.
+Check64__q_ic k__q_ic x =v (x <= 0 \/ k__q_ic 1) /\ (x > 0 \/ k__q_ic 0).
+Repeat__qa g__q_ic g__q_ic2 =v ∀x. Repeat66__q_called g__q_ic g__q_ic2 x.
+*/

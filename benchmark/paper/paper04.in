@@ -1,0 +1,4 @@
+%HES
+S =v ∀y. (\f. X f) (\x. x < y).
+
+X f =u X f \/ f 0.

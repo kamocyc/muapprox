@@ -1,0 +1,70 @@
+/* valid */
+%PROGRAM
+let loop = event called; loop
+
+let finish =
+  event called;
+  event done;
+  loop
+
+let explore x_ r =
+  event called;
+  event explore;
+  reduce x_ r (\y_.
+    check y_ (\b.
+      if b = 1 then finish
+      else explore y_ r
+    )
+  )
+
+let reduce x_ r k =
+  event called;
+  check x_ (\b.
+    if b = 1 then k x_ else r x_ k
+  )
+
+let check x_ k =
+  event inf_called;
+  if <d> * then
+    check x_ k
+  else (
+    if x_<=0 then k 1 else k 0
+  )
+
+let xx x_ k = 
+  event inf_called;
+  if <d> * then
+    xx x_ k
+  else
+    explore x_ k
+
+let () =
+  let x = <_forall> * in
+  xx x (\x_ k.
+    k (x_ - 2)
+  )
+
+/* (G((called && NOT done && NOT explore) || (NOT called && done && NOT explore) || (NOT called && NOT done && explore))) && F(done) */
+%TRANSITION
+q0 called -> (1, q0).
+q0 explore -> (1, q0).
+q0 done -> (1, q1).
+q0 inf_called -> (1, q_ic).
+q0 d -> (1, q0) /\ (2, q0).
+
+q1 called -> (1, q1).
+q1 explore -> (1, q1).
+q1 done -> (1, q1).
+q1 inf_called -> (1, q_ic).
+q1 d -> (1, q1) /\ (2, q1).
+
+q_ic called -> (1, q0).
+q_ic explore -> (1, q0).
+q_ic done -> (1, q1).
+q_ic inf_called -> (1, q_ic).
+q_ic d -> (1, q_ic) /\ (2, q_ic).
+
+%PRIORITY
+q_ic -> 0.
+q0 -> 1.
+q1 -> 2.

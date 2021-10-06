@@ -1,0 +1,17 @@
+%HES
+Sentry =v ∀x. x < 1 \/ Exists x.
+Exists x =v
+  ((∀s. 
+     s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0
+     \/ (∀recXx. 
+          recXx < 1 + 1 * x \/ recXx < 1 + (-1) * x \/ recXx < 1
+          \/ Xx recXx (Const (\k. k x))))
+   \/ (∀recXx. 
+        recXx < 1 + 1 * x \/ recXx < 1 + (-1) * x \/ recXx < 1
+        \/ Xx recXx (Const (\k. k (-x))))
+   \/ Exists (x - 1))
+  /\ x >= 0.
+Const x k =v k x x.
+F fn fn2 =v fn (\x. x > 0 /\ F2 (Const (\k. fn2 (\x2. k (x2 - 1))))).
+F2 g =v g F.
+Xx recXx g =v recXx > 0 /\ (F2 g \/ Xx (recXx - 1) g).

@@ -1,0 +1,5 @@
+/* これはinvalidで、追加引数なしでも解けるが、簡単な例とする。 */
+%HES
+S =v ∀y. A (\x. x < y).
+A f =v X f.
+X f =u X f \/ f 0.

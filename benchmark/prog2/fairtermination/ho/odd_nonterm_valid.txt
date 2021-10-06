@@ -1,0 +1,158 @@
+/* invalid */
+%PROGRAM
+
+let f fx k =
+  event called;
+  check fx (\b.
+    if b = 1 then
+      k
+    else (
+      if <d> * then
+        (event a; f fx k)
+      else
+        (event b; f (pred1 fx) k)
+    )
+  )
+
+let check fx k =
+  fx (\x.
+    if x = 0 then k 1 else k 0
+  )
+
+let pred1 fx k =
+  fx (\x.
+    k (x - 1)
+  )
+
+let xx fx k =
+  event inf_called;
+  if <d> * then
+    f fx k
+  else
+    xx fx k
+
+let () =
+  let r = <_forall> * in
+  if r > 0 then
+    xx (\k. k r) (\. ())
+  else
+    ()
+
+
+%TRANSITION
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa called -> (1, q_called).
+qa inf_called -> (1, q_ic).
+qa d -> (1, qa) /\ (2, qa).
+qa nullary -> true.
+
+qb a -> (1, qa).
+qb b -> (1, qb).
+qb called -> (1, q_called).
+qb inf_called -> (1, q_ic).
+qb d -> (1, qb) /\ (2, qb).
+qb nullary -> true.
+
+q_called a -> (1, qa).
+q_called b -> (1, qb).
+q_called called -> (1, q_called).
+q_called inf_called -> (1, q_ic).
+q_called d -> (1, q_called) /\ (2, q_called).
+q_called nullary -> true.
+
+q_ic a -> (1, qa).
+q_ic b -> (1, qb).
+q_ic called -> (1, q_called).
+q_ic inf_called -> (1, q_ic).
+q_ic d -> (1, q_ic) /\ (2, q_ic).
+q_ic nullary -> true.
+
+%PRIORITY
+q_ic -> 0.
+q_called -> 1.
+qa -> 2.
+qb -> 3.
+
+/*
+/* --coe=1,1 --coe-arg=1,0  +  extra arguments */
+/* valid */
+%HES
+Sentry =v
+  ∀x. 
+   x <= 0
+   \/ (x != 0
+       \/ (∀recF__qb. 
+            recF__qb < 1 + 1 * x \/ recF__qb < 1 + (-1) * x
+            \/ recF__qb < 1 + 1 * 1
+            \/ recF__qb < 1 + (-1) * 1
+            \/ recF__qb < 1
+            \/ F51__q_called recF__qb x true true true
+                (\k__q_called. k__q_called x) (\k__q_called. k__q_called x) 1))
+      /\ (x = 0
+          \/ (∀recF__qb. 
+               recF__qb < 1 + 1 * x \/ recF__qb < 1 + (-1) * x
+               \/ recF__qb < 1 + 1 * 0
+               \/ recF__qb < 1 + (-1) * 0
+               \/ recF__qb < 1
+               \/ F51__q_called recF__qb x true true true
+                   (\k__q_called. k__q_called x) (\k__q_called. k__q_called x)
+                   0))
+      /\ (∀s. 
+           s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0
+           \/ Xx__q_ic x s (\k__q_called. k__q_called x)
+               (\k__q_called. k__q_called x) (\k__q_called. k__q_called x) true
+               true true).
+F__qb recF__qb _x fx__q_called fx__q_called2 fx__q_called3 k__q_called k__q_called2 k__q_called3 =v
+  recF__qb > 0
+  /\ fx__q_called
+      (\x. 
+        (x != 0
+         \/ F51__q_called recF__qb _x k__q_called k__q_called2 k__q_called3
+             fx__q_called2 fx__q_called3 1)
+        /\ (x = 0
+            \/ F51__q_called recF__qb _x k__q_called k__q_called2 k__q_called3
+                fx__q_called2 fx__q_called3 0)).
+F__qa recF__qb _x fx__q_called fx__q_called2 fx__q_called3 k__q_called k__q_called2 k__q_called3 =v
+  fx__q_called
+   (\x. 
+     (x != 0
+      \/ F51__q_called recF__qb _x k__q_called k__q_called2 k__q_called3
+          fx__q_called2 fx__q_called3 1)
+     /\ (x = 0
+         \/ F51__q_called recF__qb _x k__q_called k__q_called2 k__q_called3
+             fx__q_called2 fx__q_called3 0)).
+F51__q_called recF__qb _x k__q_called k__q_called2 k__q_called3 fx__q_called fx__q_called2 b =v
+  (b != 1 \/ k__q_called)
+  /\ (b = 1
+      \/ F__qa recF__qb _x fx__q_called fx__q_called fx__q_called2 k__q_called2
+          k__q_called2 k__q_called3
+         /\ F__qb (recF__qb - 1) (_x - 1) 
+             (\k__q_called4. fx__q_called2 (\x. k__q_called4 (x - 1)))
+             (\k__q_called4. fx__q_called2 (\x. k__q_called4 (x - 1)))
+             (\k__q_called4. fx__q_called2 (\x. k__q_called4 (x - 1)))
+             k__q_called3 k__q_called3 k__q_called3).
+Xx__q_ic _x t fx__q_called fx__q_called2 fx__q_called3 k__q_called k__q_called2 k__q_called3 =v
+  fx__q_called
+   (\x. 
+     (x != 0
+      \/ (∀recF__qb. 
+           recF__qb < 1 + 1 * t \/ recF__qb < 1 + (-1) * t
+           \/ recF__qb < 1 + 1 * 1
+           \/ recF__qb < 1 + (-1) * 1
+           \/ recF__qb < 1
+           \/ F51__q_called recF__qb _x k__q_called k__q_called2 k__q_called3
+               fx__q_called2 fx__q_called3 1))
+     /\ (x = 0
+         \/ (∀recF__qb. 
+              recF__qb < 1 + 1 * t \/ recF__qb < 1 + (-1) * t
+              \/ recF__qb < 1 + 1 * 0
+              \/ recF__qb < 1 + (-1) * 0
+              \/ recF__qb < 1
+              \/ F51__q_called recF__qb _x k__q_called k__q_called2 k__q_called3
+                  fx__q_called2 fx__q_called3 0)))
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+       \/ Xx__q_ic _x s fx__q_called fx__q_called2 fx__q_called3 k__q_called
+           k__q_called2 k__q_called3).
+*/

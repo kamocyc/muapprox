@@ -1,6 +1,6 @@
 /* invalid */
 %PROGRAM
-/*
+
 let ev_a k = event called; event a; k
 let ev_b k = event called; event b; k
 
@@ -20,28 +20,6 @@ let f ev k =
 
 let () =
   f ev_a (\. ())
-*/
-
-
-let ev_a = event called; event a; ()
-let ev_b = event called; event b; ()
-
-let f ev =
-  event called;
-  let dummy = ev in
-  let x = <_forall> * in
-  let y = <_forall> * in
-  if x < y then
-    if x > y + 1 then
-      ()
-    else
-      f ev_b
-  else
-    f ev_a
-
-let () =
-  f ev_a
-
 
 %TRANSITION
 qa a -> (1, qa).
@@ -63,3 +41,53 @@ q_called nullary -> true.
 q_called -> 1.
 qa -> 2.
 qb -> 3.
+
+/* nested_if.in */
+/*
+/* simplified form (timeout) */
+%HES
+Sentry =v F__qa__0 Ev_a__q_called__1.
+
+F24__qb__3 =u
+  ∀x1158. 
+   ∀x1179. 
+       (x1158 >= x1179 \/ ((x1158 <= x1179 + 1 \/ true) /\ (x1158 > x1179 + 1 \/ F24__qb__3)))
+    /\ (x1158 < x1179  \/ F24__qa__2).
+
+F24__qa__2 =v
+  ∀x1163. 
+   ∀x1178. 
+       (x1163 >= x1178 \/ ((x1163 <= x1178 + 1 \/ true) /\ (x1163 > x1178 + 1 \/ F__qa__0 Ev_b__q_called__1)))
+    /\ (x1163 < x1178 \/ F__qa__0 Ev_a__q_called__1).
+
+Ev_a__q_called__1 k__qa__2 k__qb__3 =u k__qa__2.
+
+Ev_b__q_called__1 k__qa__2 k__qb__3 =u k__qb__3.
+
+F__qa__0 ev__q_called__1 =v
+  ev__q_called__1 F24__qa__2 F24__qb__3.
+*/
+
+/*
+/* simpler form */
+/* invalid (solved in disprover-3)
+%HES
+Sentry =v F__qa__0 Ev_a__q_called__1.
+
+F24__qb__3 =u
+  ∀x1158. 
+       (x1158 = 0  \/ F24__qb__3)
+    /\ (x1158 != 0 \/ F24__qa__2).
+
+F24__qa__2 =v
+  ∀x1163. 
+       (x1163 =  0 \/ F__qa__0 Ev_b__q_called__1)
+    /\ (x1163 != 0 \/ F__qa__0 Ev_a__q_called__1).
+
+Ev_a__q_called__1 k__qa__2 k__qb__3 =u k__qa__2.
+
+Ev_b__q_called__1 k__qa__2 k__qb__3 =u k__qb__3.
+
+F__qa__0 ev__q_called__1 =v
+  ev__q_called__1 F24__qa__2 F24__qb__3.
+*/

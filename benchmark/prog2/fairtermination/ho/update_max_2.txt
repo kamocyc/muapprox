@@ -1,0 +1,71 @@
+/* invalid */
+%PROGRAM
+
+let update_max x_ =
+  event called;
+  let y = <_forall> * in
+  yy x_ y
+
+let yy x_ y_ =
+  event inf_called;
+  if <d> * then
+    yy x_ y_
+  else
+    update_max_2 x_ y_
+
+let update_max_2 x_ y_ =
+  event called;
+  check x_ y_ (\b.
+    if b = 1 then
+      (event b;
+      update_max y_)
+    else
+      (event a;
+      update_max x_)
+  )
+
+let check x_ y_ k =
+  if x_ < y_ then k 1 else k 0
+
+let xx x_ =
+  event inf_called;
+  if <d> * then
+    xx x_
+  else
+    update_max x_
+
+let () =
+  let x = <_forall> * in
+  xx x
+
+%TRANSITION
+qa inf_called -> (1, q_ic).
+qa d -> (1, qa) /\ (2, qa).
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa called -> (1, q_called).
+
+qb inf_called -> (1, q_ic).
+qb d -> (1, qb) /\ (2, qb).
+qb a -> (1, qa).
+qb b -> (1, qb).
+qb called -> (1, q_called).
+
+q_called inf_called -> (1, q_ic).
+q_called d -> (1, q_called) /\ (2, q_called).
+q_called a -> (1, qa).
+q_called b -> (1, qb).
+q_called called -> (1, q_called).
+
+q_ic inf_called -> (1, q_ic).
+q_ic d -> (1, q_ic) /\ (2, q_ic).
+q_ic a -> (1, qa).
+q_ic b -> (1, qb).
+q_ic called -> (1, q_called).
+
+
+%PRIORITY
+q_ic -> 0.
+q_called -> 1.
+qa -> 2.
+qb -> 3.

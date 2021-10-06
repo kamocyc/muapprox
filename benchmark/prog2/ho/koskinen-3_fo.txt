@@ -1,0 +1,161 @@
+/* valid */
+/* 機械的に全て無限パスに変換したもの */
+/* Taken from 
+   Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014, Figure 10 */
+/* FG(phi) なので、F(phi) とは異なり、parity がevenのstateからphiを満たさないイベントが生成されたときにdead-stateに遷移する */
+
+%PROGRAM
+let halt =
+  event called;
+  event halt;
+  halt
+
+let bar fx k =
+  event called;
+  event bar;
+  check fx (\b.
+    if b = 1 then bar (fx - 1) k
+    else k fx
+  )
+
+let foo fx =
+  event called;
+  event foo;
+    if fx<=0 then foo fx
+    else halt
+
+let check fx k =
+  event inf_called;
+  if <d> * then
+    if fx > 0 then k 1 else k 0
+  else
+    check fx k
+
+let xx fx k =
+  event inf_called;
+  if <d> * then
+    bar fx k
+  else
+    xx fx k
+
+let () =
+  if <d> * then foo 0
+  else (
+    let x = <_forall> * in
+    xx x (\r.
+      foo r
+    )
+  )
+
+
+/* (G((foo && NOT bar && NOT halt && NOT called) || (NOT foo && bar && NOT halt && NOT called) || (NOT foo && NOT bar && halt && NOT called) || (NOT foo && NOT bar && NOT halt && called))) && FG(foo || step) */
+%TRANSITION
+q0 inf_called -> (1, q_ic).
+q0 halt -> (1, q0).
+q0 foo -> (1, q0) \/ (1, q1).
+q0 bar -> (1, q0).
+q0 called -> (1, q0) \/ (1, q1).
+q0 d -> (1, q0) /\ (2, q0).
+
+q1 inf_called -> (1, q_ic).
+q1 foo -> (1, q1).
+q1 bar -> (1, qd).
+q1 halt -> (1, qd).
+q1 called -> (1, q1).
+q1 d -> (1, q1) /\ (2, q1).
+
+qd inf_called -> (1, q_ic).
+qd foo -> (1, qd).
+qd bar -> (1, qd).
+qd halt -> (1, qd).
+qd called -> (1, qd).
+qd d -> (1, qd) /\ (2, qd).
+
+q_ic inf_called -> (1, q_ic).
+q_ic halt -> (1, q0).
+q_ic foo -> (1, q0) \/ (1, q1).
+q_ic bar -> (1, q0).
+q_ic called -> (1, q0) \/ (1, q1).
+q_ic d -> (1, q_ic) /\ (2, q_ic).
+
+%PRIORITY
+q_ic -> 0.
+q0 -> 1.
+q1 -> 2.
+qd -> 1.
+
+/*
+/* valid 15sec --coe=1,2   -   unnecessary bounds */
+%HES
+Sentry =v
+  ∀x. 
+   (∀recFoo__q. 
+     recFoo__q < 2
+     \/ Foo__q2 recFoo__q 0)
+   /\ Bar__q_ic x
+       (\r. 
+         (r > 0
+          \/ (∀recFoo__q. 
+                recFoo__q < 2
+               \/ Foo__q2 recFoo__q r))
+         /\ (r <= 0 \/ (∀recHalt__q. recHalt__q < 2 \/ Halt__q2 recHalt__q))
+         \/ (r > 0 \/ Foo__q r) /\ (r <= 0 \/ Halt__q)
+         \/ (r > 0 \/ Foo__q r) /\ (r <= 0 \/ Halt__q))
+       (\r. 
+         (r > 0
+          \/ (∀recFoo__qd. 
+               recFoo__qd < 2
+               \/ Foo__qd recFoo__qd r))
+         /\ r <= 0)
+   /\ Xx__q_ic x
+       (\r. 
+         (r > 0
+          \/ (∀recFoo__q. 
+               recFoo__q < 2
+               \/ Foo__q2 recFoo__q r))
+         /\ (r <= 0 \/ (∀recHalt__q. recHalt__q < 2 \/ Halt__q2 recHalt__q))
+         \/ (r > 0 \/ Foo__q r) /\ (r <= 0 \/ Halt__q)
+         \/ (r > 0 \/ Foo__q r) /\ (r <= 0 \/ Halt__q))
+       (\r. 
+         (r > 0
+          \/ (∀recFoo__qd. 
+               recFoo__qd < 2
+               \/ Foo__qd recFoo__qd r))
+         /\ r <= 0).
+Halt__q  =v Halt__qd.
+Halt__qd  =v false.
+Bar__qd x k__qd =v
+  (x <= 0
+   \/ (∀recBar__qd. 
+        recBar__qd < 2
+        \/ Bar__qd2 recBar__qd (x - 1) k__qd))
+  /\ (x > 0 \/ k__qd x).
+Foo__q x =v (x > 0 \/ Foo__q x) /\ (x <= 0 \/ Halt__q).
+Halt__q2 recHalt__q =v
+  recHalt__q > 0 /\ (Halt__q2 (recHalt__q - 1) \/ Halt__qd).
+Bar__q recBar__q x k__q k__qd =v
+  recBar__q > 0
+  /\ ((x <= 0 \/ Bar__q (recBar__q - 1) (x - 1) k__q k__qd)
+      /\ (x > 0 \/ k__q x)
+      \/ (x <= 0 \/ Bar__qd (x - 1) k__qd) /\ (x > 0 \/ k__qd x)).
+Bar__qd2 recBar__qd x k__qd =v
+  recBar__qd > 0
+  /\ (x <= 0 \/ Bar__qd2 (recBar__qd - 1) (x - 1) k__qd) /\ (x > 0 \/ k__qd x).
+Foo__q2 recFoo__q x =v
+  recFoo__q > 0
+  /\ ((x > 0 \/ Foo__q2 (recFoo__q - 1) x)
+      /\ (x <= 0 \/ (∀recHalt__q. recHalt__q < 2 \/ Halt__q2 recHalt__q))
+      \/ (x > 0 \/ Foo__q x) /\ (x <= 0 \/ Halt__q)
+      \/ (x > 0 \/ Foo__q x) /\ (x <= 0 \/ Halt__q)).
+Foo__qd recFoo__qd x =v
+  recFoo__qd > 0 /\ (x > 0 \/ Foo__qd (recFoo__qd - 1) x) /\ x <= 0.
+Bar__q_ic x k__q k__qd =v
+  (x <= 0
+   \/ (∀recBar__q. 
+        recBar__q < 2 + 1 * (x - 1) \/ recBar__q < 2 + (-1) * (x - 1)
+        \/ recBar__q < 2
+        \/ Bar__q recBar__q (x - 1) k__q k__qd))
+  /\ (x > 0 \/ k__q x)
+  \/ (x <= 0 \/ Bar__qd (x - 1) k__qd) /\ (x > 0 \/ k__qd x).
+Xx__q_ic fx k__q k__qd =v Bar__q_ic fx k__q k__qd /\ Xx__q_ic fx k__q k__qd.
+*/

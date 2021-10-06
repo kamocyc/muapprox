@@ -1,0 +1,9 @@
+%HES
+S =v ∀x. XX (\k. k x).
+
+XX f =v X (P f).
+
+P f =v f (\x. x = 0).
+
+X y =u y /\ X (y /\ 0 = 0).
+

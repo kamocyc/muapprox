@@ -1,0 +1,71 @@
+/* invalid */
+%PROGRAM
+
+let f fx k =
+  event called;
+  check fx (\b.
+    if b = 1 then
+      k
+    else (
+      if <d> * then
+        (event a; f fx k)
+      else
+        (event b; pred2 fx (\fx_. f fx_ k))
+    )
+  )
+
+let check fx k =
+  if fx = 0 then k 1 else k 0
+
+let pred2 fx k =
+  k (fx - 2)
+
+let xx fx k =
+  event inf_called;
+  if <d> * then
+    f fx k
+  else
+    xx fx k
+
+let () =
+  let r = <_forall> * in
+  if r > 0 then
+    xx r (\. ())
+  else
+    ()
+
+
+%TRANSITION
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa called -> (1, q_called).
+qa inf_called -> (1, q_ic).
+qa d -> (1, qa) /\ (2, qa).
+qa nullary -> true.
+
+qb a -> (1, qa).
+qb b -> (1, qb).
+qb called -> (1, q_called).
+qb inf_called -> (1, q_ic).
+qb d -> (1, qb) /\ (2, qb).
+qb nullary -> true.
+
+q_called a -> (1, qa).
+q_called b -> (1, qb).
+q_called called -> (1, q_called).
+q_called inf_called -> (1, q_ic).
+q_called d -> (1, q_called) /\ (2, q_called).
+q_called nullary -> true.
+
+q_ic a -> (1, qa).
+q_ic b -> (1, qb).
+q_ic called -> (1, q_called).
+q_ic inf_called -> (1, q_ic).
+q_ic d -> (1, q_ic) /\ (2, q_ic).
+q_ic nullary -> true.
+
+%PRIORITY
+q_ic -> 0.
+q_called -> 1.
+qa -> 2.
+qb -> 3.

@@ -1,0 +1,35 @@
+%HES
+S =v ∀y. (\f. X f) (\x. x < y).
+X f =v X f /\ ∀x. Y x f.
+Y x f =u f x \/ Y (x - 1) f.
+
+/* 下記、解けるはずだが、タイムアウトする */
+/*
+%HES
+Sentry =v
+  ∀y. ∀x. 
+    ∀recY. 
+       recY < 2 + 2 * y
+    \/ recY < 2 + (-2) * y
+    \/ recY < 2 + 2 * x
+    \/ recY < 2 + (-2) * x
+    \/ recY < 2
+    \/ Y recY x (\x. x < y).
+
+Y recY x f =v recY > 0 /\ (f x \/ Y (recY - 1) (x - 1) f).
+*/
+/*
+%HES
+Sentry =v
+  ∀y. ∀s. s < 1 * y + 0 \/ s < (-1) * y + 0 \/ s < 0 \/ X y s (\x. x < y).
+
+X _y t f =v
+  ∀x. 
+    ∀recY. 
+    recY < 2 + 2 * t \/ recY < 2 + (-2) * t \/ recY < 2 + 2 * x
+    \/ recY < 2 + (-2) * x
+    \/ recY < 2
+    \/ Y recY _y x f.
+
+Y recY _y x f =v recY > 0 /\ (f x \/ Y (recY - 1) _y (x - 1) f).
+*/

@@ -1,0 +1,10 @@
+%HES
+S =v All (\k. k 0).
+
+All x =v F x /\ All (Succ x).
+
+F x =u x (\y. y = 0) \/ F (Pred x).
+
+Succ x k =v x (\y. k (y + 1)).
+
+Pred x k =v x (\y. k (y - 1)).

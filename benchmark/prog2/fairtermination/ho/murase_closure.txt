@@ -1,6 +1,4 @@
 %PROGRAM
-/* まだ解けていない */
-/* invalidなのはおかしいはず */
 let const x k = event called; k x
 
 let finish k = event called; event a; finish k
@@ -63,3 +61,49 @@ q_ic d -> (1, q_ic) /\ (2, q_ic).
 q_ic -> 0.
 q_called -> 1.
 qa -> 2.
+
+/*
+/* valid  --coe=1,2 --coe-arg=2,1 + extra aruguments  */
+%HES
+Sentry =v
+  ∀x. 
+   (∀recF67__q_called. 
+     recF67__q_called < 2 + 1 * x \/ recF67__q_called < 2 + (-1) * x
+     \/ recF67__q_called < 2
+     \/ F__q_ic recF67__q_called (Const__q_called x (\k__q_ic. k__q_ic x)))
+   /\ (∀s. 
+        s < 2 * x + 1 \/ s < (-2) * x + 1 \/ s < 1
+        \/ Xx__q_ic s (Const__q_called x (\k__q_ic. k__q_ic x))).
+
+Const__q_called __x x__q_ic k__q_called =v k__q_called __x x__q_ic x__q_ic.
+
+F67__q_called recF67__q_called __x fn__q_ic fn__q_ic2 =v
+  recF67__q_called > 0
+  /\ fn__q_ic
+      (Check69__q_ic
+        (\b. 
+          b != 1
+          \/ F__q_ic recF67__q_called
+              (Const__q_called (__x - 1) (\k__q_ic. fn__q_ic2 (\x. k__q_ic (x - 1))))))
+     /\ Check__q_ic __x fn__q_ic
+         (\b. 
+           b != 1
+           \/ F__q_ic recF67__q_called
+               (Const__q_called (__x - 1) (\k__q_ic. fn__q_ic2 (\x. k__q_ic (x - 1))))).
+
+F__q_ic recF67__q_called g__q_called =v
+  g__q_called (F67__q_called (recF67__q_called - 1)).
+
+Xx__q_ic t g__q_called =v
+  (∀recF67__q_called. 
+    recF67__q_called < 2 + 1 * t \/ recF67__q_called < 2 + (-1) * t
+    \/ recF67__q_called < 2
+    \/ F__q_ic recF67__q_called g__q_called)
+  /\ (∀s. 
+       s < 2 * t + 1 \/ s < (-2) * t + 1 \/ s < 1 \/ Xx__q_ic s g__q_called).
+
+Check__q_ic __x f___q_ic k__q_ic =v
+  f___q_ic (Check69__q_ic k__q_ic) /\ Check__q_ic __x f___q_ic k__q_ic.
+
+Check69__q_ic k__q_ic x =v (x <= 0 \/ k__q_ic 1) /\ (x > 0 \/ k__q_ic 0).
+*/

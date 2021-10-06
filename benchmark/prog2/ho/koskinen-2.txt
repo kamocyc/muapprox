@@ -1,0 +1,144 @@
+/* valid */
+
+%PROGRAM
+let loop = event called; loop
+
+let print x =
+  event called;
+  event print;
+  loop
+
+let rumble fx fy k =
+  event called;
+  event rumble;
+  fx (\x.
+    fy (\y.
+      if x < y then (
+        if <d> * then
+          rumble (\k2. k2 (x+1)) fy k
+        else rumble fx (\k2. k2 (y-1)) k
+      ) else k fx
+    )
+  )
+
+let xx fa fb =
+  event inf_called;
+  if <d> * then
+    rumble fb fa (\fr.
+      rumble fa fr (\fr2.
+        print fr2
+      )
+    )
+  else
+    xx fa fb
+
+let () =
+  let a = <_forall> * in
+  let b = <_forall> * in
+  xx (\k. k a) (\k. k b)
+
+/* 
+(G((rumble && NOT print && NOT called) || (NOT rumble && print && NOT called) || (NOT rumble && NOT print && called))) && F(print) */
+%TRANSITION
+q0 inf_called -> (1, q_ic).
+q0 rumble -> (1, q0).
+q0 called -> (1, q0).
+q0 print -> (1, q1).
+q0 d -> (1, q0) /\ (2, q0).
+
+q1 inf_called -> (1, q_ic).
+q1 rumble -> (1, q1).
+q1 called -> (1, q1).
+q1 print -> (1, q1).
+q1 d -> (1, q1) /\ (2, q1).
+
+q_ic inf_called -> (1, q_ic).
+q_ic rumble -> (1, q0).
+q_ic called -> (1, q0).
+q_ic print -> (1, q1).
+q_ic d -> (1, q_ic) /\ (2, q_ic).
+
+
+%PRIORITY
+q_ic -> 0.
+q0 -> 1.
+q1 -> 2.
+
+/* if there is an infinite loop without events, an automaton accepts. because the event sequence is finite. */
+
+/*
+/* validのはずだが解けない (z3, hoiceともにタイムアウト) */
+%HES
+Sentry =v
+  ∀x. 
+   ∀x2. 
+    (∀s. 
+      s < 1 * x2 + 0 \/ s < (-1) * x2 + 0 \/ s < 1 * x + 0 \/ s < (-1) * x + 0
+      \/ s < 0
+      \/ (∀s2. 
+           s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 0
+           \/ Rumble__q_ic x x2 s (\k__q. k__q x2) (\k__q. k__q x)
+               (Xx66__q x x2 s2 (\k__q. k__q x))))
+    /\ (∀s. 
+         s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 1 * x2 + 0
+         \/ s < (-1) * x2 + 0
+         \/ s < 0
+         \/ Xx__q_ic x x2 s (\k__q. k__q x) (\k__q. k__q x2)).
+
+Rumble__q recRumble__q _x _x2 t fx__q fy__q k__q =v
+  recRumble__q > 0
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+       \/ fx__q (Rumble62__q recRumble__q _x _x2 s fy__q fy__q k__q k__q fx__q)).
+
+Rumble62__q recRumble__q _x _x2 t fy__q fy__q2 k__q k__q2 fx__q x =v
+  fy__q
+   (\y. 
+     (x >= y
+      \/ (∀s. 
+           s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 1 * (x + 1) + 0
+           \/ s < (-1) * (x + 1) + 0
+           \/ s < 0
+           \/ Rumble__q (recRumble__q - 1) (_x + 1) _x2 s (\k2__q. k2__q (x + 1)) fy__q2
+               k__q2)
+         /\ (∀s. 
+              s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+              \/ Rumble__q (recRumble__q - 1) _x (_x2 - 1) s fx__q (\k2__q. k2__q (y - 1))
+                  k__q2))
+     /\ (x < y
+         \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ k__q s fx__q))).
+Xx66__q _x _x2 t fa__q t2 fr__q =v
+  ∀s. 
+   s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 1 * t + 0 \/ s < (-1) * t + 0
+   \/ s < 0
+   \/ fa__q
+       (\x. 
+         ∀recRumble__q. 
+          recRumble__q < 1 + 2 * x \/ recRumble__q < 1 + (-2) * x
+          \/ recRumble__q < 1 + 2 * t2
+          \/ recRumble__q < 1 + 2 * t
+          \/ recRumble__q < 1 + (-2) * t2
+          \/ recRumble__q < 1 + (-2) * t
+          \/ recRumble__q < 1
+          \/ Rumble62__q recRumble__q _x _x2 s fr__q fr__q (\t3. \fr2__q. true)
+              (\t3. \fr2__q. true) fa__q x).
+Rumble__q_ic _x _x2 t fx__q fy__q k__q =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ fx__q
+       (\x. 
+         ∀recRumble__q. 
+          recRumble__q < 1 + 2 * x \/ recRumble__q < 1 + (-2) * x
+          \/ recRumble__q < 1 + 2 * t
+          \/ recRumble__q < 1 + (-2) * t
+          \/ recRumble__q < 1
+          \/ Rumble62__q recRumble__q _x _x2 s fy__q fy__q k__q k__q fx__q x).
+Xx__q_ic _x _x2 t fa__q fb__q =v
+  (∀s. 
+    s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+    \/ (∀s2. 
+         s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+         \/ Rumble__q_ic _x _x2 s fb__q fa__q (Xx66__q _x _x2 s2 fa__q)))
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ Xx__q_ic _x _x2 s fa__q fb__q).
+*/

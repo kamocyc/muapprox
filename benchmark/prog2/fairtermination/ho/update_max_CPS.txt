@@ -1,0 +1,46 @@
+/* invalid */
+%PROGRAM
+let ev_a k = event called; event a; k
+
+let ev_b k = event called; event b; k
+
+let cont x_ =
+  event called;
+  let y = <_forall> * in
+  cont2 x_ (\k. k y)
+
+let cont2 x_ y_ =
+  x_ (\x.
+    y_ (\y.
+      if x < y then
+        update_max_CPS ev_b y_
+      else
+        update_max_CPS ev_a x_
+    )
+  )
+
+let update_max_CPS ev x_ =
+  event called;
+  ev (cont x_)
+
+let () =
+  let x = <_forall> * in
+  update_max_CPS ev_a (\k. k x)
+
+%TRANSITION
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa called -> (1, q_called).
+
+qb a -> (1, qa).
+qb b -> (1, qb).
+qb called -> (1, q_called).
+
+q_called a -> (1, qa).
+q_called b -> (1, qb).
+q_called called -> (1, q_called).
+
+%PRIORITY
+q_called -> 1.
+qa -> 2.
+qb -> 3.

@@ -1,0 +1,8 @@
+%HES
+Sentry =v ∀s. s < 0 \/ All s (\k. k 0).
+All t x =v
+  (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ (\x2. \x3. F x3) s x)
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ All s (Succ x)).
+F x =u x (\y. y = 0) \/ F (Pred x).
+Succ x k =v x (\y. k (y + 1)).
+Pred x k =v x (\y. k (y - 1)).

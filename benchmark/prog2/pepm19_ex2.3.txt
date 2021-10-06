@@ -22,3 +22,32 @@ q2 c -> (1, q2).
 q0 -> 1.
 q1 -> 1.
 q2 -> 2.
+
+/*
+/* prover valid (no variables are used for bound) */
+%HES
+Sentry =v F__q2 0.
+G__q x =v
+  (x != 0 \/ G__q 0)
+  /\ (x = 0
+      \/ (∀recG__q. recG__q < 2
+           \/ G__q3 recG__q (x - 1))).
+F__q recF__q x =v
+  recF__q > 0
+  /\ (F__q (recF__q - 1) (x + 1)
+      \/ (∀recG__q. recG__q < 2
+           \/ G__q2 recG__q x)).
+G__q2 recG__q x =v
+  recG__q > 0
+  /\ (x != 0 \/ G__q2 (recG__q - 1) 0)
+     /\ (x = 0
+         \/ (∀recG__q2. recG__q2 < 2
+              \/ G__q3 recG__q2 (x - 1))).
+G__q3 recG__q x =v
+  recG__q > 0 /\ (x != 0 \/ G__q 0) /\ (x = 0 \/ G__q3 (recG__q - 1) (x - 1)).
+F__q2 x =v
+  (∀recF__q. recF__q < 2
+    \/ F__q recF__q (x + 1))
+  \/ (∀recG__q. recG__q < 2
+       \/ G__q2 recG__q x).
+*/

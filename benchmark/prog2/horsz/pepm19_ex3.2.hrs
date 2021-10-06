@@ -1,4 +1,5 @@
 /* valid. 解くのに 330 sec くらいかかる */
+/* ./x ではタイムアウトするので、./y で解く必要がある */
 %RANK
 a -> 2.
 b -> 1.
@@ -25,3 +26,64 @@ q2 c -> (1, q2).
 q0 -> 1.
 q1 -> 1.
 q2 -> 2.
+
+/*
+/* valid with ./y in 305 sec */
+%HES
+Sentry =v
+  (∀recF__q. 
+    recF__q < 1 + 1 * 1 \/ recF__q < 1 + (-1) * 1 \/ recF__q < 1
+    \/ F__q recF__q 1)
+  \/ (∀recG__q. 
+       recG__q < 1 + 1 * 0 \/ recG__q < 1 + (-1) * 0 \/ recG__q < 1
+       \/ G__q2 recG__q 0 H__q3 H__q3 H__q4 H__q H__q2).
+G__q x y__q y__q2 y__q3 y__q4 =v
+  (x != 0 \/ y__q3 (G__q 0 y__q2 y__q2 y__q4 y__q4))
+  /\ (x = 0
+      \/ (∀recG__q. 
+           recG__q < 1 + 1 * (x - 1) \/ recG__q < 1 + (-1) * (x - 1)
+           \/ recG__q < 1
+           \/ G__q3 recG__q (x - 1) y__q y__q y__q2 y__q4)).
+H__q z__q =v z__q.
+H__q2 z__q =v z__q.
+F__q recF__q x =v
+  recF__q > 0
+  /\ (F__q (recF__q - 1) (x + 1)
+      \/ (∀recG__q. 
+           recG__q < 1 + 1 * x \/ recG__q < 1 + (-1) * x \/ recG__q < 1
+           \/ G__q2 recG__q x H__q3 H__q3 H__q4 H__q H__q2)).
+G__q2 recG__q x y__q y__q2 y__q3 y__q4 y__q5 =v
+  recG__q > 0
+  /\ (x != 0 \/ y__q (G__q2 (recG__q - 1) 0 y__q2 y__q2 y__q3 y__q4 y__q5))
+     /\ (x = 0
+         \/ (∀recG__q2. 
+              recG__q2 < 1 + 1 * (x - 1) \/ recG__q2 < 1 + (-1) * (x - 1)
+              \/ recG__q2 < 1
+              \/ G__q3 recG__q2 (x - 1) y__q3 y__q3 y__q4 y__q5)).
+G__q3 recG__q x y__q y__q2 y__q3 y__q4 =v
+  recG__q > 0
+  /\ (x != 0 \/ y__q (G__q 0 y__q3 y__q3 y__q4 y__q4))
+     /\ (x = 0 \/ G__q3 (recG__q - 1) (x - 1) y__q2 y__q2 y__q3 y__q4).
+H__q3 z__q =v z__q.
+H__q4 z__q =v z__q.
+*/
+
+/*
+/* simplified */
+/* valid in less than 1 sec */
+%HES
+Sentry =v
+  F_5 1 \/ G_6 0.
+
+G_2 x_10 =v
+  (x_10 != 0 \/ G_2 0) /\ (x_10 = 0 \/ G_7 (x_10 - 1)).
+
+F_5 x_17 =u
+  F_5 (x_17 + 1) \/ G_6 x_17.
+
+G_6 x_18 =u
+  (x_18 != 0 \/ G_6 0) /\ (x_18 = 0 \/ G_7 (x_18 - 1)).
+
+G_7 x_24 =u
+  (x_24 != 0 \/ G_2 0) /\ (x_24 = 0 \/ G_7 (x_24 - 1)).
+*/
