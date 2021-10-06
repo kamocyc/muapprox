@@ -54,12 +54,6 @@ let argty_to_var {Id.name; id; ty} =
     Arith (Var {name; id; ty=`Int})
   | Type.TySigma x -> 
     Var {name; id; ty=x}
-
-let make_guessed_terms_simple (coe1 : int) (coe2 : int) vars =
-  let open Arith in
-  (Int coe2)::(
-    (List.map (fun v -> Op (Mult, [Int coe1; Var v])) vars)@
-    (List.map (fun v -> Op (Mult, [Int (-coe1); Var v])) vars))
   
 let formula_fold func terms = match terms with
     | [] -> failwith "[formula_fold] Number of elements should not be zero."
@@ -71,14 +65,6 @@ let make_approx_formula fa_var_f bounds =
   bounds
   |> List.map (fun bound -> Pred (Lt, [Var fa_var_f; bound]))
   |> formula_fold (fun acc f -> Or (acc, f))
-
-let filter_int_variable =
-  List.filter_map
-    (fun ({Id.ty; _} as var) ->
-      match ty with
-      | Type.TyInt -> Some ({var with ty=`Int})
-      | Type.TySigma _ -> None 
-    )
 
 (* abstractioの順序を逆にする *)
 let rev_abs hflz =
@@ -429,7 +415,7 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl (i
     { Id.name = name; ty = ty; id = i } in
   let body =
     let guessed_conditions =
-      log_string @@ "guessed_conditions: " ^ show_hflz hfl;
+      log_string @@ "[encode_body_exists_formula_sub.guessed_conditions] body: " ^ show_hflz hfl;
       log_string @@ Hflmc2_util.show_list (fun (t, id) -> "(" ^ t.Id.name ^ ", " ^ id.Id.name ^ ")") id_ho_map;
       let id_type_map' =
         Hflmc2_syntax.IdMap.fold

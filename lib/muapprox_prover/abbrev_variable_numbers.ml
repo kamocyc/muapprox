@@ -82,10 +82,12 @@ let abbrev_variable_numbers (env : 'a Type.arg Env.t) (phi : 'a Hflz.t) =
         | TyInt -> Var { new_id with ty = `Int }
         | TySigma _ -> failwith "go_arith"
       end
-      | None -> failwith @@ "(abbrev_variable_numbers) unbounded variable: " ^ v.name ^ " (" ^ string_of_int v.id ^ ")"
+      | None -> failwith @@ "(abbrev_variable_numbers) unbounded variable: " ^ v.name ^ " (" ^ string_of_int v.id ^ ", env: " ^ (Hflmc2_util.show_list (fun {Env.old_id; _} -> Id.to_string old_id) env) ^ ")"
     end
     | Op (op, a) -> Op (op, List.map (go_arith env) a)
   in
+  (* log_string "abbrev_variable_numbers:";
+  log_string @@ Manipulate.Print_syntax.show_hflz phi; *)
   go env phi
     
   

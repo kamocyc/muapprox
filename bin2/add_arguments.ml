@@ -17,6 +17,7 @@ let main path1 debug simplified_type no_abbrev =
     Muapprox.Manipulate.Add_arguments_definition.simplified_type := simplified_type;
     Muapprox.Manipulate.Add_arguments_infer_partial_application.infer true true phi1 1 0
   in
+  print_endline @@ Hflmc2_util.fmt_string (fun fmt -> Manipulate.Print_syntax.(hflz_hes simple_ty_) fmt) phi1;
   let () =
     let open Hflmc2_syntax in
     
