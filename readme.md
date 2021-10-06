@@ -86,17 +86,6 @@ unzip eldarica-bin-2.0.5.zip
 sudo ln -s eldarica/eld /bin/eld
 ```
 
-
-### Build full HFLz solver (developed by Tanahashi)
-
-```
-git clone git@github.com:kamocyc/muapprox.git
-cd muapprox
-dune build
-cd ..
-```
-
-
 ### Build PCSat (in fptprover repository), which is used by Katsura solver
 
 ```
@@ -119,9 +108,18 @@ eval $(opam env)
 ### Set environment variables
 
 ```
-echo "export katsura_solver_path=~/repos/hflmc2_mora/_build/default/bin/main.exe" >> ~/.profile   # This is used by the Tanahashi solver
 echo "export fptprove=~/repos/fptprove" >>  ~/.profile  # This is used by the Katsura solver
+echo "export katsura_solver_path=~/repos/hflmc2_mora/_build/default/bin/main.exe" >> ~/.profile   # This variable is used by the Tanahashi solver
 . ~/.profile
+```
+
+### Build full HFLz solver (developed by Tanahashi)
+
+```
+git clone git@github.com:kamocyc/muapprox.git
+cd muapprox
+dune build
+cd ..
 ```
 
 ### Confirm installation
