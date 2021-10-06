@@ -80,7 +80,7 @@ let show_debug_contexts debugs =
   String.concat ", "
   
 module type BackendSolver = sig
-  val run : options -> debug_context option -> Hflmc2_syntax.Type.simple_ty Hflz.hes -> bool -> Status.t Deferred.t
+  val run : options -> debug_context option -> Hflmc2_syntax.Type.simple_ty Hflz.hes -> bool -> bool -> Status.t Deferred.t
 end
 
 module FptProverRecLimitSolver : BackendSolver = struct
@@ -91,7 +91,7 @@ module FptProverRecLimitSolver : BackendSolver = struct
     | Unknown -> Unknown
     | Sat | UnSat -> assert false
   
-  let run option debug_context (hes : 'a Hflz.hes) with_par =
+  let run option debug_context (hes : 'a Hflz.hes) with_par _ =
     log_string "FIRST-ORDER";
     let path_ = Manipulate.Print_syntax.FptProverHes.save_hes_to_file hes in
     log_string @@ "HES PATH: " ^ path_;
@@ -241,13 +241,17 @@ module KatsuraSolver : BackendSolver = struct
         Deferred.return path in
     path
     
-  let solver_command hes_path solver_options =
+  let solver_command hes_path solver_options stop_if_intractable =
     let solver_path = get_katsura_solver_path () in
     Array.of_list (
       solver_path :: (if solver_options.no_disprove then ["--no-disprove"] else []) @
         (List.filter_map (fun x -> x)
-          [if solver_options.no_backend_inlining then Some "--no-inlining" else None;
-          match solver_options.backend_solver with None -> None | Some s -> Some ("--solver=" ^ s)]) @
+          [
+            (if solver_options.no_backend_inlining then Some "--no-inlining" else None);
+            (match solver_options.backend_solver with None -> None | Some s -> Some ("--solver=" ^ s));
+            (if stop_if_intractable then Some "--stop-if-intractable" else None)
+          ]
+        ) @
         [hes_path]
     )
 
@@ -258,14 +262,22 @@ module KatsuraSolver : BackendSolver = struct
         ignore @@ Str.search_forward reg stdout 0;
         Status.of_string @@ Str.matched_group 2 stdout
       with
+      | Not_found -> begin
+        let reg = Str.regexp "^intractable$" in
+        try
+          ignore @@ Str.search_forward reg stdout 0;
+          message_string @@ "stop becasuse intractable (" ^ (show_debug_context debug_context) ^ ")";
+          Status.Fail
+        with
         | Not_found -> failwith @@ "not matched"
+      end
     )
     
-  let run solve_options debug_context hes _ = 
+  let run solve_options debug_context hes _ stop_if_intractable = 
     save_hes_to_file hes (if Option.map (fun d -> d.mode) debug_context = Some "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.dry_run
     >>= (fun path ->
       let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
-      let command = solver_command path solve_options in
+      let command = solver_command path solve_options stop_if_intractable in
       run_command_with_timeout solve_options.timeout command (Option.map (fun c -> c.mode) debug_context) >>|
         (fun (status_code, elapsed, stdout, stderr) ->
           try
@@ -308,7 +320,7 @@ module IwayamaSolver : BackendSolver = struct
         | Not_found -> failwith @@ "not matched"
     )
   
-  let run solve_options debug_context hes _ = 
+  let run solve_options debug_context hes _ _ = 
     let path = save_hes_to_file hes debug_context solve_options.dry_run in
     let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
@@ -361,7 +373,7 @@ module SuzukiSolver : BackendSolver = struct
         | Not_found -> failwith @@ "not matched"
     )
   
-  let run solve_options debug_context hes _ = 
+  let run solve_options debug_context hes _ _ = 
     let path = save_hes_to_file hes debug_context solve_options.dry_run in
     let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
@@ -383,7 +395,7 @@ let is_first_order_hes hes =
   |> (fun hes -> Hflz.merge_entry_rule hes)
   |> List.for_all (fun { Hflz.var; _} -> is_first_order_function_type var.ty)
   
-let solve_onlynu_onlyforall solve_options debug_context hes with_par =
+let solve_onlynu_onlyforall solve_options debug_context hes with_par stop_if_intractable =
   let hes =
     if solve_options.no_simplify
     then hes
@@ -401,7 +413,7 @@ let solve_onlynu_onlyforall solve_options debug_context hes with_par =
       | Iwayama -> IwayamaSolver.run
       | Suzuki  -> SuzukiSolver.run
     ) in
-  run solve_options debug_context hes with_par >>| (fun s -> (s, debug_context))
+  run solve_options debug_context hes with_par stop_if_intractable >>| (fun s -> (s, debug_context))
   
 let fold_hflz folder phi init =
   let rec go phi acc = match phi with
@@ -676,16 +688,18 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
             { solve_options with backend_solver = Some "hoice" }
             (Option.map (fun o -> { o with backend_solver = Some "hoice"; exists_assignment = Some exists_assignment }) debug_context_)
             nu_only_hes
+            false
             false;
           solve_onlynu_onlyforall
             { solve_options with backend_solver = Some "z3" }
             (Option.map (fun o -> { o with backend_solver = Some "z3"; exists_assignment = Some exists_assignment }) debug_context_)
             nu_only_hes
             false
+            true (* if the formula is intractable in katsura-solver, stop either of the two solving processes to save computational resources *)
         ]
       ) nu_only_heses
     | Some _ ->
-      List.map (fun (nu_only_hes, _) -> [solve_onlynu_onlyforall solve_options debug_context_ nu_only_hes false]) nu_only_heses in
+      List.map (fun (nu_only_hes, _) -> [solve_onlynu_onlyforall solve_options debug_context_ nu_only_hes false false]) nu_only_heses in
   let (is_valid : (Status.t * debug_context option list) list Ivar.t) = Ivar.create () in
   let deferred_is_valid = Ivar.read is_valid in
   let (deferred_all : (Status.t * debug_context option list) list Deferred.t) =
