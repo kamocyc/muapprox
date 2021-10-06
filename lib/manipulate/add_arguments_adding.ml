@@ -3,6 +3,28 @@ module Env = Env_no_value
 
 open Add_arguments_tuple
 
+let log_src = Logs.Src.create "Add_arguments_adding"
+module Log = (val Logs.src_log @@ log_src)
+
+let log_string = Hflz_util.log_string Log.info
+
+let generated_ids = Hashtbl.create 10
+
+let id_gen ?name ty =
+  let id = T.id_gen ?name ty in
+  (match name with
+  | Some s -> begin
+    let id = Id.remove_ty id in
+    match Hashtbl.find_opt generated_ids s with
+    | Some ls ->
+      let ls = (s, id)::ls in
+      Hashtbl.replace generated_ids s ls
+    | None ->
+      Hashtbl.add generated_ids s [(s, id)]
+  end
+  | None -> ());
+  id
+  
 module Simplify = struct
   open Hflmc2_syntax
 
@@ -311,11 +333,36 @@ let rec to_int_type x = match x with
   | Var v -> Var {v with Id.ty=`Int}
   | Op (op, xs) -> Op (op, List.map to_int_type xs)
 
+let rec get_free_variables_in_arith a =
+  let rec go a = match a with
+    | Arith.Op (_, xs) -> List.map go xs |> List.flatten
+    | Int _ -> []
+    | Var x -> [x]
+  in
+  go a
+  
 let make_bounds' simplifier (id_type_map : (unit Id.t, Hflz_util.variable_type, IdMap.Key.comparator_witness) Base.Map.t
 ref
 ) (add_args : (ptype' Id.t Arith.gen_t list * int * int * ptype' Id.t) list) (body : ptype' T.thflz) : ptype' T.thflz =
   let rec go = function
     | (xs, c1, c2, r)::add_args ->
+      log_string @@ "make_bounds': " ^ Id.to_string r;
+      let gen_ids =
+        Option.value (Hashtbl.find_opt generated_ids "s") ~default:[] in
+      let xs =
+        List.filter
+          (fun x ->
+            let fvs = get_free_variables_in_arith x in
+            not @@
+            List.exists
+              (fun fv ->
+                List.exists
+                  (fun (_, x') -> Id.eq fv x')
+                  gen_ids
+              )
+              fvs
+          )
+          xs in
       (* TDOO: *)
       id_type_map := IdMap.add !id_type_map ({r with Id.ty=Type.TyInt}) (Hflz_util.VTVarMax (List.map to_int_type xs |> Hflmc2_util.remove_duplicates (=)));
       let bounds = make_bounds simplifier xs c1 c2 r in
@@ -405,6 +452,7 @@ let get_global_env {var_in_out; body; _} outer_mu_funcs (global_env : ptype2 T.i
   )
 
 let add_params c1 c2 outer_mu_funcs (rules : ptype2 thes_rule_in_out list) =
+  Hashtbl.reset generated_ids;
   let simplifier = fun x -> x in
   (* let simplifier = Simplify.simplify in *)
   let id_type_map = ref IdMap.empty in  (* 整数変数 -> その「タイプ」 *)
@@ -435,7 +483,7 @@ let add_params c1 c2 outer_mu_funcs (rules : ptype2 thes_rule_in_out list) =
       let xs = List.map (fun x -> { x with Id.ty = convert_ty' x.Id.ty }) xs in
       if will_add then begin
         (* add param *)
-        let k = T.id_gen ~name:"t" TInt' in
+        let k = id_gen ~name:"t" TInt' in
         let psi, ty, add_args =
           let rho' =
             List.filter_map
@@ -532,7 +580,7 @@ let add_params c1 c2 outer_mu_funcs (rules : ptype2 thes_rule_in_out list) =
             (List.combine ps_ argty_tags)
           |> List.flatten)
         in
-        let r = T.id_gen ~name:"s" TInt' in
+        let r = id_gen ~name:"s" TInt' in
         let bodyty =
           let rec go_app ty1 ty2s = match ty1, ty2s with
             | TFunc' (argty, bodyty), ty2::ty2s ->
@@ -577,10 +625,10 @@ let add_params c1 c2 outer_mu_funcs (rules : ptype2 thes_rule_in_out list) =
         (* 外側（Tが多い方）で引数を受け取る *)
         let rec go ty ty' = match ty, ty' with
           | TFunc (argtys, bodyty), TFunc (argtys', bodyty') -> begin
-            let xs = List.map (fun (argty, _) -> T.id_gen (convert_ty' argty)) argtys in
+            let xs = List.map (fun (argty, _) -> id_gen (convert_ty' argty)) argtys in
             let fst =
               if List.exists (fun (argty, tag) -> assert (tag=T.TUse); should_add argty tag) argtys then begin
-                let k = T.id_gen TInt' in
+                let k = id_gen TInt' in
                 List.iter
                   (fun x ->
                     id_ho_map := (Id.remove_ty x, {k with ty=`Int})::!id_ho_map;
@@ -697,7 +745,6 @@ let add_params c1 c2 outer_mu_funcs (rules : ptype2 thes_rule_in_out list) =
         print_endline "end"; *)
         let body, ty, c = go global_env [] body in
         let body = make_bounds' simplifier id_type_map c body in
-        (* assert (List.length c = 0); *)
         assert ((convert_ty' var_in_out.ty.inner_ty) = ty);
         let var_in_out = { var_in_out with ty = convert_ty' var_in_out.ty.inner_ty} in
         (var_in_out, body, fix)
@@ -709,7 +756,7 @@ let add_params c1 c2 outer_mu_funcs (rules : ptype2 thes_rule_in_out list) =
 
 let rec convert_ty ty = match ty with
   | TFunc' (argty, bodyty) ->
-    let x = T.id_gen (convert_argty argty) in
+    let x = id_gen (convert_argty argty) in
     Type.TyArrow (x, convert_ty bodyty)
   | TBool' -> TyBool ()
   | TInt' -> failwith "cannot convert TInt'"

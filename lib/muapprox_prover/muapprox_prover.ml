@@ -488,7 +488,7 @@ let should_instantiate_exists original_hes =
       let should_instantiate =
         (not t_prover || not t_disprover) &&
           exists_count_prover <= existential_quantifier_number_threthold && exists_count_disprover <= existential_quantifier_number_threthold in
-      print_endline @@ "should_instantiate_exists: " ^ (string_of_bool should_instantiate) ^ " (tractable_prover=" ^ string_of_bool t_prover ^ ", tractable_disprover=" ^ string_of_bool t_disprover ^ ",exists_count_prover=" ^ string_of_int exists_count_prover ^ ", exists_count_disprover=" ^ string_of_int exists_count_disprover ^ ")";
+      log_string @@ "should_instantiate_exists: " ^ (string_of_bool should_instantiate) ^ " (tractable_prover=" ^ string_of_bool t_prover ^ ", tractable_disprover=" ^ string_of_bool t_disprover ^ ",exists_count_prover=" ^ string_of_int exists_count_prover ^ ", exists_count_disprover=" ^ string_of_int exists_count_disprover ^ ")";
       should_instantiate
     )
   )
