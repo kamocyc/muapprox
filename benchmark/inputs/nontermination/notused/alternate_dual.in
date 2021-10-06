@@ -1,5 +1,0 @@
-%HES
-Sentry =v F Proceed Halt false.
-F g h z =u g (F h g) /\ h (F h g).
-Proceed u =u u false.
-Halt u =u true.

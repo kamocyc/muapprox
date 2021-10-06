@@ -1,6 +1,0 @@
-%HES
-Sentry =v ∀r. F r Is_zero (\replaced_exc_. true).
-Is_zero n k =u (n != 0 \/ k 1) /\ (n = 0 \/ k 0).
-Succ_app f n k =u f (n + 1) k.
-F n cond k =u
-  cond n (\res. (res != 1 \/ k false) /\ (res = 1 \/ F n (Succ_app cond) k)).
