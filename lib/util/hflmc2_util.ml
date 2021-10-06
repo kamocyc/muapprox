@@ -510,13 +510,16 @@ let get_reporter header_format =
     let str = src_str <+ level_str +> header in
     Fmt.pf ppf header_format Fmt.(styled style string) str
   in
+  let zone = Lazy.force Core.Time_ns.Zone.local in
   let reporter =
     { Logs.report = fun src level ~over k msgf ->
         let k _ = over (); k () in
         msgf @@ fun ?header ?tags:_ fmt ->
           let ppf = Fmt.stdout in
-          Format.kfprintf k ppf ("%a@[" ^^ fmt ^^ "@]@.")
-            pp_header (src, level, header)
+          let time = Core.Time.now () in
+          let s = Core.Time.format time "%Y-%m-%d %H:%M:%S" ~zone in
+          Format.kfprintf k ppf ("%s %a@[" ^^ fmt ^^ "@]@.")
+            s pp_header (src, level, header)
     }
   in
   reporter
