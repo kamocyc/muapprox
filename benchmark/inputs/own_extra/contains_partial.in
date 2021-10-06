@@ -1,0 +1,27 @@
+/* 部分適用がある例 */
+/* x, y を追加引数で渡す必要がある。 */
+
+%HES
+S =v ∀x. A (M (\k. k x)).
+
+A f =v ∀y. f (\k. k y).
+
+M g h =v Loop g h (\_. true) /\ Loop h g (\_. true).
+
+Loop g h k =u
+  Check g (\b.
+    (b = 0 => Loop2 h k) /\
+    (b = 1 => Loop (Pred g) h k)
+  ).
+
+Loop2 h k =u
+  Check h (\b.
+    (b = 0 => k false) /\
+    (b = 1 => Loop2 (Pred h) k)
+  ).
+  
+Pred f k =u f (\r. k (r - 1)).
+
+Check f k =u
+  f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).
+
