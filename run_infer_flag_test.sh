@@ -9,9 +9,12 @@ do
   echo "$NAME"
   cd ..
   dune exec bin2/infer_flag.exe -- --new /opt/home2/git/muapprox/benchmark/research/ho_trans/0_bench/"$NAME"/original.in > out2.txt
+  # ./x --coe-arg=1,0 benchmark/research/ho_trans/0_bench/"$NAME"/original.in > out2.txt
   cd -
   # cp /opt/home2/git/muapprox/benchmark/research/ho_trans/0_bench/"$NAME"/03_partial_related_elim.in ./"$NAME"_03.in
   cp /opt/home2/git/muapprox/benchmark/research/ho_trans/0_bench/"$NAME"/original_infer_flag_2.in ./"$NAME"_09_2.in
+  # cp ../original.in__disprover__1.in ./"$NAME"_10__disprover.in
+  # cp ../original.in__prover__1.in ./"$NAME"_10__prover.in
 done
 
 cd ..
