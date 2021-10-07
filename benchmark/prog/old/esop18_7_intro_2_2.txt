@@ -1,0 +1,15 @@
+/* valid. Because b always occurs infinitely, and the result is negated  */
+%PROGRAM
+let f x y = if x < y then (event a; f x y) else (event b; f x y)
+let () = f 2 1
+
+%TRANSITION
+qa a -> qa
+qa b -> qb
+
+qb a -> qa
+qb b -> qb
+
+%PRIORITY
+qa -> 0
+qb -> 1

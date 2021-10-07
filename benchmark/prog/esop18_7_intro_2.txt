@@ -1,7 +1,13 @@
-/* valid. Because b always occurs infinitely, and the result is negated  */
+/* this is invalid since
+  there is a case that "a"s occur infinitely and "b"s occur only finitely,
+    * this means InfTraces(P) \cap L(A) != \emptyset
+      * L(A) includes this run (because this run has max infinite priority 0, which is even)
+    * which is equivalent to "|= \Phi does NOT hold" (since negated) */
+
 %PROGRAM
-let f x y = if x < y then (event a; f x y) else (event b; f x y)
-let () = f 2 1
+let g k = if * then (event a; k) else (event b; k)
+let f = g f
+let () = f
 
 %TRANSITION
 qa a -> qa
