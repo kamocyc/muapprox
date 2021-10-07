@@ -53,7 +53,7 @@ type params =
   ; no_inlining_backend : bool [@default false]
   (** Disable inlining in a backend solver *)
   
-  ; timeout : int [@default 240]
+  ; timeout : int [@default 360]
   (** Timeout for a backend solver *)
   
   ; print_for_debug : bool [@default true]
