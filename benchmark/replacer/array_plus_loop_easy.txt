@@ -1,3 +1,4 @@
+#! noflags, nopartial
 \/ Main s3 ar3
 \/ Main x y (x+y) s3 ar3
 Main t ar k =v
@@ -8,3 +9,27 @@ Loop recLoop i ar k =v
 Loop recLoop x_ y_ xy_ i ar k =v
 \/ Loop (recLoop - 1) (i + 1)
 \/ Loop (recLoop - 1) x_ y_ xy_ (i + 1)
+
+#! nousage
+\/ Main s4 ar3
+\/ Main x y (x+y) s4 ar3
+Main t ar k =v
+Main x_ y_ xy_ t ar k =v
+Loop recLoop s 0 ar k
+Loop recLoop x_ y_ xy_ s 0 ar k
+Loop recLoop t i ar k =v
+Loop recLoop x_ y_ xy_ t i ar k =v
+Loop (recLoop - 1) s3 (i + 1)
+Loop (recLoop - 1) x_ y_ xy_ s3 (i + 1)
+
+#! noboth
+\/ Main s6 ar3
+\/ Main x y (x+y) s6 ar3
+Main t ar k =v
+Main x_ y_ xy_ t ar k =v
+Loop recLoop 0 s ar k
+Loop recLoop x_ y_ xy_ 0 s ar k
+Loop recLoop i t ar k =v
+Loop recLoop x_ y_ xy_ i t ar k =v
+Loop (recLoop - 1) (i + 1)
+Loop (recLoop - 1) x_ y_ xy_ (i + 1)

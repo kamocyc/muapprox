@@ -4,6 +4,7 @@ import tempfile
 import os
 import argparse
 import glob
+import re
 
 os.chdir(os.path.dirname(__file__))
 
@@ -28,12 +29,14 @@ parser = argparse.ArgumentParser(description='replacer.')
 parser.add_argument('target_name', type=str)
 parser.add_argument('input_filename', type=str)
 parser.add_argument('--check-target-name-only', action='store_true')
+parser.add_argument('--mode', type=str, default='')
 
 args = parser.parse_args()
 
 target_name = args.target_name
 input_filename = args.input_filename
 check_target_name_only = args.check_target_name_only
+mode = args.mode
 
 replacement_names = [ os.path.splitext(os.path.basename(s))[0] for s in glob.glob("./replacer/*.txt")]
 
@@ -53,7 +56,33 @@ except FileNotFoundError:
     sys.exit(1)
 
 with open('replacer/' + target_name + '.txt', 'r') as f:
+    # buf = '\n'.join(f.readlines())
+    # if mode != '':
+    #     buf = re.split("^\\w*#!.*" + mode + ".*$", buf)
+    
     lines = f.readlines()
+    lines = [ line for line in [l.strip() for l in lines] if line != '' and (line[0] != '#' or line[1] == '!') ]
+    
+    if mode != '':
+        is_getting = False
+        found_shbang = False
+        results = []
+        for index, line in enumerate(lines):
+            if line[0:2] == '#!':
+                found_shbang = True
+                if is_getting:
+                    break
+                elif re.match('^\\w*#!.*' + mode + '.*$', line):
+                    is_getting = True
+            elif is_getting:
+                results.append(line)
+    
+        if found_shbang:
+            if results == []:
+                print("Error: mode \"" + mode + "\" not found")
+            
+            lines = results
+    
     if len(lines) % 2 != 0:
         print('illegal line number')
         sys.exit(1)

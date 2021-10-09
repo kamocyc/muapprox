@@ -227,7 +227,7 @@ module KatsuraSolver : BackendSolver = struct
       | Error _ -> failwith "is_valid_replacer_name: illegal result"
     )
     
-  let save_hes_to_file hes replacer debug_context dry_run =
+  let save_hes_to_file hes replacer debug_context dry_run with_usage_analysis with_partial_analysis =
     let should_use_replacer =
       if replacer <> "" then
         is_valid_replacer_name replacer
@@ -245,9 +245,21 @@ module KatsuraSolver : BackendSolver = struct
           let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
           let r = Random.int 0x10000000 in
           let stdout_name = Printf.sprintf "/tmp/%d_stdout.tmp" r in
-          let command = "python3 " ^ replacer_path ^ " " ^ replacer ^ " " ^ path ^ " > " ^ stdout_name in
+          let flag =
+            if with_partial_analysis then (
+              if with_usage_analysis then
+                "noflags"
+              else
+                "nousage"
+            ) else (
+              if with_usage_analysis then
+                "nopartial"
+              else
+                "noboth"
+            ) in
+          let command = "python3 " ^ replacer_path ^ " --mode=" ^ flag ^ " " ^ replacer ^ " " ^ path ^ " > " ^ stdout_name in
           log_string @@ "command: " ^ command;
-          Unix.system command 
+          Unix.system command
           >>= (fun code ->
             Reader.file_contents stdout_name >>| (fun stdout ->
               match code with
@@ -256,7 +268,7 @@ module KatsuraSolver : BackendSolver = struct
                 log_string @@ "REPLACED!!: " ^ stdout;
                 output_pre_debug_info hes debug_context dry_run stdout;
                 stdout
-              | Error _ -> failwith @@ "replacer error: " ^ stdout
+              | Error _ -> failwith @@ "replacer error (filepath: " ^ path ^ " ): " ^ stdout
             )
           )
         end else
@@ -299,7 +311,7 @@ module KatsuraSolver : BackendSolver = struct
     )
     
   let run solve_options debug_context hes _ stop_if_intractable = 
-    save_hes_to_file hes (if Option.map (fun d -> d.mode) debug_context = Some "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.dry_run
+    save_hes_to_file hes (if Option.map (fun d -> d.mode) debug_context = Some "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.dry_run solve_options.with_usage_analysis solve_options.with_partial_analysis
     >>= (fun path ->
       let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
       let command = solver_command path solve_options stop_if_intractable in
