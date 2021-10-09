@@ -41,6 +41,7 @@ type options =
     auto_existential_quantifier_instantiation: bool;
     with_partial_analysis: bool;
     with_usage_analysis: bool;
+    always_add_arguments: bool;
   }
 let get_solver solver_name = 
   match solver_name with

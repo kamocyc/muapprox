@@ -35,6 +35,7 @@ let replacer = ref (Obj.magic())
 let auto_existential_quantifier_instantiation = ref (Obj.magic())
 let with_partial_analysis = ref (Obj.magic())
 let with_usage_analysis = ref (Obj.magic())
+let always_add_arguments = ref (Obj.magic())
 let agg = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -132,6 +133,8 @@ type params =
   
   ; no_usage_analysis : bool [@default false]
   
+  ; always_add_arguments : bool [@default false]
+  
   ; agg : bool [@default false]
   (* for debug *)
   }
@@ -167,7 +170,9 @@ let set_up_params params =
   set_ref auto_existential_quantifier_instantiation (not params.no_auto_existential_quantifier_instantiation);
   set_ref with_partial_analysis (not params.no_partial_analysis);
   set_ref with_usage_analysis (not params.no_usage_analysis);
+  set_ref always_add_arguments params.always_add_arguments;
   set_ref agg params.agg;
+  if params.disable_add_arguments && params.always_add_arguments then failwith "illegal parameter combination (disable_add_arguments and always_add_arguments)";
   params.input
 
 (******************************************************************************)

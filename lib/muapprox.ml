@@ -101,6 +101,7 @@ let get_solve_options file =
     auto_existential_quantifier_instantiation = !Options.auto_existential_quantifier_instantiation;
     with_partial_analysis = !Options.with_partial_analysis;
     with_usage_analysis = !Options.with_usage_analysis;
+    always_add_arguments = !Options.always_add_arguments;
   }
 
 let check_format file format_type =

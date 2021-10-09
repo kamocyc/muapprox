@@ -523,3 +523,15 @@ let get_reporter header_format =
     }
   in
   reporter
+
+let project_root_directory =
+  lazy (
+    let dune_project = "dune-project" in
+    let cwd = Sys.getcwd() in
+    let rec find_util_dune_project dir =
+      match Sys.file_exists (dir ^ "/" ^ dune_project) with
+      | `Yes -> dir
+      | `No -> find_util_dune_project (Filename.dirname dir)
+      | `Unknown -> failwith "find_util_dune_project" in
+    find_util_dune_project cwd
+  )

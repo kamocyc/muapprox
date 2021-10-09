@@ -214,32 +214,57 @@ let get_katsura_solver_path () =
 module KatsuraSolver : BackendSolver = struct
   include SolverCommon
   
+  let replacer_path =
+    (Lazy.force Hflmc2_util.project_root_directory) ^ "/benchmark/replacer.py"
+    
+  let is_valid_replacer_name replacer =
+    let command = "python3 " ^ replacer_path ^ " " ^ replacer ^ " __dummy --check-target-name-only > /dev/null" in
+    Unix.system command >>| (fun code ->
+      match code with
+      | Ok () -> true
+      | Error (`Exit_non_zero 3) -> false
+      | Error (`Exit_non_zero 2) -> failwith @@ replacer_path ^ " not found (python3 returned exit code 2)"
+      | Error _ -> failwith "is_valid_replacer_name: illegal result"
+    )
+    
   let save_hes_to_file hes replacer debug_context dry_run =
-    let path =
+    let should_use_replacer =
       if replacer <> "" then
-        let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in
-        let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
-        let r = Random.int 0x10000000 in
-        let stdout_name = Printf.sprintf "/tmp/%d_stdout.tmp" r in
-        let command = "python3 benchmark/replacer.py " ^ replacer ^ " " ^ path ^ " > " ^ stdout_name in
-        log_string @@ "command: " ^ command;
-        Unix.system command 
-        >>= (fun code ->
-          Reader.file_contents stdout_name >>| (fun stdout ->
-            match code with
-            | Ok () ->
-              let stdout = String.trim stdout in
-              log_string @@ "REPLACED!!: " ^ stdout;
-              output_pre_debug_info hes debug_context dry_run stdout;
-              stdout
-            | Error _ -> failwith @@ "replacer error: " ^ stdout
-          )
+        is_valid_replacer_name replacer
+        >>| (fun res ->
+          if not res then message_string @@ "[Warning] replacer \"" ^ replacer ^ "\" is specified, but not used because it is invalid name";
+          res
         )
-      else
-        let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
-        output_pre_debug_info hes debug_context dry_run path;
-        Deferred.return path in
-    path
+      else Deferred.return false in
+    should_use_replacer
+    >>= (fun should_use_replacer ->
+      let path =
+        if should_use_replacer then begin
+          log_string "using replacer";
+          let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in
+          let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:true true hes in
+          let r = Random.int 0x10000000 in
+          let stdout_name = Printf.sprintf "/tmp/%d_stdout.tmp" r in
+          let command = "python3 " ^ replacer_path ^ " " ^ replacer ^ " " ^ path ^ " > " ^ stdout_name in
+          log_string @@ "command: " ^ command;
+          Unix.system command 
+          >>= (fun code ->
+            Reader.file_contents stdout_name >>| (fun stdout ->
+              match code with
+              | Ok () ->
+                let stdout = String.trim stdout in
+                log_string @@ "REPLACED!!: " ^ stdout;
+                output_pre_debug_info hes debug_context dry_run stdout;
+                stdout
+              | Error _ -> failwith @@ "replacer error: " ^ stdout
+            )
+          )
+        end else
+          let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
+          output_pre_debug_info hes debug_context dry_run path;
+          Deferred.return path in
+      path
+    )
     
   let solver_command hes_path solver_options stop_if_intractable =
     let solver_path = get_katsura_solver_path () in
@@ -606,10 +631,6 @@ let summarize_results (results : (Status.t * 'a) list) =
   end
 
 let get_next_approx_parameter ?param ?(iter_count=0) with_add_arguments =
-  let iter_count =
-    match param with
-    | None -> assert (iter_count = 0); 0
-    | Some _ -> iter_count in
   let coeffs = 
     if with_add_arguments then
       [
@@ -656,7 +677,7 @@ let get_next_approx_parameter ?param ?(iter_count=0) with_add_arguments =
   end
 
 (* これ以降、本プログラム側での近似が入る *)
-let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mode_name =
+let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mode_name iter_count_offset =
   Hflz_mani.simplify_bound := solve_options.simplify_bound;
   let nu_only_heses = elim_mu_exists solve_options hes mode_name in
   let approx_param = solve_options.approx_parameter in
@@ -744,9 +765,9 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
         if !has_solved then
           return (Status.Unknown, debug_contexts)
         else
-          let approx_param = get_next_approx_parameter ~param:approx_param ~iter_count:iter_count solve_options.add_arguments in
+          let approx_param = get_next_approx_parameter ~param:approx_param ~iter_count:(iter_count + iter_count_offset) solve_options.add_arguments in
           let solve_options = { solve_options with approx_parameter = approx_param } in
-          mu_elim_solver (iter_count + 1) solve_options hes mode_name
+          mu_elim_solver (iter_count + 1) solve_options hes mode_name iter_count_offset
       in
       match result with
       | Status.Valid -> return (Status.Valid, debug_contexts)
@@ -761,11 +782,11 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
         ) else return (Status.Unknown, debug_contexts)
       | Status.Fail -> return (Status.Fail, debug_contexts)))
 
-let check_validity_full (solve_options : Solve_options.options) hes =
+let check_validity_full (solve_options : Solve_options.options) hes iter_count_offset =
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in
   let deferreds =
-    [ mu_elim_solver 1 solve_options hes "prover";
-      (mu_elim_solver 1 solve_options hes_for_disprove "disprover" >>| (fun (s, i) -> Status.flip s, i)) ] in
+    [ mu_elim_solver 1 solve_options hes "prover" iter_count_offset;
+      (mu_elim_solver 1 solve_options hes_for_disprove "disprover" iter_count_offset >>| (fun (s, i) -> Status.flip s, i)) ] in
   let dresult = Deferred.any deferreds in
   dresult >>=
     (fun ri ->
@@ -779,8 +800,8 @@ let check_validity_full (solve_options : Solve_options.options) hes =
 let check_validity_full_oneshot (solve_options : Solve_options.options) hes =
   let hes_for_disprove = Hflz_mani.get_dual_hes hes in
   let deferreds =
-    [ mu_elim_solver 1 solve_options hes "prover";
-      mu_elim_solver 1 solve_options hes_for_disprove "disprover" ] in
+    [ mu_elim_solver 1 solve_options hes "prover" 0;
+      mu_elim_solver 1 solve_options hes_for_disprove "disprover" 0] in
   let dresult =
     let deferred_got_result = Ivar.create () in
     let deferred_deferred_got_result = Ivar.read deferred_got_result in
@@ -841,14 +862,14 @@ let check_validity_full_oneshot (solve_options : Solve_options.options) hes =
         )
     )
 
-let check_validity_full_entry solve_options hes =
-  if solve_options.oneshot then check_validity_full_oneshot solve_options hes else check_validity_full solve_options hes 
+let check_validity_full_entry solve_options hes iter_count_offset =
+  if solve_options.oneshot then check_validity_full_oneshot solve_options hes else check_validity_full solve_options hes iter_count_offset
 
 let solve_onlynu_onlyforall_with_schedule (solve_options : Solve_options.options) nu_only_hes =
   let solve_options =
     { solve_options with
       no_elim = true; no_disprove = false; oneshot = true } in
-  let dresult = mu_elim_solver 1 solve_options nu_only_hes "solver" in
+  let dresult = mu_elim_solver 1 solve_options nu_only_hes "solver" 0 in
   dresult >>=
     (fun ri -> kill_processes (Some "solver") >>|
         (fun _ -> ri))
@@ -861,13 +882,14 @@ let solve_onlynu_onlyforall_with_schedule (solve_options : Solve_options.options
 (* 「shadowingが無い」とする。 *)
 (* timeoutは個別のsolverのtimeout *)  
 let check_validity solve_options (hes : 'a Hflz.hes) cont =
-  let solve_options =
+  let solve_options, iter_count_offset =
     if solve_options.use_custom_parameter then  
-      solve_options
+      solve_options, 0
     else
+      let iter_count_offset = if solve_options.always_add_arguments then 3 else 0 in
       let initial_param =
-        get_next_approx_parameter solve_options.add_arguments in
-      { solve_options with approx_parameter = initial_param } in
+        get_next_approx_parameter solve_options.add_arguments ~iter_count:(0 + iter_count_offset) in
+      { solve_options with approx_parameter = initial_param }, iter_count_offset in
   
   let dresult =
     (if solve_options.auto_existential_quantifier_instantiation && not solve_options.assign_values_for_exists_at_first_iteration then
@@ -879,14 +901,14 @@ let check_validity solve_options (hes : 'a Hflz.hes) cont =
       return solve_options)
     >>= (fun solve_options ->
       if solve_options.always_approximate then
-        check_validity_full_entry solve_options hes
+        check_validity_full_entry solve_options hes iter_count_offset
       else begin
         if is_onlynu_onlyforall hes then
           solve_onlynu_onlyforall_with_schedule solve_options hes
         else if is_onlymu_onlyexists hes then
           solve_onlynu_onlyforall_with_schedule solve_options (Hflz_mani.get_dual_hes hes)
           >>| (fun (status_pair, i) -> (Status.flip status_pair, i))
-        else check_validity_full_entry solve_options hes
+        else check_validity_full_entry solve_options hes iter_count_offset
       end
     ) in
   upon dresult (
