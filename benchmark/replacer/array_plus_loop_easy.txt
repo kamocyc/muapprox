@@ -1,0 +1,10 @@
+\/ Main s3 ar3
+\/ Main x y (x+y) s3 ar3
+Main t ar k =v
+Main x_ y_ xy_ t ar k =v
+Loop recLoop 0 ar k
+Loop recLoop x_ y_ xy_ 0 ar k
+Loop recLoop i ar k =v
+Loop recLoop x_ y_ xy_ i ar k =v
+\/ Loop (recLoop - 1) (i + 1)
+\/ Loop (recLoop - 1) x_ y_ xy_ (i + 1)

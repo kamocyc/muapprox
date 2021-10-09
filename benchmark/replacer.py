@@ -2,6 +2,10 @@ import sys
 import uuid
 import tempfile
 import os
+import argparse
+import glob
+
+os.chdir(os.path.dirname(__file__))
 
 def replace(buf, sources, targets):
     errors = []
@@ -20,41 +24,26 @@ def replace(buf, sources, targets):
     else:
         return 1, '\n'.join(errors)
 
-if len(sys.argv) != 3:
-    print('Error: illegal number of arguments')
-    sys.exit(1)
-    
-target_name = sys.argv[1]
-input_filename = sys.argv[2]
+parser = argparse.ArgumentParser(description='replacer.')
+parser.add_argument('target_name', type=str)
+parser.add_argument('input_filename', type=str)
+parser.add_argument('--check-target-name-only', action='store_true')
 
-replacement_config = {
-    'array_plus_loop_easy': [
-        ('\\/ Main s3 ar3', '\\/ Main x y (x+y) s3 ar3'),
-        ('Main t ar k =v', 'Main x_ y_ xy_ t ar k =v'),
-        ('Loop recLoop 0 ar k', 'Loop recLoop x_ y_ xy_ 0 ar k'),
-        ('Loop recLoop i ar k =v', 'Loop recLoop x_ y_ xy_ i ar k =v'),
-        ('\\/ Loop (recLoop - 1) (i + 1)', '\\/ Loop (recLoop - 1) x_ y_ xy_ (i + 1)')
-    ],
-    'list_plus_loop_easy': [
-        ('\\/ Loop recLoop 0', '\\/ Loop recLoop x y (x+y) 0'),
-        ('Loop recLoop i', 'Loop recLoop x_ y_ xy_ i'),
-        ('\\/ Loop (recLoop - 1) (i + 1)', '\\/ Loop (recLoop - 1) x_ y_ xy_ (i + 1)'),
-    ],
-    'mutual_fixpoints': [
-        ('\\/ M s', '\\/ M x s'),
-        ('M t f =v', 'M x t f =v'),
-        ('Outer t fx =v', 'Outer x t fx =v'),
-        ('Outer s f', 'Outer x s f'),
-        ('\\/ Repeat recRepeat s', '\\/ Repeat recRepeat (x + y) s'),
-        ('Repeat recRepeat t fy =v', 'Repeat recRepeat xy t fy =v'),
-        ('\\/ Outer s (Neg fy)', '\\/ Outer (1 - xy) s (Neg fy)'),
-        ('\\/ Repeat (recRepeat - 1) s', '\\/ Repeat (recRepeat - 1) (xy - 1) s')
-    ]
-}
+args = parser.parse_args()
 
-if not target_name in replacement_config:
+target_name = args.target_name
+input_filename = args.input_filename
+check_target_name_only = args.check_target_name_only
+
+replacement_names = [ os.path.splitext(os.path.basename(s))[0] for s in glob.glob("./replacer/*.txt")]
+
+if not target_name in replacement_names:
     print('Error: illegal target name')
-    sys.exit(1)
+    sys.exit(3)
+
+if check_target_name_only:
+    print('ok')
+    sys.exit(0)
 
 try:
     with open(input_filename, 'r') as f:
@@ -63,8 +52,14 @@ except FileNotFoundError:
     print("Error: file \"" + input_filename + "\" not found")
     sys.exit(1)
 
-sources = [s for s, _ in replacement_config[target_name]]
-targets = [s for _, s in replacement_config[target_name]]
+with open('replacer/' + target_name + '.txt', 'r') as f:
+    lines = f.readlines()
+    if len(lines) % 2 != 0:
+        print('illegal line number')
+        sys.exit(1)
+    
+    sources = [s.rstrip("\n") for i, s in enumerate(lines) if i % 2 == 0]
+    targets = [s.rstrip("\n") for i, s in enumerate(lines) if i % 2 == 1]
 
 status, buf = replace(buf, sources, targets)
 
@@ -79,4 +74,3 @@ if status == 0:
 else:
     print('Error:\n' + buf)
     sys.exit(1)
-

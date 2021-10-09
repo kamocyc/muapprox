@@ -1,0 +1,49 @@
+/* valid */
+%PROGRAM
+let app x f x2 = event called; f x x2
+let ev_a k x = event called; event a; k x
+let ev_b k x = event called; event b; k x
+
+let cont x =
+  event called;
+  if x > 0 then
+    app ev_a loop x
+  else
+    app ev_b loop x
+
+let loop ev x =
+  event called;
+  ev cont x
+
+let () =
+  let x = <_exists> * in
+  if x > 0 then
+    loop ev_a x
+  else ()
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_a called -> (1, q_0).
+q_b called -> (1, q_0).
+
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_a d -> (1, q_0) \/ (2, q_0).
+q_b d -> (1, q_0) \/ (2, q_0).
+
+q_0 a -> (1, q_a).
+q_a a -> (1, q_a).
+q_b a -> (1, q_a).
+
+q_0 b -> (1, q_b).
+q_a b -> (1, q_b).
+q_b b -> (1, q_b).
+
+q_0 nullary -> false.
+q_a nullary -> false.
+q_b nullary -> false.
+
+%PRIORITY
+/* {(a, b)} */
+q_0 -> 0.
+q_a -> 1.
+q_b -> 2.

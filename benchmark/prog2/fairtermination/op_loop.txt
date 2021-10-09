@@ -35,3 +35,58 @@ q_called called -> (1, q_called).
 q_called -> 1.
 qa -> 2.
 qb -> 3.
+
+/*
+/* disprover-1  (arguments orders swapped) */
+/* timeout (should be valid) */
+/* instantiateしないと解けない (timeout in PCSat) */
+%HES
+Sentry =v ∀x. x < 1 \/ Exists x.
+Exists x =v
+  ((∀recOp_loop__qa. 
+     recOp_loop__qa < 1 + 1 * x \/ recOp_loop__qa < 1 + (-1) * x
+     \/ recOp_loop__qa < 1
+     \/ Op_loop20__q_called recOp_loop__qa x
+         (\x2. \k__q_called. k__q_called (x2 + 1)))
+   \/ (∀recOp_loop__qa. 
+        recOp_loop__qa < 1 + 1 * -x \/ recOp_loop__qa < 1 + (-1) * -x
+        \/ recOp_loop__qa < 1
+        \/ Op_loop20__q_called recOp_loop__qa (-x)
+            (\x2. \k__q_called. k__q_called (x2 + 1)))
+   \/ Exists (x - 1))
+  /\ x >= 0.
+
+Succ__q_called x k__q_called =v k__q_called (x + 1).
+
+Op_loop__qb op__q_called =v ∀x. x < 1 \/ Op_loop__qb__3_e x op__q_called.
+
+Op_loop__qb__3_e x op__q_called =v
+  ((∀recOp_loop__qa. 
+     recOp_loop__qa < 1 + 1 * x \/ recOp_loop__qa < 1 + (-1) * x
+     \/ recOp_loop__qa < 1
+     \/ Op_loop20__q_called recOp_loop__qa x op__q_called)
+   \/ (∀recOp_loop__qa. 
+        recOp_loop__qa < 1 + 1 * -x \/ recOp_loop__qa < 1 + (-1) * -x
+        \/ recOp_loop__qa < 1
+        \/ Op_loop20__q_called recOp_loop__qa (-x) op__q_called)
+   \/ Op_loop__qb__3_e (x - 1) op__q_called)
+  /\ x >= 0.
+
+Succ__q_called2 x k__q_called =v k__q_called (x + 1).
+
+Op_loop__qa recOp_loop__qa op__q_called =v
+  recOp_loop__qa > 0
+  /\ (∀x. x < 1 \/ Op_loop__qa__2_e recOp_loop__qa x op__q_called).
+
+Op_loop__qa__2_e recOp_loop__qa x op__q_called =v
+  (Op_loop20__q_called recOp_loop__qa x op__q_called
+   \/ Op_loop20__q_called recOp_loop__qa (-x) op__q_called
+   \/ Op_loop__qa__2_e recOp_loop__qa (x - 1) op__q_called)
+  /\ x >= 0.
+
+Op_loop20__q_called recOp_loop__qa x op__q_called =v
+  op__q_called x
+   (\y. 
+     (y <= 0 \/ Op_loop__qa (recOp_loop__qa - 1) Succ__q_called2)
+     /\ (y > 0 \/ Op_loop__qb Succ__q_called)).
+*/

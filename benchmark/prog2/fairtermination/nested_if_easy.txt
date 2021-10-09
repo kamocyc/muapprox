@@ -7,7 +7,6 @@ let ev_b xx = event called; event b; ()
 
 let f ev =
   event called;
-  ev 0;
   let x = <_forall> * in
   let y = <_forall> * in
   if x < y then

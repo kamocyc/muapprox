@@ -1,0 +1,12 @@
+termination/ho/any_down.in
+termination/ho/append.in
+termination/ho/binnomial.in
+termination/ho/fibonacci.in
+termination/ho/indirect.in
+termination/ho/indirectHO.in
+termination/ho/loop2.in
+termination/ho/mc91.in
+termination/ho/mult.in
+termination/ho/nested_loop.in
+termination/ho/sum.in
+termination/ho/zip.in

@@ -1,0 +1,16 @@
+\/ M s
+\/ M x s
+M t f =v
+M x t f =v
+Outer t fx =v
+Outer x t fx =v
+Outer s f
+Outer x s f
+\/ Repeat recRepeat s
+\/ Repeat recRepeat (x + y) s
+Repeat recRepeat t fy =v
+Repeat recRepeat xy t fy =v
+\/ Outer s (Neg fy)
+\/ Outer (1 - xy) s (Neg fy)
+\/ Repeat (recRepeat - 1) s
+\/ Repeat (recRepeat - 1) (xy - 1) s

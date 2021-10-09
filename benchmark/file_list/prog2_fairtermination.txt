@@ -1,10 +1,7 @@
 prog2/fairtermination/call_twice.in
-prog2/fairtermination/call_twice_valid.in
 prog2/fairtermination/compose.in
 prog2/fairtermination/compose_valid.in
-prog2/fairtermination/compose_valid_simplified.in
 prog2/fairtermination/intro.in
-prog2/fairtermination/intro_ho.in
 prog2/fairtermination/intro_valid.in
 prog2/fairtermination/loop.in
 prog2/fairtermination/loop_CPS.in
@@ -17,7 +14,6 @@ prog2/fairtermination/murase_intro_invalid.in
 prog2/fairtermination/murase_repeat.in
 prog2/fairtermination/murase_repeat_buggy.in
 prog2/fairtermination/nested_if.in
-prog2/fairtermination/nested_if_valid.in
 prog2/fairtermination/odd_nonterm.in
 prog2/fairtermination/odd_nonterm_valid.in
 prog2/fairtermination/op_loop.in

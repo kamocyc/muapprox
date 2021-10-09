@@ -1,0 +1,38 @@
+/* invalid */
+%PROGRAM
+let finish =
+  event called;
+  event done;
+  finish
+
+let explore x r =
+  event called;
+  event explore;
+  reduce x r (\y.
+    if y=0 then finish
+    else explore y r
+  )
+  
+let reduce x r k =
+  event called;
+  if x<=0 then k x else r x k
+
+let () =
+  let x = <_forall> * in
+  explore x (\x k.
+    k (x - 2)
+  )
+
+/* (G((called && NOT done && NOT explore) || (NOT called && done && NOT explore) || (NOT called && NOT done && explore))) && F(done) */
+%TRANSITION
+q_0 called -> (1, q_0).
+q_0 explore -> (1, q_0).
+q_0 done -> (1, q_done).
+
+q_done called -> (1, q_0).
+q_done explore -> (1, q_0).
+q_done done -> (1, q_done).
+
+%PRIORITY
+q_0 -> 1.
+q_done -> 2.

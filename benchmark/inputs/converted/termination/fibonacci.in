@@ -1,6 +1,6 @@
 %HES
-Sentry  =v ∃x_369.FIB x_369 (\x_358.false).
-FIB n k_fib_22 =v
+Sentry =v ∀x_369. FIB x_369 (\x_358. true).
+FIB n k_fib_22 =u
   (n >= 2 \/ k_fib_22 1)
   /\ (n < 2
-      \/ FIB (n - 1) (\x_364.FIB (n - 2) (\x_355.k_fib_22 (x_364 + x_355)))).
+      \/ FIB (n - 1) (\x_364. FIB (n - 2) (\x_355. k_fib_22 (x_364 + x_355)))).

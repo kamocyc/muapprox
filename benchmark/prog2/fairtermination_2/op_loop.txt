@@ -1,0 +1,102 @@
+/* invalid */
+%PROGRAM
+let succ x k = event called; k (x + 1)
+
+let op_loop op =
+  event called;
+  let x = <_exists> * in
+  op x (\y.
+    if y > 0 then
+      (event a;
+        op_loop succ)
+    else
+      (event b;
+        op_loop succ)
+  )
+
+let () =
+  op_loop succ
+
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_a called -> (1, q_0).
+q_b called -> (1, q_0).
+
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_a d -> (1, q_0) \/ (2, q_0).
+q_b d -> (1, q_0) \/ (2, q_0).
+
+q_0 a -> (1, q_a).
+q_a a -> (1, q_a).
+q_b a -> (1, q_a).
+
+q_0 b -> (1, q_b).
+q_a b -> (1, q_b).
+q_b b -> (1, q_b).
+
+q_0 nullary -> false.
+q_a nullary -> false.
+q_b nullary -> false.
+
+%PRIORITY
+/* {(a, b)} */
+q_0 -> 0.
+q_a -> 1.
+q_b -> 2.
+
+
+/*
+/* disprover-1  (arguments orders swapped) */
+/* timeout (should be valid) */
+/* instantiateしないと解けない (timeout in PCSat) */
+%HES
+Sentry =v ∀x. x < 1 \/ Exists x.
+Exists x =v
+  ((∀recOp_loop__qa. 
+     recOp_loop__qa < 1 + 1 * x \/ recOp_loop__qa < 1 + (-1) * x
+     \/ recOp_loop__qa < 1
+     \/ Op_loop20__q_called recOp_loop__qa x
+         (\x2. \k__q_called. k__q_called (x2 + 1)))
+   \/ (∀recOp_loop__qa. 
+        recOp_loop__qa < 1 + 1 * -x \/ recOp_loop__qa < 1 + (-1) * -x
+        \/ recOp_loop__qa < 1
+        \/ Op_loop20__q_called recOp_loop__qa (-x)
+            (\x2. \k__q_called. k__q_called (x2 + 1)))
+   \/ Exists (x - 1))
+  /\ x >= 0.
+
+Succ__q_called x k__q_called =v k__q_called (x + 1).
+
+Op_loop__qb op__q_called =v ∀x. x < 1 \/ Op_loop__qb__3_e x op__q_called.
+
+Op_loop__qb__3_e x op__q_called =v
+  ((∀recOp_loop__qa. 
+     recOp_loop__qa < 1 + 1 * x \/ recOp_loop__qa < 1 + (-1) * x
+     \/ recOp_loop__qa < 1
+     \/ Op_loop20__q_called recOp_loop__qa x op__q_called)
+   \/ (∀recOp_loop__qa. 
+        recOp_loop__qa < 1 + 1 * -x \/ recOp_loop__qa < 1 + (-1) * -x
+        \/ recOp_loop__qa < 1
+        \/ Op_loop20__q_called recOp_loop__qa (-x) op__q_called)
+   \/ Op_loop__qb__3_e (x - 1) op__q_called)
+  /\ x >= 0.
+
+Succ__q_called2 x k__q_called =v k__q_called (x + 1).
+
+Op_loop__qa recOp_loop__qa op__q_called =v
+  recOp_loop__qa > 0
+  /\ (∀x. x < 1 \/ Op_loop__qa__2_e recOp_loop__qa x op__q_called).
+
+Op_loop__qa__2_e recOp_loop__qa x op__q_called =v
+  (Op_loop20__q_called recOp_loop__qa x op__q_called
+   \/ Op_loop20__q_called recOp_loop__qa (-x) op__q_called
+   \/ Op_loop__qa__2_e recOp_loop__qa (x - 1) op__q_called)
+  /\ x >= 0.
+
+Op_loop20__q_called recOp_loop__qa x op__q_called =v
+  op__q_called x
+   (\y. 
+     (y <= 0 \/ Op_loop__qa (recOp_loop__qa - 1) Succ__q_called2)
+     /\ (y > 0 \/ Op_loop__qb Succ__q_called)).
+*/

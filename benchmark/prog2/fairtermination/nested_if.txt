@@ -70,7 +70,7 @@ F__qa__0 ev__q_called__1 =v
 
 /*
 /* simpler form */
-/* invalid (solved in disprover-3)
+/* invalid (solved in disprover-3) */
 %HES
 Sentry =v F__qa__0 Ev_a__q_called__1.
 

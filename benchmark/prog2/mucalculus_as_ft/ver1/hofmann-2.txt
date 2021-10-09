@@ -1,0 +1,62 @@
+/*
+Example 2 of Hofmann and Chen, "Buchi Types for Infinite Traces and Liveness", CSL-LICS 2014
+
+Trace(P) \subset L(A)
+<=> Trace(P) \cap L(A) != \emptyset
+<=> invalid
+*/
+
+%PROGRAM
+let inner_loop i s k =
+  event called;
+  if i<1024 && s<>0 then (
+    let s = <_forall> * in
+    inner_loop (i+1) s k
+  ) else (
+    event c;
+    k
+  )
+
+let loop =
+  event called;
+  inner_loop 0 0 (\.
+    event b;
+    loop
+  )
+
+let () =
+  event start;
+  loop
+
+%TRANSITION
+q0 start -> (1, q_fin_c) \/ (1, q_inf_c).
+q0 c -> false.
+q0 called -> false.
+q0 b -> false.
+
+q_fin_c start -> false.
+q_fin_c c -> (1, q_fin_c_c).
+q_fin_c called -> (1, q_fin_c).
+q_fin_c b -> (1, q_fin_c).
+
+q_fin_c_c start -> false.
+q_fin_c_c c -> (1, q_fin_c_c).
+q_fin_c_c called -> (1, q_fin_c).
+q_fin_c_c b -> (1, q_fin_c).
+
+q_inf_c start -> false.
+q_inf_c c -> (1, q_inf_c).
+q_inf_c called -> (1, q_inf_c).
+q_inf_c b -> (1, q_inf_c_b).
+
+q_inf_c_b start -> false.
+q_inf_c_b c -> (1, q_inf_c).
+q_inf_c_b called -> (1, q_inf_c).
+q_inf_c_b b -> (1, q_inf_c_b).
+
+%PRIORITY
+q0 -> 1.
+q_inf_c -> 1.
+q_inf_c_b -> 2.
+q_fin_c -> 2.
+q_fin_c_c -> 3.

@@ -1,0 +1,99 @@
+/* invalid */
+%PROGRAM
+
+let ev_a k = event called; event a; k
+let ev_b k = event called; event b; k
+
+let f ev k =
+  event called;
+  ev (\.
+    let x = <_exists> * in
+    let y = <_exists> * in
+    if x < y then
+      if x > y + 1 then
+        k
+      else
+        f ev_b k
+    else
+      f ev_a k
+  )
+
+let () =
+  f ev_a (\. ())
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_a called -> (1, q_0).
+q_b called -> (1, q_0).
+
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_a d -> (1, q_0) \/ (2, q_0).
+q_b d -> (1, q_0) \/ (2, q_0).
+
+q_0 a -> (1, q_a).
+q_a a -> (1, q_a).
+q_b a -> (1, q_a).
+
+q_0 b -> (1, q_b).
+q_a b -> (1, q_b).
+q_b b -> (1, q_b).
+
+q_0 nullary -> false.
+q_a nullary -> false.
+q_b nullary -> false.
+
+%PRIORITY
+/* {(a, b)} */
+q_0 -> 0.
+q_a -> 1.
+q_b -> 2.
+
+/* nested_if.in */
+/*
+/* simplified form (timeout) */
+%HES
+Sentry =v F__qa__0 Ev_a__q_called__1.
+
+F24__qb__3 =u
+  ∀x1158. 
+   ∀x1179. 
+       (x1158 >= x1179 \/ ((x1158 <= x1179 + 1 \/ true) /\ (x1158 > x1179 + 1 \/ F24__qb__3)))
+    /\ (x1158 < x1179  \/ F24__qa__2).
+
+F24__qa__2 =v
+  ∀x1163. 
+   ∀x1178. 
+       (x1163 >= x1178 \/ ((x1163 <= x1178 + 1 \/ true) /\ (x1163 > x1178 + 1 \/ F__qa__0 Ev_b__q_called__1)))
+    /\ (x1163 < x1178 \/ F__qa__0 Ev_a__q_called__1).
+
+Ev_a__q_called__1 k__qa__2 k__qb__3 =u k__qa__2.
+
+Ev_b__q_called__1 k__qa__2 k__qb__3 =u k__qb__3.
+
+F__qa__0 ev__q_called__1 =v
+  ev__q_called__1 F24__qa__2 F24__qb__3.
+*/
+
+/*
+/* simpler form */
+/* invalid (solved in disprover-3) */
+%HES
+Sentry =v F__qa__0 Ev_a__q_called__1.
+
+F24__qb__3 =u
+  ∀x1158. 
+       (x1158 = 0  \/ F24__qb__3)
+    /\ (x1158 != 0 \/ F24__qa__2).
+
+F24__qa__2 =v
+  ∀x1163. 
+       (x1163 =  0 \/ F__qa__0 Ev_b__q_called__1)
+    /\ (x1163 != 0 \/ F__qa__0 Ev_a__q_called__1).
+
+Ev_a__q_called__1 k__qa__2 k__qb__3 =u k__qa__2.
+
+Ev_b__q_called__1 k__qa__2 k__qb__3 =u k__qb__3.
+
+F__qa__0 ev__q_called__1 =v
+  ev__q_called__1 F24__qa__2 F24__qb__3.
+*/

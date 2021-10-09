@@ -26,18 +26,14 @@ let () =
 %TRANSITION
 q_0 called -> (1, q_0).
 q_foo called -> (1, q_0).
-q_bot called -> (1, q_bot).
 
-q_0 d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_foo d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_bot d -> (1, q_bot) /\ (2, q_bot).
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_foo d -> (1, q_0) \/ (2, q_0).
 
 q_0 foo -> (1, q_foo).
 q_foo foo -> (1, q_foo).
-q_bot foo -> (1, q_bot).
 
 %PRIORITY
 /* {(foo, never)} */
 q_foo -> 1.
 q_0 -> 0.
-q_bot -> 0.

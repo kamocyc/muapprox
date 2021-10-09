@@ -1,4 +1,5 @@
 /* 結果はinvalid <=> L(A) \cap Trace(P) /= \emptyset */
+/* 変換結果はfixpoint alternationがない */
 
 %PROGRAM
 let main = event a; main

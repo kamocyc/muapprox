@@ -1,0 +1,73 @@
+%PROGRAM
+let app f x i k =
+  event p;
+  f x (\x k2. k2 (x - i)) k
+
+let ha1 x =
+  event p;
+  event ha;
+  ha1 x
+
+let ha2 x =
+  event p;
+  event ha;
+  ha2 x
+
+let walk x f k =
+  event p;
+  if x < 0 then k x
+  else f x (\x_. walk x_ f k)
+
+let run x f k =
+  event p;
+  if x < 0 then k x
+  else f x (\x_. f x_ (\x__. run x__ f k))
+
+let life x =
+  if <d> * then (
+    event p;
+    if x < 0 then app walk x 1 (\x_. ha1 x_)
+    else app run x 1 (\x_. ha2 x_)
+  ) else life x
+
+let () =
+  event start;
+  life (<_forall> *)
+
+%TRANSITION
+q0 start -> (1, q_fin_p) \/ (1, q_inf_p).
+q0 p -> false.
+q0 called -> false.
+q0 ha -> false.
+q0 d -> false.
+
+q_fin_p start -> false.
+q_fin_p p -> (1, q_fin_p_p).
+q_fin_p called -> (1, q_fin_p).
+q_fin_p ha -> (1, q_fin_p).
+q_fin_p d -> (1, q_fin_p) /\ (2, q_fin_p).
+
+q_fin_p_p start -> false.
+q_fin_p_p p -> (1, q_fin_p_p).
+q_fin_p_p called -> (1, q_fin_p).
+q_fin_p_p ha -> (1, q_fin_p).
+q_fin_p_p d -> (1, q_fin_p_p) /\ (2, q_fin_p_p).
+
+q_inf_p start -> false.
+q_inf_p p -> (1, q_inf_p).
+q_inf_p called -> (1, q_inf_p).
+q_inf_p ha -> (1, q_inf_p_ha).
+q_inf_p d -> (1, q_inf_p) /\ (2, q_inf_p).
+
+q_inf_p_ha start -> false.
+q_inf_p_ha p -> (1, q_inf_p).
+q_inf_p_ha called -> (1, q_inf_p).
+q_inf_p_ha ha -> (1, q_inf_p_ha).
+q_inf_p_ha d -> (1, q_inf_p_ha) /\ (2, q_inf_p_ha).
+
+%PRIORITY
+q0 -> 1.
+q_inf_p -> 1.
+q_inf_p_ha -> 2.
+q_fin_p -> 2.
+q_fin_p_p -> 3.

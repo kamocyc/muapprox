@@ -24,26 +24,21 @@ let () =
 q_0 called -> (1, q_0).
 q_b called -> (1, q_0).
 q_c called -> (1, q_0).
-q_bot called -> (1, q_bot).
 
-q_0 d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_b d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_c d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_bot d -> (1, q_bot) /\ (2, q_bot).
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_b d -> (1, q_0) \/ (2, q_0).
+q_c d -> (1, q_0) \/ (2, q_0).
 
 q_0 b -> (1, q_b).
 q_b b -> (1, q_b).
 q_c b -> (1, q_b).
-q_bot b -> (1, q_bot).
 
 q_0 c -> (1, q_c).
 q_b c -> (1, q_c).
 q_c c -> (1, q_c).
-q_bot c -> (1, q_bot).
 
 %PRIORITY
 /* {(b, never); (always, c)}  =  b is finite && c is infinite */
 q_0 -> 1.
 q_c -> 2.
 q_b -> 3.
-q_bot -> 0.

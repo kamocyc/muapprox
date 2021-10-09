@@ -1,0 +1,5 @@
+prog/esop18_7_intro_1.in
+prog/esop18_7_intro_2.in
+prog/esop18_7_intro_3.in
+prog/esop18_ex11.in
+prog/sas19_ex9.in

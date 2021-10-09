@@ -42,26 +42,21 @@ let () =
 q_0 called -> (1, q_0).
 q_close1 called -> (1, q_0).
 q_close2 called -> (1, q_0).
-q_bot called -> (1, q_bot).
 
-q_0 d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_close1 d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_close2 d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_bot d -> (1, q_bot) /\ (2, q_bot).
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_close1 d -> (1, q_0) \/ (2, q_0).
+q_close2 d -> (1, q_0) \/ (2, q_0).
 
 q_0 close1 -> (1, q_close1).
 q_close1 close1 -> (1, q_close1).
 q_close2 close1 -> (1, q_close1).
-q_bot close1 -> (1, q_bot).
 
 q_0 close2 -> (1, q_close2).
 q_close1 close2 -> (1, q_close2).
 q_close2 close2 -> (1, q_close2).
-q_bot close2 -> (1, q_bot).
 
 %PRIORITY
 /* {(always, close1); (close2, never)}  =  close2 is finite && close1 is infinite */
 q_0 -> 1.
 q_close1 -> 2.
 q_close2 -> 3.
-q_bot -> 0.

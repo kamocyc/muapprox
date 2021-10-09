@@ -45,29 +45,24 @@ let () =
 q_0 called -> (1, q_0).
 q_p called -> (1, q_0).
 q_ha called -> (1, q_0).
-q_bot called -> (1, q_bot).
 
-q_0 d2 -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_p d2 -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_ha d2 -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
-q_bot d2 -> (1, q_bot) /\ (2, q_bot).
+q_0 d2 -> (1, q_0) \/ (2, q_0).
+q_p d2 -> (1, q_0) \/ (2, q_0).
+q_ha d2 -> (1, q_0) \/ (2, q_0).
 
 q_0 p -> (1, q_p).
 q_p p -> (1, q_p).
 q_ha p -> (1, q_p).
-q_bot p -> (1, q_bot).
 
 q_0 ha -> (1, q_ha).
 q_p ha -> (1, q_ha).
 q_ha ha -> (1, q_ha).
-q_bot ha -> (1, q_bot).
 
 %PRIORITY
 /* {(always, p); (ha, never)}  =  ha is finite && p is infinite */
 q_0 -> 1.
 q_p -> 2.
 q_ha -> 3.
-q_bot -> 0.
 
 
 /*
