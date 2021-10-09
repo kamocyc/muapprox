@@ -1,0 +1,88 @@
+%PROGRAM
+let print x =
+  event called;
+  event print;
+  print x
+
+let rumble x y k =
+  event called;
+  /* event rumble; */
+  if x < y then (
+    if <d> * then
+      rumble (x+1) y k
+    else rumble x (y-1) k
+  ) else k x
+
+let () =
+  let a = <_exists> * in
+  let b = <_exists> * in
+  rumble a b (\r.
+    rumble a r (\r2.
+      print r2
+    )
+  )
+
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_print called -> (1, q_0).
+q_bot called -> (1, q_bot).
+
+q_0 d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
+q_print d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
+q_bot d -> (1, q_bot) /\ (2, q_bot).
+
+q_0 print -> (1, q_print).
+q_print print -> (1, q_print).
+q_bot print -> (1, q_bot).
+
+%PRIORITY
+/* {(print, never)} */
+q_print -> 1.
+q_0 -> 0.
+q_bot -> 0.
+
+/*
+/* simpilfed */
+/*
+[[MAIN]] Verification Result:
+  invalid
+Profiling:
+  total: 363.430099 sec
+disprover-3 (hoice): (coe1: 4, coe2: 32, add_arg_coe1: -, add_arg_coe2: -, default_lexicographic_order: 1, exists_assignment: [], temp_file: )
+*/
+%HES
+Sentry =v
+  ∃x165. 
+   ∃x169. 
+    Rumble__q_0__0_ x165 x169 x165.
+
+Rumble__q_0__0_ x y x165 =v
+  (x >= y
+   \/ Rumble__q_0__0_ (x + 1) y x165
+      /\ Rumble__q_bot__0_ x (y - 1) x165
+      \/ Rumble__q_bot__0_ (x + 1) y x165
+         /\ Rumble__q_0__0_ x (y - 1) x165)
+  /\ (x < y \/ Rumble__q_0__0 x165 x).
+
+Rumble__q_bot__0_ x y x165 =v
+  (x >= y
+   \/ Rumble__q_bot__0_ (x + 1) y x165
+      /\ Rumble__q_bot__0_ x (y - 1) x165)
+  /\ (x < y \/ Rumble__q_bot__0 x165 x).
+
+
+
+Rumble__q_0__0 x y =v
+  (x >= y
+   \/ Rumble__q_0__0 (x + 1) y
+      /\ Rumble__q_bot__0 x (y - 1)
+      \/ Rumble__q_bot__0 (x + 1) y
+         /\ Rumble__q_0__0 x (y - 1))
+  /\ x < y.
+
+Rumble__q_bot__0 x y =v
+  x >= y
+   \/ Rumble__q_bot__0 (x + 1) y
+      /\ Rumble__q_bot__0 x (y - 1).
+*/

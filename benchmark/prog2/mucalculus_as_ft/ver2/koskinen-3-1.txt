@@ -1,0 +1,43 @@
+/* invalid */
+%PROGRAM
+let halt =
+  event called;
+  /* event halt; */
+  halt
+  
+let bar x k =
+  event called;
+  /* event bar; */
+  if x>0 then bar (x-1) k
+  else k x
+
+let foo x =
+  event called;
+  event foo;
+  if x<=0 then foo x
+  else halt
+
+let () =
+  if <d> * then foo 0
+  else bar (<_exists> *) (\r.
+    foo r
+  )
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_foo called -> (1, q_0).
+q_bot called -> (1, q_bot).
+
+q_0 d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
+q_foo d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
+q_bot d -> (1, q_bot) /\ (2, q_bot).
+
+q_0 foo -> (1, q_foo).
+q_foo foo -> (1, q_foo).
+q_bot foo -> (1, q_bot).
+
+%PRIORITY
+/* {(foo, never)} */
+q_foo -> 1.
+q_0 -> 0.
+q_bot -> 0.

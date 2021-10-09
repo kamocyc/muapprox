@@ -1,0 +1,24 @@
+/* invalid */
+%PROGRAM
+let f = event called; event a; event b; f
+let () = f
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_a called -> (1, q_0).
+q_b called -> (1, q_0).
+
+q_0 a -> (1, q_a).
+q_a a -> (1, q_a).
+q_b a -> (1, q_a).
+
+q_0 b -> (1, q_b).
+q_a b -> (1, q_b).
+q_b b -> (1, q_b).
+
+%PRIORITY
+/* {(b, never)} */
+q_0 -> 0.
+q_a -> 0.
+q_b -> 1.
+q_bot -> 0.

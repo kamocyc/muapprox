@@ -1,0 +1,43 @@
+%PROGRAM
+let print x =
+  event called;
+  event print;
+  print x
+
+let rumble x y k =
+  event called;
+  /* event rumble; */
+  if x < y then (
+    if <d> * then
+      rumble (x+1) y k
+    else rumble x y k
+  ) else k x
+
+let () =
+  let a = <_exists> * in
+  let b = <_exists> * in
+  rumble a b (\r.
+    rumble a r (\r2.
+      print r2
+    )
+  )
+
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_print called -> (1, q_0).
+q_bot called -> (1, q_bot).
+
+q_0 d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
+q_print d -> ((1, q_0) /\ (2, q_bot)) \/ ((1, q_bot) /\ (2, q_0)).
+q_bot d -> (1, q_bot) /\ (2, q_bot).
+
+q_0 print -> (1, q_print).
+q_print print -> (1, q_print).
+q_bot print -> (1, q_bot).
+
+%PRIORITY
+/* {(print, never)} */
+q_print -> 1.
+q_0 -> 0.
+q_bot -> 0.
