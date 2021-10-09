@@ -1,0 +1,36 @@
+/* invalid */
+%PROGRAM
+let pred x k = event called; k (x - 1)
+
+let compose f_ g x k = event called; g x (\r. f_ r k)
+
+let f c k =
+  event called;
+  event a;
+  if c = 0 then k
+  else (event b; compose f pred c k)
+
+let () =
+  let r = <_forall> * in
+  f r (\. ())
+
+%TRANSITION
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa called -> (1, q_called).
+qa nullary -> true.
+
+qb a -> (1, qa).
+qb b -> (1, qb).
+qb called -> (1, q_called).
+qb nullary -> true.
+
+q_called a -> (1, qa).
+q_called b -> (1, qb).
+q_called called -> (1, q_called).
+q_called nullary -> true.
+
+%PRIORITY
+q_called -> 1.
+qa -> 2.
+qb -> 3.

@@ -7,18 +7,23 @@ let f x k =
   else (f 1 (\. f 1 k))
 
 let () =
-  let x = <_forall> * in
+  let x = <_exists> * in
   f x (\. ())
 
 %TRANSITION
-qa a -> (1, qa).
-qa called -> (1, q_called).
-qa nullary -> true.
+q_0 called -> (1, q_0).
+q_a called -> (1, q_0).
 
-q_called a -> (1, qa).
-q_called called -> (1, q_called).
-q_called nullary -> true.
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_a d -> (1, q_0) \/ (2, q_0).
+
+q_0 a -> (1, q_a).
+q_a a -> (1, q_a).
+
+q_0 nullary -> false.
+q_a nullary -> false.
 
 %PRIORITY
-q_called -> 1.
-qa -> 2.
+/* {(a, b)} */
+q_0 -> 0.
+q_a -> 1.

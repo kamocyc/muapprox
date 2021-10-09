@@ -3,7 +3,7 @@
 # run in the project root directory
 #  benchmark/prog2/ho benchmark/prog2/fairtermination/ho
 
-DIRPATHS="benchmark/prog2/mucalculus_as_ft/ver2 benchmark/prog2/fairtermination_2"
+DIRPATHS="benchmark/prog2/mucalculus_as_ft benchmark/prog2/fairtermination"
 
 for DIRPATH in $DIRPATHS
 do

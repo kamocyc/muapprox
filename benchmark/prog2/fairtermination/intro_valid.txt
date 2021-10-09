@@ -2,7 +2,7 @@
 %PROGRAM
 let rand k =
   event called;
-  let r = <_forall> * in
+  let r = <_exists> * in
   if 0 < r then
     (event b; k r)
   else
@@ -22,22 +22,28 @@ let () =
 
 
 %TRANSITION
-qa a -> (1, qa).
-qa b -> (1, qb).
-qa called -> (1, q_called).
-qa nullary -> true.
+q_0 called -> (1, q_0).
+q_a called -> (1, q_0).
+q_b called -> (1, q_0).
 
-qb a -> (1, qa).
-qb b -> (1, qb).
-qb called -> (1, q_called).
-qb nullary -> true.
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_a d -> (1, q_0) \/ (2, q_0).
+q_b d -> (1, q_0) \/ (2, q_0).
 
-q_called a -> (1, qa).
-q_called b -> (1, qb).
-q_called called -> (1, q_called).
-q_called nullary -> true.
+q_0 a -> (1, q_a).
+q_a a -> (1, q_a).
+q_b a -> (1, q_a).
+
+q_0 b -> (1, q_b).
+q_a b -> (1, q_b).
+q_b b -> (1, q_b).
+
+q_0 nullary -> false.
+q_a nullary -> false.
+q_b nullary -> false.
 
 %PRIORITY
-q_called -> 1.
-qa -> 2.
-qb -> 3.
+/* {(a, b)} */
+q_0 -> 0.
+q_a -> 1.
+q_b -> 2.

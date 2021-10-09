@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIRPATH=benchmark/prog2/fairtermination_2
+DIRPATH=benchmark/prog2/fairtermination
 
 rm $DIRPATH/*_dual.in
 

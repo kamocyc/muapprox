@@ -19,3 +19,17 @@ prog2/fairtermination/odd_nonterm_valid.in
 prog2/fairtermination/op_loop.in
 prog2/fairtermination/update_max.in
 prog2/fairtermination/update_max_CPS.in
+prog2/mucalculus_as_ft/hofmann-1.in
+prog2/mucalculus_as_ft/hofmann-2.in
+prog2/mucalculus_as_ft/koskinen-1.in
+prog2/mucalculus_as_ft/koskinen-1_buggy.in
+prog2/mucalculus_as_ft/koskinen-2.in
+prog2/mucalculus_as_ft/koskinen-2_buggy.in
+prog2/mucalculus_as_ft/koskinen-3-1.in
+prog2/mucalculus_as_ft/koskinen-3-1_buggy.in
+prog2/mucalculus_as_ft/koskinen-3-2.in
+prog2/mucalculus_as_ft/koskinen-3-2_buggy.in
+prog2/mucalculus_as_ft/koskinen-3-3.in
+prog2/mucalculus_as_ft/koskinen-3-3_buggy.in
+prog2/mucalculus_as_ft/koskinen-4.in
+prog2/mucalculus_as_ft/lester.in

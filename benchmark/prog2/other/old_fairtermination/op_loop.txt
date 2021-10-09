@@ -4,7 +4,7 @@ let succ x k = event called; k (x + 1)
 
 let op_loop op =
   event called;
-  let x = <_exists> * in
+  let x = <_forall> * in
   op x (\y.
     if y > 0 then
       (event a;
@@ -19,32 +19,22 @@ let () =
 
 
 %TRANSITION
-q_0 called -> (1, q_0).
-q_a called -> (1, q_0).
-q_b called -> (1, q_0).
+qa a -> (1, qa).
+qa b -> (1, qb).
+qa called -> (1, q_called).
 
-q_0 d -> (1, q_0) \/ (2, q_0).
-q_a d -> (1, q_0) \/ (2, q_0).
-q_b d -> (1, q_0) \/ (2, q_0).
+qb a -> (1, qa).
+qb b -> (1, qb).
+qb called -> (1, q_called).
 
-q_0 a -> (1, q_a).
-q_a a -> (1, q_a).
-q_b a -> (1, q_a).
-
-q_0 b -> (1, q_b).
-q_a b -> (1, q_b).
-q_b b -> (1, q_b).
-
-q_0 nullary -> false.
-q_a nullary -> false.
-q_b nullary -> false.
+q_called a -> (1, qa).
+q_called b -> (1, qb).
+q_called called -> (1, q_called).
 
 %PRIORITY
-/* {(a, b)} */
-q_0 -> 0.
-q_a -> 1.
-q_b -> 2.
-
+q_called -> 1.
+qa -> 2.
+qb -> 3.
 
 /*
 /* disprover-1  (arguments orders swapped) */
