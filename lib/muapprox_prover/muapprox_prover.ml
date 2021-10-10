@@ -166,7 +166,9 @@ module SolverCommon = struct
     let oc = Stdio.Out_channel.create ~append:true ("post_" ^ mode_string ^ ".tmp") in
     Basic.pretty_to_channel oc data;
     Stdio.Out_channel.close oc
-    
+  
+  type solver_error_category = S_ParseError | S_TypeError | S_OtherError
+  
   let parse_results_inner (exit_status, stdout, stderr) debug_context elapsed status_parser =
     let res, tmp_res, log_message = 
       match exit_status with 
@@ -317,9 +319,29 @@ module KatsuraSolver : BackendSolver = struct
       let command = solver_command path solve_options stop_if_intractable in
       run_command_with_timeout solve_options.timeout command (Option.map (fun c -> c.mode) debug_context) >>|
         (fun (status_code, elapsed, stdout, stderr) ->
-          try
-            parse_results (status_code, stdout, stderr) debug_context elapsed
-          with _ -> Status.Unknown)
+          let r =
+            match status_code with
+            | Error (`Exit_non_zero 1) | Error (`Exit_non_zero 2) ->
+              print_endline stdout;
+              let lines = String.split_on_char '\n' (String.trim stdout) in
+              if List.length lines >= 3 then begin
+                let s = List.nth lines 1 in
+                let tl = List.rev lines |> List.hd in
+                print_endline @@ "tl: " ^ tl;
+                if String.length s > 15 && String.sub s 0 14 = "Parse Error at" then
+                  S_ParseError
+                else if tl = "ill-typed" then S_TypeError
+                else S_OtherError
+              end else S_OtherError
+            | _ -> S_OtherError
+            in
+          match r with
+          | S_ParseError -> failwith @@ "Parse Error (" ^ show_debug_context debug_context ^ ")"
+          | S_TypeError -> failwith @@ "Type Error (" ^ show_debug_context debug_context ^ ")"
+          | _ ->
+            try
+              parse_results (status_code, stdout, stderr) debug_context elapsed
+            with _ -> Status.Unknown)
     )
 end
 

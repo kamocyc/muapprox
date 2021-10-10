@@ -83,6 +83,7 @@ with open('replacer/' + target_name + '.txt', 'r') as f:
         if found_shbang:
             if results == []:
                 print("Error: mode \"" + mode + "\" not found")
+                sys.exit(1)
             
             lines = results
     
