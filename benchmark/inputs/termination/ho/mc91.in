@@ -7,8 +7,8 @@ X fn k =v
 
 Mc fn k =u
   Check1 fn (\b.
-    (b =  1 => k (AddInt fn (-10))) /\
-    (b != 1 => Mc (AddInt fn 11) (\r. Mc r k))
+    (b =  1 => k (SubInt10 fn)) /\
+    (b != 1 => Mc (AddInt11 fn) (\r. Mc r k))
   ).
 
 Check1 f k =v
@@ -17,10 +17,35 @@ Check1 f k =v
     (x <= 100 => k 0)
   ).
 
-AddInt fx i k =v
+AddInt11 fx k =v
   fx (\x.
-    k (x + i)
+    k (x + 11)
   ).
+
+SubInt10 fx k =v
+  fx (\x.
+    k (x - 10)
+  ).
+
+/*
+/* --coe-arg=1,0 --coe=1,20  +  extra arguments */
+/* timeout */
+%HES
+Sentry =v
+  ∀n. 
+   ∀recMc. 
+    recMc < 20 + 1 * n \/ recMc < 20 + (-1) * n \/ recMc < 20
+    \/ Mc recMc n (\k. k n) (\t. \r. true).
+Mc recMc _n fn k =v
+  recMc > 0
+  /\ fn
+      (\x. 
+        (x <= 100 \/ k (_n - 10) (\k2. fn (\x2. k2 (x2 - 10))))
+        /\ (x > 100
+            \/ Mc (recMc - 1) (_n + 11) (\k2. fn (\x2. k2 (x2 + 11)))
+                (\_n2. \r. Mc (recMc - 1) _n2 r k))).
+
+*/
 
 /*
 /* --coe-arg=1,0 --coe=1,20 */

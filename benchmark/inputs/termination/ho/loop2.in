@@ -27,7 +27,7 @@ Pred fx k =v
   ).
 
 /*
-/* valid in 80 sec with hoice --coe-arg=1,0 --coe=2,1 */
+/* valid in 80 sec with hoice --coe-arg=1,0 --coe=2,1  +  extra arugments */
 %HES
 Sentry =v
   ∀m. 

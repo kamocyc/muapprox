@@ -1,5 +1,5 @@
 #!/bin/bash
-BENCH_NAME=hoa
+BENCH_NAME=extra_termination
 COMMON_OPTIONS="--always-add-arguments"
 
 echo '########## noflags ###########'

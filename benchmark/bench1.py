@@ -295,7 +295,7 @@ def main():
     })
     
     with open(lists_path) as f:
-        files = f.read().strip('\n').split('\n')
+        files = [line for line in [l.strip() for l in f.readlines()] if line != '' and line[0] != '#']
     
     for file in files:
         handle(exe_path, os.path.join(base_dir, file))

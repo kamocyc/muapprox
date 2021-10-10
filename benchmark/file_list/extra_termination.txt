@@ -1,4 +1,4 @@
-termination/ho/ackermann.in
+## termination/ho/ackermann.in # timeout
 termination/ho/any_down.in
 termination/ho/append.in
 termination/ho/binnomial.in
@@ -9,11 +9,11 @@ termination/ho/indirectHO.in
 termination/ho/indirectIntro.in
 termination/ho/loop2.in
 termination/ho/map.in
-termination/ho/mc91.in
+termination/ho/mc91.in # timeout
 termination/ho/mult.in
 termination/ho/nested_loop.in
 termination/ho/partial.in
-termination/ho/quicksort.in
+## termination/ho/quicksort.in # timeout
 termination/ho/sum.in
 termination/ho/toChurch.in
 termination/ho/up_down.in
