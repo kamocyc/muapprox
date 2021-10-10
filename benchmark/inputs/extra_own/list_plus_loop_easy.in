@@ -1,6 +1,6 @@
 /* 引数追加後、Loopに引数x, y, x+yを追加すれば、z3で4secで解ける */
 %HES
-S =u
+S =v
   ∀x. ∀y.
     Nil (\len l.
       Cons y len l (\len2 l2.

@@ -1,0 +1,6 @@
+extra_own/mutual_fixpoints.in
+extra_own/array_plus_loop_easy.in
+extra_own/contains_partial.in
+extra_own/list_plus_loop_easy.in
+extra_own/nested_loop_fact.in
+extra_own/nested_loop_square.in

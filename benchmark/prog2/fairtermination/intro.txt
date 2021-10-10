@@ -47,3 +47,29 @@ q_b nullary -> false.
 q_0 -> 0.
 q_a -> 1.
 q_b -> 2.
+
+/*
+/* simplified */
+/* inavlid (solved in 4.3 sec) */
+%HES
+Sentry =v
+  Rand__q_0__0 (Randpos21__q_a__1)
+   (Randpos21__q_b__2).
+
+Randpos21__q_b__2 x =u
+  (0 >= x \/ true)
+  /\ (0 < x
+      \/ Rand__q_0__0
+          Randpos21__q_a__1
+          Randpos21__q_b__2).
+
+Randpos21__q_a__1 x =v
+  (0 >= x \/ true)
+  /\ (0 < x
+      \/ Rand__q_0__0
+          Randpos21__q_a__1
+          Randpos21__q_b__2).
+
+Rand__q_0__0 k__q_a__1 k__q_b__2 =u
+  ∀x425. (0 > x425 \/ k__q_b__2 x425) /\ (0 <= x425 \/ k__q_a__1 x425).
+*/

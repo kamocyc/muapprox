@@ -5,7 +5,7 @@
 %HES
 S =v ∀x. x > 0 => M (\k. k x).
 
-M f =v Outer f.
+M f =v Outer f /\ M f.
 
 /* Repeatのboundを作るために、Outerにxの値を渡す必要がある */
 Outer fx =v

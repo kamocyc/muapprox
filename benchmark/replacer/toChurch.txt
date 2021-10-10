@@ -1,0 +1,55 @@
+#! noflags
+X s (\k. k x)
+X s x (\k. k x)
+X t fn
+X t _x fn
+\/ ToChurch recToChurch fn
+\/ ToChurch recToChurch _x fn
+X s fn
+X s _x fn
+ToChurch recToChurch fn
+ToChurch recToChurch _x fn
+ToChurch (recToChurch - 1) (
+ToChurch (recToChurch - 1) (_x - 1) (
+
+#! nopartial
+X s4 (\k. k x)
+X s4 x (\k. k x)
+X t fn
+X t _x fn
+\/ ToChurch recToChurch fn
+\/ ToChurch recToChurch _x fn
+X s4 fn
+X s4 _x fn
+ToChurch recToChurch fn
+ToChurch recToChurch _x fn
+ToChurch (recToChurch - 1) (
+ToChurch (recToChurch - 1) (_x - 1) (
+
+#! nousage
+X s (\t. \k. k x)
+X s x (\t. \k. k x)
+X t fn
+X t _x fn
+\/ ToChurch recToChurch s2 fn
+\/ ToChurch recToChurch _x s2 fn
+X s fn
+X s _x fn
+ToChurch recToChurch t fn
+ToChurch recToChurch _x t fn
+ToChurch (recToChurch - 1) s3 (
+ToChurch (recToChurch - 1) (_x - 1) s3 (
+
+#! noboth
+X s4 (\t. \k. k x)
+X s4 x (\t. \k. k x)
+X t fn
+X t _x fn
+\/ ToChurch recToChurch s4 fn
+\/ ToChurch recToChurch _x s4 fn
+X s4 fn
+X s4 _x fn
+ToChurch recToChurch t fn
+ToChurch recToChurch _x t fn
+s8 (Pred fn)
+(_x - 1) s8 (Pred fn)

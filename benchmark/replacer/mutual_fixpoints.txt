@@ -1,7 +1,10 @@
-\/ M s
-\/ M x s
+#! noflags, nopartial
+\/ M s (\k. k x)
+\/ M x s (\k. k x)
 M t f =v
 M x t f =v
+\/ M s f
+\/ M x s f
 Outer t fx =v
 Outer x t fx =v
 Outer s f
@@ -14,3 +17,45 @@ Repeat recRepeat xy t fy =v
 \/ Outer (1 - xy) s (Neg fy)
 \/ Repeat (recRepeat - 1) s
 \/ Repeat (recRepeat - 1) (xy - 1) s
+
+
+#! noboth
+\/ M s (\t. \k. k x)
+\/ M x s (\t. \k. k x)
+M t f =v
+M x t f =v
+\/ M s f
+\/ M x s f
+Outer t fx =v
+Outer x t fx =v
+Outer s f
+Outer x s f
+\/ Repeat recRepeat s
+\/ Repeat recRepeat (x + y) s
+Repeat recRepeat t fy =v
+Repeat recRepeat xy t fy =v
+\/ Outer s3 (Neg fy)
+\/ Outer (1 - xy) s3 (Neg fy)
+\/ Repeat (recRepeat - 1) s
+\/ Repeat (recRepeat - 1) (xy - 1) s
+
+#! nousage
+\/ M s (\t. \k. k x)
+\/ M x s (\t. \k. k x)
+M t f =v
+M x t f =v
+\/ M s f
+\/ M x s f
+Outer t fx =v
+Outer x t fx =v
+Outer s f
+Outer x s f
+\/ Repeat recRepeat s
+\/ Repeat recRepeat (x + y) s
+Repeat recRepeat t fy =v
+Repeat recRepeat xy t fy =v
+\/ Outer s2 (Neg fy)
+\/ Outer (1 - xy) s2 (Neg fy)
+\/ Repeat (recRepeat - 1) s
+\/ Repeat (recRepeat - 1) (xy - 1) s
+

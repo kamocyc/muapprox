@@ -1,13 +1,15 @@
 %HES
-S =u
+S =v
   ∀n.
     Mult
       (\k. k 0)
       (\k. k n)
       (\k. k n)
       (\g.
-        Loop (\r. true) g
+        Main (\r. true) g
       ).
+
+Main k g =v Loop k g.
 
 Loop k g =u
   Check
@@ -25,10 +27,9 @@ Mult acc f g k =u
     (b = 1 => Mult (Add acc g) (Pred f) g k)
   ).
 
+Add f g k =v f (\fx. g (\gx. k (fx + gx))).
 
-Add f g k =u f (\fx. g (\gx. k (fx + gx))).
+Pred f k =v f (\r. k (r - 1)).
 
-Pred f k =u f (\r. k (r - 1)).
-
-Check f k =u
+Check f k =v
   f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).

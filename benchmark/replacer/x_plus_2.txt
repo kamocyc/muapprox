@@ -1,0 +1,55 @@
+#! noflags
+\/ X s (\k2. k2 n)
+\/ X s n (\k2. k2 n)
+X t fn
+X t _n fn
+\/ F recF fn
+\/ F recF _n fn
+X s fn
+X s _n fn
+F recF fn fm k =v
+F recF _n fn fm k =v
+F (recF - 1)
+F (recF - 1) (_n - 1)
+
+#! nousage
+\/ X s (\t2. \k2. k2 n)
+\/ X s n (\t2. \k2. k2 n)
+X t fn
+X t _n fn
+\/ F recF s2 fn
+\/ F recF _n s2 fn
+X s fn
+X s _n fn
+F recF t fn t2 fm k =v
+F recF _n t fn t2 fm k =v
+F (recF - 1)
+F (recF - 1) (_n - 1)
+
+#! nopartial
+\/ X s3 (\k2. k2 n)
+\/ X s3 n (\k2. k2 n)
+X t fn
+X t _n fn
+\/ F recF fn
+\/ F recF _n fn
+X s3 fn
+X s3 _n fn
+F recF fn fm k =v
+F recF _n fn fm k =v
+F (recF - 1)
+F (recF - 1) (_n - 1)
+
+#! noboth
+\/ X s3 (\t2. \k2. k2 n)
+\/ X s3 n (\t2. \k2. k2 n)
+X t fn
+X t _n fn
+\/ F recF s3 fn
+\/ F recF _n s3 fn
+X s3 fn
+X s3 _n fn
+F recF t fn t2 fm t3 k =v
+F recF _n t fn t2 fm t3 k =v
+F (recF - 1)
+F (recF - 1) (_n - 1)

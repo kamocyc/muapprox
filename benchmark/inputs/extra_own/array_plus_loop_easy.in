@@ -2,7 +2,7 @@
 /* 再帰回数の算出と型付けのために、x, y, x+y をLoopに渡す必要がある */
 /* 引数追加の変換後にLoopにx, y, x+y を渡せば、z3 で 2 sec で解ける */
 %HES
-S =u
+S =v
   ∀x. ∀y.
     Make_array (\ar.
       Update ar 0 x (\ar2.
@@ -12,8 +12,8 @@ S =u
       )
     ).
 
-Main ar k =u 
-  Loop 0 ar (\r. k r).
+Main ar k =v
+  Loop 0 ar (\r. k r) /* /\ Main ar k /* 追加するとソルバがタイムアウト */ */.
 
 Loop i ar k =u
   ar 0 (\x.
@@ -23,7 +23,7 @@ Loop i ar k =u
     )
   ).
   
-Make_array k =u k (\i.\k'. k' 0).
+Make_array k =v k (\i.\k'. k' 0).
 
-Update ar i x k =u
+Update ar i x k =v
   k (\j.\k'. (j = i => k' x) /\ (j /= i => ar j k')).

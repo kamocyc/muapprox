@@ -55,6 +55,9 @@ except FileNotFoundError:
     print("Error: file \"" + input_filename + "\" not found")
     sys.exit(1)
 
+def replace_escaped(s):
+    return s.replace("^n","\n")
+    
 with open('replacer/' + target_name + '.txt', 'r') as f:
     # buf = '\n'.join(f.readlines())
     # if mode != '':
@@ -87,8 +90,8 @@ with open('replacer/' + target_name + '.txt', 'r') as f:
         print('illegal line number')
         sys.exit(1)
     
-    sources = [s.rstrip("\n") for i, s in enumerate(lines) if i % 2 == 0]
-    targets = [s.rstrip("\n") for i, s in enumerate(lines) if i % 2 == 1]
+    sources = [replace_escaped(s) for i, s in enumerate(lines) if i % 2 == 0]
+    targets = [replace_escaped(s) for i, s in enumerate(lines) if i % 2 == 1]
 
 status, buf = replace(buf, sources, targets)
 

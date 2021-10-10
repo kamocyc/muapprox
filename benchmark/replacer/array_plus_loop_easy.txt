@@ -3,6 +3,8 @@
 \/ Main x y (x+y) s3 ar3
 Main t ar k =v
 Main x_ y_ xy_ t ar k =v
+# \/ Main s ar k
+# \/ Main x_ y_ xy_ s ar k
 Loop recLoop 0 ar k
 Loop recLoop x_ y_ xy_ 0 ar k
 Loop recLoop i ar k =v

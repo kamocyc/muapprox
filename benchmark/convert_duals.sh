@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIRPATH=benchmark/prog2/fairtermination
+DIRPATH=benchmark/prog2/mucalculus_as_ft
 
 rm $DIRPATH/*_dual.in
 

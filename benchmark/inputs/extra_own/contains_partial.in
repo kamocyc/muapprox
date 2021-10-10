@@ -1,12 +1,14 @@
+/* valid */
 /* 部分適用がある例 */
 /* x, y を追加引数で渡す必要がある。 */
+/* inliningできないようにした */
 
 %HES
 S =v ∀x. A (M (\k. k x)).
 
-A f =v ∀y. f (\k. k y).
+A f =v ∀y. f (\k. k y) /\ A f.
 
-M g h =v Loop g h (\_. true) /\ Loop h g (\_. true).
+M g h =v Loop g h (\_. true) /\ Loop h g (\_. true) /\ M g h.
 
 Loop g h k =u
   Check g (\b.
@@ -20,8 +22,8 @@ Loop2 h k =u
     (b = 1 => Loop2 (Pred h) k)
   ).
   
-Pred f k =u f (\r. k (r - 1)).
+Pred f k =v f (\r. k (r - 1)).
 
-Check f k =u
+Check f k =v
   f (\n. (n <= 0 => k 0) /\ (n > 0 => k 1)).
 
