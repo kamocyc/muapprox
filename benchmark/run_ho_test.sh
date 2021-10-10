@@ -1,5 +1,7 @@
 #!/bin/bash
-BENCH_NAME=extra_termination
+
+# extra_termination
+BENCH_NAME=extra_own
 COMMON_OPTIONS="--always-add-arguments"
 
 echo '########## noflags ###########'

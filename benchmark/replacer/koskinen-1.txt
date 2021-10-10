@@ -1,0 +1,174 @@
+#! noflags
+Explore73__q_ic recExplore73__q_ic
+Explore73__q_ic recExplore73__q_ic _x
+/\ Check__q_ic y___q_ic
+/\ Check__q_ic _x y___q_ic
+^n        \/ Explore__q_ic recExplore73__q_ic
+^n        \/ Explore__q_ic recExplore73__q_ic x
+b = 1 \/ Explore__q_ic recExplore73__q_ic
+b = 1 \/ Explore__q_ic recExplore73__q_ic _x
+^nExplore__q_ic recExplore73__q_ic
+^nExplore__q_ic recExplore73__q_ic _x
+3,Check__q_ic x___q_ic
+Check__q_ic _x x___q_ic
+2,\/ Explore73__q_ic (recExplore73__q_ic - 1)
+\/ Explore73__q_ic (recExplore73__q_ic - 1) _x
+2,\/ r__q_ic
+\/ r__q_ic _x
+2,(Explore73__q_ic (recExplore73__q_ic - 1) r__q_ic)
+(\__x. Explore73__q_ic (recExplore73__q_ic - 1) __x r__q_ic)
+Xx__q_ic t x___q_ic k__q_ic =v
+Xx__q_ic _x t x___q_ic k__q_ic =v
+^n     \/ Xx__q_ic s
+^n     \/ Xx__q_ic x s
+0 \/ Xx__q_ic
+0 \/ Xx__q_ic _x
+\/ Explore__q_ic recExplore73__q_ic x___q_ic k__q_ic
+\/ Explore__q_ic recExplore73__q_ic _x x___q_ic k__q_ic
+2,(\x___q_ic. 
+(\_x. \x___q_ic. 
+2,k__q_ic (\k2__q_ic. k2__q_ic (x2 - 2))
+k__q_ic (_x - 2) (\k2__q_ic. k2__q_ic (x2 - 2))
+
+
+#! nopartial
+Explore73__q_ic recExplore73__q_ic
+Explore73__q_ic recExplore73__q_ic _x
+/\ Check__q_ic y___q_ic
+/\ Check__q_ic _x y___q_ic
+^n        \/ Explore__q_ic recExplore73__q_ic
+^n        \/ Explore__q_ic recExplore73__q_ic x
+b = 1 \/ Explore__q_ic recExplore73__q_ic
+b = 1 \/ Explore__q_ic recExplore73__q_ic _x
+^nExplore__q_ic recExplore73__q_ic
+^nExplore__q_ic recExplore73__q_ic _x
+3,Check__q_ic x___q_ic
+Check__q_ic _x x___q_ic
+2,\/ Explore73__q_ic (recExplore73__q_ic - 1)
+\/ Explore73__q_ic (recExplore73__q_ic - 1) _x
+2,\/ r__q_ic
+\/ r__q_ic _x
+2,(Explore73__q_ic (recExplore73__q_ic - 1) r__q_ic)
+(\__x. Explore73__q_ic (recExplore73__q_ic - 1) __x r__q_ic)
+Xx__q_ic t x___q_ic t2 k__q_ic =v
+Xx__q_ic _x t x___q_ic t2 k__q_ic =v
+\/ Xx__q_ic s2 (\k__q_ic. k__q_ic x)
+\/ Xx__q_ic x s2 (\k__q_ic. k__q_ic x)
+\/ Xx__q_ic s2 x___q_ic
+\/ Xx__q_ic _x s2 x___q_ic
+\/ Explore__q_ic recExplore73__q_ic x___q_ic k__q_ic
+\/ Explore__q_ic recExplore73__q_ic _x x___q_ic k__q_ic
+2,(\x___q_ic. 
+(\_x. \x___q_ic. 
+2,k__q_ic (\k2__q_ic. k2__q_ic (x2 - 2))
+k__q_ic (_x - 2) (\k2__q_ic. k2__q_ic (x2 - 2))
+
+
+#! nousage
+Explore73__q_ic recExplore73__q_ic
+Explore73__q_ic recExplore73__q_ic _x
+\/ Explore__q_ic recExplore73__q_ic s (\k__q_ic. k__q_ic x)
+\/ Explore__q_ic recExplore73__q_ic x s (\k__q_ic. k__q_ic x)
+\/ Explore__q_ic recExplore73__q_ic s2 y___q_ic2
+\/ Explore__q_ic recExplore73__q_ic _x s2 y___q_ic2
+^nExplore__q_ic recExplore73__q_ic
+^nExplore__q_ic recExplore73__q_ic _x
+3,Check__q_ic s
+Check__q_ic _x s
+2,\/ Explore73__q_ic (recExplore73__q_ic - 1)
+\/ Explore73__q_ic (recExplore73__q_ic - 1) _x
+2,\/ r__q_ic
+\/ r__q_ic _x
+2,(Explore73__q_ic (recExplore73__q_ic - 1) s3
+(\__x. Explore73__q_ic (recExplore73__q_ic - 1) __x s3
+Xx__q_ic t x___q_ic k__q_ic =v
+Xx__q_ic _x t x___q_ic k__q_ic =v
+^n     \/ Xx__q_ic s
+^n     \/ Xx__q_ic x s
+0 \/ Xx__q_ic
+0 \/ Xx__q_ic _x
+2,(\t. 
+(\_x. \t. 
+2,k__q_ic s3
+k__q_ic (_x - 2) s3
+\/ Explore__q_ic recExplore73__q_ic s x___q_ic
+\/ Explore__q_ic recExplore73__q_ic _x s x___q_ic
+Check__q_ic t x___q_ic k__q_ic =v
+Check__q_ic _x t x___q_ic k__q_ic =v
+
+
+#! noboth
+Explore73__q_ic recExplore73__q_ic
+Explore73__q_ic recExplore73__q_ic _x
+\/ Check__q_ic s2 y___q_ic
+\/ Check__q_ic _x s2 y___q_ic
+^n                  \/ Explore__q_ic recExplore73__q_ic
+^n                  \/ Explore__q_ic recExplore73__q_ic x
+\/ Explore__q_ic recExplore73__q_ic s4
+\/ Explore__q_ic recExplore73__q_ic _x s4
+^nExplore__q_ic recExplore73__q_ic
+^nExplore__q_ic recExplore73__q_ic _x
+2,Check__q_ic s2 x___q_ic
+Check__q_ic _x s2 x___q_ic
+Check__q_ic t x___q_ic t2 k__q_ic =v
+Check__q_ic _x t x___q_ic t2 k__q_ic =v
+2,\/ Explore73__q_ic (recExplore73__q_ic - 1)
+\/ Explore73__q_ic (recExplore73__q_ic - 1) _x
+2,\/ r__q_ic
+\/ r__q_ic _x
+2,(Explore73__q_ic (recExplore73__q_ic - 1)
+(\__x. Explore73__q_ic (recExplore73__q_ic - 1) __x
+Xx__q_ic t x___q_ic t2 k__q_ic =v
+Xx__q_ic _x t x___q_ic t2 k__q_ic =v
+\/ Xx__q_ic s2 (\k__q_ic. k__q_ic x)
+\/ Xx__q_ic x s2 (\k__q_ic. k__q_ic x)
+\/ Xx__q_ic s2 x___q_ic
+\/ Xx__q_ic _x s2 x___q_ic
+\/ Explore__q_ic recExplore73__q_ic s2 x___q_ic
+\/ Explore__q_ic recExplore73__q_ic _x s2 x___q_ic
+2,(\x___q_ic. 
+(\_x. \x___q_ic. 
+2,k__q_ic s5
+k__q_ic (_x - 2) s5
+
+
+# Explore73__q_ic recExplore73__q_ic
+# Explore73__q_ic recExplore73__q_ic _x
+# /\ Check__q_ic y___q_ic
+# /\ Check__q_ic _x y___q_ic
+# ^n        \/ Explore__q_ic recExplore73__q_ic
+# ^n        \/ Explore__q_ic recExplore73__q_ic x
+# b = 1 \/ Explore__q_ic recExplore73__q_ic
+# b = 1 \/ Explore__q_ic recExplore73__q_ic _x
+# ^nExplore__q_ic recExplore73__q_ic
+# ^nExplore__q_ic recExplore73__q_ic _x
+# Check__q_ic x___q_ic^n   (\b.
+# Check__q_ic _x x___q_ic^n   (\b.
+# b != 1^n      \/ Explore73__q_ic (recExplore73__q_ic - 1)
+# b != 1^n      \/ Explore73__q_ic (recExplore73__q_ic - 1) _x
+# x > 0^n         \/ Explore73__q_ic (recExplore73__q_ic - 1)
+# x > 0^n         \/ Explore73__q_ic (recExplore73__q_ic - 1) _x
+# (b = 1^n         \/ r__q_ic
+# (b = 1^n         \/ r__q_ic _x
+# \/ r__q_ic x___q_ic^n
+# \/ r__q_ic _x x___q_ic^n
+# c (Explore73__q_ic (recExplore73__q_ic - 1) r__q_ic)
+# c (\__x. Explore73__q_ic (recExplore73__q_ic - 1) __x r__q_ic)
+#   (Explore73__q_ic (recExplore73__q_ic - 1) r__q_ic)
+#   (\__x. Explore73__q_ic (recExplore73__q_ic - 1) __x r__q_ic)
+# ^nCheck__q_ic x___q_ic
+# ^nCheck__q_ic _x x___q_ic
+# ^n  Check__q_ic x___q_ic k__q_ic
+# ^n  Check__q_ic _x x___q_ic k__q_ic
+# Xx__q_ic t x___q_ic k__q_ic =v
+# Xx__q_ic _x t x___q_ic k__q_ic =v
+# ^n     \/ Xx__q_ic s
+# ^n     \/ Xx__q_ic x s
+# 0 \/ Xx__q_ic
+# 0 \/ Xx__q_ic _x
+# \/ Explore__q_ic recExplore73__q_ic x___q_ic k__q_ic
+# \/ Explore__q_ic recExplore73__q_ic _x x___q_ic k__q_ic
+# 2,(\x___q_ic. 
+# (\_x. \x___q_ic. 
+# 2,k__q_ic (\k2__q_ic. k2__q_ic (x2 - 2))
+# k__q_ic (_x - 2) (\k2__q_ic. k2__q_ic (x2 - 2))

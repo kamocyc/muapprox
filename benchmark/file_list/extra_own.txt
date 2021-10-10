@@ -4,3 +4,6 @@ extra_own/contains_partial.in
 extra_own/list_plus_loop_easy.in
 extra_own/nested_loop_fact.in
 extra_own/nested_loop_square.in
+benchmark/prog2/other/old_fairtermination/ho/murase_closure.in
+benchmark/prog2/other/old_fairtermination/ho/murase_repeat.in
+benchmark/prog2/ho/koskinen-1.in

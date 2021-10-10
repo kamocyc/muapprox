@@ -1,4 +1,5 @@
 /* valid */
+/* USE SIMPLIFED form */
 %PROGRAM
 let loop = event called; loop
 

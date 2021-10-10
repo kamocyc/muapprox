@@ -10,13 +10,15 @@ os.chdir(os.path.dirname(__file__))
 
 def replace(buf, sources, targets):
     errors = []
-    for i, source in enumerate(sources):
+    for i, (source, cnt) in enumerate(sources):
         target = targets[i]
         occ_count = buf.count(source)
         if occ_count == 0:
             errors.append('target string not found (' + source + ')')
-        elif occ_count >= 2:
-            errors.append('multiple target strings found (' + source + ')')
+        elif occ_count > cnt:
+            errors.append('too many target strings found (' + source + ' / expect: ' + str(cnt) + ', actual: ' + str(occ_count) + ')')
+        elif occ_count < cnt:
+            errors.append('too few target strings found (' + source + ' / expect: ' + str(cnt) + ', actual: ' + str(occ_count) + ')')
         else:
             buf = buf.replace(source, target)
     
@@ -57,6 +59,13 @@ except FileNotFoundError:
 
 def replace_escaped(s):
     return s.replace("^n","\n")
+
+def get_count(l):
+    ss = l.split(',')
+    if len(ss) == 1:
+        return l, 1
+    else:
+        return ss[1], int(ss[0])
     
 with open('replacer/' + target_name + '.txt', 'r') as f:
     # buf = '\n'.join(f.readlines())
@@ -92,6 +101,7 @@ with open('replacer/' + target_name + '.txt', 'r') as f:
         sys.exit(1)
     
     sources = [replace_escaped(s) for i, s in enumerate(lines) if i % 2 == 0]
+    sources = [ get_count(l) for l in sources ]
     targets = [replace_escaped(s) for i, s in enumerate(lines) if i % 2 == 1]
 
 status, buf = replace(buf, sources, targets)
