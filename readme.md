@@ -83,7 +83,7 @@ sudo cp -i z3-4.8.4.d6df51951f4c-x64-ubuntu-16.04/bin/z3 /usr/bin/z3
 ```
 wget https://github.com/uuverifiers/eldarica/releases/download/v2.0.5/eldarica-bin-2.0.5.zip
 unzip eldarica-bin-2.0.5.zip
-sudo ln -s eldarica/eld /bin/eld
+sudo ln -s ~/repos/eldarica/eld /bin/eld
 ```
 
 ### Build PCSat (in fptprover repository), which is used by Katsura solver
