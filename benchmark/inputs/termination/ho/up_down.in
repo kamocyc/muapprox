@@ -4,15 +4,17 @@ Sentry =v
 
 Main k =v
   ∀t1. ∀t2.
-    (t1 > 0 => X Down (\k2. k2 t1) k) /\
+    (t1 > 0 => X_App_Down (\k2. k2 t1) k) /\
     (
       t1 <= 0 => (
-        (t2 < 0 => X Up (\k2. k2 t2) k) /\
+        (t2 < 0 => X_App_Up (\k2. k2 t2) k) /\
         (t2 >= 0 => k false)
       )
     ).
 
-X f tf k =v App f tf k /\ X f tf k.
+X_App_Down x k =v App Down x k /\ X_App_Down x k.
+
+X_App_Up x k =v App Up x k /\ X_App_Up x k.
 
 App f x k =v f x k.
 
@@ -47,47 +49,60 @@ Succ fx k =v
 /*
 /* valid with z3 + --coe=1,1 --coe-arg=1,0 extra arguments */
 %HES
-Sentry =v
+Sentry =v Main true.
+Main k =v
   ∀t. 
    ∀t2. 
     (t <= 0
      \/ (∀s. 
           s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
-          \/ X t s
-              (\_t. \x. 
-                \x2. 
-                 \x3. 
-                  ∀recDown. 
-                   recDown < 1 + 1 * x \/ recDown < 1 + (-1) * x \/ recDown < 1
-                   \/ Down recDown _t x2 x3)
-              (\k. k t) true))
-    /\ (t > 0 \/ t2 >= 0
-        \/ (∀s. 
-             s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 0
-             \/ X t2 s
-                 (\_t. \x. 
-                   \x2. 
-                    \x3. 
-                     ∀recUp. 
-                      recUp < 1 + 1 * x \/ recUp < 1 + (-1) * x \/ recUp < 1
-                      \/ Up recUp _t x2 x3)
-                 (\k. k t2) true)).
+          \/ X_App_Down t s (\k2. k2 t) k))
+    /\ (t > 0
+        \/ (t2 >= 0
+            \/ (∀s. 
+                 s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 0
+                 \/ X_App_Up t2 s (\k2. k2 t2) k))
+           /\ (t2 < 0 \/ k)).
 
-X _t t f tf k =v
-  (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ f _t s tf k)
-  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X _t s f tf k).
+X_App_Down _t t x k =v
+  (∀s. 
+    s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+    \/ App s
+        (\x2. 
+          \x3. 
+           \x4. 
+            ∀recDown. 
+             recDown < 1 + 1 * x2 \/ recDown < 1 + (-1) * x2 \/ recDown < 1
+             \/ Down recDown _t x3 x4)
+        x k)
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X_App_Down _t s x k).
+
+X_App_Up _t t x k =v
+  (∀s. 
+    s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+    \/ App s
+        (\x2. 
+          \x3. 
+           \x4. 
+            ∀recUp. 
+             recUp < 1 + 1 * x2 \/ recUp < 1 + (-1) * x2 \/ recUp < 1
+             \/ Up recUp _t x3 x4)
+        x k)
+  /\ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ X_App_Up _t s x k).
+
+App t f x k =v ∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ f s x k.
 
 Down recDown _t fx k =v
   recDown > 0
-  /\ fx
-      (\x. 
-        (x != 0 \/ k)
-        /\ (x = 0 \/ Down (recDown - 1) (_t - 1) (\k2. fx (\x2. k2 (x2 - 1))) k)).
+  /\ Check fx (\b. (b != 1 \/ k) /\ (b = 1 \/ Down (recDown - 1) (_t - 1) (Pred fx) k)).
 
 Up recUp _t fx k =v
   recUp > 0
-  /\ fx
-      (\x. 
-        (x != 0 \/ k)
-        /\ (x = 0 \/ Up (recUp - 1) (_t + 1) (\k2. fx (\x2. k2 (x2 + 1))) k)).
+  /\ Check fx (\b. (b != 1 \/ k) /\ (b = 1 \/ Up (recUp - 1) (_t + 1) (Succ fx) k)).
+
+Check f k =v f (\x. (x != 0 \/ k 1) /\ (x = 0 \/ k 0)).
+
+Pred fx k =v fx (\x. k (x - 1)).
+
+Succ fx k =v fx (\x. k (x + 1)).
 */
