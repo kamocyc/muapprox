@@ -1,0 +1,58 @@
+%HES
+Sentry =v
+  ∀s. 
+   s < 1
+   \/ Xx__q 0 s (\k__q. \k__qf. k__qf /\ k__q) (\k__q. k__q) true (\k__q. k__q 0)
+       (\k__qf. k__qf 0) true.
+
+Loop__qf recLoop__qf _i _n fi__qf y__qf y__qf2 fn__qf fn__qf2 =v
+  recLoop__qf > 0
+  /\ fi__qf (Loop94__qf recLoop__qf _n fn__qf fn__qf2 y__qf y__qf2).
+
+Loop949596__qf i k2__qf =v k2__qf (i + 1).
+
+F99100__qf n k2__qf =v k2__qf (n + 1).
+
+F98__qf _n t y__qf y__qf2 fn__qf fn__qf2 =v
+  ∀recLoop__qf. 
+   recLoop__qf < 1 + 1 * t \/ recLoop__qf < 1 + (-1) * t
+   \/ recLoop__qf < 1 + 1 * 0
+   \/ recLoop__qf < 1 + (-1) * 0
+   \/ recLoop__qf < 1
+   \/ Loop94__qf recLoop__qf _n fn__qf fn__qf2 y__qf y__qf2 0.
+
+Loop__q _i _n fi__q y__q fn__q k__q =v
+  fi__q
+   (\i. 
+     fn__q
+      (\n. 
+        (i >= n \/ Loop__q (_i + 1) _n (\k2__q. k2__q (i + 1)) y__q fn__q k__q)
+        /\ (i < n \/ y__q k__q))).
+
+Loop94__qf recLoop__qf _n fn__qf fn__qf2 y__qf y__qf2 i =v
+  fn__qf
+   (\n. 
+     (i >= n
+      \/ Loop__qf (recLoop__qf - 1) (i + 1) _n (Loop949596__qf i) y__qf2 y__qf2 fn__qf2
+          fn__qf2)
+     /\ (i < n \/ y__qf)).
+
+G__q _n y__q n__q k__q =v Loop__q 0 _n (\k__q2. k__q2 0) y__q n__q k__q.
+
+F__q _n t x__q y__q y__qf fn__q fn__qf k__q =v
+  fn__q
+   (\n. 
+     ∀s. 
+      s < 1 * n + 1 \/ s < (-1) * n + 1 \/ s < 1
+      \/ F__q (_n + 1) s x__q y__q y__qf (\k2__q. k2__q (n + 1)) (F99100__qf n) k__q)
+  /\ (∀s. 
+       s < 1 * t + 1 \/ s < (-1) * t + 1 \/ s < 1
+       \/ x__q (G__q _n y__q fn__q k__q) (F98__qf _n s y__qf y__qf fn__qf fn__qf)).
+
+Xx__q _n t x__q y__q y__qf n__q n__qf k__q =v
+  (∀s. 
+    s < 1 * t + 1 \/ s < (-1) * t + 1 \/ s < 1
+    \/ F__q _n s x__q y__q y__qf n__q n__qf k__q)
+  /\ (∀s. 
+       s < 1 * t + 1 \/ s < (-1) * t + 1 \/ s < 1
+       \/ Xx__q _n s x__q y__q y__qf n__q n__qf k__q).

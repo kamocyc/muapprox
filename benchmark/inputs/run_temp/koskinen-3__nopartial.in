@@ -1,0 +1,312 @@
+%HES
+Sentry =v
+  ∀x. 
+   ((∀recFoo68__q. 
+      recFoo68__q < 2 + 1 * 0 \/ recFoo68__q < 2 + (-1) * 0 \/ recFoo68__q < 2
+      \/ Foo68__q2 recFoo68__q 0 (\k__q. k__q 0) (\k__q. k__q 0) 0)
+    \/ Foo68__q (\k__q. k__q 0) 0
+    \/ Foo68__q (\k__q. k__q 0) 0)
+   /\ (∀s. 
+        s < 0
+        \/ (∀s2. 
+             s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 0
+             \/ (∀s3. 
+                  s3 < 1 * x + 0 \/ s3 < (-1) * x + 0 \/ s3 < 0
+                  \/ (∀s4. 
+                       s4 < 1 * x + 0 \/ s4 < (-1) * x + 0 \/ s4 < 0
+                       \/ (∀s5. 
+                            s5 < 1 * x + 0 \/ s5 < (-1) * x + 0 \/ s5 < 0
+                            \/ (∀recBar67__q_ic. 
+                                 recBar67__q_ic < 2 + 1 * 0
+                                 \/ recBar67__q_ic < 2 + (-1) * 0
+                                 \/ recBar67__q_ic < 2 + 1 * x
+                                 \/ recBar67__q_ic < 2 + (-1) * x
+                                 \/ recBar67__q_ic < 2
+                                 \/ Bar__q_ic recBar67__q_ic x s5 (\k__q. k__q x)
+                                     s4 (\k__q. k__q x) s3 (\k__q. k__q x)
+                                     (\k__q_ic. k__q_ic x) s2
+                                     (\k__q_ic. k__q_ic x)
+                                     (\_x. \t. 
+                                       \r__q. 
+                                        \t2. 
+                                         \r__q2. 
+                                          r__q
+                                           (\x2. 
+                                             ∀recFoo68__q. 
+                                              recFoo68__q < 2 + 1 * t2
+                                              \/ recFoo68__q < 2 + (-1) * t2
+                                              \/ recFoo68__q < 2 + 1 * t
+                                              \/ recFoo68__q < 2 + (-1) * t
+                                              \/ recFoo68__q < 2 + 1 * x2
+                                              \/ recFoo68__q < 2 + (-1) * x2
+                                              \/ recFoo68__q < 2
+                                              \/ Foo68__q2 recFoo68__q _x r__q
+                                                  r__q2 x2)
+                                          \/ r__q2 (Foo68__q r__q2)
+                                          \/ r__q2 (Foo68__q r__q2))
+                                     s
+                                     (\_x. \t. 
+                                       \r__q. 
+                                        \t2. 
+                                         \r__q2. 
+                                          r__q
+                                           (\x2. 
+                                             ∀recFoo68__q. 
+                                              recFoo68__q < 2 + 1 * t2
+                                              \/ recFoo68__q < 2 + (-1) * t2
+                                              \/ recFoo68__q < 2 + 1 * t
+                                              \/ recFoo68__q < 2 + (-1) * t
+                                              \/ recFoo68__q < 2 + 1 * x2
+                                              \/ recFoo68__q < 2 + (-1) * x2
+                                              \/ recFoo68__q < 2
+                                              \/ Foo68__q2 recFoo68__q _x r__q
+                                                  r__q2 x2)
+                                          \/ r__q2 (Foo68__q r__q2)
+                                          \/ r__q2 (Foo68__q r__q2))))))))
+   /\ (∀s. 
+        s < 0
+        \/ (∀s2. 
+             s2 < 0
+             \/ (∀s3. 
+                  s3 < 1 * x + 0 \/ s3 < (-1) * x + 0 \/ s3 < 0
+                  \/ (∀s4. 
+                       s4 < 1 * x + 0 \/ s4 < (-1) * x + 0 \/ s4 < 0
+                       \/ (∀s5. 
+                            s5 < 1 * x + 0 \/ s5 < (-1) * x + 0 \/ s5 < 0
+                            \/ (∀s6. 
+                                 s6 < 1 * x + 0 \/ s6 < (-1) * x + 0 \/ s6 < 0
+                                 \/ (∀s7. 
+                                      s7 < 1 * x + 0 \/ s7 < (-1) * x + 0
+                                      \/ s7 < 0
+                                      \/ Xx__q_ic x s7 (\k__q. k__q x) s6
+                                          (\k__q. k__q x) s5 (\k__q. k__q x) s4
+                                          (\k__q_ic. k__q_ic x) s3
+                                          (\k__q_ic. k__q_ic x) s2
+                                          (\_x. \t. 
+                                            \r__q. 
+                                             \t2. 
+                                              \r__q2. 
+                                               r__q
+                                                (\x2. 
+                                                  ∀recFoo68__q. 
+                                                   recFoo68__q < 2 + 1 * t2
+                                                   \/ recFoo68__q <
+                                                       2 + (-1) * t2
+                                                   \/ recFoo68__q < 2 + 1 * t
+                                                   \/ recFoo68__q <
+                                                       2 + (-1) * t
+                                                   \/ recFoo68__q < 2 + 1 * x2
+                                                   \/ recFoo68__q <
+                                                       2 + (-1) * x2
+                                                   \/ recFoo68__q < 2
+                                                   \/ Foo68__q2 recFoo68__q _x
+                                                       r__q r__q2 x2)
+                                               \/ r__q2 (Foo68__q r__q2)
+                                               \/ r__q2 (Foo68__q r__q2))
+                                          s
+                                          (\_x. \t. 
+                                            \r__q. 
+                                             \t2. 
+                                              \r__q2. 
+                                               r__q
+                                                (\x2. 
+                                                  ∀recFoo68__q. 
+                                                   recFoo68__q < 2 + 1 * t2
+                                                   \/ recFoo68__q <
+                                                       2 + (-1) * t2
+                                                   \/ recFoo68__q < 2 + 1 * t
+                                                   \/ recFoo68__q <
+                                                       2 + (-1) * t
+                                                   \/ recFoo68__q < 2 + 1 * x2
+                                                   \/ recFoo68__q <
+                                                       2 + (-1) * x2
+                                                   \/ recFoo68__q < 2
+                                                   \/ Foo68__q2 recFoo68__q _x
+                                                       r__q r__q2 x2)
+                                               \/ r__q2 (Foo68__q r__q2)
+                                               \/ r__q2 (Foo68__q r__q2))))))))).
+
+
+Halt__qd  =v false.
+Bar67__q_ic _x t fx__q t2 fx__q2 t3 fx__q3 t4 fx__q_ic t5 fx__q_ic2 k__q_ic t6 k__q_ic2 t7 k__q_ic3 b =v
+  (b != 1
+   \/ (∀s. 
+        s < 1 * t7 + 0 \/ s < (-1) * t7 + 0 \/ s < 0
+        \/ (∀s2. 
+             s2 < 1 * t5 + 0 \/ s2 < (-1) * t5 + 0 \/ s2 < 0
+             \/ (∀s3. 
+                  s3 < 1 * t3 + 0 \/ s3 < (-1) * t3 + 0 \/ s3 < 0
+                  \/ (∀s4. 
+                       s4 < 1 * t2 + 0 \/ s4 < (-1) * t2 + 0 \/ s4 < 0
+                       \/ (∀s5. 
+                            s5 < 1 * t + 0 \/ s5 < (-1) * t + 0 \/ s5 < 0
+                            \/ (∀recBar67__q_ic. 
+                                 recBar67__q_ic < 2 + 1 * t6
+                                 \/ recBar67__q_ic < 2 + (-1) * t6
+                                 \/ recBar67__q_ic < 2 + 1 * t4
+                                 \/ recBar67__q_ic < 2 + (-1) * t4
+                                 \/ recBar67__q_ic < 2 + 1 * t7
+                                 \/ recBar67__q_ic < 2 + (-1) * t7
+                                 \/ recBar67__q_ic < 2 + 1 * t5
+                                 \/ recBar67__q_ic < 2 + (-1) * t5
+                                 \/ recBar67__q_ic < 2 + 1 * t3
+                                 \/ recBar67__q_ic < 2 + (-1) * t3
+                                 \/ recBar67__q_ic < 2 + 1 * t2
+                                 \/ recBar67__q_ic < 2 + (-1) * t2
+                                 \/ recBar67__q_ic < 2 + 1 * t
+                                 \/ recBar67__q_ic < 2 + (-1) * t
+                                 \/ recBar67__q_ic < 2
+                                 \/ Bar__q_ic recBar67__q_ic (_x - 1) s5
+                                     (Pred__q3 fx__q) s4 (Pred__q fx__q2) s3
+                                     (Pred__q2 fx__q3) (Pred__q_ic2 fx__q_ic)
+                                     s2 (Pred__q_ic fx__q_ic2) k__q_ic2 s
+                                     k__q_ic3)))))))
+  /\ (b = 1
+      \/ (∀s. 
+           s < 1 * t3 + 0 \/ s < (-1) * t3 + 0 \/ s < 0
+           \/ (∀s2. 
+                s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+                \/ k__q_ic _x s2 fx__q s fx__q3))).
+Foo68__q fx__q x =v (x > 0 \/ fx__q (Foo68__q fx__q)) /\ (x <= 0 \/ Halt__qd).
+Pred__q fx__q k__q =v fx__q (Pred69__q k__q).
+Pred__q2 fx__q k__q =v fx__q (\x. k__q (x - 1)).
+Pred__q_ic fx__q_ic k__q_ic =v fx__q_ic (Pred69__q_ic k__q_ic).
+
+Check__qd _x fx__q_ic k__q_ic =v
+  fx__q_ic (Check70__q_ic _x k__q_ic) /\ Check__q_ic _x fx__q_ic k__q_ic.
+
+
+Halt__q recHalt__q =v recHalt__q > 0 /\ (Halt__q (recHalt__q - 1) \/ Halt__qd).
+
+Bar67__q_ic2 recBar67__q_ic _x t fx__q t2 fx__q2 t3 fx__q3 fx__q_ic t4 fx__q_ic2 k__q_ic k__q_ic2 t5 k__q_ic3 b =v
+  recBar67__q_ic > 0
+  /\ (b != 1
+      \/ (∀s. 
+           s < 1 * t5 + 0 \/ s < (-1) * t5 + 0 \/ s < 0
+           \/ (∀s2. 
+                s2 < 1 * t4 + 0 \/ s2 < (-1) * t4 + 0 \/ s2 < 0
+                \/ (∀s3. 
+                     s3 < 1 * t3 + 0 \/ s3 < (-1) * t3 + 0 \/ s3 < 0
+                     \/ (∀s4. 
+                          s4 < 1 * t2 + 0 \/ s4 < (-1) * t2 + 0 \/ s4 < 0
+                          \/ (∀s5. 
+                               s5 < 1 * t + 0 \/ s5 < (-1) * t + 0 \/ s5 < 0
+                               \/ Bar__q_ic recBar67__q_ic (_x - 1) s5 (Pred__q3 fx__q)
+                                   s4 (Pred__q fx__q2) s3 (Pred__q2 fx__q3)
+                                   (Pred__q_ic2 fx__q_ic) s2
+                                   (Pred__q_ic fx__q_ic2) k__q_ic2 s k__q_ic3))))))
+     /\ (b = 1
+         \/ (∀s. 
+              s < 1 * t3 + 0 \/ s < (-1) * t3 + 0 \/ s < 0
+              \/ (∀s2. 
+                   s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+                   \/ k__q_ic _x s2 fx__q s fx__q3))).
+
+Foo68__q2 recFoo68__q _x fx__q fx__q2 x =v
+  recFoo68__q > 0
+  /\ (x > 0 \/ fx__q (Foo68__q2 (recFoo68__q - 1) _x fx__q fx__q2)
+      \/ fx__q2 (Foo68__q fx__q2)
+      \/ fx__q2 (Foo68__q fx__q2))
+     /\ (x <= 0 \/ (∀recHalt__q. recHalt__q < 2 \/ Halt__q recHalt__q)
+         \/ Halt__qd).
+
+
+Pred__q3 fx__q k__q =v fx__q (Pred69__q k__q).
+
+Pred__q_ic2 fx__q_ic k__q_ic =v fx__q_ic (Pred69__q_ic k__q_ic).
+
+Check__q _x fx__q_ic k__q_ic =v
+  fx__q_ic (Check70__q_ic _x k__q_ic) /\ Check__q_ic _x fx__q_ic k__q_ic.
+
+Bar__q_ic recBar67__q_ic _x t fx__q t2 fx__q2 t3 fx__q3 fx__q_ic t4 fx__q_ic2 k__q_ic t5 k__q_ic2 =v
+  (∀s. 
+    s < 1 * t5 + 0 \/ s < (-1) * t5 + 0 \/ s < 0
+    \/ (∀s2. 
+         s2 < 1 * t4 + 0 \/ s2 < (-1) * t4 + 0 \/ s2 < 0
+         \/ (∀s3. 
+              s3 < 1 * t3 + 0 \/ s3 < (-1) * t3 + 0 \/ s3 < 0
+              \/ (∀s4. 
+                   s4 < 1 * t2 + 0 \/ s4 < (-1) * t2 + 0 \/ s4 < 0
+                   \/ (∀s5. 
+                        s5 < 1 * t + 0 \/ s5 < (-1) * t + 0 \/ s5 < 0
+                        \/ Check__q _x fx__q_ic
+                            (Bar67__q_ic2 (recBar67__q_ic - 1) _x s5 fx__q s4
+                              fx__q2 s3 fx__q3 fx__q_ic s2 fx__q_ic2 k__q_ic
+                              k__q_ic s k__q_ic2))))))
+  \/ (∀s. 
+       s < 1 * t5 + 0 \/ s < (-1) * t5 + 0 \/ s < 0
+       \/ (∀s2. 
+            s2 < 1 * t5 + 0 \/ s2 < (-1) * t5 + 0 \/ s2 < 0
+            \/ (∀s3. 
+                 s3 < 1 * t4 + 0 \/ s3 < (-1) * t4 + 0 \/ s3 < 0
+                 \/ (∀s4. 
+                      s4 < 1 * t4 + 0 \/ s4 < (-1) * t4 + 0 \/ s4 < 0
+                      \/ (∀s5. 
+                           s5 < 1 * t3 + 0 \/ s5 < (-1) * t3 + 0 \/ s5 < 0
+                           \/ (∀s6. 
+                                s6 < 1 * t2 + 0 \/ s6 < (-1) * t2 + 0 \/ s6 < 0
+                                \/ (∀s7. 
+                                     s7 < 1 * t2 + 0 \/ s7 < (-1) * t2 + 0
+                                     \/ s7 < 0
+                                     \/ Check__qd _x fx__q_ic2
+                                         (Bar67__q_ic _x s7 fx__q2 s6 fx__q2 s5
+                                           fx__q3 s4 fx__q_ic2 s3 fx__q_ic2
+                                           k__q_ic2 s2 k__q_ic2 s k__q_ic2)))))))).
+
+Pred69__q k__q x =v k__q (x - 1).
+
+Pred69__q_ic k__q_ic x =v k__q_ic (x - 1).
+
+Check__q_ic _x fx__q_ic k__q_ic =v
+  fx__q_ic (Check70__q_ic _x k__q_ic) /\ Check__q_ic _x fx__q_ic k__q_ic.
+
+Check70__q_ic _x k__q_ic x =v (x <= 0 \/ k__q_ic 1) /\ (x > 0 \/ k__q_ic 0).
+
+Xx__q_ic _x t fx__q t2 fx__q2 t3 fx__q3 t4 fx__q_ic t5 fx__q_ic2 t6 k__q_ic t7 k__q_ic2 =v
+  (∀s. 
+    s < 1 * t7 + 0 \/ s < (-1) * t7 + 0 \/ s < 0
+    \/ (∀s2. 
+         s2 < 1 * t5 + 0 \/ s2 < (-1) * t5 + 0 \/ s2 < 0
+         \/ (∀s3. 
+              s3 < 1 * t3 + 0 \/ s3 < (-1) * t3 + 0 \/ s3 < 0
+              \/ (∀s4. 
+                   s4 < 1 * t2 + 0 \/ s4 < (-1) * t2 + 0 \/ s4 < 0
+                   \/ (∀s5. 
+                        s5 < 1 * t + 0 \/ s5 < (-1) * t + 0 \/ s5 < 0
+                        \/ (∀recBar67__q_ic. 
+                             recBar67__q_ic < 2 + 1 * t6
+                             \/ recBar67__q_ic < 2 + (-1) * t6
+                             \/ recBar67__q_ic < 2 + 1 * t4
+                             \/ recBar67__q_ic < 2 + (-1) * t4
+                             \/ recBar67__q_ic < 2 + 1 * t7
+                             \/ recBar67__q_ic < 2 + (-1) * t7
+                             \/ recBar67__q_ic < 2 + 1 * t5
+                             \/ recBar67__q_ic < 2 + (-1) * t5
+                             \/ recBar67__q_ic < 2 + 1 * t3
+                             \/ recBar67__q_ic < 2 + (-1) * t3
+                             \/ recBar67__q_ic < 2 + 1 * t2
+                             \/ recBar67__q_ic < 2 + (-1) * t2
+                             \/ recBar67__q_ic < 2 + 1 * t
+                             \/ recBar67__q_ic < 2 + (-1) * t
+                             \/ recBar67__q_ic < 2
+                             \/ Bar__q_ic recBar67__q_ic _x s5 fx__q s4 fx__q2 s3
+                                 fx__q3 fx__q_ic s2 fx__q_ic2 k__q_ic s
+                                 k__q_ic2))))))
+  /\ (∀s. 
+       s < 1 * t7 + 0 \/ s < (-1) * t7 + 0 \/ s < 0
+       \/ (∀s2. 
+            s2 < 1 * t6 + 0 \/ s2 < (-1) * t6 + 0 \/ s2 < 0
+            \/ (∀s3. 
+                 s3 < 1 * t5 + 0 \/ s3 < (-1) * t5 + 0 \/ s3 < 0
+                 \/ (∀s4. 
+                      s4 < 1 * t4 + 0 \/ s4 < (-1) * t4 + 0 \/ s4 < 0
+                      \/ (∀s5. 
+                           s5 < 1 * t3 + 0 \/ s5 < (-1) * t3 + 0 \/ s5 < 0
+                           \/ (∀s6. 
+                                s6 < 1 * t2 + 0 \/ s6 < (-1) * t2 + 0 \/ s6 < 0
+                                \/ (∀s7. 
+                                     s7 < 1 * t + 0 \/ s7 < (-1) * t + 0
+                                     \/ s7 < 0
+                                     \/ Xx__q_ic _x s7 fx__q s6 fx__q2 s5 fx__q3
+                                         s4 fx__q_ic s3 fx__q_ic2 s2 k__q_ic s
+                                         k__q_ic2))))))).

@@ -1,0 +1,111 @@
+%HES
+Sentry =v ∀x. ∀x2. x2 < 1 \/ x < 1 \/ Exists x x2.
+
+Exists x x2 =v
+  ((∀s. 
+     s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0
+     \/ (∀recUpdate_max__qa. 
+          recUpdate_max__qa < 1 + 1 * x2 \/ recUpdate_max__qa < 1 + (-1) * x2
+          \/ recUpdate_max__qa < 1 + 1 * x
+          \/ recUpdate_max__qa < 1 + (-1) * x
+          \/ recUpdate_max__qa < 1
+          \/ Update_max31__q_called recUpdate_max__qa x x2 s
+              (\k__q_called. k__q_called x) (\k__q_called. k__q_called x) x2))
+   \/ (∀s. 
+        s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0
+        \/ (∀recUpdate_max__qa. 
+             recUpdate_max__qa < 1 + 1 * -x2
+             \/ recUpdate_max__qa < 1 + (-1) * -x2
+             \/ recUpdate_max__qa < 1 + 1 * x
+             \/ recUpdate_max__qa < 1 + (-1) * x
+             \/ recUpdate_max__qa < 1
+             \/ Update_max31__q_called recUpdate_max__qa x (-x2) s
+                 (\k__q_called. k__q_called x) (\k__q_called. k__q_called x)
+                 (-x2)))
+   \/ (∀s. 
+        s < 1 * -x + 0 \/ s < (-1) * -x + 0 \/ s < 0
+        \/ (∀recUpdate_max__qa. 
+             recUpdate_max__qa < 1 + 1 * x2
+             \/ recUpdate_max__qa < 1 + (-1) * x2
+             \/ recUpdate_max__qa < 1 + 1 * x
+             \/ recUpdate_max__qa < 1 + (-1) * x
+             \/ recUpdate_max__qa < 1
+             \/ Update_max31__q_called recUpdate_max__qa (-x) x2 s
+                 (\k__q_called. k__q_called (-x))
+                 (\k__q_called. k__q_called (-x)) x2))
+   \/ (∀s. 
+        s < 1 * -x + 0 \/ s < (-1) * -x + 0 \/ s < 0
+        \/ (∀recUpdate_max__qa. 
+             recUpdate_max__qa < 1 + 1 * -x2
+             \/ recUpdate_max__qa < 1 + (-1) * -x2
+             \/ recUpdate_max__qa < 1 + 1 * x
+             \/ recUpdate_max__qa < 1 + (-1) * x
+             \/ recUpdate_max__qa < 1
+             \/ Update_max31__q_called recUpdate_max__qa (-x) (-x2) s
+                 (\k__q_called. k__q_called (-x))
+                 (\k__q_called. k__q_called (-x)) (-x2)))
+   \/ Exists (x - 1) x2
+   \/ Exists x (x2 - 1))
+  /\ x >= 0 /\ x2 >= 0.
+
+Update_max__qb _x _y t x___q_called x___q_called2 =v
+  ∀x. 
+   x < 1 + 1 * t \/ x < 1 + (-1) * t \/ x < 1
+   \/ Update_max__qb__3_e _y x x___q_called x___q_called2 t x.
+
+Update_max__qb__3_e _y _x x___q_called x___q_called2 t x =v
+  ((∀s. 
+     s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+     \/ (∀recUpdate_max__qa. 
+          recUpdate_max__qa < 1 + 1 * x \/ recUpdate_max__qa < 1 + (-1) * x
+          \/ recUpdate_max__qa < 1 + 1 * t
+          \/ recUpdate_max__qa < 1 + (-1) * t
+          \/ recUpdate_max__qa < 1
+          \/ Update_max31__q_called recUpdate_max__qa _y _x s x___q_called
+              x___q_called2 x))
+   \/ (∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ (∀recUpdate_max__qa. 
+             recUpdate_max__qa < 1 + 1 * -x
+             \/ recUpdate_max__qa < 1 + (-1) * -x
+             \/ recUpdate_max__qa < 1 + 1 * t
+             \/ recUpdate_max__qa < 1 + (-1) * t
+             \/ recUpdate_max__qa < 1
+             \/ Update_max31__q_called recUpdate_max__qa _y (-_x) s x___q_called
+                 x___q_called2 (-x)))
+   \/ Update_max__qb__3_e _y (_x - 1) x___q_called x___q_called2 t (x - 1))
+  /\ x >= 0.
+
+Update_max3132__q_called y k__q_called =v k__q_called y.
+
+Update_max__qa recUpdate_max__qa _x _y t x___q_called x___q_called2 =v
+  recUpdate_max__qa > 0
+  /\ (∀x. 
+       x < 1 + 1 * t \/ x < 1 + (-1) * t \/ x < 1
+       \/ Update_max__qa__2_e recUpdate_max__qa _x x x___q_called x___q_called2 t x).
+
+Update_max__qa__2_e recUpdate_max__qa _x _x2 x___q_called x___q_called2 t x =v
+  ((∀s. 
+     s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+     \/ Update_max31__q_called recUpdate_max__qa _x _x2 s x___q_called x___q_called2 x)
+   \/ (∀s. 
+        s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+        \/ Update_max31__q_called recUpdate_max__qa _x (-_x2) s x___q_called
+            x___q_called2 (-x))
+   \/ Update_max__qa__2_e recUpdate_max__qa _x (_x2 - 1) x___q_called x___q_called2 t
+       (x - 1))
+  /\ x >= 0.
+
+Update_max31__q_called recUpdate_max__qa _x _y t x___q_called x___q_called2 y =v
+  x___q_called
+   (\x. 
+     (x >= y
+      \/ (∀s. 
+           s < 1 * y + 0 \/ s < (-1) * y + 0 \/ s < 0
+           \/ Update_max__qb _x _y s (Update_max3132__q_called y)
+               (Update_max3132__q_called y)))
+     /\ (x < y
+         \/ (∀s. 
+              s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+              \/ Update_max__qa (recUpdate_max__qa - 1) _x _y s x___q_called2
+                  x___q_called2))).

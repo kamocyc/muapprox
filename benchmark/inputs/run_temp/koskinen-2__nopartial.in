@@ -1,0 +1,86 @@
+%HES
+Sentry =v
+  ∀x. 
+   ∀x2. 
+    (∀s. 
+      s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0
+      \/ (∀s2. 
+           s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 0
+           \/ (∀s3. 
+                s3 < 1 * x2 + 0 \/ s3 < (-1) * x2 + 0 \/ s3 < 0
+                \/ (∀s4. 
+                     s4 < 1 * x + 0 \/ s4 < (-1) * x + 0 \/ s4 < 0
+                     \/ Rumble__q_ic x x2 s3 (\k__q. k__q x2) s2 (\k__q. k__q x) s
+                         (Xx66__q x x2 s4 (\k__q. k__q x))))))
+    /\ (∀s. 
+         s < 1 * x2 + 0 \/ s < (-1) * x2 + 0 \/ s < 0
+         \/ (∀s2. 
+              s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 0
+              \/ Xx__q_ic x x2 s2 (\k__q. k__q x) s (\k__q. k__q x2))).
+Rumble__q recRumble__q _x _x2 t fx__q fy__q k__q =v
+  recRumble__q > 0
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+       \/ fx__q (Rumble62__q recRumble__q _x _x2 fy__q fy__q k__q k__q s fx__q)).
+Rumble62__q recRumble__q _x _x2 fy__q fy__q2 k__q k__q2 t fx__q x =v
+  fy__q
+   (\y. 
+     (x >= y
+      \/ (∀s. 
+           s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 1 * (x + 1) + 0
+           \/ s < (-1) * (x + 1) + 0
+           \/ s < 0
+           \/ Rumble__q (recRumble__q - 1) (_x + 1) _x2 s (\k2__q. k2__q (x + 1)) fy__q2
+               k__q2)
+         /\ (∀s. 
+              s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+              \/ Rumble__q (recRumble__q - 1) _x (_x2 - 1) s fx__q (\k2__q. k2__q (y - 1))
+                  k__q2))
+     /\ (x < y
+         \/ (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ k__q s fx__q))).
+Xx66__q _x _x2 t fa__q t2 fr__q =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ fa__q
+       (\x. 
+         ∀recRumble__q. 
+          recRumble__q < 1 + 2 * 0 \/ recRumble__q < 1 + (-2) * 0
+          \/ recRumble__q < 1 + 2 * t2
+          \/ recRumble__q < 1 + (-2) * t2
+          \/ recRumble__q < 1 + 2 * x
+          \/ recRumble__q < 1 + (-2) * x
+          \/ recRumble__q < 1 + 2 * t
+          \/ recRumble__q < 1 + (-2) * t
+          \/ recRumble__q < 1
+          \/ Rumble62__q recRumble__q _x _x2 fr__q fr__q (\t3. \fr2__q. true)
+              (\t3. \fr2__q. true) s fa__q x).
+Rumble__q_ic _x _x2 t fx__q t2 fy__q t3 k__q =v
+  ∀s. 
+   s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+   \/ fx__q
+       (\x. 
+         ∀recRumble__q. 
+          recRumble__q < 1 + 2 * t3 \/ recRumble__q < 1 + (-2) * t3
+          \/ recRumble__q < 1 + 2 * t2
+          \/ recRumble__q < 1 + (-2) * t2
+          \/ recRumble__q < 1 + 2 * x
+          \/ recRumble__q < 1 + (-2) * x
+          \/ recRumble__q < 1 + 2 * t
+          \/ recRumble__q < 1 + (-2) * t
+          \/ recRumble__q < 1
+          \/ Rumble62__q recRumble__q _x _x2 fy__q fy__q k__q k__q s fx__q x).
+Xx__q_ic _x _x2 t fa__q t2 fb__q =v
+  (∀s. 
+    s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+    \/ (∀s2. 
+         s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+         \/ (∀s3. 
+              s3 < 1 * t2 + 0 \/ s3 < (-1) * t2 + 0 \/ s3 < 0
+              \/ (∀s4. 
+                   s4 < 1 * t + 0 \/ s4 < (-1) * t + 0 \/ s4 < 0
+                   \/ Rumble__q_ic _x _x2 s3 fb__q s2 fa__q s (Xx66__q _x _x2 s4 fa__q)))))
+  /\ (∀s. 
+       s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 0
+       \/ (∀s2. 
+            s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+            \/ Xx__q_ic _x _x2 s2 fa__q s fb__q)).

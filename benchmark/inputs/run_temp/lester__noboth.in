@@ -1,0 +1,145 @@
+%HES
+Sentry =v
+  ∀s. 
+   s < 1
+   \/ (∀s2. 
+        s2 < 1
+        \/ (∀s3. 
+             s3 < 1
+             \/ (∀s4. 
+                  s4 < 1
+                  \/ Xx__q 0 s4 (\k__q. \k__qf. k__qf /\ k__q) s3 (\k__q. k__q)
+                      true s2 (\k__q. k__q 0) s (\k__qf. k__qf 0) true))).
+
+Loop__qf recLoop__qf _i _n fi__qf y__qf y__qf2 t fn__qf t2 fn__qf2 =v
+  recLoop__qf > 0
+  /\ (∀s. 
+       s < 1 * t + 1 \/ s < (-1) * t + 1 \/ s < 1 * t2 + 1 \/ s < (-1) * t2 + 1
+       \/ s < 1
+       \/ (∀s2. 
+            s2 < 1 * t2 + 1 \/ s2 < (-1) * t2 + 1 \/ s2 < 1
+            \/ (∀s3. 
+                 s3 < 1 * t + 1 \/ s3 < (-1) * t + 1 \/ s3 < 1
+                 \/ fi__qf
+                     (Loop94__qf recLoop__qf _n fn__qf s2 fn__qf2 y__qf y__qf2)))).
+
+Loop949596__qf i k2__qf =v k2__qf (i + 1).
+
+F99100__qf n k2__qf =v k2__qf (n + 1).
+
+F98__qf _n y__qf y__qf2 t fn__qf t2 fn__qf2 =v
+  ∀s. 
+   s < 1 * t2 + 1 \/ s < (-1) * t2 + 1 \/ s < 1
+   \/ (∀s2. 
+        s2 < 1 * t + 1 \/ s2 < (-1) * t + 1 \/ s2 < 1
+        \/ (∀recLoop__qf. 
+             recLoop__qf < 1 + 1 * 0 \/ recLoop__qf < 1 + (-1) * 0
+             \/ recLoop__qf < 1 + 1 * t2
+             \/ recLoop__qf < 1 + (-1) * t2
+             \/ recLoop__qf < 1 + 1 * t
+             \/ recLoop__qf < 1 + (-1) * t
+             \/ recLoop__qf < 1
+             \/ Loop94__qf recLoop__qf _n fn__qf s fn__qf2 y__qf y__qf2 0)).
+
+Loop__q _i _n fi__q t y__q t2 fn__q k__q =v
+  ∀s. 
+   s < 1 * t2 + 1 \/ s < (-1) * t2 + 1 \/ s < 1 * t + 1 \/ s < (-1) * t + 1
+   \/ s < 1
+   \/ fi__q
+       (\i. 
+         ∀s2. 
+          s2 < 1 * i + 1 \/ s2 < (-1) * i + 1 \/ s2 < 1 * t2 + 1
+          \/ s2 < (-1) * t2 + 1
+          \/ s2 < 1 * t + 1
+          \/ s2 < (-1) * t + 1
+          \/ s2 < 1 * (i + 1) + 1
+          \/ s2 < (-1) * (i + 1) + 1
+          \/ s2 < 1
+          \/ fn__q
+              (\n. 
+                (i >= n
+                 \/ (∀s3. 
+                      s3 < 1 * t2 + 1 \/ s3 < (-1) * t2 + 1 \/ s3 < 1
+                      \/ (∀s4. 
+                           s4 < 1 * t + 1 \/ s4 < (-1) * t + 1 \/ s4 < 1
+                           \/ (∀s5. 
+                                s5 < 1 * i + 1 \/ s5 < (-1) * i + 1
+                                \/ s5 < 1 * (i + 1) + 1
+                                \/ s5 < (-1) * (i + 1) + 1
+                                \/ s5 < 1
+                                \/ Loop__q (_i + 1) _n (\k2__q. k2__q (i + 1)) s4 y__q s3
+                                    fn__q k__q))))
+                /\ (i < n \/ y__q k__q))).
+
+Loop94__qf recLoop__qf _n fn__qf t fn__qf2 y__qf y__qf2 i =v
+  ∀s. 
+   s < 1 * i + 1 \/ s < (-1) * i + 1 \/ s < 1 * t + 1 \/ s < (-1) * t + 1
+   \/ s < 1
+   \/ fn__qf
+       (\n. 
+         (i >= n
+          \/ (∀s2. 
+               s2 < 1 * t + 1 \/ s2 < (-1) * t + 1 \/ s2 < 1
+               \/ (∀s3. 
+                    s3 < 1 * t + 1 \/ s3 < (-1) * t + 1 \/ s3 < 1
+                    \/ (∀s4. 
+                         s4 < 1 * i + 1 \/ s4 < (-1) * i + 1 \/ s4 < 1
+                         \/ Loop__qf (recLoop__qf - 1) (i + 1) _n (Loop949596__qf i)
+                             y__qf2 y__qf2 s3 fn__qf2 s2 fn__qf2))))
+         /\ (i < n \/ y__qf)).
+
+G__q _n t y__q t2 n__q k__q =v
+  ∀s. 
+   s < 1 * t2 + 1 \/ s < (-1) * t2 + 1 \/ s < 1
+   \/ (∀s2. 
+        s2 < 1 * t + 1 \/ s2 < (-1) * t + 1 \/ s2 < 1
+        \/ (∀s3. s3 < 1 \/ Loop__q 0 _n (\k__q2. k__q2 0) s2 y__q s n__q k__q)).
+
+F__q _n t x__q t2 y__q y__qf t3 fn__q t4 fn__qf k__q =v
+  (∀s. 
+    s < 1 * t2 + 1 \/ s < (-1) * t2 + 1 \/ s < 1 * t + 1 \/ s < (-1) * t + 1
+    \/ s < 1
+    \/ fn__q
+        (\n. 
+          ∀s2. 
+           s2 < 1 * n + 1 \/ s2 < (-1) * n + 1 \/ s2 < 1
+           \/ (∀s3. 
+                s3 < 1 * n + 1 \/ s3 < (-1) * n + 1 \/ s3 < 1 * (n + 1) + 1
+                \/ s3 < (-1) * (n + 1) + 1
+                \/ s3 < 1
+                \/ (∀s4. 
+                     s4 < 1 * t2 + 1 \/ s4 < (-1) * t2 + 1 \/ s4 < 1
+                     \/ (∀s5. 
+                          s5 < 1 * t + 1 \/ s5 < (-1) * t + 1 \/ s5 < 1
+                          \/ F__q (_n + 1) s5 x__q s4 y__q y__qf s3
+                              (\k2__q. k2__q (n + 1)) s2 (F99100__qf n) k__q)))))
+  /\ (∀s. 
+       s < 1 * t3 + 1 \/ s < (-1) * t3 + 1 \/ s < 1
+       \/ (∀s2. 
+            s2 < 1 * t2 + 1 \/ s2 < (-1) * t2 + 1 \/ s2 < 1
+            \/ (∀s3. 
+                 s3 < 1 * t4 + 1 \/ s3 < (-1) * t4 + 1 \/ s3 < 1
+                 \/ (∀s4. 
+                      s4 < 1 * t4 + 1 \/ s4 < (-1) * t4 + 1 \/ s4 < 1
+                      \/ x__q (G__q _n s2 y__q s fn__q k__q)
+                          (F98__qf _n y__qf y__qf s4 fn__qf s3 fn__qf))))).
+
+Xx__q _n t x__q t2 y__q y__qf t3 n__q t4 n__qf k__q =v
+  (∀s. 
+    s < 1 * t4 + 1 \/ s < (-1) * t4 + 1 \/ s < 1
+    \/ (∀s2. 
+         s2 < 1 * t3 + 1 \/ s2 < (-1) * t3 + 1 \/ s2 < 1
+         \/ (∀s3. 
+              s3 < 1 * t2 + 1 \/ s3 < (-1) * t2 + 1 \/ s3 < 1
+              \/ (∀s4. 
+                   s4 < 1 * t + 1 \/ s4 < (-1) * t + 1 \/ s4 < 1
+                   \/ F__q _n s4 x__q s3 y__q y__qf s2 n__q s n__qf k__q))))
+  /\ (∀s. 
+       s < 1 * t4 + 1 \/ s < (-1) * t4 + 1 \/ s < 1
+       \/ (∀s2. 
+            s2 < 1 * t3 + 1 \/ s2 < (-1) * t3 + 1 \/ s2 < 1
+            \/ (∀s3. 
+                 s3 < 1 * t2 + 1 \/ s3 < (-1) * t2 + 1 \/ s3 < 1
+                 \/ (∀s4. 
+                      s4 < 1 * t + 1 \/ s4 < (-1) * t + 1 \/ s4 < 1
+                      \/ Xx__q _n s4 x__q s3 y__q y__qf s2 n__q s n__qf k__q)))).

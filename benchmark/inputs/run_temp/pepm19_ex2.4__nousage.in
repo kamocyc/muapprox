@@ -1,0 +1,192 @@
+%HES
+Sentry =v
+  (∀x. 
+    (∀s. 
+      s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0
+      \/ Xx__q_ic 0 x s (\k__q. k__q 0) (\k__q. k__q x))
+    /\ (∀s. 
+         s < 1 * x + 0 \/ s < (-1) * x + 0 \/ s < 0
+         \/ (∀s2. 
+              s2 < 0
+              \/ (∀s3. 
+                   s3 < 0
+                   \/ (∀recRepeat__q. 
+                        recRepeat__q < 1 + 1 * x \/ recRepeat__q < 1 + (-1) * x
+                        \/ recRepeat__q < 1 + 1 * 0
+                        \/ recRepeat__q < 1 + (-1) * 0
+                        \/ recRepeat__q < 1
+                        \/ Repeat__q recRepeat__q 0 x s2
+                            (\_x.\_x2. Xx56__q _x _x2 s3 (\k__q. k__q 0)) s (\k__q. k__q x)
+                            (\k__q. k__q x))))))
+  \/ (∀s. 
+       s < 0
+       \/ (∀recInteger66__q. 
+            recInteger66__q < 1 + 1 * 1 \/ recInteger66__q < 1 + (-1) * 1
+            \/ recInteger66__q < 1 + 1 * 0
+            \/ recInteger66__q < 1 + (-1) * 0
+            \/ recInteger66__q < 1
+            \/ Integer66__q recInteger66__q s 1
+                (\x. 
+                  ∀x2. 
+                   (∀s2. 
+                     s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 1 * x2 + 0
+                     \/ s2 < (-1) * x2 + 0
+                     \/ s2 < 0
+                     \/ Xx__q_ic x x2 s2 (\k__q. k__q x) (\k__q. k__q x2))
+                   /\ (∀s2. 
+                        s2 < 1 * x2 + 0 \/ s2 < (-1) * x2 + 0 \/ s2 < 0
+                        \/ (∀s3. 
+                             s3 < 1 * x + 0 \/ s3 < (-1) * x + 0 \/ s3 < 0
+                             \/ (∀s4. 
+                                  s4 < 1 * x + 0 \/ s4 < (-1) * x + 0 \/ s4 < 0
+                                  \/ (∀recRepeat__q. 
+                                       recRepeat__q < 1 + 1 * x2
+                                       \/ recRepeat__q < 1 + (-1) * x2
+                                       \/ recRepeat__q < 1 + 1 * x
+                                       \/ recRepeat__q < 1 + (-1) * x
+                                       \/ recRepeat__q < 1
+                                       \/ Repeat__q recRepeat__q x x2 s3
+                                           (\_x.\_x2. Xx56__q _x _x2 s4 (\k__q. k__q x)) s2
+                                           (\k__q. k__q x2) (\k__q. k__q x2))))))
+                (\x. 
+                  ∀x2. 
+                   (∀s2. 
+                     s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 1 * x2 + 0
+                     \/ s2 < (-1) * x2 + 0
+                     \/ s2 < 0
+                     \/ Xx__q_ic x x2 s2 (\k__q. k__q x) (\k__q. k__q x2))
+                   /\ (∀s2. 
+                        s2 < 1 * x2 + 0 \/ s2 < (-1) * x2 + 0 \/ s2 < 0
+                        \/ (∀s3. 
+                             s3 < 1 * x + 0 \/ s3 < (-1) * x + 0 \/ s3 < 0
+                             \/ (∀s4. 
+                                  s4 < 1 * x + 0 \/ s4 < (-1) * x + 0 \/ s4 < 0
+                                  \/ (∀recRepeat__q. 
+                                       recRepeat__q < 1 + 1 * x2
+                                       \/ recRepeat__q < 1 + (-1) * x2
+                                       \/ recRepeat__q < 1 + 1 * x
+                                       \/ recRepeat__q < 1 + (-1) * x
+                                       \/ recRepeat__q < 1
+                                       \/ Repeat__q recRepeat__q x x2 s3
+                                           (\_x.\_x2. Xx56__q _x _x2 s4 (\k__q. k__q x)) s2
+                                           (\k__q. k__q x2) (\k__q. k__q x2))))))))
+  \/ (∀s. 
+       s < 0
+       \/ (∀recInteger66__q. 
+            recInteger66__q < 1 + 1 * -1 \/ recInteger66__q < 1 + (-1) * -1
+            \/ recInteger66__q < 1 + 1 * 0
+            \/ recInteger66__q < 1 + (-1) * 0
+            \/ recInteger66__q < 1
+            \/ Integer66__q recInteger66__q s (-1)
+                (\x. 
+                  ∀x2. 
+                   (∀s2. 
+                     s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 1 * x2 + 0
+                     \/ s2 < (-1) * x2 + 0
+                     \/ s2 < 0
+                     \/ Xx__q_ic x x2 s2 (\k__q. k__q x) (\k__q. k__q x2))
+                   /\ (∀s2. 
+                        s2 < 1 * x2 + 0 \/ s2 < (-1) * x2 + 0 \/ s2 < 0
+                        \/ (∀s3. 
+                             s3 < 1 * x + 0 \/ s3 < (-1) * x + 0 \/ s3 < 0
+                             \/ (∀s4. 
+                                  s4 < 1 * x + 0 \/ s4 < (-1) * x + 0 \/ s4 < 0
+                                  \/ (∀recRepeat__q. 
+                                       recRepeat__q < 1 + 1 * x2
+                                       \/ recRepeat__q < 1 + (-1) * x2
+                                       \/ recRepeat__q < 1 + 1 * x
+                                       \/ recRepeat__q < 1 + (-1) * x
+                                       \/ recRepeat__q < 1
+                                       \/ Repeat__q recRepeat__q x x2 s3
+                                           (\_x.\_x2. Xx56__q _x _x2 s4 (\k__q. k__q x)) s2
+                                           (\k__q. k__q x2) (\k__q. k__q x2))))))
+                (\x. 
+                  ∀x2. 
+                   (∀s2. 
+                     s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 1 * x2 + 0
+                     \/ s2 < (-1) * x2 + 0
+                     \/ s2 < 0
+                     \/ Xx__q_ic x x2 s2 (\k__q. k__q x) (\k__q. k__q x2))
+                   /\ (∀s2. 
+                        s2 < 1 * x2 + 0 \/ s2 < (-1) * x2 + 0 \/ s2 < 0
+                        \/ (∀s3. 
+                             s3 < 1 * x + 0 \/ s3 < (-1) * x + 0 \/ s3 < 0
+                             \/ (∀s4. 
+                                  s4 < 1 * x + 0 \/ s4 < (-1) * x + 0 \/ s4 < 0
+                                  \/ (∀recRepeat__q. 
+                                       recRepeat__q < 1 + 1 * x2
+                                       \/ recRepeat__q < 1 + (-1) * x2
+                                       \/ recRepeat__q < 1 + 1 * x
+                                       \/ recRepeat__q < 1 + (-1) * x
+                                       \/ recRepeat__q < 1
+                                       \/ Repeat__q recRepeat__q x x2 s3
+                                           (\_x.\_x2. Xx56__q _x _x2 s4 (\k__q. k__q x)) s2
+                                           (\k__q. k__q x2) (\k__q. k__q x2)))))))).
+
+Integer66__q recInteger66__q t x k65__q k65__q2 =v
+  recInteger66__q > 0
+  /\ (k65__q x
+      \/ (∀s. 
+           s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+           \/ Integer66__q (recInteger66__q - 1) s (x + 1) k65__q2 k65__q2)
+      \/ (∀s. 
+           s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+           \/ Integer66__q (recInteger66__q - 1) s (x - 1) k65__q2 k65__q2)).
+
+Repeat__q recRepeat__q _x _x2 t f__q t2 x___q x___q2 =v
+  recRepeat__q > 0
+  /\ (∀s. 
+       s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 1 * t + 0 \/ s < (-1) * t + 0
+       \/ s < 0
+       \/ x___q
+           (\x. 
+             x <= 0
+             \/ (∀s2. 
+                  s2 < 1 * t2 + 0 \/ s2 < (-1) * t2 + 0 \/ s2 < 1 * t + 0
+                  \/ s2 < (-1) * t + 0
+                  \/ s2 < 0
+                  \/ (∀s3. 
+                       s3 < 1 * t + 0 \/ s3 < (-1) * t + 0 \/ s3 < 0
+                       \/ f__q _x _x2 s2 x___q2 (Repeat__q (recRepeat__q - 1) _x _x2 s3 f__q)))
+                /\ (∀s2. 
+                     s2 < 1 * x + 0 \/ s2 < (-1) * x + 0
+                     \/ s2 < 1 * (x - 1) + 0
+                     \/ s2 < (-1) * (x - 1) + 0
+                     \/ s2 < 0
+                     \/ (∀s3. 
+                          s3 < 1 * t + 0 \/ s3 < (-1) * t + 0 \/ s3 < 0
+                          \/ Repeat__q (recRepeat__q - 1) _x (_x2 - 1) s3 f__q s2
+                              (\k__q. k__q (x - 1)) (\k__q. k__q (x - 1)))))).
+Xx56__q _x _x2 t fy__q t2 x___q k__q =v
+  ∀s. 
+   s < 1 * t2 + 0 \/ s < (-1) * t2 + 0 \/ s < 1 * t + 0 \/ s < (-1) * t + 0
+   \/ s < 0
+   \/ x___q
+       (\x. 
+         ∀s2. 
+          s2 < 1 * x + 0 \/ s2 < (-1) * x + 0 \/ s2 < 1 * t2 + 0
+          \/ s2 < (-1) * t2 + 0
+          \/ s2 < 0
+          \/ fy__q
+              (\y. 
+                ∀s3. 
+                 s3 < 1 * x + 0 \/ s3 < (-1) * x + 0 \/ s3 < 1 * y + 0
+                 \/ s3 < (-1) * y + 0
+                 \/ s3 < 1 * (x - (y + 1)) + 0
+                 \/ s3 < (-1) * (x - (y + 1)) + 0
+                 \/ s3 < 0
+                 \/ k__q s3 (\k2__q. k2__q (x - (y + 1)))
+                     (\k2__q. k2__q (x - (y + 1))))).
+Xx__q_ic  _x _x2 t fy__q fz__q =v
+  (∀s. s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0 \/ Xx__q_ic _x _x2 s fy__q fz__q)
+  /\ (∀s. 
+       s < 1 * t + 0 \/ s < (-1) * t + 0 \/ s < 0
+       \/ (∀s2. 
+            s2 < 1 * t + 0 \/ s2 < (-1) * t + 0 \/ s2 < 0
+            \/ (∀s3. 
+                 s3 < 1 * t + 0 \/ s3 < (-1) * t + 0 \/ s3 < 0
+                 \/ (∀recRepeat__q. 
+                      recRepeat__q < 1 + 1 * t \/ recRepeat__q < 1 + (-1) * t
+                      \/ recRepeat__q < 1
+                      \/ Repeat__q recRepeat__q _x _x2 s2 (\_x.\_x2. Xx56__q _x _x2 s3 fy__q) s fz__q
+                          fz__q)))).
