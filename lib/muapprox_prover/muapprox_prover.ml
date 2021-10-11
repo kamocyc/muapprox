@@ -123,7 +123,6 @@ module SolverCommon = struct
         Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
     message_string ~header:"SolveInfo" @@ "νHFLz, " ^ (show_debug_context (Option.map (fun d -> {d with temp_file = path}) debug_context)) ^ ": " ^ path';
     output_debug debug_context path';
-    (if dry_run then failwith "DRY RUN");
     ()
   
   type temp_result_type =
@@ -317,6 +316,7 @@ module KatsuraSolver : BackendSolver = struct
     >>= (fun path ->
       let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
       let command = solver_command path solve_options stop_if_intractable in
+      if solve_options.dry_run then failwith @@ "DRY RUN (" ^ show_debug_context debug_context ^ ") / command: " ^ (Array.to_list command |> String.concat " ");
       run_command_with_timeout solve_options.timeout command (Option.map (fun c -> c.mode) debug_context) >>|
         (fun (status_code, elapsed, stdout, stderr) ->
           let r =
