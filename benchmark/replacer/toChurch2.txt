@@ -1,0 +1,25 @@
+#! noflags, nousage, nopartial
+\/ XX recXX
+\/ XX recXX x
+^nXX recXX
+^nXX recXX _x
+\/ XX (recXX - 1)
+\/ XX (recXX - 1) _x
+2,TOCHURCH recTOCHURCH
+TOCHURCH recTOCHURCH _x
+2,TOCHURCH (recTOCHURCH - 1)
+TOCHURCH (recTOCHURCH - 1) (_x - 1)
+
+#! noboth
+\/ XX recXX
+\/ XX recXX x
+^nXX recXX
+^nXX recXX _x
+\/ XX (recXX - 1)
+\/ XX (recXX - 1) _x
+2,TOCHURCH recTOCHURCH
+TOCHURCH recTOCHURCH _x
+TOCHURCH (recTOCHURCH - 1)
+TOCHURCH (recTOCHURCH - 1) (_x - 1)
+(recTOCHURCH - 1) s6
+(recTOCHURCH - 1) (_x - 1) s6

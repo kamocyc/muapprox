@@ -1,0 +1,20 @@
+\/ X_APP_DOWN recX_APP_DOWN
+\/ X_APP_DOWN recX_APP_DOWN t
+\/ X_APP_UP recX_APP_UP
+\/ X_APP_UP recX_APP_UP t2
+^nX_APP_DOWN recX_APP_DOWN
+^nX_APP_DOWN recX_APP_DOWN _t
+^nX_APP_UP recX_APP_UP
+^nX_APP_UP recX_APP_UP _t
+\/ X_APP_DOWN (recX_APP_DOWN - 1)
+\/ X_APP_DOWN (recX_APP_DOWN - 1) _t
+\/ X_APP_UP (recX_APP_UP - 1)
+\/ X_APP_UP (recX_APP_UP - 1) _t
+2,UP recUP
+UP recUP _t
+2,DOWN recDOWN
+DOWN recDOWN _t
+UP (recUP - 1)
+UP (recUP - 1) (_t + 1)
+DOWN (recDOWN - 1)
+DOWN (recDOWN - 1) (_t - 1)

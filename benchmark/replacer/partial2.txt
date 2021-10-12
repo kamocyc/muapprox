@@ -1,0 +1,47 @@
+#! noflags, nopartial
+\/ XX recXX
+\/ XX recXX n
+^nXX recXX
+^nXX recXX _n
+2,F recF
+F recF _n
+F (recF - 1)
+F (recF - 1) (_n - 1)
+\/ XX (recXX - 1)
+\/ XX (recXX - 1) _n
+/\ p
+/\ p _n
+(\fn.
+(\_n. \fn.
+
+#! nousage
+\/ XX recXX
+\/ XX recXX n
+^nXX recXX
+^nXX recXX _n
+2,F recF
+F recF _n
+F (recF - 1)
+F (recF - 1) (_n - 1)
+\/ XX (recXX - 1)
+\/ XX (recXX - 1) _n
+\/ p
+\/ p _n
+(\t. 
+(\_n. \t.
+
+#! noboth
+\/ XX recXX
+\/ XX recXX n
+^nXX recXX
+^nXX recXX _n
+2,F recF
+F recF _n
+F (recF - 1)
+F (recF - 1) (_n - 1)
+\/ XX (recXX - 1)
+\/ XX (recXX - 1) _n
+\/ p
+\/ p _n
+(\fn.
+(\_n. \fn.

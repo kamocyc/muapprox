@@ -1,0 +1,12 @@
+\/ XX recXX
+\/ XX recXX l
+^nXX recXX
+^nXX recXX _l
+\/ MAP recMAP
+\/ MAP recMAP _l
+\/ XX (recXX - 1)
+\/ XX (recXX - 1) _l
+^nMAP recMAP
+^nMAP recMAP _l
+2,MAP (recMAP - 1)
+MAP (recMAP - 1) (_l - 1)

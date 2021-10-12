@@ -1,0 +1,96 @@
+#! noflags
+Xx__q recXx__q s 0 (Const__q
+Xx__q recXx__q x s 0 (Const__q x
+^nConst__q
+^nConst__q _x
+(Const__q s
+(Const__q _x s
+\/ k__q s x__q
+\/ k__q _x s x__q
+2,Check__q recCheck__q
+Check__q recCheck__q _x
+Check__q (recCheck__q - 1)
+Check__q (recCheck__q - 1) _x
+^nXx__q recXx__q
+^nXx__q recXx__q _x
+\/ Xx__q (recXx__q - 1)
+\/ Xx__q (recXx__q - 1) _x
+2,F__q recF__q
+F__q recF__q _x
+F__q (recF__q - 1)
+F__q (recF__q - 1) (_x - 1)
+^n      (\t.
+^n      (\_n.\t.
+
+#! nousage
+Xx__q recXx__q s 0 (Const__q
+Xx__q recXx__q x s 0 (Const__q x
+^nConst__q
+^nConst__q _x
+(Const__q s4
+(Const__q _x s4
+\/ k__q s x__q
+\/ k__q _x s x__q
+2,Check__q recCheck__q
+Check__q recCheck__q _x
+Check__q (recCheck__q - 1)
+Check__q (recCheck__q - 1) _x
+^nXx__q recXx__q
+^nXx__q recXx__q _x
+\/ Xx__q (recXx__q - 1)
+\/ Xx__q (recXx__q - 1) _x
+2,F__q recF__q
+F__q recF__q _x
+F__q (recF__q - 1)
+F__q (recF__q - 1) (_x - 1)
+^n           (\t.
+^n           (\_n.\t.
+
+
+#! nopartial
+Xx__q recXx__q 0 s (Const__q
+Xx__q recXx__q x 0 s (Const__q x
+^nConst__q
+^nConst__q _x
+(Const__q s
+(Const__q _x s
+\/ k__q s x__q
+\/ k__q _x s x__q
+2,Check__q recCheck__q
+Check__q recCheck__q _x
+Check__q (recCheck__q - 1)
+Check__q (recCheck__q - 1) _x
+^nXx__q recXx__q
+^nXx__q recXx__q _x
+\/ Xx__q (recXx__q - 1)
+\/ Xx__q (recXx__q - 1) _x
+2,F__q recF__q
+F__q recF__q _x
+F__q (recF__q - 1)
+F__q (recF__q - 1) (_x - 1)
+^n      (\t.
+^n      (\_n.\t.
+
+#! noboth
+Xx__q recXx__q 0 s (Const__q
+Xx__q recXx__q x 0 s (Const__q x
+^nConst__q
+^nConst__q _x
+(Const__q s5
+(Const__q _x s5
+\/ k__q s x__q
+\/ k__q _x s x__q
+2,Check__q recCheck__q
+Check__q recCheck__q _x
+Check__q (recCheck__q - 1)
+Check__q (recCheck__q - 1) _x
+^nXx__q recXx__q
+^nXx__q recXx__q _x
+\/ Xx__q (recXx__q - 1)
+\/ Xx__q (recXx__q - 1) _x
+2,F__q recF__q
+F__q recF__q _x
+F__q (recF__q - 1)
+F__q (recF__q - 1) (_x - 1)
+^n           (\t.
+^n           (\_n.\t.
