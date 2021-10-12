@@ -1,4 +1,4 @@
-module Random = struct let int _ = read_int () end
+(* module Random = struct let int _ = read_int () end *)
 
 let check1 f =
   let x = f () in
@@ -16,7 +16,7 @@ let add (f1:unit->int) (f2:unit->int):unit->int =
 
 let sum fm fn = add fm fn
 
-let rec foldr h fe fl =
+let rec foldr (h:(unit -> int) -> (unit -> int) -> unit -> int) (fe:unit->int) fl =
   let b = check1 fl in
   if b =  1 then fe
   else
@@ -38,4 +38,4 @@ let main () =
   else
     0
 
-let () = main () |> print_int 
+(* let () = main () |> print_int  *)

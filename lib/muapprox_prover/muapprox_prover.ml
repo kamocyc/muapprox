@@ -668,7 +668,7 @@ let get_next_approx_parameter ?param ?(iter_count=0) with_add_arguments =
   let coeffs = 
     if with_add_arguments then
       [
-        (1, 1,  0, 0, 1); (* 1 *)
+        (* (1, 1,  0, 0, 1); (* 1 *)
         (1, 8,  0, 0, 1); (* 2 *)
         (4, 32, 0, 0, 1); (* 3 *)
         (1, 1,  1, 0, 1); (* 4 *)
@@ -676,6 +676,11 @@ let get_next_approx_parameter ?param ?(iter_count=0) with_add_arguments =
         (1, 1,  2, 0, 1); (* 6 *)
         (1, 8,  2, 1, 1); (* 7 *)
         (1, 8,  2, 1, 2); (* 8 *)
+         *)
+        (1, 1, 1, 1, 1);
+        (1, 1, 1, 1, 2);
+        (1, 8, 1, 1, 1);
+        (1, 8, 1, 1, 2);
       ]
     else
       [

@@ -11,17 +11,17 @@ let check1 f =
   if x = 0 then 1
   else 0
 
-let app f x =
+let app (f:(unit -> int) -> unit) x =
   f x
 
 let rec down fx =
   let b = check1 fx in
-  if b =  1 then false
+  if b =  1 then ()
   else down (pred fx)
 
 let rec up fx =
   let b = check1 fx in
-  if b =  1 then false
+  if b =  1 then ()
   else up (succ fx)
 
 let rec x_App_Down flag x =
@@ -44,5 +44,5 @@ let main () =
   else (
     if t2 < 0 then
       x_App_Up 0 (fun u -> t2)
-    else false
+    else ()
   )

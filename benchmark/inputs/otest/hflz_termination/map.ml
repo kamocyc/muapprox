@@ -9,7 +9,7 @@ let pred (fx:unit->int):unit->int =
 
 let add x y = x + y
 
-let compose f g x = f (g x)
+let compose (f:int -> int) (g:int -> int) x = f (g x)
 
 let rec map f fxs =
   let b = check1 fxs in

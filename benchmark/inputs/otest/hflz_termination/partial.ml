@@ -2,7 +2,7 @@ let pred (fx:unit->int):unit->int =
   let x = fx () in
   (fun u -> x - 1)
 
-let gt lb fn =
+let gt (lb:int) fn =
   let n = fn () in
   if n > lb then 1 else 0
 

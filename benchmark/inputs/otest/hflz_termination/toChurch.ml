@@ -11,7 +11,7 @@ let check1 f =
   if x = 0 then 1
   else 0
 
-let id x = x
+let id (x:(unit->int)) = x
 
 let compose f g x = f (g x)
 
