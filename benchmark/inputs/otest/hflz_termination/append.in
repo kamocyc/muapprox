@@ -1,0 +1,35 @@
+%HES
+Sentry =v
+  ∀x_1397. 
+   ∀x_1392. 
+    X_4 0 (\u_1371. \k_m_1372. k_m_1372 x_1392)
+     (\u_1376. \k_m_1377. k_m_1377 x_1397) (\x_1382. x_1382 0 (\x_1385. true)).
+APPEND fxs_6 fys_5 k_append_182 =u
+  fxs_6 0
+   (\x_1311. 
+     (x_1311 > 0
+      \/ (1 != 1 \/ k_append_182 fys_5)
+         /\ (1 = 1
+             \/ fxs_6 0
+                 (\x_1319. 
+                   APPEND (\u_1331. \k_pred_1332. k_pred_1332 (x_1319 - 1))
+                    fys_5
+                    (\x_1345. 
+                      x_1345 0
+                       (\x_1353. 
+                         k_append_182
+                          (\u_1361. \k_succ_1362. k_succ_1362 (x_1353 + 1)))))))
+     /\ (x_1311 <= 0
+         \/ (0 != 1 \/ k_append_182 fys_5)
+            /\ (0 = 1
+                \/ fxs_6 0
+                    (\x_1323. 
+                      APPEND (\u_1340. \k_pred_1341. k_pred_1341 (x_1323 - 1))
+                       fys_5
+                       (\x_1349. 
+                         x_1349 0
+                          (\x_1357. 
+                            k_append_182
+                             (\u_1366. \k_succ_1367. k_succ_1367 (x_1357 + 1)))))))).
+X_4 flag fxs fys k_x_369 =u
+  (flag != 1 \/ APPEND fxs fys k_x_369) /\ (flag = 1 \/ X_4 1 fxs fys k_x_369).

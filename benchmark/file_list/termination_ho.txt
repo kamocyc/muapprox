@@ -1,0 +1,11 @@
+otest/hflz_termination/any_down.in
+otest/hflz_termination/append.in
+otest/hflz_termination/binomial.in
+otest/hflz_termination/fibonacci.in
+otest/hflz_termination/indirect.in
+otest/hflz_termination/indirectHO.in
+otest/hflz_termination/mult.in
+otest/hflz_termination/nested_loop.in
+otest/hflz_termination/sum.in
+otest/hflz_termination/zip.in
+otest/hflz_ft/murase_repeat.in
