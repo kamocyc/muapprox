@@ -1,51 +1,20 @@
-#! noflags, nopartial
-\/ X_App_Down s (\k2. k2 t)
-\/ X_App_Down t s (\k2. k2 t)
-\/ X_App_Up s (\k2. k2 t2)
-\/ X_App_Up t2 s (\k2. k2 t2)
-X_App_Down t x k =v
-X_App_Down _t t x k =v
-\/ Down recDown x3
-\/ Down recDown _t x3
-\/ X_App_Down s x k
-\/ X_App_Down _t s x k
-X_App_Up t x k =v
-X_App_Up _t t x k =v
-\/ Up recUp x3
-\/ Up recUp _t x3
-\/ X_App_Up s x k
-\/ X_App_Up _t s x k
-Down recDown fx k =v
-Down recDown _t fx k =v
-\/ Down (recDown - 1)
-\/ Down (recDown - 1) (_t - 1)
-Up recUp fx k =v
-Up recUp _t fx k =v
-\/ Up (recUp - 1)
-\/ Up (recUp - 1) (_t + 1)
-
-#! nousage, noboth
-\/ X_App_Down s (\t3. \k2. k2 t)
-\/ X_App_Down t s (\t3. \k2. k2 t)
-\/ X_App_Up s (\t3. \k2. k2 t2)
-\/ X_App_Up t2 s (\t3. \k2. k2 t2)
-X_App_Down t x k =v
-X_App_Down _t t x k =v
-\/ Down recDown x2 x3
-\/ Down recDown _t x2 x3
-\/ X_App_Down s x k
-\/ X_App_Down _t s x k
-X_App_Up t x k =v
-X_App_Up _t t x k =v
-\/ Up recUp x2 x3
-\/ Up recUp _t x2 x3
-\/ X_App_Up s x k
-\/ X_App_Up _t s x k
-Down recDown t fx k =v
-Down recDown _t t fx k =v
-\/ Down (recDown - 1)
-\/ Down (recDown - 1) (_t - 1)
-Up recUp t fx k =v
-Up recUp _t t fx k =v
-\/ Up (recUp - 1)
-\/ Up (recUp - 1) (_t + 1)
+\/ X_APP_DOWN recX_APP_DOWN
+\/ X_APP_DOWN recX_APP_DOWN t
+\/ X_APP_UP recX_APP_UP
+\/ X_APP_UP recX_APP_UP t2
+^nX_APP_DOWN recX_APP_DOWN
+^nX_APP_DOWN recX_APP_DOWN _t
+^nX_APP_UP recX_APP_UP
+^nX_APP_UP recX_APP_UP _t
+\/ X_APP_DOWN (recX_APP_DOWN - 1)
+\/ X_APP_DOWN (recX_APP_DOWN - 1) _t
+\/ X_APP_UP (recX_APP_UP - 1)
+\/ X_APP_UP (recX_APP_UP - 1) _t
+2,UP recUP
+UP recUP _t
+2,DOWN recDOWN
+DOWN recDOWN _t
+UP (recUP - 1)
+UP (recUP - 1) (_t + 1)
+DOWN (recDOWN - 1)
+DOWN (recDOWN - 1) (_t - 1)

@@ -1,0 +1,41 @@
+#! noflags, nopartial
+X s (\k2. k2 l) k
+X s l (\k2. k2 l) k
+X t fl k =v
+X t _l fl k =v
+Map recMap (Compose Add Add) fl k
+Map recMap (Compose Add Add) _l fl k
+X s fl k
+X s _l fl k
+Map recMap f fxs k =v
+Map recMap f _l fxs k =v
+(recMap - 1) f
+(recMap - 1) f (_l - 1)
+
+#! nousage
+X s (\t. \k2. k2 l) k
+X s l (\t. \k2. k2 l) k
+X t fl k =v
+X t _l fl k =v
+Map recMap s (Compose Add Add) fl k
+Map recMap s (Compose Add Add) _l fl k
+X s fl k
+X s _l fl k
+Map recMap t f fxs k =v
+Map recMap t f _l fxs k =v
+(recMap - 1) s2 f
+(recMap - 1) s2 f (_l - 1)
+
+#! noboth
+X s (\t. \k2. k2 l) k
+X s l (\t. \k2. k2 l) k
+X t fl k =v
+X t _l fl k =v
+Map recMap s2 (Compose Add Add) s fl k
+Map recMap s2 (Compose Add Add) _l s fl k
+X s fl k
+X s _l fl k
+Map recMap t f t2 fxs k =v
+Map recMap t f _l t2 fxs k =v
+(recMap - 1) s4 f
+(recMap - 1) s4 f (_l - 1)

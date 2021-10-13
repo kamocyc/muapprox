@@ -1,15 +1,4 @@
-#! noflags, nousage, noboth
-App recApp s
-App recApp recF s
-App recApp t
-App recApp recF t
-App (recApp - 1) s
-App (recApp - 1) recF s
-
-#! nopartial
-App recApp (\k2. k2 m)
-App recApp recF (\k2. k2 m)
-App recApp fi
-App recApp recF fi
-App (recApp - 1) (Pred fi)
-App (recApp - 1) recF (Pred fi)
+3,APP recAPP
+APP recAPP recF
+2,APP (recAPP - 1)
+APP (recAPP - 1) recF

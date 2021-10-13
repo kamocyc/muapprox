@@ -1,0 +1,25 @@
+%HES
+Sentry =v
+  ∀m_1233. 
+   ∀n_1225. 
+    XX 0 (\u_1209. \k_main___1210. k_main___1210 m_1233)
+     (\u_1214. \k_main___1215. k_main___1215 n_1225) (\x_1218. true).
+CHECK1 f_7 k_check1_104 =u
+  f_7 0
+   (\x_1170. (x_1170 <= 0 \/ k_check1_104 1) /\ (x_1170 > 0 \/ k_check1_104 0)).
+F fm_5 fn_4 k_f_137 =u
+  CHECK1 fm_5
+   (\bm_1176. 
+     CHECK1 fn_4
+      (\bn_1181. 
+        ∀r_1193. 
+         (r_1193 <= 0 \/ bm_1176 != 1
+          \/ PRED fm_5 (\x_1199. F x_1199 fn_4 k_f_137))
+         /\ (r_1193 > 0 /\ bm_1176 = 1
+             \/ (r_1193 > 0 \/ bn_1181 != 1
+                 \/ PRED fn_4 (\x_1205. F fm_5 x_1205 k_f_137))
+                /\ (r_1193 <= 0 /\ bn_1181 = 1 \/ k_f_137 0)))).
+PRED fx k_pred_70 =u
+  fx 0 (\x_1235. k_pred_70 (\u_1227. \k_pred_1228. k_pred_1228 (x_1235 - 1))).
+XX flag fm fn k_xx_365 =u
+  (flag != 1 \/ F fm fn k_xx_365) /\ (flag = 1 \/ XX 1 fm fn k_xx_365).

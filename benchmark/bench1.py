@@ -43,7 +43,7 @@ def append(text):
     with open(OUTPUT_FILE_NAME, 'a') as f:
         f.write(str(text))
 
-BACKEND_SOLVER_CANDIDATE = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama', 'muapprox_suzuki']
+BACKEND_SOLVER_CANDIDATE = ['sas19', 'muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama', 'muapprox_suzuki', 'muapprox_katsura_replacer']
 
 parser = argparse.ArgumentParser(description='benchmarker.')
 parser.add_argument('backend_solver', metavar='backend_solver', type=str, 

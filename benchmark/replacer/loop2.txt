@@ -1,63 +1,55 @@
 #! noflags
-\/ X s (\k. k m)
-\/ X s m n (\k. k m)
-X t fm fn k =v
-X t _m _n fm fn k =v
-\/ F recF fm fn k
-\/ F recF _m _n fm fn k
-\/ X s fm fn k
-\/ X s _m _n fm fn k
-F recF fm fn k =v
-F recF _m _n fm fn k =v
-bm != 1 \/ F (recF - 1) (Pred fm)
-bm != 1 \/ F (recF - 1) (_m - 1) _n (Pred fm)
-\/ F (recF - 1) fm
-\/ F (recF - 1) _m (_n - 1) fm
+\/ XX recXX
+\/ XX recXX m n
+XX (recXX - 1)
+XX (recXX - 1) _m _n
+^nXX recXX
+^nXX recXX _m _n
+2,F recF
+F recF _m _n
+PRED fm (\x. F (recF - 1)
+PRED fm (\x. F (recF - 1) (_m - 1) _n
+PRED fn (\x. F (recF - 1)
+PRED fn (\x. F (recF - 1) _m (_n - 1)
 
 #! nopartial
-\/ X s2 (\k. k m)
-\/ X s2 m n (\k. k m)
-X t fm t2 fn k =v
-X t _m _n fm t2 fn k =v
-\/ F recF fm fn k
-\/ F recF _m _n fm fn k
-\/ X s2 fm s fn k
-\/ X s2 _m _n fm s fn k
-F recF fm fn k =v
-F recF _m _n fm fn k =v
-bm != 1 \/ F (recF - 1) (Pred fm)
-bm != 1 \/ F (recF - 1) (_m - 1) _n (Pred fm)
-\/ F (recF - 1) fm
-\/ F (recF - 1) _m (_n - 1) fm
+\/ XX recXX
+\/ XX recXX m n
+XX (recXX - 1)
+XX (recXX - 1) _m _n
+^nXX recXX
+^nXX recXX _m _n
+2,F recF
+F recF _m _n
+PRED fm (\x. F (recF - 1)
+PRED fm (\x. F (recF - 1) (_m - 1) _n
+PRED fn (\x. F (recF - 1)
+PRED fn (\x. F (recF - 1) _m (_n - 1)
 
 #! nousage
-\/ X s (\t. \k. k m)
-\/ X s m n (\t. \k. k m)
-X t fm fn k =v
-X t _m _n fm fn k =v
-\/ F recF s fm fn k
-\/ F recF _m _n s fm fn k
-\/ X s fm fn k
-\/ X s _m _n fm fn k
-F recF t fm fn k =v
-F recF _m _n t fm fn k =v
-\/ F (recF - 1) s3 (Pred fm) fn
-\/ F (recF - 1) (_m - 1) _n s3 (Pred fm) fn
-\/ F (recF - 1) s3 fm (Pred fn)
-\/ F (recF - 1) _m (_n - 1) s3 fm (Pred fn)
+\/ XX recXX
+\/ XX recXX m n
+XX (recXX - 1)
+XX (recXX - 1) _m _n
+^nXX recXX
+^nXX recXX _m _n
+2,F recF
+F recF _m _n
+\/ F (recF - 1) s4 x fn k_f
+\/ F (recF - 1) (_m - 1) _n s4 x fn k_f
+\/ F (recF - 1) s4 fm x k_f
+\/ F (recF - 1) _m (_n - 1) s4 fm x k_f
 
 #! noboth
-\/ X s2 (\t. \k. k m)
-\/ X s2 m n (\t. \k. k m)
-X t fm t2 fn k =v
-X t _m _n fm t2 fn k =v
-\/ F recF s2 fm s fn k
-\/ F recF _m _n s2 fm s fn k
-\/ X s2 fm s fn k
-\/ X s2 _m _n fm s fn k
-F recF t fm t2 fn k =v
-F recF _m _n t fm t2 fn k =v
-\/ F (recF - 1) s6 (Pred fm) s5
-\/ F (recF - 1) (_m - 1) _n s6 (Pred fm) s5
-\/ F (recF - 1) s6 fm s5
-\/ F (recF - 1) _m (_n - 1) s6 fm s5
+\/ XX recXX
+\/ XX recXX m n
+XX (recXX - 1)
+XX (recXX - 1) _m _n
+^nXX recXX
+^nXX recXX _m _n
+2,F recF
+F recF _m _n
+\/ F (recF - 1) s8 x s7
+\/ F (recF - 1) (_m - 1) _n s8 x s7
+s8 fm s7 x
+ _m (_n - 1) s8 fm s7 x

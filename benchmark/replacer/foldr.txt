@@ -1,41 +1,13 @@
-#! noflags, nopartial
-X s (\k. k l) true
-X s l (\k. k l) true
-X t fl k =v
-X t _l fl k =v
-\/ Foldr recFoldr Sum fl
-\/ Foldr recFoldr Sum _l fl
-\/ X s fl k).
-\/ X s _l fl k).
-Foldr recFoldr h fl k =v
-Foldr recFoldr h _l fl k =v
-h (Pred fl)
-h (_l - 1) (Pred fl)
-
-#! nousage
-X s (\t. \k. k l) true
-X s l (\t. \k. k l) true
-X t fl k =v
-X t _l fl k =v
-\/ Foldr recFoldr s Sum fl
-\/ Foldr recFoldr s Sum _l fl
-\/ X s fl k).
-\/ X s _l fl k).
-Foldr recFoldr t h fl k =v
-Foldr recFoldr t h _l fl k =v
-h (Pred fl)
-h (_l - 1) (Pred fl)
-
-#! noboth
-X s (\t. \k. k l) true
-X s l (\t. \k. k l) true
-X t fl k =v
-X t _l fl k =v
-\/ Foldr recFoldr s2 Sum s fl
-\/ Foldr recFoldr s2 Sum s _l fl
-\/ X s fl k).
-\/ X s _l fl k).
-Foldr recFoldr t h t2 fl k =v
-Foldr recFoldr t h t2 _l fl k =v
-h s3 (Pred fl)
-h s3 (_l - 1) (Pred fl)
+#! noflags, nopartial, nousage, noboth
+\/ XX recXX
+\/ XX recXX l
+^nXX recXX 
+^nXX recXX _l
+\/ FOLDR recFOLDR
+\/ FOLDR recFOLDR _l
+\/ XX (recXX - 1)
+\/ XX (recXX - 1) _l
+^nFOLDR recFOLDR 
+^nFOLDR recFOLDR _l
+2,FOLDR (recFOLDR - 1)
+FOLDR (recFOLDR - 1) (_l - 1)

@@ -1,0 +1,71 @@
+#! noflags
+\/ X s (
+\/ X s n (
+Gt lb fn k =v
+Gt lb _n fn k =v
+X t fn
+X t _n fn
+F recF fn
+F recF _n fn
+X s fn
+X s _n fn
+F recF fx
+F recF _n fx
+/\ p fx (\b.
+/\ p _n fx (\b.
+F (recF - 1) (
+F (recF - 1) (_n - 1) (
+
+#! nopartial
+\/ X s2 (
+\/ X s2 n (
+Gt lb fn k =v
+Gt lb _n fn k =v
+X t fn
+X t _n fn
+F recF fn
+F recF _n fn
+X s2 fn
+X s2 _n fn
+F recF fx
+F recF _n fx
+/\ p fx (\b.
+/\ p _n fx (\b.
+F (recF - 1) (
+F (recF - 1) (_n - 1) (
+
+#! nousage
+\/ X s (
+\/ X s n (
+Gt lb t fn k =v
+Gt lb _n t fn k =v
+X t fn
+X t _n fn
+F recF s fn
+F recF _n s fn
+X s fn
+X s _n fn
+F recF t fx
+F recF _n t fx
+\/ p s fx
+\/ p _n s fx
+F (recF - 1) s2 (
+F (recF - 1) (_n - 1) s2 (
+
+#! noboth
+\/ X s2 (
+\/ X s2 n (
+Gt lb fn t k =v
+Gt lb _n fn t k =v
+X t fn
+X t _n fn
+F recF s2 fn
+F recF _n s2 fn
+X s2 fn
+X s2 _n fn
+F recF t fx
+F recF _n t fx
+\/ p fx s
+\/ p _n fx s
+F (recF - 1) s4
+F (recF - 1) (_n - 1) s4

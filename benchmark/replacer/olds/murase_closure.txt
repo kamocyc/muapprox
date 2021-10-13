@@ -1,0 +1,55 @@
+#! noflags, nopartial
+2,(Const__q_called (\k__q_ic. k__q_ic
+(Const__q_called x (\k__q_ic. k__q_ic
+Const__q_called x__q_ic k__q_called =v
+Const__q_called __x x__q_ic k__q_called =v
+k__q_called x__q_ic x__q_ic.
+k__q_called __x x__q_ic x__q_ic.
+F67__q_called recF67__q_called
+F67__q_called recF67__q_called __x
+2,(Const__q_called (\k__q_ic. fn__q_ic2
+(Const__q_called (__x - 1) (\k__q_ic. fn__q_ic2
+/\ Check__q_ic fn__q_ic
+/\ Check__q_ic __x fn__q_ic
+Check__q_ic f___q_ic k__q_ic =v
+Check__q_ic __x f___q_ic k__q_ic =v
+/\ Check__q_ic f___q_ic
+/\ Check__q_ic __x f___q_ic
+
+#! nousage
+2,(Const__q_called s2 (\t. \k__q_ic. k__q_ic
+(Const__q_called x s2 (\t. \k__q_ic. k__q_ic
+Const__q_called t x__q_ic k__q_called =v
+Const__q_called __x t x__q_ic k__q_called =v
+k__q_called s x__q_ic x__q_ic.
+k__q_called __x s x__q_ic x__q_ic.
+F67__q_called recF67__q_called
+F67__q_called recF67__q_called __x
+(Const__q_called s3
+(Const__q_called (__x - 1) s3
+(Const__q_called s4
+(Const__q_called (__x - 1) s4
+\/ Check__q_ic s fn__q_ic
+\/ Check__q_ic __x s fn__q_ic
+Check__q_ic t f___q_ic k__q_ic =v
+Check__q_ic __x t f___q_ic k__q_ic =v
+\/ Check__q_ic s f___q_ic
+\/ Check__q_ic __x s f___q_ic
+
+#! noboth
+2,(Const__q_called s2 (\t. \k__q_ic. k__q_ic
+(Const__q_called x s2 (\t. \k__q_ic. k__q_ic
+Const__q_called t x__q_ic k__q_called =v
+Const__q_called __x t x__q_ic k__q_called =v
+k__q_called s2 x__q_ic s x__q_ic
+k__q_called __x s2 x__q_ic s x__q_ic
+F67__q_called recF67__q_called
+F67__q_called recF67__q_called __x
+2,(Const__q_called s4
+(Const__q_called (__x - 1) s4
+\/ Check__q_ic s2 fn__q_ic
+\/ Check__q_ic __x s2 fn__q_ic
+Check__q_ic t f___q_ic t2 k__q_ic =v
+Check__q_ic __x t f___q_ic t2 k__q_ic =v
+\/ Check__q_ic s2 f___q_ic
+\/ Check__q_ic __x s2 f___q_ic
