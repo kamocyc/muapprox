@@ -5,11 +5,16 @@ let inner_loop i_ s_ k =
   check i_ s_ (\b.
     if b = 1 then (
       let s = <_exists> * in
-      inner_loop (\k2. k2 (i+1)) (\k2. k2 s) k
+      inner_loop (succ i_) (\k2. k2 s) k
     ) else (
       event c;
       k
     )
+  )
+
+let succ i_ k =
+  i_ (\i.
+    k (i + 1)
   )
 
 let check i_ s_ k =

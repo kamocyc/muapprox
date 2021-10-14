@@ -1,29 +1,43 @@
 /* invalidであってほしい */
 %PROGRAM
-let loop flag i n y =
+let loop flag i_ n_ y =
   event called;
   if flag = 1 then (
     event close1;
-    loop_ flag i n y
+    loop_ flag i_ n_ y
   ) else
-    loop_ flag i n y
+    loop_ flag i_ n_ y
 
-let loop_ flag i n y =
-  if i<=n then loop flag (i+1) n y else y 0
+let loop_ flag i_ n_ y =
+  check i_ n_ (\b.
+    if b = 1 then loop flag (succ i_) n_ y else y 0
+  )
 
-let g flag y n =
+let check i_ n_ k =
+  i_ (\i.
+    n_ (\n.
+      if i<=n then k 1 else k 0
+    )
+  )
+
+let g flag y n_ =
   event called;
-  loop flag 1 n y
+  loop flag (\k. k 1) n_ y
 
-let f x y n =
+let f x y n_ =
   event called;
   if <d> * then
-     f x y (n+1)
+     f x y (succ n_)
   else
     x (\flag.
-      g flag y n
+      g flag y n_
     )
 
+let succ n_ k =
+  n_ (\n.
+    k (n + 1)
+  )
+  
 let t dummy =
   event called;
   event close2;
@@ -34,8 +48,14 @@ let s k =
   event close1;
   k 1
 
+let xx flag s2 t2 n_ =
+  if flag = 1 then
+    f s2 t2 n_
+  else
+    xx 1 s2 t2 n_
+
 let () =
-  f s t 0
+  xx 0 s t (\k. k 0)
 
 
 %TRANSITION

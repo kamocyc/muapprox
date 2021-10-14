@@ -15,7 +15,7 @@ let explore x_ r =
   event called;
   /* event explore; */
   reduce x_ r (\y_.
-    check1 0 y_ (\b.
+    check 0 y_ (\b.
       if b = 1 then finish
       else explore y_ r
     )

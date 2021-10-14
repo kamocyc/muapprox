@@ -1,3 +1,4 @@
+/* valid */
 %PROGRAM
 let print x_ =
   event called;
@@ -11,7 +12,7 @@ let rumble x_ y_ k =
     if b = 1 then
       if <d> * then
         rumble (succ x_) y_ k
-      else rumble x_ (pred y_) k
+      else rumble x_ y_ k
     else k x_
   )
 
@@ -61,3 +62,24 @@ q_print print -> (1, q_print).
 /* {(print, never)} */
 q_print -> 1.
 q_0 -> 0.
+
+/*
+/* valid */
+%HES
+Sentry =v Exists 0 2.
+Exists x x2 =v
+  (Xx__q 0 (\k__q. k__q x) (\k__q. k__q x2)).
+Print__q  =v false.
+Rumble__q x___q y___q k__q =v
+  x___q
+   (\x. 
+     y___q
+      (\y. 
+        (x >= y \/ Rumble__q (\k__q2. x___q (\x2. k__q2 (x2 + 1))) y___q k__q
+         \/ Rumble__q x___q y___q k__q)
+        /\ (x < y \/ k__q x___q))).
+Xx__q flag a___q b___q =v
+  (flag != 1
+   \/ Rumble__q a___q b___q (\r___q. Rumble__q a___q r___q (\r2___q. Print__q)))
+  /\ (flag = 1 \/ Xx__q 1 a___q b___q).
+*/

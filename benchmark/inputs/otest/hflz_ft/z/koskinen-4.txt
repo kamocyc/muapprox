@@ -1,9 +1,9 @@
 /* invalidであってほしい */
 %PROGRAM
-let app f x i k =
+let app f x_ i kk =
   event called;
   event p;
-  f x (\x k2. k2 (x - i)) k
+  f x_ (\x2_ k2. x2_ (\x2. k2 (\k3. k3 (x2 - i)))) kk
 
 let ha1 x =
   event called;
@@ -17,28 +17,46 @@ let ha2 x =
   event ha;
   ha2 x
 
-let walk x f k =
+let walk x_ f k =
   event called;
   event p;
-  if x < 0 then k x
-  else f x (\x_. walk x_ f k)
+  check x_ (\b.
+    if b = 1 then k x_
+    else f x_ (\x2. walk x2 f k)
+  )
 
-let run x f k =
+let run x_ f k =
   event called;
   event p;
-  if x < 0 then k x
-  else f x (\x_. f x_ (\x__. run x__ f k))
+  check x_ (\b.
+    if b = 1 then k x_
+    else f x_ (\x2. f x2 (\x3. run x3 f k))
+  )
 
-let life x =
+let life x_ =
   event called;
   if <d2> * then (
     event p;
-    if x < 0 then app walk x 1 (\x_. ha1 x_)
-    else app run x 1 (\x_. ha2 x_)
-  ) else life x
+    check x_ (\b.
+      if b = 1 then app walk x_ 1 (\x__. ha1 x__)
+      else app run x_ 1 (\x__. ha2 x__)
+    )
+  ) else life x_
 
+let check x_ k =
+  x_ (\x.
+    if x < 0 then k 1 else k 0
+  )
+
+let xx flag x_ =
+  if flag = 1 then
+    life x_
+  else
+    xx 1 x_
+  
 let () =
-  life (<_exists> *)
+  let x = <_exists> * in
+  xx 0 (\k. k x)
 
 
 %TRANSITION
