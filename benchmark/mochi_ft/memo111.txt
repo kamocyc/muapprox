@@ -1,0 +1,48 @@
+# 確認すべきこと
+* イベント名が合っている？
+* 大本のものと比較して合っている？
+* 仕様が合っている？
+* 後で
+  * _buggyと合っている？
+  * 実行の動作
+* read_int ()ではない
+
+# mochiでタイムアウトしたもの
+murase_intro
+koskinen-1.ml
+koskinen-2.ml
+koskinen-3-1.ml
+koskinen-3-3.ml
+murase_closure
+
+## 他
+* hofmann-2.ml
+Fair terminating!
+
+cycles: 4
+CEGAR-cycles: 20
+total: 3.248 sec
+  abst: 0.983 sec
+  mc: 0.555 sec
+  refine: 1.412 sec
+
+* koskinen-4
+Fair terminating!
+
+cycles: 8
+CEGAR-cycles: 27
+total: 6.327 sec
+  abst: 2.798 sec
+  mc: 1.030 sec
+  refine: 1.118 sec
+
+## mochiプログラムを目視で確認
+hofmann-2.ml
+koskinen-1.ml
+koskinen-2.ml
+koskinen-3-1.ml
+koskinen-3-3.ml
+koskinen-4.ml
+lester.ml
+murase_closure.ml
+murase_intro.ml

@@ -1,0 +1,33 @@
+%HES
+Sentry =v
+  ∀x_1643. 
+   ∀x_1635. 
+    X_4 0 (\u_1614. \k_mm_1615. k_mm_1615 x_1635)
+     (\u_1619. \k_mm_1620. k_mm_1620 x_1643)
+     (\x_1625. x_1625 0 (\x_1628. true)).
+ACK fm_7 fn_6 k_ack_198 =u
+  CHECK1 fm_7
+   (\b_1562. 
+     (b_1562 != 1
+      \/ fn_6 0
+          (\x_1573. k_ack_198 (\u_1586. \k_succ_1587. k_succ_1587 (x_1573 + 1))))
+     /\ (b_1562 = 1
+         \/ CHECK1 fn_6
+             (\bn_1583. 
+               (bn_1583 != 1
+                \/ PRED fm_7
+                    (\x_1591. 
+                      ACK x_1591 (\u_1599. \k_ack_1600. k_ack_1600 1) k_ack_198))
+               /\ (bn_1583 = 1
+                   \/ PRED fn_6
+                       (\x_1596. 
+                         ACK fm_7 x_1596
+                          (\fr_1605. 
+                            PRED fm_7 (\x_1610. ACK x_1610 fr_1605 k_ack_198))))))).
+CHECK1 f k_check1_88 =u
+  f 0
+   (\x_1568. (x_1568 != 0 \/ k_check1_88 1) /\ (x_1568 = 0 \/ k_check1_88 0)).
+PRED fx k_pred_158 =u
+  fx 0 (\x_1645. k_pred_158 (\u_1637. \k_pred_1638. k_pred_1638 (x_1645 - 1))).
+X_4 flag fm fn k_x_592 =u
+  (flag != 1 \/ ACK fm fn k_x_592) /\ (flag = 1 \/ X_4 1 fm fn k_x_592).
