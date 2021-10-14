@@ -1,0 +1,62 @@
+/* invalidであってほしい */
+%PROGRAM
+let loop flag i n y =
+  event called;
+  if flag = 1 then (
+    event close1;
+    loop_ flag i n y
+  ) else
+    loop_ flag i n y
+
+let loop_ flag i n y =
+  if i<=n then loop flag (i+1) n y else y 0
+
+let g flag y n =
+  event called;
+  loop flag 1 n y
+
+let f x y n =
+  event called;
+  if <d> * then
+     f x y (n+1)
+  else
+    x (\flag.
+      g flag y n
+    )
+
+let t dummy =
+  event called;
+  event close2;
+  t dummy
+
+let s k =
+  event called;
+  event close1;
+  k 1
+
+let () =
+  f s t 0
+
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_close1 called -> (1, q_0).
+q_close2 called -> (1, q_0).
+
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_close1 d -> (1, q_0) \/ (2, q_0).
+q_close2 d -> (1, q_0) \/ (2, q_0).
+
+q_0 close1 -> (1, q_close1).
+q_close1 close1 -> (1, q_close1).
+q_close2 close1 -> (1, q_close1).
+
+q_0 close2 -> (1, q_close2).
+q_close1 close2 -> (1, q_close2).
+q_close2 close2 -> (1, q_close2).
+
+%PRIORITY
+/* {(always, close1); (close2, never)}  =  close2 is finite && close1 is infinite */
+q_0 -> 1.
+q_close1 -> 2.
+q_close2 -> 3.

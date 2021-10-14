@@ -1,0 +1,8 @@
+otest/hflz_termination/foldr.in
+otest/hflz_termination/indirectIntro.in
+otest/hflz_termination/loop2.in
+otest/hflz_termination/map.in
+otest/hflz_termination/partial.in
+otest/hflz_termination/toChurch.in
+otest/hflz_termination/up_down.in
+otest/hflz_termination/x_plus_2_n.in
