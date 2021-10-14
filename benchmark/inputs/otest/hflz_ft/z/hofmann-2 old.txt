@@ -24,15 +24,9 @@ let check i_ s_ k =
     )
   )
 
-let xx flag i_ s_ k =
-  if flag = 1 then
-    inner_loop i_ s_ k
-  else
-    xx 1 i_ s_ k
-  
 let loop =
   event called;
-  xx 0 (\k. k 0) (\k. k 0) (\.
+  inner_loop (\k. k 0) (\k. k 0) (\.
     event b;
     loop
   )
