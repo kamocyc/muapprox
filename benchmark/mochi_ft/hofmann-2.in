@@ -1,0 +1,28 @@
+%HES
+Sentry =v Xx__q_0__1 0 Loop82__q_0__1 Loop81__q_0__1 Loop80__q_c__2.
+Loop__q_b__3  =v Xx__q_0__1 0 Loop82__q_0__1 Loop81__q_0__1 Loop80__q_c__2.
+Loop80__q_c__2  =u Loop__q_b__3.
+Inner_loop74__q_0__1 i___q_0__1 k__q_c__2 b =v
+  ∀x3521. 
+   (b != 1
+    \/ Inner_loop__q_0__0 (\k__q_0__0. i___q_0__1 (\i. k__q_0__0 (i + 1)))
+        (\k2__q_0__0. k2__q_0__0 x3521) k__q_c__2)
+   /\ (b = 1 \/ k__q_c__2).
+Check__q_0__1 i___q_0__0 s___q_0__0 k__q_0__0 =v
+  i___q_0__0
+   (\i. 
+     s___q_0__0
+      (\s. 
+        (i >= 1024 \/ s = 0 \/ k__q_0__0 1)
+        /\ (i < 1024 /\ s != 0 \/ k__q_0__0 0))).
+Xx__q_0__1 flag i___q_0__1 s___q_0__1 k__q_c__2 =v
+  (flag != 1 \/ Inner_loop__q_0__0 i___q_0__1 s___q_0__1 k__q_c__2)
+  /\ (flag = 1 \/ Xx__q_0__0 1 i___q_0__1 s___q_0__1 k__q_c__2).
+Loop82__q_0__1 k__q_0__0 =v k__q_0__0 0.
+Loop81__q_0__1 k__q_0__0 =v k__q_0__0 0.
+Inner_loop__q_0__0 i___q_0__1 s___q_0__1 k__q_c__2 =u
+  Check__q_0__1 i___q_0__1 s___q_0__1
+   (Inner_loop74__q_0__1 i___q_0__1 k__q_c__2).
+Xx__q_0__0 flag i___q_0__1 s___q_0__1 k__q_c__2 =u
+  (flag != 1 \/ Inner_loop__q_0__0 i___q_0__1 s___q_0__1 k__q_c__2)
+  /\ (flag = 1 \/ Xx__q_0__0 1 i___q_0__1 s___q_0__1 k__q_c__2).

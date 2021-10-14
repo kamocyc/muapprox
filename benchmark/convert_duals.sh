@@ -1,10 +1,10 @@
 #!/bin/bash
 
-DIRPATH=benchmark/prog2/mucalculus_as_ft
+DIRPATH=benchmark/inputs/otest/hflz_ft/
 
 rm $DIRPATH/*_dual.in
 
-for ORGFILE in $(find $DIRPATH -maxdepth 1 -name "*.in")
+for ORGFILE in $(find $DIRPATH -maxdepth 2 -name "*.in")
 do
   echo $ORGFILE
   dune exec bin2/dual.exe --  $ORGFILE > /dev/null
