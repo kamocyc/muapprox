@@ -595,6 +595,10 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
         hes, Hflmc2_syntax.IdMap.empty, [] in
     
     let () =
+      Log.info begin fun m -> m ~header:("Extra arguments added HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
+      ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_extra_arguments_added.txt") hes in
+    
+    let () =
       let open Hflmc2_syntax in
       let strs = Hflmc2_syntax.IdMap.fold id_type_map ~init:[] ~f:(fun ~key ~data acc -> (key.Id.name ^ ": " ^ Manipulate.Hflz_util.show_variable_type data) :: acc) in
       log_string @@ "id_type_map: " ^ Hflmc2_util.show_list (fun s -> s) strs;

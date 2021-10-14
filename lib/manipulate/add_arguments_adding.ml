@@ -295,6 +295,7 @@ let make_bounds simplifier xs c1 c2 r =
       )
       xs
     |> List.concat in
+  let bounds = Hflmc2_util.remove_duplicates (=) bounds in
   (bounds @ [T.Pred (Lt, [Var r; Int c2])]) |> fold_formula (fun acc f -> T.Or (acc, f))
 
 (* check that a body of Abses has bool type *)
