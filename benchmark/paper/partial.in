@@ -1,0 +1,6 @@
+%HES
+S =v ∀x. x >= 0 => G (F x) 0.
+
+G f y =v f y /\ G f (y + 1).
+
+F x y =u x + y < 0 \/ F (x - 1) y.

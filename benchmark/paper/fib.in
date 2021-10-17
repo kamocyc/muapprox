@@ -1,0 +1,6 @@
+%HES
+S =v ∀x. Fib x (\r. true).
+
+Fib x k =u
+  (x < 2 => k x) /\ (x >= 2 => Fib (x-1) (\y. Fib (x-2) (\z. k (y+z)))).
+

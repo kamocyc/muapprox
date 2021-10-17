@@ -1,0 +1,31 @@
+%HES
+S =v All (\k. k 0).
+
+All x =v F x /\ All (Succ x).
+
+F x =u x (\y. y = 0) \/ F (Pred x).
+
+Succ x k =v x (\y. k (y + 1)).
+
+Pred x k =v x (\y. k (y - 1)).
+
+/*
+/* (slight variation) prover */
+/* valid with z3 in 170 sec */
+%HES
+Sentry =v ∀sssss. sssss < 1 \/ All 0 sssss (\k. k 0).
+
+All _x ttttt x =v
+  (∀recF. 
+    recF < 1 + 1 * ttttt \/ recF < 1 + (-1) * ttttt \/ recF < 1 \/ F recF _x x)
+  /\ (∀sssss. 
+       sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+       \/ All (_x + 1) sssss (Succ x)).
+
+                         /* !!!modified v !!! */
+F recF _x x =v recF > 0 /\ (x (\y. y = 0 \/ F (recF - 1) (_x - 1) (Pred x))).
+
+Succ x k =v x (\y. k (y + 1)).
+
+Pred x k =v x (\y. k (y - 1)).
+*/
