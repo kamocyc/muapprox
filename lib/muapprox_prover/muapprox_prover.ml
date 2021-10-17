@@ -31,6 +31,9 @@ type debug_context = {
   backend_solver: string option;
   default_lexicographic_order: int;
   exists_assignment: (unit Hflz_convert_rev.Id.t * int) list option;
+  t_count: int;
+  s_count: int;
+  elapsed_all: float;
 }
 
 let has_solved = ref false
@@ -44,10 +47,18 @@ let output_debug (dbg : debug_context option) path =
   let tos = string_of_int in
   match dbg with
   | Some dbg -> begin
-    save_string_to_file (dbg.mode ^ ".tmp") (dbg.mode ^ "," ^ tos dbg.pid ^ "," ^ tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2 ^ "," ^ path ^ "," ^ dbg.file)
+    save_string_to_file (dbg.mode ^ ".tmp") (dbg.mode ^ "," ^ tos dbg.pid ^ "," ^ tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2 ^ "," ^ path ^ "," ^ dbg.file ^ "," ^ tos dbg.t_count ^ "," ^ tos dbg.s_count)
   end
   | None -> ()
   
+let output_debug_2 (dbg : debug_context) =
+  let tos = string_of_int in
+  (* match dbg with
+  | Some dbg -> begin *)
+    save_string_to_file ("output2_" ^ Filename.remove_extension (Filename.basename dbg.file) ^ "_" ^ dbg.mode ^ "_" ^ tos dbg.iter_count ^ "_output2.tmp") (dbg.mode ^ "," ^ tos dbg.pid ^ "," ^ tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2  ^ "," ^ dbg.file ^ "," ^ tos dbg.t_count ^ "," ^ tos dbg.s_count ^ "," ^ string_of_float dbg.elapsed_all)
+  (* end
+  | None -> () *)
+
 let show_debug_context debug =
   match debug with
   | None -> ""
@@ -68,6 +79,9 @@ let show_debug_context debug =
       ("add_arg_coe2", if debug.add_arg_coe1 = 0 then "-" else soi debug.add_arg_coe2);
       ("default_lexicographic_order", string_of_int debug.default_lexicographic_order);
       ("exists_assignment", Option.map (fun m -> "[" ^ ((List.map (fun (id, v) -> id.Hflmc2_syntax.Id.name ^ "=" ^ string_of_int v) m) |> String.concat "; ") ^ "]") debug.exists_assignment |> unwrap_or "-");
+      ("t_count", soi debug.t_count);
+      ("s_count", soi debug.s_count);
+      ("elapsed_all", string_of_float debug.elapsed_all);
       ("temp_file", debug.temp_file);
     ]
 
@@ -564,6 +578,36 @@ let should_instantiate_exists original_hes =
     )
   )
   
+let count_occuring (*id_type_map:(unit Hflz_convert_rev.Id.t, Manipulate.Hflz_util.variable_type, Hflmc2_syntax.IdMap.Key.comparator_witness) Base.Map.t*) hes s =
+  let open Hflmc2_syntax in
+  (* let ids =
+    IdMap.filter id_type_map ~f:(fun ty -> match ty with VTHigherInfo _ -> true | VTVarMax _ -> false) in *)
+  let s_len = String.length s in
+  let rec go hflz = match hflz with
+    | Hflz.Abs (v, p) -> begin
+      let c = if String.length v.Id.name >= s_len && String.sub v.Id.name 0 s_len = s then 1 else 0 in
+      (* let c = 
+        match IdMap.find ids (Id.remove_ty v) with
+        | Some _ -> 1
+        | None -> 0 in *)
+      c + (go p)
+    end
+    | Bool _ | Var _ | Arith _ | Pred _ -> 0
+    | Or (p1, p2) -> go p1 + go p2
+    | And (p1, p2) -> go p1 + go p2
+    | App (p1, p2) -> go p1 + go p2
+    | Forall (v, p1) ->
+      let c = if String.length v.Id.name >= s_len && String.sub v.Id.name 0 s_len = s then 1 else 0 in
+      c + (go p1)
+    | Exists (_, p1) -> go p1
+  in
+  Hflz.merge_entry_rule hes
+  |> List.map
+    (fun {Hflz.body; _} ->
+      go body
+    )
+  |> List.fold_left (fun acc c -> acc + c) 0
+  
 let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
   let {no_elim; adding_arguments_optimization;
     use_all_variables; unused_arguments_elimination;
@@ -571,6 +615,8 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
   (* TODO: use 2nd return value of add_arguments *)
   let {coe1; coe2; add_arg_coe1; add_arg_coe2; lexico_pair_number} = approx_parameter in
   let should_add_arguments = add_arg_coe1 > 0 in
+  let s_count = ref 0 in
+  let t_count = ref 0 in
   
   let add_arguments hes =
     if adding_arguments_optimization then
@@ -586,7 +632,7 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
         let hes, _, _ = add_arguments hes in
         hes
       else hes in
-    [hes, []]
+    [hes, [], (0, 0)]
   end else begin
     let hes, id_type_map, id_ho_map =
       if should_add_arguments then
@@ -638,8 +684,14 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
         if unused_arguments_elimination || should_add_arguments then
           let hes =
             Manipulate.Eliminate_unused_argument.eliminate_unused_argument
-              ~id_type_map:(if solve_options.with_usage_analysis then  id_type_map else Hflmc2_syntax.IdMap.empty)
+              ~id_type_map:(if solve_options.with_usage_analysis then id_type_map else Hflmc2_syntax.IdMap.empty)
               hes in
+          let occuring_count = count_occuring hes Manipulate.Add_arguments_adding.extra_param_name in
+          t_count := occuring_count;
+          log_string @@ "occuring_count: " ^ string_of_int occuring_count;
+          let occuring_count = count_occuring hes Manipulate.Add_arguments_adding.extra_arg_name in
+          s_count := occuring_count;
+          log_string @@ "occuring_count s: " ^ string_of_int occuring_count;
           let () =
             Log.info begin fun m -> m ~header:("Eliminate unused arguments (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
             ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu_with_rec.txt") hes in
@@ -647,7 +699,7 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
         else
           hes
       in
-      hes, acc
+      hes, acc, (!t_count, !s_count)
     ) heses
   end
 
@@ -719,6 +771,44 @@ let get_next_approx_parameter ?param ?(iter_count=0) with_add_arguments =
       }
   end
 
+let merge_debug_contexts cs =
+  match cs with 
+  | c::cs -> begin
+    List.iter
+      (fun c' ->
+        assert (c.mode = c'.mode);
+        assert (c.iter_count = c'.iter_count);
+        assert (c.coe1 = c'.coe1);
+        assert (c.coe2 = c'.coe2);
+        assert (c.add_arg_coe1 = c'.add_arg_coe1);
+        assert (c.add_arg_coe2 = c'.add_arg_coe2);
+        assert (c.file = c'.file);
+        assert (c.default_lexicographic_order = c'.default_lexicographic_order);
+        assert (c.t_count = c'.t_count);
+        assert (c.s_count = c'.s_count);
+        assert (c.elapsed_all = c'.elapsed_all);
+      )
+      cs;
+    {
+      mode = c.mode;
+      iter_count = c.iter_count;
+      coe1 = c.coe1;
+      coe2 = c.coe2;
+      add_arg_coe1 = c.add_arg_coe1;
+      add_arg_coe2 = c.add_arg_coe2;
+      pid = -1;
+      file = c.file;
+      backend_solver = None;
+      default_lexicographic_order = c.default_lexicographic_order;
+      exists_assignment = None;
+      temp_file = "";
+      t_count = c.t_count;
+      s_count = c.s_count;
+      elapsed_all = c.elapsed_all;
+    }
+  end
+  | [] -> assert false
+
 (* これ以降、本プログラム側での近似が入る *)
 let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mode_name iter_count_offset =
   Hflz_mani.simplify_bound := solve_options.simplify_bound;
@@ -737,6 +827,9 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
     default_lexicographic_order = approx_param.lexico_pair_number;
     exists_assignment = None;
     temp_file = "";
+    t_count = -1;
+    s_count = -1;
+    elapsed_all = -1.0;
   } in
   (* e.g. solvers = [(* an instantiation of variables quantified by exists, e.g. x1 = 0 *)[solve with hoice, solve with z3]; (* x1 = 1*)[solve with hoice, solve with z3]]
     For each instantiation, if both hoice and z3 returned "fail," then the overall result is "fail."
@@ -746,7 +839,8 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
   let (solvers: (Status.t * debug_context option) Deferred.t list list) = 
     match solve_options.backend_solver with
     | None ->
-      List.map (fun (nu_only_hes, exists_assignment) ->
+      List.map (fun (nu_only_hes, exists_assignment, (t_count, s_count)) ->
+        let debug_context_ = Option.map (fun d -> {d with t_count; s_count}) debug_context_ in
         [
           solve_onlynu_onlyforall
             { solve_options with backend_solver = Some "hoice" }
@@ -763,7 +857,7 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
         ]
       ) nu_only_heses
     | Some _ ->
-      List.map (fun (nu_only_hes, _) -> [solve_onlynu_onlyforall solve_options debug_context_ nu_only_hes false false]) nu_only_heses in
+      List.map (fun (nu_only_hes, _, (t_count, s_count)) -> [solve_onlynu_onlyforall solve_options (Option.map (fun d -> {d with t_count; s_count}) debug_context_) nu_only_hes false false]) nu_only_heses in
   let (is_valid : (Status.t * debug_context option list) list Ivar.t) = Ivar.create () in
   let deferred_is_valid = Ivar.read is_valid in
   let (deferred_all : (Status.t * debug_context option list) list Deferred.t) =
@@ -799,11 +893,21 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
       )
       solvers
     ) in
+  let start_time_all = Unix.gettimeofday () in
   Deferred.any [deferred_is_valid; deferred_all]
   >>= (fun results -> kill_processes (Option.map (fun a -> a.mode) debug_context_)
   >>= (fun _ ->
+      let elapsed_all = Unix.gettimeofday () -. start_time_all in
       let result, debug_contexts = summarize_results results in
       let debug_contexts = List.flatten debug_contexts in
+      let debug_contexts =
+        List.map (fun d_opt ->
+          Option.map (fun d ->
+            {d with elapsed_all}
+          ) d_opt
+        )
+        debug_contexts in
+      merge_debug_contexts (List.filter_map (fun x -> x) debug_contexts) |> output_debug_2;
       let retry approx_param =
         if !has_solved then
           return (Status.Unknown, debug_contexts)

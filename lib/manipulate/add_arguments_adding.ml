@@ -10,6 +10,9 @@ let log_string = Hflz_util.log_string Log.info
 
 let generated_ids = Hashtbl.create 10
 
+let extra_arg_name = "sssss"
+let extra_param_name = "ttttt"
+
 let id_gen ?name ty =
   let id = T.id_gen ?name ty in
   (match name with
@@ -341,7 +344,7 @@ let rec get_free_variables_in_arith a =
     | Var x -> [x]
   in
   go a
-  
+
 let make_bounds' simplifier (id_type_map : (unit Id.t, Hflz_util.variable_type, IdMap.Key.comparator_witness) Base.Map.t
 ref
 ) (add_args : (ptype' Id.t Arith.gen_t list * int * int * ptype' Id.t) list) (body : ptype' T.thflz) : ptype' T.thflz =
@@ -349,7 +352,7 @@ ref
     | (xs, c1, c2, r)::add_args ->
       log_string @@ "make_bounds': " ^ Id.to_string r;
       let gen_ids =
-        Option.value (Hashtbl.find_opt generated_ids "s") ~default:[] in
+        Option.value (Hashtbl.find_opt generated_ids extra_arg_name) ~default:[] in
       let xs =
         List.filter
           (fun x ->
@@ -484,7 +487,7 @@ let add_params c1 c2 outer_mu_funcs (rules : ptype2 thes_rule_in_out list) =
       let xs = List.map (fun x -> { x with Id.ty = convert_ty' x.Id.ty }) xs in
       if will_add then begin
         (* add param *)
-        let k = id_gen ~name:"t" TInt' in
+        let k = id_gen ~name:extra_param_name TInt' in
         let psi, ty, add_args =
           let rho' =
             List.filter_map
@@ -581,7 +584,7 @@ let add_params c1 c2 outer_mu_funcs (rules : ptype2 thes_rule_in_out list) =
             (List.combine ps_ argty_tags)
           |> List.flatten)
         in
-        let r = id_gen ~name:"s" TInt' in
+        let r = id_gen ~name:extra_arg_name TInt' in
         let bodyty =
           let rec go_app ty1 ty2s = match ty1, ty2s with
             | TFunc' (argty, bodyty), ty2::ty2s ->
