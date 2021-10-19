@@ -1,0 +1,11 @@
+%HES
+Sentry =v ∀x860. Lam_30__qa__0 x860.
+Finish__qa__2  =v Finish__qa__2.
+Const__q_called__1 x k__q_called__1 =u k__q_called__1 x.
+F29__q_called__1 n =u
+  (n <= 0 \/ F__q_called__0 (Const__q_called__1 (n - 1)))
+  /\ (n > 0 \/ Finish__q_called__0).
+Lam_30__qa__0 n =v F__qa__0 (Const__q_called__1 n).
+Finish__q_called__0  =v Finish__qa__2.
+F__q_called__0 g__q_called__1 =v g__q_called__1 F29__q_called__1.
+F__qa__0 g__q_called__1 =v g__q_called__1 F29__q_called__1.

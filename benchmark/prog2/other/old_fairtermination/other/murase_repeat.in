@@ -1,0 +1,10 @@
+%HES
+Sentry =v Repeat__qa__0 F__q_called__1 F__q_called__2.
+Repeat20__qa__2 g__q_called__1 g__q_called__2 =v
+  Repeat__qa__0 g__q_called__1 g__q_called__2.
+F__q_called__2 x k__qa__2 =v
+  (x <= 0 \/ F__q_called__1 (x - 1) k__qa__2) /\ (x > 0 \/ k__qa__2).
+F__q_called__1 x k__qa__2 =u
+  (x <= 0 \/ F__q_called__1 (x - 1) k__qa__2) /\ (x > 0 \/ k__qa__2).
+Repeat__qa__0 g__q_called__1 g__q_called__2 =v
+  ∀x237. g__q_called__1 x237 (Repeat20__qa__2 g__q_called__2 g__q_called__2).

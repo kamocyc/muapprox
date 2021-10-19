@@ -1,0 +1,28 @@
+%HES
+Sentry =v
+  Repeat__qa__0
+   (\fx__q_ic__1. 
+     \k__qa__2. 
+      Check__q_called__1 fx__q_ic__1 (F67__q_ic__1 fx__q_ic__1 k__qa__2))
+   (\fx__q_ic__1. 
+     \k__qa__2. 
+      Check__q_called__1 fx__q_ic__1 (F67__q_ic__1 fx__q_ic__1 k__qa__2)).
+Repeat6465__qa__2 g__q_ic__1 g__q_ic__2 =v Repeat__qa__0 g__q_ic__1 g__q_ic__2.
+Check__q_called__1 fx__q_ic__0 k__q_ic__0 =u
+  fx__q_ic__0 (\x. (x <= 0 \/ k__q_ic__0 1) /\ (x > 0 \/ k__q_ic__0 0)).
+Pred__q_ic__1 fx__q_ic__0 k__q_ic__0 =u fx__q_ic__0 (\x. k__q_ic__0 (x - 1)).
+Repeat64__q_called__1 g__q_ic__0 g__q_ic__2 v =u
+  g__q_ic__0 (\k__q_ic__0. k__q_ic__0 v)
+   (Repeat6465__qa__2 g__q_ic__2 g__q_ic__2)
+  /\ Xx__q_ic__0 g__q_ic__0 (\k__q_ic__0. k__q_ic__0 v)
+      (Repeat6465__qa__2 g__q_ic__2 g__q_ic__2).
+F67__q_ic__1 fx__q_ic__1 k__qa__2 b =u
+  (b != 1
+   \/ Check__q_called__1 (Pred__q_ic__1 fx__q_ic__1)
+       (F67__q_ic__1 (Pred__q_ic__1 fx__q_ic__1) k__qa__2))
+  /\ (b = 1 \/ k__qa__2).
+Xx__q_ic__0 g__q_ic__0 fx__q_ic__1 k__qa__2 =v
+  g__q_ic__0 fx__q_ic__1 k__qa__2
+  /\ Xx__q_ic__0 g__q_ic__0 fx__q_ic__1 k__qa__2.
+Repeat__qa__0 g__q_ic__1 g__q_ic__2 =v
+  ∀x1850. Repeat64__q_called__1 g__q_ic__1 g__q_ic__2 x1850.

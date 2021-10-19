@@ -1,0 +1,9 @@
+%HES
+Sentry =v ∀x213. Loop10__q_called__1 x213.
+App_unit__qb__3 f__q_called__1 =u f__q_called__1.
+Loop__q_called__3  =u ∀x203. Loop10__q_called__1 x203.
+App_unit__qa__2 f__q_called__1 =v f__q_called__1.
+Loop__q_called__2  =v ∀x206. Loop10__q_called__1 x206.
+Loop10__q_called__1 x =u
+  (x <= 0 \/ App_unit__qa__2 Loop__q_called__2)
+  /\ (x > 0 \/ App_unit__qb__3 Loop__q_called__3).

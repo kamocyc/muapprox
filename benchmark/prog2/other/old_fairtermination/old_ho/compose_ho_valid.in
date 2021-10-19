@@ -1,0 +1,38 @@
+%HES
+Sentry =v
+  ∀x4171. 
+   Update__q_called__0 (\i. \k___q_called__0. k___q_called__0 0)
+    (\i. \k___q_called__0. k___q_called__0 0) 0 x4171
+    (\ar___q_called__2. 
+      \ar___q_called__3. 
+       Check__qa__2 ar___q_called__2
+        (F94__q_called__2 true true ar___q_called__3)).
+Compose__qb__3 f___q_called__1 g__q_called__1 x__q_called__1 x__q_called__2 x__q_called__3 k__q_called__2 k__q_called__3 =u
+  g__q_called__1 x__q_called__1 x__q_called__2 x__q_called__3
+   (\ar__q_called__2. 
+     \ar__q_called__3. 
+      f___q_called__1 ar__q_called__2 ar__q_called__3 k__q_called__2
+       k__q_called__3).
+F__q_called__3 ar_c__q_called__2 ar_c__q_called__3 k__q_called__2 k__q_called__3 =u
+  Check__qa__2 ar_c__q_called__2
+   (F94__q_called__2 k__q_called__2 k__q_called__3 ar_c__q_called__3).
+Pred__q_called__3 ar__q_called__1 ar__q_called__2 ar__q_called__3 k__q_called__1 =u
+  ar__q_called__1 0
+   (\x. 
+     Update__q_called__0 ar__q_called__2 ar__q_called__3 0 (x - 1)
+      k__q_called__1).
+Update97__q_called__3 i x ar__q_called__0 j k___q_called__0 =u
+  (j != i \/ k___q_called__0 x) /\ (j = i \/ ar__q_called__0 j k___q_called__0).
+F94__q_called__2 k__q_called__0 k__q_called__3 ar_c__q_called__3 b =v
+  (b != 1 \/ k__q_called__0)
+  /\ (b = 1
+      \/ Compose__qb__3 F__q_called__3 Pred__q_called__3 ar_c__q_called__3
+          ar_c__q_called__3 ar_c__q_called__3 k__q_called__3 k__q_called__3).
+Update97__q_called__2 i x ar__q_called__0 j k___q_called__0 =v
+  (j != i \/ k___q_called__0 x) /\ (j = i \/ ar__q_called__0 j k___q_called__0).
+Check__qa__2 ar__q_called__1 k__q_called__1 =v
+  ar__q_called__1 0
+   (\x. (x > 0 \/ k__q_called__1 1) /\ (x <= 0 \/ k__q_called__1 0)).
+Update__q_called__0 ar__q_called__2 ar__q_called__3 i x k__q_called__1 =v
+  k__q_called__1 (Update97__q_called__2 i x ar__q_called__2)
+   (Update97__q_called__3 i x ar__q_called__3).

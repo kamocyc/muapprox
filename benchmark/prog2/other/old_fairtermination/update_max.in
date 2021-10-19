@@ -1,0 +1,6 @@
+%HES
+Sentry =v ∀x98. ∀x109. Update_max12__q_called__1 x98 x109.
+Update_max__qb__3 x =u ∀x101. Update_max12__q_called__1 x x101.
+Update_max__qa__2 x =v ∀x103. Update_max12__q_called__1 x x103.
+Update_max12__q_called__1 x y =u
+  (x >= y \/ Update_max__qb__3 y) /\ (x < y \/ Update_max__qa__2 x).

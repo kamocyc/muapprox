@@ -1,0 +1,4 @@
+%HES
+Sentry =v ∀x266. Const__q_called__1 x266 F29__q_called__1.
+Const__q_called__1 x k__q_called__1 =u k__q_called__1 x.
+F29__q_called__1 n =u n <= 0 \/ Const__q_called__1 (n - 1) F29__q_called__1.

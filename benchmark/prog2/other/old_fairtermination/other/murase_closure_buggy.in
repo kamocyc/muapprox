@@ -1,0 +1,6 @@
+%HES
+Sentry =v ∀x860. Const__q_called__1 x860 F29__q_called__1.
+Finish__qa__2  =v Finish__qa__2.
+Const__q_called__1 x k__q_called__1 =u k__q_called__1 x.
+F29__q_called__1 n =u
+  (n <= 0 \/ Const__q_called__1 n F29__q_called__1) /\ (n > 0 \/ Finish__qa__2).

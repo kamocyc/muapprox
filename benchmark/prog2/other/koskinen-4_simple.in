@@ -1,0 +1,27 @@
+%HES
+Sentry =v
+  ∀x185. 
+   ((x185 >= 0 \/ Walk__t0_s2__2 (-x185)) /\ (x185 < 0 \/ Run__t0_s2__2 x185)
+    \/ (x185 >= 0 \/ Walk__t1_s3__2 (-x185))
+       /\ (x185 < 0 \/ Run__t1_s3__2 x185))
+   /\ Life__accept_init__2 x185.
+Walk__t0_s2__2 x =v
+  (x != 0 \/ Ha1__t0_s2__1) /\ (x = 0 \/ Walk__t0_s2__1 (x - 1)).
+Walk__t1_s3__2 x =v (x != 0 \/ Ha1__qd__1) /\ (x = 0 \/ Walk__qd__1 (x - 1)).
+Run__t0_s2__2 x =v (x > 0 \/ Ha2__qd__1) /\ (x <= 0 \/ Run__qd__1 (x - 2)).
+Run__t1_s3__2 x =v
+  (x > 0 \/ Ha2__t1_s3__1) /\ (x <= 0 \/ Run__t1_s3__1 (x - 2)).
+Life__accept_init__2 x =v
+  ((x >= 0 \/ Walk__t0_s2__2 (-x)) /\ (x < 0 \/ Run__t0_s2__2 x)
+   \/ (x >= 0 \/ Walk__t1_s3__2 (-x)) /\ (x < 0 \/ Run__t1_s3__2 x))
+  /\ Life__accept_init__2 x.
+Ha1__qd__1  =u false.
+Ha1__t0_s2__1  =u true.
+Ha2__qd__1  =u false.
+Ha2__t1_s3__1  =u true.
+Walk__qd__1 x =u (x != 0 \/ Ha1__qd__1) /\ (x = 0 \/ Walk__qd__1 (x - 1)).
+Walk__t0_s2__1 x =u
+  (x != 0 \/ Ha1__t0_s2__1) /\ (x = 0 \/ Walk__t0_s2__1 (x - 1)).
+Run__qd__1 x =u (x > 0 \/ Ha2__qd__1) /\ (x <= 0 \/ Run__qd__1 (x - 2)).
+Run__t1_s3__1 x =u
+  (x > 0 \/ Ha2__t1_s3__1) /\ (x <= 0 \/ Run__t1_s3__1 (x - 2)).

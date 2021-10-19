@@ -1,0 +1,6 @@
+%HES
+Sentry =v ∀x567. F18__q_called__1 x567.
+F18__q_called__1 x =u
+  ∀x563. 
+   (x >= x563 \/ x > x563 + 1 \/ (∀x566. F18__q_called__1 x566))
+   /\ (x < x563 \/ (∀x566. F18__q_called__1 x566)).

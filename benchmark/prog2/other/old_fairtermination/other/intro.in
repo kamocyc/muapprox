@@ -1,0 +1,19 @@
+%HES
+Sentry =v Randpos__qa__0 Lam_22__qa__2 Lam_22__qa__3 Lam_22__qb__3.
+Lam_22__qa__3  =u true.
+Lam_22__qb__3  =u true.
+Randpos21__qb__3 k__qa__2 k__qa__3 k__qb__0 k__qb__3 x =u
+  (0 >= x \/ k__qb__0) /\ (0 < x \/ Randpos__qb__0 k__qa__2 k__qa__3 k__qb__3).
+Lam_22__qa__2  =v true.
+Randpos21__qa__2 k__qa__0 k__qa__2 k__qa__3 k__qb__3 x =v
+  (0 >= x \/ k__qa__0) /\ (0 < x \/ Randpos__qa__0 k__qa__2 k__qa__3 k__qb__3).
+Rand__q_called__1 k__qa__2 k__qb__3 =u
+  ∀x701. Rand20__q_called__1 k__qa__2 k__qb__3 x701.
+Rand20__q_called__1 k__qa__2 k__qb__3 r =u
+  (0 > r \/ k__qb__3 r) /\ (0 <= r \/ k__qa__2 r).
+Randpos__qa__0 k__qa__2 k__qa__3 k__qb__3 =v
+  Rand__q_called__1 (Randpos21__qa__2 k__qa__2 k__qa__2 k__qa__3 k__qb__3)
+   (Randpos21__qb__3 k__qa__3 k__qa__3 k__qb__3 k__qb__3).
+Randpos__qb__0 k__qa__2 k__qa__3 k__qb__3 =v
+  Rand__q_called__1 (Randpos21__qa__2 k__qa__2 k__qa__2 k__qa__3 k__qb__3)
+   (Randpos21__qb__3 k__qa__3 k__qa__3 k__qb__3 k__qb__3).

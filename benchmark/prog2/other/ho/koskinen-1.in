@@ -1,0 +1,38 @@
+%HES
+Sentry =v
+  ∀x20628. 
+   Xx__q_ic__0 (\k__q_ic__09. k__q_ic__09 x20628)
+    (\x___q_ic__010. 
+      \k__q_ic__011. 
+       x___q_ic__010
+        (\x12. 
+          k__q_ic__011 (\k2__q_ic__013. k2__q_ic__013 (x12 - 2))
+           (\k2__q_ic__014. k2__q_ic__014 (x12 - 2))))
+   /\ Explore__q_ic__0 (\k__q_ic__015. k__q_ic__015 x20628)
+       (\x___q_ic__016. 
+         \k__q_ic__017. 
+          x___q_ic__016
+           (\x18. 
+             k__q_ic__017 (\k2__q_ic__019. k2__q_ic__019 (x18 - 2))
+              (\k2__q_ic__020. k2__q_ic__020 (x18 - 2)))).
+Explore73__q_ic__1 r__q_ic__121 y___q_ic__022 y___q_ic__123 =u
+  Check__q_ic__0 y___q_ic__022
+   (\b24. b24 = 1 \/ Explore__q_ic__0 y___q_ic__123 r__q_ic__121).
+Explore__q_ic__0 x___q_ic__130 r__q_ic__131 =v
+  Check__q_ic__0 x___q_ic__130
+   (\b28. 
+     (b28 != 1 \/ Explore73__q_ic__1 r__q_ic__131 x___q_ic__130 x___q_ic__130)
+     /\ (b28 = 1
+         \/ r__q_ic__131 x___q_ic__130 (Explore73__q_ic__1 r__q_ic__131)))
+  /\ x___q_ic__130
+      (\x35. 
+        (x35 > 0 \/ Explore73__q_ic__1 r__q_ic__131 x___q_ic__130 x___q_ic__130)
+        /\ (x35 <= 0
+            \/ r__q_ic__131 x___q_ic__130 (Explore73__q_ic__1 r__q_ic__131))).
+Check__q_ic__0 x___q_ic__032 k__q_ic__033 =v
+  Check__q_ic__0 x___q_ic__032 k__q_ic__033
+  /\ x___q_ic__032
+      (\x35. (x35 > 0 \/ k__q_ic__033 1) /\ (x35 <= 0 \/ k__q_ic__033 0)).
+Xx__q_ic__0 x___q_ic__136 k__q_ic__137 =v
+  Xx__q_ic__0 x___q_ic__136 k__q_ic__137
+  /\ Explore__q_ic__0 x___q_ic__136 k__q_ic__137.

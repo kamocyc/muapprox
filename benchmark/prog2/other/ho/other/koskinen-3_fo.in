@@ -1,0 +1,50 @@
+%HES
+Sentry =v
+  ∀x816. 
+   Foo__q0__1 0
+   /\ Bar__q_ic__0 x816
+       (\r. 
+         (r > 0 \/ Foo__q0__1 r) /\ (r <= 0 \/ Halt__q0__1)
+         \/ (r > 0 \/ Foo__q1__2 r) /\ (r <= 0 \/ Halt__q1__2)
+         \/ (r > 0 \/ Foo__q1__2 r) /\ (r <= 0 \/ Halt__q1__2))
+       (\r. 
+         (r > 0 \/ Foo__q0__1 r) /\ (r <= 0 \/ Halt__q0__1)
+         \/ (r > 0 \/ Foo__q1__2 r) /\ (r <= 0 \/ Halt__q1__2)
+         \/ (r > 0 \/ Foo__q1__2 r) /\ (r <= 0 \/ Halt__q1__2))
+      /\ Xx__q_ic__0 x816
+          (\r. 
+            (r > 0 \/ Foo__q0__1 r) /\ (r <= 0 \/ Halt__q0__1)
+            \/ (r > 0 \/ Foo__q1__2 r) /\ (r <= 0 \/ Halt__q1__2)
+            \/ (r > 0 \/ Foo__q1__2 r) /\ (r <= 0 \/ Halt__q1__2))
+          (\r. 
+            (r > 0 \/ Foo__q0__1 r) /\ (r <= 0 \/ Halt__q0__1)
+            \/ (r > 0 \/ Foo__q1__2 r) /\ (r <= 0 \/ Halt__q1__2)
+            \/ (r > 0 \/ Foo__q1__2 r) /\ (r <= 0 \/ Halt__q1__2)).
+Halt__q1__2  =v Halt__qd__2.
+Halt__qd__2  =v false.
+Bar45__q_ic__2 fx k__q_ic__0 k__q_ic__1 k__q_ic__2 b =v
+  (b != 1 \/ Bar__q_ic__0 (fx - 1) k__q_ic__1 k__q_ic__2)
+  /\ (b = 1 \/ k__q_ic__0 fx).
+Foo__q1__2 fx =v (fx > 0 \/ Foo__q1__2 fx) /\ (fx <= 0 \/ Halt__q1__2).
+Check__qd__2 fx k__q_ic__0 =v
+  (fx <= 0 \/ k__q_ic__0 1) /\ (fx > 0 \/ k__q_ic__0 0)
+  /\ Check__q_ic__0 fx k__q_ic__0.
+Halt__q0__1  =u Halt__q0__1 \/ Halt__qd__2.
+Bar45__q_ic__1 fx k__q_ic__0 k__q_ic__1 k__q_ic__2 b =u
+  (b != 1 \/ Bar__q_ic__0 (fx - 1) k__q_ic__1 k__q_ic__2)
+  /\ (b = 1 \/ k__q_ic__0 fx).
+Foo__q0__1 fx =u
+  (fx > 0 \/ Foo__q0__1 fx) /\ (fx <= 0 \/ Halt__q0__1)
+  \/ (fx > 0 \/ Foo__q1__2 fx) /\ (fx <= 0 \/ Halt__q1__2)
+  \/ (fx > 0 \/ Foo__q1__2 fx) /\ (fx <= 0 \/ Halt__q1__2).
+Check__q0__1 fx k__q_ic__0 =u
+  (fx <= 0 \/ k__q_ic__0 1) /\ (fx > 0 \/ k__q_ic__0 0)
+  /\ Check__q_ic__0 fx k__q_ic__0.
+Bar__q_ic__0 fx k__q_ic__1 k__q_ic__2 =v
+  Check__q0__1 fx (Bar45__q_ic__1 fx k__q_ic__1 k__q_ic__1 k__q_ic__2)
+  \/ Check__qd__2 fx (Bar45__q_ic__2 fx k__q_ic__2 k__q_ic__2 k__q_ic__2).
+Check__q_ic__0 fx k__q_ic__0 =v
+  (fx <= 0 \/ k__q_ic__0 1) /\ (fx > 0 \/ k__q_ic__0 0)
+  /\ Check__q_ic__0 fx k__q_ic__0.
+Xx__q_ic__0 fx k__q_ic__1 k__q_ic__2 =v
+  Bar__q_ic__0 fx k__q_ic__1 k__q_ic__2 /\ Xx__q_ic__0 fx k__q_ic__1 k__q_ic__2.

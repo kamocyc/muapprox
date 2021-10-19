@@ -1,0 +1,10 @@
+%HES
+Sentry =v
+  ∀x698. 
+   F__q_ic__0 (Const__q_called__1 x698)
+   /\ Xx__q_ic__0 (Const__q_called__1 x698).
+Const__q_called__1 x k__q_called__1 =u k__q_called__1 x.
+F38__q_called__1 n =u n <= 0 \/ Const__q_called__1 (n - 1) F38__q_called__1.
+F__q_ic__0 g__q_called__1 =v g__q_called__1 F38__q_called__1.
+Xx__q_ic__0 g__q_called__1 =v
+  F__q_ic__0 g__q_called__1 /\ Xx__q_ic__0 g__q_called__1.

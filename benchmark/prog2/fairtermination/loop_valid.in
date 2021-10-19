@@ -1,0 +1,15 @@
+%HES
+Sentry =v
+  ∀x154. 
+   x154 > 0
+   /\ (x154 <= 0 \/ App_unit__q_a__1 Loop__q_0__1 x154)
+      /\ (x154 > 0 \/ App_unit__q_b__2 Loop__q_0__2 x154)
+   \/ x154 <= 0.
+App_unit__q_b__2 f__q_0__0 x =u f__q_0__0 x.
+Loop__q_0__2 x =u
+  (x <= 0 \/ App_unit__q_a__1 Loop__q_0__1 x)
+  /\ (x > 0 \/ App_unit__q_b__2 Loop__q_0__2 x).
+App_unit__q_a__1 f__q_0__0 x =v f__q_0__0 x.
+Loop__q_0__1 x =v
+  (x <= 0 \/ App_unit__q_a__1 Loop__q_0__1 x)
+  /\ (x > 0 \/ App_unit__q_b__2 Loop__q_0__2 x).

@@ -1,0 +1,10 @@
+%HES
+Sentry =v
+  ∀x66. 
+   Foo__q_foo__1 0
+   /\ Bar__q_0__0 x66
+       (\r. (r > 0 \/ Foo__q_foo__1 r) /\ (r <= 0 \/ Halt__q_foo__1)).
+Halt__q_foo__1  =v false.
+Foo__q_foo__1 x =v (x > 0 \/ Foo__q_foo__1 x) /\ (x <= 0 \/ Halt__q_foo__1).
+Bar__q_0__0 x k__q_0__0 =u
+  (x <= 0 \/ Bar__q_0__0 (x - 1) k__q_0__0) /\ (x > 0 \/ k__q_0__0 x).

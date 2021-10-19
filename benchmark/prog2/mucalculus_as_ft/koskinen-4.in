@@ -1,0 +1,28 @@
+%HES
+Sentry =v
+  ∀x2270. 
+   (x2270 >= 0 \/ App__q_p__2 Walk__q_p__2 x2270 1 Life85__q_p__2)
+   /\ (x2270 < 0 \/ App__q_p__2 Run__q_p__2 x2270 1 Life84__q_p__2)
+   /\ Life__q_0__1 x2270.
+App__q_p__2 f__q_p__2 x i k__q_p__2 =u
+  f__q_p__2 x (\x. \k2__q_p__0. k2__q_p__0 (x - i)) k__q_p__2.
+Walk__q_p__2 x f__q_p__2 k__q_p__2 =u
+  (x >= 0 \/ k__q_p__2)
+  /\ (x < 0 \/ f__q_p__2 x (Walk81__q_p__2 f__q_p__2 k__q_p__2)).
+Walk81__q_p__2 f__q_p__2 k__q_p__2 x_ =u
+  (x_ >= 0 \/ k__q_p__2)
+  /\ (x_ < 0 \/ f__q_p__2 x_ (Walk81__q_p__2 f__q_p__2 k__q_p__2)).
+Run__q_p__2 x f__q_p__2 k__q_p__2 =u
+  (x >= 0 \/ k__q_p__2)
+  /\ (x < 0 \/ f__q_p__2 x (Run82__q_p__2 f__q_p__2 f__q_p__2 k__q_p__2)).
+Run82__q_p__2 f__q_p__0 f__q_p__2 k__q_p__2 x_ =u
+  f__q_p__0 x_
+   (\x__. 
+     (x__ >= 0 \/ k__q_p__2)
+     /\ (x__ < 0 \/ f__q_p__2 x__ (Run82__q_p__2 f__q_p__2 f__q_p__2 k__q_p__2))).
+Life85__q_p__2  =u true.
+Life84__q_p__2  =u true.
+Life__q_0__1 x =v
+  (x >= 0 \/ App__q_p__2 Walk__q_p__2 x 1 Life85__q_p__2)
+  /\ (x < 0 \/ App__q_p__2 Run__q_p__2 x 1 Life84__q_p__2)
+  /\ Life__q_0__1 x.

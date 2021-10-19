@@ -1,0 +1,18 @@
+%HES
+Sentry =v
+  ∀x1657. 
+   ∀x1668. 
+    Update_max31__q_called__1 (\k__q_called__0. k__q_called__0 x1657)
+     (\k__q_called__0. k__q_called__0 x1657) x1668.
+Update_max__qb__3 x___q_called__1 x___q_called__2 =u
+  ∀x1660. Update_max31__q_called__1 x___q_called__1 x___q_called__2 x1660.
+Update_max3132__q_called__3 y k__q_called__0 =u k__q_called__0 y.
+Update_max__qa__2 x___q_called__1 x___q_called__2 =v
+  ∀x1662. Update_max31__q_called__1 x___q_called__1 x___q_called__2 x1662.
+Update_max31__q_called__1 x___q_called__0 x___q_called__2 y =u
+  x___q_called__0
+   (\x. 
+     (x >= y
+      \/ Update_max__qb__3 (Update_max3132__q_called__3 y)
+          (Update_max3132__q_called__3 y))
+     /\ (x < y \/ Update_max__qa__2 x___q_called__2 x___q_called__2)).

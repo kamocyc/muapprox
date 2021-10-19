@@ -1,0 +1,20 @@
+%HES
+Sentry =v
+  ∀x548. 
+   Op_loop20__q_called__1 x548 (\x. \k__q_called__1. k__q_called__1 (x + 1)).
+
+Succ__q_called__3 x k__q_called__1 =u k__q_called__1 (x + 1).
+
+Op_loop__qb__3 op__q_called__1 =u
+  ∀x540. Op_loop20__q_called__1 x540 op__q_called__1.
+
+Succ__q_called__2 x k__q_called__1 =v k__q_called__1 (x + 1).
+
+Op_loop__qa__2 op__q_called__1 =v
+  ∀x542. Op_loop20__q_called__1 x542 op__q_called__1.
+
+Op_loop20__q_called__1 x op__q_called__0 =u
+  op__q_called__0 x
+   (\y. 
+     (y <= 0 \/ Op_loop__qa__2 Succ__q_called__2)
+     /\ (y > 0 \/ Op_loop__qb__3 Succ__q_called__3)).

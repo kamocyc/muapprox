@@ -1,0 +1,11 @@
+%HES
+Sentry =v ∀x372. Update_max_CPS__q_0__0 Ev_a__q_0__0 x372.
+Cont__q_b__2 x =u ∀x375. Cont28__q_0__0 x x375.
+Cont__q_a__1 x =v ∀x377. Cont28__q_0__0 x x377.
+Ev_a__q_0__0 k__q_a__1 k__q_b__2 =u k__q_a__1.
+Ev_b__q_0__0 k__q_a__1 k__q_b__2 =u k__q_b__2.
+Cont28__q_0__0 x y =u
+  (x >= y \/ Update_max_CPS__q_0__0 Ev_b__q_0__0 y)
+  /\ (x < y \/ Update_max_CPS__q_0__0 Ev_a__q_0__0 x).
+Update_max_CPS__q_0__0 ev__q_0__0 x =u
+  ev__q_0__0 (Cont__q_a__1 x) (Cont__q_b__2 x).

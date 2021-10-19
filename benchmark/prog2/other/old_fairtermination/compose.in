@@ -1,0 +1,11 @@
+%HES
+Sentry =v
+  ∀x1179. 
+   x1179 = 0 \/ Compose__qb__3 F__q_called__3 Pred__q_called__3 x1179 true true.
+Pred__q_called__3 x k__q_called__1 =u k__q_called__1 (x - 1).
+Compose__qb__3 f___q_called__1 g__q_called__1 x k__qa__2 k__qa__3 =u
+  g__q_called__1 x (\r. f___q_called__1 r k__qa__2 k__qa__3).
+F__q_called__3 c k__qa__2 k__qa__3 =u
+  (c != 0 \/ k__qa__2)
+  /\ (c = 0
+      \/ Compose__qb__3 F__q_called__3 Pred__q_called__3 c k__qa__3 k__qa__3).

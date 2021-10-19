@@ -1,0 +1,7 @@
+%HES
+Sentry =v G__q_a__1 F__q_b__2 /\ F__q_b__2 \/ F__q_finite__1.
+F__q_b__2  =v G__q_a__1 F__q_b__2 /\ F__q_b__2 /\ F__q_b__2.
+F__q_finite__1  =u G__q_finite__1 F__q_finite__1 /\ F__q_finite__1.
+G__q_a__1 k__q_c__1 =u G__q_a__1 k__q_c__1 /\ k__q_c__1.
+G__q_finite__1 k__q_finite__1 =u
+  G__q_finite__1 k__q_finite__1 /\ k__q_finite__1.

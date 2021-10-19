@@ -1,0 +1,22 @@
+%HES
+Sentry =v ∀x1420. x1420 <= 0 \/ Outer__q0__0 (\k__q2__0. k__q2__0 x1420).
+Check__q2__2 f__q2__0 k__q2__0 =v
+  f__q2__0 (\x. (x > 0 \/ k__q2__0 0) /\ (x <= 0 \/ k__q2__0 1)).
+Neg1__q2__2 fn__q2__0 k__q2__0 =v fn__q2__0 (\n. k__q2__0 (1 - n)).
+Pred__q2__2 fn__q2__0 k__q2__0 =v fn__q2__0 (\n. k__q2__0 (n - 1)).
+Outer64__q2__2 b =v
+  ∀x1423. 
+   b != 0
+   /\ (b = 0
+       \/ Check__q0__1 (\k__q0__0. k__q0__0 x1423)
+           (Repeat67__q0__1 (\k__q0__0. k__q0__0 x1423)
+             (\k__q2__0. k__q2__0 x1423))).
+Check__q0__1 f__q0__0 k__q0__0 =u
+  f__q0__0 (\x. (x > 0 \/ k__q0__0 0) /\ (x <= 0 \/ k__q0__0 1)).
+Pred__q0__1 fn__q0__0 k__q0__0 =u fn__q0__0 (\n. k__q0__0 (n - 1)).
+Repeat67__q0__1 fn__q0__1 fn__q2__2 b =u
+  (b != 0 \/ Outer__q0__0 (Neg1__q2__2 fn__q2__2))
+  /\ (b = 0
+      \/ Check__q0__1 (Pred__q0__1 fn__q0__1)
+          (Repeat67__q0__1 (Pred__q0__1 fn__q0__1) (Pred__q2__2 fn__q2__2))).
+Outer__q0__0 fm__q2__2 =v Check__q2__2 fm__q2__2 Outer64__q2__2.

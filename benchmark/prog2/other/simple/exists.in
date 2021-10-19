@@ -1,0 +1,9 @@
+%HES
+Sentry =v
+  ∀x100. 
+   x100 < 1 \/ (∃x107. x100 > 0 /\ (x100 <= 0 \/ Outer17__q2__2 x107)).
+Outer17__q2__2 n =v
+  (n > 0 \/ Outer__q0__1 (-n)) /\ (n <= 0 \/ Repeat__q0__1 (n - 1)).
+Outer__q0__1 m =u ∃x104. m > 0 /\ (m <= 0 \/ Outer17__q2__2 x104).
+Repeat__q0__1 n =u
+  (n > 0 \/ Outer__q0__1 (-n)) /\ (n <= 0 \/ Repeat__q0__1 (n - 1)).

@@ -1,0 +1,36 @@
+%HES
+Sentry =v
+  Acc_read__q_ro__2
+   (\f__q_ro__0. 
+     \k__q_closed__2. \k__q_ro__2. f__q_ro__0 k__q_closed__2 k__q_ro__2)
+   true false
+  /\ Acc_close__q_ro__2
+      (\f__q_ro__0. 
+        \k__q_closed__2. \k__q_ro__2. f__q_ro__0 k__q_closed__2 k__q_ro__2)
+      (G48__q_closed__2 (\f__q_closed__0. f__q_closed__0))
+      (G48__q_ro__2 true false (\f__q_closed__0. f__q_closed__0)
+        (\f__q_ro__0. 
+          \k__q_closed__2. \k__q_ro__2. f__q_ro__0 k__q_closed__2 k__q_ro__2))
+  /\ Acc_read__q_untracked__2 (\k__q_untracked__0. k__q_untracked__0) true
+     /\ Acc_close__q_untracked__2 (\k__q_untracked__0. k__q_untracked__0)
+         (G48__q_untracked__2 true (\k__q_untracked__0. k__q_untracked__0)).
+G48__q_closed__2 file__q_closed__2 =v
+  file__q_closed__2 false /\ file__q_closed__2 false.
+G48__q_ro__2 k__q_closed__2 k__q_ro__2 file__q_closed__2 file__q_ro__2 =v
+  Acc_read__q_ro__2 file__q_ro__2 k__q_closed__2 k__q_ro__2
+  /\ Acc_close__q_ro__2 file__q_ro__2 (G48__q_closed__2 file__q_closed__2)
+      (G48__q_ro__2 k__q_closed__2 k__q_ro__2 file__q_closed__2 file__q_ro__2).
+G48__q_untracked__2 k__q_untracked__2 file__q_untracked__2 =v
+  Acc_read__q_untracked__2 file__q_untracked__2 k__q_untracked__2
+  /\ Acc_close__q_untracked__2 file__q_untracked__2
+      (G48__q_untracked__2 k__q_untracked__2 file__q_untracked__2).
+Acc_read__q_ro__2 x__q_ro__0 k__q_closed__2 k__q_ro__2 =v
+  x__q_ro__0 (\k2__q_closed__2. \k2__q_ro__2. k2__q_ro__2) k__q_closed__2
+   k__q_ro__2.
+Acc_read__q_untracked__2 x__q_untracked__0 k__q_untracked__0 =v
+  x__q_untracked__0 k__q_untracked__0.
+Acc_close__q_ro__2 x__q_ro__0 k__q_closed__2 k__q_ro__2 =v
+  x__q_ro__0 (\k2__q_closed__2. \k2__q_ro__2. k2__q_closed__2) k__q_closed__2
+   k__q_ro__2.
+Acc_close__q_untracked__2 x__q_untracked__0 k__q_untracked__0 =v
+  x__q_untracked__0 k__q_untracked__0.

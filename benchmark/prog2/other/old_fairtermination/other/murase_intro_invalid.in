@@ -1,0 +1,40 @@
+%HES
+Sentry =v
+  ∀x126. 
+   F__qa__0 x126 Lam_1617__q_called__1 Lam_1617__q_called__2 Lam_1617__qa__2.
+Lam_1617__q_called__2  =v true.
+Lam_1617__qa__2  =v true.
+F15__q_called__2 k__q_called__1 k__q_called__2 k__qa__2 =v
+  F__q_called__0 1 k__q_called__1 k__q_called__2 k__qa__2.
+F15__qa__2 k__q_called__1 k__q_called__2 k__qa__2 =v
+  F__qa__0 1 k__q_called__1 k__q_called__2 k__qa__2.
+Lam_1617__q_called__1  =u true.
+F__q_called__1 x k__q_called__1 k__q_called__2 k__qa__2 =u
+  (x >= 0 \/ k__q_called__1)
+  /\ (x < 0
+      \/ (x != 0 \/ k__qa__2)
+         /\ (x = 0
+             \/ F__q_called__1 1
+                 (F15__q_called__1 k__q_called__1 k__q_called__2 k__qa__2)
+                 (F15__q_called__2 k__q_called__2 k__q_called__2 k__qa__2)
+                 (F15__qa__2 k__q_called__2 k__q_called__2 k__qa__2))).
+F15__q_called__1 k__q_called__1 k__q_called__2 k__qa__2 =u
+  F__q_called__0 1 k__q_called__1 k__q_called__2 k__qa__2.
+F__q_called__0 x k__q_called__1 k__q_called__2 k__qa__2 =v
+  (x >= 0 \/ k__q_called__1)
+  /\ (x < 0
+      \/ (x != 0 \/ k__qa__2)
+         /\ (x = 0
+             \/ F__q_called__1 1
+                 (F15__q_called__1 k__q_called__1 k__q_called__2 k__qa__2)
+                 (F15__q_called__2 k__q_called__2 k__q_called__2 k__qa__2)
+                 (F15__qa__2 k__q_called__2 k__q_called__2 k__qa__2))).
+F__qa__0 x k__q_called__1 k__q_called__2 k__qa__2 =v
+  (x >= 0 \/ k__q_called__1)
+  /\ (x < 0
+      \/ (x != 0 \/ k__qa__2)
+         /\ (x = 0
+             \/ F__q_called__1 1
+                 (F15__q_called__1 k__q_called__1 k__q_called__2 k__qa__2)
+                 (F15__q_called__2 k__q_called__2 k__q_called__2 k__qa__2)
+                 (F15__qa__2 k__q_called__2 k__q_called__2 k__qa__2))).

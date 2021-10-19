@@ -1,0 +1,20 @@
+%HES
+Sentry =v
+  ∀x207. 
+   x207 <= 0
+   \/ Update__qa__0 (\i. \k___qa__0. k___qa__0 0) 0 x207
+       (\ar__qa__1. Loop__qa__0 ar__qa__1).
+Loop76__qa__1 ar_x__qa__0 ar_x__qa__1 b =u
+  b != 0
+  \/ ar_x__qa__0 0
+      (\x. 
+        Update__qa__0 ar_x__qa__1 0 (x - 1)
+         (\ar_x___qa__1. Loop__qa__0 ar_x___qa__1)).
+Update83__qa__1 i x ar__qa__0 j k___qa__0 =u
+  (j != i \/ k___qa__0 x) /\ (j = i \/ ar__qa__0 j k___qa__0).
+Check__qa__1 ar__qa__0 k__qa__0 =u
+  ar__qa__0 0 (\x. (x != 0 \/ k__qa__0 1) /\ (x = 0 \/ k__qa__0 0)).
+Loop__qa__0 ar_x__qa__1 =v
+  Check__qa__1 ar_x__qa__1 (Loop76__qa__1 ar_x__qa__1 ar_x__qa__1).
+Update__qa__0 ar__qa__1 i x k__qa__0 =v
+  k__qa__0 (Update83__qa__1 i x ar__qa__1).

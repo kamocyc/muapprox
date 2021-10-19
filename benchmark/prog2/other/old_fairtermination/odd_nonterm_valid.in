@@ -1,0 +1,16 @@
+%HES
+Sentry =v
+  ∀x221. 
+   x221 <= 0
+   \/ x221 = 0
+      \/ F__qa__2 x221 true true true /\ F__qb__3 (x221 - 1) true true true.
+F__qb__3 x k__q_called__1 k__q_called__2 k__q_called__3 =u
+  (x != 0 \/ k__q_called__1)
+  /\ (x = 0
+      \/ F__qa__2 x k__q_called__2 k__q_called__2 k__q_called__3
+         /\ F__qb__3 (x - 1) k__q_called__3 k__q_called__3 k__q_called__3).
+F__qa__2 x k__q_called__1 k__q_called__2 k__q_called__3 =v
+  (x != 0 \/ k__q_called__1)
+  /\ (x = 0
+      \/ F__qa__2 x k__q_called__2 k__q_called__2 k__q_called__3
+         /\ F__qb__3 (x - 1) k__q_called__3 k__q_called__3 k__q_called__3).

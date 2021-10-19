@@ -1,0 +1,15 @@
+%HES
+Sentry =v ∀x658. Xx__q_ic__0 x658 /\ Update_max__q_ic__0 x658.
+Update_max__qb__3 x_ =u ∀x662. Update_max47__q_called__1 x_ x662.
+Update_max__qa__2 x_ =v ∀x665. Update_max47__q_called__1 x_ x665.
+Update_max47__q_called__1 x_ y =u
+  Yy__q_ic__0 x_ y /\ Update_max_2__q_ic__0 x_ y.
+Update_max_248__q_called__1 y_ x_ b =u
+  (b != 1 \/ Update_max__qb__3 y_) /\ (b = 1 \/ Update_max__qa__2 x_).
+Check__q_called__1 x_ y_ k__q_called__0 =u
+  (x_ >= y_ \/ k__q_called__0 1) /\ (x_ < y_ \/ k__q_called__0 0).
+Update_max__q_ic__0 x_ =v ∀x672. Update_max47__q_called__1 x_ x672.
+Yy__q_ic__0 x_ y_ =v Yy__q_ic__0 x_ y_ /\ Update_max_2__q_ic__0 x_ y_.
+Update_max_2__q_ic__0 x_ y_ =v
+  Check__q_called__1 x_ y_ (Update_max_248__q_called__1 y_ x_).
+Xx__q_ic__0 x_ =v Xx__q_ic__0 x_ /\ Update_max__q_ic__0 x_.

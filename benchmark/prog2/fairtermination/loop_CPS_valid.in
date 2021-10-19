@@ -1,0 +1,12 @@
+%HES
+Sentry =v ∀x557. x557 > 0 /\ Loop__q_0__0 Ev_a__q_0__0 x557 \/ x557 <= 0.
+Cont__q_b__2 x =u
+  (x <= 0 \/ App__q_0__0 Ev_a__q_0__0 Loop__q_0__0 x)
+  /\ (x > 0 \/ App__q_0__0 Ev_b__q_0__0 Loop__q_0__0 x).
+Cont__q_a__1 x =v
+  (x <= 0 \/ App__q_0__0 Ev_a__q_0__0 Loop__q_0__0 x)
+  /\ (x > 0 \/ App__q_0__0 Ev_b__q_0__0 Loop__q_0__0 x).
+App__q_0__0 x__q_0__0 f__q_0__0 x2 =u f__q_0__0 x__q_0__0 x2.
+Ev_a__q_0__0 k__q_a__1 k__q_b__2 x =u k__q_a__1 x.
+Ev_b__q_0__0 k__q_a__1 k__q_b__2 x =u k__q_b__2 x.
+Loop__q_0__0 ev__q_0__0 x =u ev__q_0__0 Cont__q_a__1 Cont__q_b__2 x.

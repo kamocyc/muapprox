@@ -1,0 +1,19 @@
+%HES
+Sentry =v
+  ∀x300. 
+   ∀x307. 
+    Rumble__q_ic__0 x307 x300 (Xx44__q0__1 x300) /\ Xx__q_ic__0 x300 x307.
+Rumble__q0__1 x y k__q0__1 =u
+  (x >= y
+   \/ Rumble__q0__1 (x + 1) y k__q0__1 /\ Rumble__q0__1 x (y - 1) k__q0__1)
+  /\ (x < y \/ k__q0__1 x).
+Xx44__q0__1 fa fr =u
+  fa >= fr
+  \/ Rumble__q0__1 (fa + 1) fr (\fr2. true)
+     /\ Rumble__q0__1 fa (fr - 1) (\fr2. true).
+Rumble__q_ic__0 x y k__q0__1 =v
+  (x >= y
+   \/ Rumble__q0__1 (x + 1) y k__q0__1 /\ Rumble__q0__1 x (y - 1) k__q0__1)
+  /\ (x < y \/ k__q0__1 x).
+Xx__q_ic__0 fa fb =v
+  Rumble__q_ic__0 fb fa (Xx44__q0__1 fa) /\ Xx__q_ic__0 fa fb.

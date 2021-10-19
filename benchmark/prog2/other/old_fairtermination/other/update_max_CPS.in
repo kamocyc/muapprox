@@ -1,0 +1,15 @@
+%HES
+Sentry =v ∀x594. Update_max_CPS__qa__0 Ev_a__qa__0 x594.
+Cont__qb__3 x =u
+  ∀x597. 
+   (x >= x597 \/ Ev_b__qb__0 (Cont__qa__2 x597) (Cont__qb__3 x597))
+   /\ (x < x597 \/ Ev_a__qb__0 (Cont__qa__2 x) (Cont__qb__3 x)).
+Cont__qa__2 x =v
+  ∀x599. 
+   (x >= x599 \/ Update_max_CPS__qa__0 Ev_b__qa__0 x599)
+   /\ (x < x599 \/ Update_max_CPS__qa__0 Ev_a__qa__0 x).
+Ev_a__qa__0 k__qa__2 k__qb__3 =v k__qa__2.
+Ev_a__qb__0 k__qa__2 k__qb__3 =v k__qa__2.
+Ev_b__qa__0 k__qa__2 k__qb__3 =v k__qb__3.
+Ev_b__qb__0 k__qa__2 k__qb__3 =v k__qb__3.
+Update_max_CPS__qa__0 ev__qa__0 x =v ev__qa__0 (Cont__qa__2 x) (Cont__qb__3 x).

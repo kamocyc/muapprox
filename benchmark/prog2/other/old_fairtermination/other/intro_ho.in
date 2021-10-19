@@ -1,0 +1,24 @@
+%HES
+Sentry =v Randpos__qa__0 true true true.
+Rand4042__qb__3 r k2__qb__0 =u k2__qb__0 r.
+Randpos44__qb__3 k__qa__2 k__qa__3 k__qb__0 k__qb__3 fx__qb__0 =u
+  fx__qb__0
+   (\x. 
+     (x <= 0 \/ k__qb__0)
+     /\ (x > 0
+         \/ Rand__q_called__1
+             (Randpos44__qa__2 k__qa__2 k__qa__2 k__qa__3 k__qb__3)
+             (Randpos44__qb__3 k__qa__3 k__qa__3 k__qb__3 k__qb__3))).
+Rand4041__qa__2 r k2__qa__0 =v k2__qa__0 r.
+Randpos44__qa__2 k__qa__0 k__qa__2 k__qa__3 k__qb__3 fx__qa__0 =v
+  fx__qa__0
+   (\x. 
+     (x <= 0 \/ k__qa__0)
+     /\ (x > 0 \/ Randpos__qa__0 k__qa__2 k__qa__3 k__qb__3)).
+Rand__q_called__1 k__qa__2 k__qb__3 =u
+  ∀x2105. 
+   (0 > x2105 \/ k__qb__3 (Rand4042__qb__3 x2105))
+   /\ (0 <= x2105 \/ k__qa__2 (Rand4041__qa__2 x2105)).
+Randpos__qa__0 k__qa__2 k__qa__3 k__qb__3 =v
+  Rand__q_called__1 (Randpos44__qa__2 k__qa__2 k__qa__2 k__qa__3 k__qb__3)
+   (Randpos44__qb__3 k__qa__3 k__qa__3 k__qb__3 k__qb__3).

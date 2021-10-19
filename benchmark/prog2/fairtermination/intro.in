@@ -1,0 +1,18 @@
+%HES
+Sentry =v
+  Rand__q_0__0 (Randpos21__q_a__1 false false false false)
+   (Randpos21__q_b__2 false false false false).
+Randpos21__q_b__2 k__q_a__1 k__q_a__2 k__q_b__0 k__q_b__2 x =v
+  (0 >= x \/ k__q_b__0)
+  /\ (0 < x
+      \/ Rand__q_0__0
+          (Randpos21__q_a__1 k__q_a__1 k__q_a__1 k__q_a__2 k__q_b__2)
+          (Randpos21__q_b__2 k__q_a__2 k__q_a__2 k__q_b__2 k__q_b__2)).
+Randpos21__q_a__1 k__q_a__0 k__q_a__1 k__q_a__2 k__q_b__2 x =u
+  (0 >= x \/ k__q_a__0)
+  /\ (0 < x
+      \/ Rand__q_0__0
+          (Randpos21__q_a__1 k__q_a__1 k__q_a__1 k__q_a__2 k__q_b__2)
+          (Randpos21__q_b__2 k__q_a__2 k__q_a__2 k__q_b__2 k__q_b__2)).
+Rand__q_0__0 k__q_a__1 k__q_b__2 =v
+  ∃x425. (0 > x425 \/ k__q_b__2 x425) /\ (0 <= x425 \/ k__q_a__1 x425).

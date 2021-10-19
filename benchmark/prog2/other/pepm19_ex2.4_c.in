@@ -1,0 +1,16 @@
+%HES
+Sentry =v
+  Lam_22__q0__0 0
+  /\ Integer26__q1__2 1 (\x24. Lam_22__q0__0 x24) (\x24. Lam_22__q0__0 x24)
+     /\ Integer26__q1__2 (-1) (\x24. Lam_22__q0__0 x24)
+         (\x24. Lam_22__q0__0 x24).
+Integer26__q1__2 x24 k25__q0__0 k25__q0__2 =v
+  k25__q0__0 x24
+  /\ Integer26__q1__2 (x24 + 1) k25__q0__2 k25__q0__2
+     /\ Integer26__q1__2 (x24 - 1) k25__q0__2 k25__q0__2.
+Lam_22__q0__0 y =v Repeat__q0__0 (\x. \k__q0__0. k__q0__0 (x - (y + 1))) 3.
+Fin__q0__0  =v true.
+Repeat__q0__0 f__q0__0 x =v
+  (x > 0 \/ Fin__q0__0)
+  /\ (x <= 0
+      \/ f__q0__0 x (Repeat__q0__0 f__q0__0) /\ Repeat__q0__0 f__q0__0 (x - 1)).

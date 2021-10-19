@@ -1,0 +1,9 @@
+%HES
+Sentry =v ∀x594. Ev_a__q_called__1 (Cont__qa__2 x594) (Cont__qb__3 x594).
+Cont__qb__3 x =u ∀x597. Cont28__q_called__1 x x597.
+Cont__qa__2 x =v ∀x599. Cont28__q_called__1 x x599.
+Ev_a__q_called__1 k__qa__2 k__qb__3 =u k__qa__2.
+Ev_b__q_called__1 k__qa__2 k__qb__3 =u k__qb__3.
+Cont28__q_called__1 x y =u
+  (x >= y \/ Ev_b__q_called__1 (Cont__qa__2 y) (Cont__qb__3 y))
+  /\ (x < y \/ Ev_a__q_called__1 (Cont__qa__2 x) (Cont__qb__3 x)).

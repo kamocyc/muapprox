@@ -1,0 +1,65 @@
+%HES
+Sentry =v
+  ∀x296332. 
+   ((x296332 >= 0
+     \/ x296332 = 0
+        \/ Walk78__t0_s2__1 (\t49. \k__t0_s2__150. k__t0_s2__150 (t49 - 1))
+            true (x296332 - 1))
+    /\ x296332 < 0
+    \/ x296332 >= 0
+       /\ (x296332 < 0
+           \/ Run__accept_S3__2 x296332
+               (\t37. \k__accept_S3__238. k__accept_S3__238 (t37 - 1)) false)
+    \/ (x296332 >= 0
+        \/ Walk__accept_S4__2 x296332
+            (\t43. \k__accept_S4__244. k__accept_S4__244 (t43 - 1)) false)
+       /\ x296332 < 0
+    \/ x296332 >= 0
+       /\ (x296332 < 0
+           \/ x296332 = 0
+              \/ Run79__t1_s5__1
+                  (\t55. \k__t1_s5__156. k__t1_s5__156 (t55 - 1)) true
+                  (x296332 - 1)))
+   /\ Life__accept_init__2 x296332.
+Walk__accept_S4__2 x60 f__accept_S4__261 k__accept_S4__262 =v
+  (x60 != 0 \/ k__accept_S4__262)
+  /\ (x60 = 0
+      \/ f__accept_S4__261 x60
+          (\r63. Walk__accept_S4__2 r63 f__accept_S4__261 k__accept_S4__262)).
+Run__accept_S3__2 x70 f__accept_S3__271 k__accept_S3__272 =v
+  (x70 != 0 \/ k__accept_S3__272)
+  /\ (x70 = 0
+      \/ f__accept_S3__271 x70
+          (\r_73. Run__accept_S3__2 r_73 f__accept_S3__271 k__accept_S3__272)).
+Life__accept_init__2 x83 =v
+  ((x83 >= 0
+    \/ x83 = 0
+       \/ Walk78__t0_s2__1 (\t49. \k__t0_s2__150. k__t0_s2__150 (t49 - 1)) true
+           (x83 - 1))
+   /\ x83 < 0
+   \/ x83 >= 0
+      /\ (x83 < 0
+          \/ Run__accept_S3__2 x83
+              (\t37. \k__accept_S3__238. k__accept_S3__238 (t37 - 1)) false)
+   \/ (x83 >= 0
+       \/ Walk__accept_S4__2 x83
+           (\t43. \k__accept_S4__244. k__accept_S4__244 (t43 - 1)) false)
+      /\ x83 < 0
+   \/ x83 >= 0
+      /\ (x83 < 0
+          \/ x83 = 0
+             \/ Run79__t1_s5__1 (\t55. \k__t1_s5__156. k__t1_s5__156 (t55 - 1))
+                 true (x83 - 1)))
+  /\ Life__accept_init__2 x83.
+Walk__t0_s2__1 x84 f__t0_s2__185 k__t0_s2__186 =u
+  (x84 != 0 \/ k__t0_s2__186)
+  /\ (x84 = 0
+      \/ f__t0_s2__185 x84 (Walk78__t0_s2__1 f__t0_s2__185 k__t0_s2__186)).
+Walk78__t0_s2__1 f__t0_s2__187 k__t0_s2__188 r89 =u
+  Walk__t0_s2__1 r89 f__t0_s2__187 k__t0_s2__188.
+Run__t1_s5__1 x90 f__t1_s5__191 k__t1_s5__192 =u
+  (x90 != 0 \/ k__t1_s5__192)
+  /\ (x90 = 0
+      \/ f__t1_s5__191 x90 (Run79__t1_s5__1 f__t1_s5__191 k__t1_s5__192)).
+Run79__t1_s5__1 f__t1_s5__193 k__t1_s5__194 r_95 =u
+  Run__t1_s5__1 r_95 f__t1_s5__193 k__t1_s5__194.

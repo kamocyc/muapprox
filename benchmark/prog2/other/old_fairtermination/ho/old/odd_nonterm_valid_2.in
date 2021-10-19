@@ -1,0 +1,26 @@
+%HES
+Sentry =v
+  ∀x1841. 
+   x1841 <= 0
+   \/ F__q_ic__0 x1841 true true true /\ Xx__q_ic__0 x1841 true true true.
+F4546__qb__3 k__q_called__1 k__q_called__2 k__q_called__3 fx_ =u
+  Check__q_called__1 fx_
+   (F45__q_called__1 k__q_called__1 k__q_called__2 k__q_called__3 fx_).
+Pred1__qb__3 fx k__qb__0 =u k__qb__0 (fx - 1).
+F__qa__2 fx k__q_called__1 k__q_called__2 k__q_called__3 =v
+  Check__q_called__1 fx
+   (F45__q_called__1 k__q_called__1 k__q_called__2 k__q_called__3 fx).
+F45__q_called__1 k__q_called__0 k__q_called__2 k__q_called__3 fx b =u
+  (b != 1 \/ k__q_called__0)
+  /\ (b = 1
+      \/ F__qa__2 fx k__q_called__2 k__q_called__2 k__q_called__3
+         /\ Pred1__qb__3 fx
+             (F4546__qb__3 k__q_called__3 k__q_called__3 k__q_called__3)).
+Check__q_called__1 fx k__q_called__0 =u
+  (fx != 0 \/ k__q_called__0 1) /\ (fx = 0 \/ k__q_called__0 0).
+F__q_ic__0 fx k__q_called__1 k__q_called__2 k__q_called__3 =v
+  Check__q_called__1 fx
+   (F45__q_called__1 k__q_called__1 k__q_called__2 k__q_called__3 fx).
+Xx__q_ic__0 fx k__q_called__1 k__q_called__2 k__q_called__3 =v
+  F__q_ic__0 fx k__q_called__1 k__q_called__2 k__q_called__3
+  /\ Xx__q_ic__0 fx k__q_called__1 k__q_called__2 k__q_called__3.

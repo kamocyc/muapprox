@@ -1,0 +1,96 @@
+%HES
+Sentry =v
+  F__q_any__0 true (\f__q_any__0. \k__q_any__2. f__q_any__0 k__q_any__2)
+   (\f__q_any__0. \k__q_any__2. f__q_any__0 k__q_any__2)
+  /\ F__q_ro__0 true false (\f__q_closed__0. \k__q_closed__0. f__q_closed__0)
+      (\f__q_ro__0. 
+        \k__q_closed__2. \k__q_ro__2. f__q_ro__0 k__q_closed__2 k__q_ro__2)
+      (\f__q_closed__0. \k__q_closed__0. k__q_closed__0)
+      (\k__q_ro__0. k__q_ro__0)
+  /\ F__q_wo__0 true false (\f__q_closed__0. \k__q_closed__0. k__q_closed__0)
+      (\k__q_wo__0. k__q_wo__0)
+      (\f__q_closed__0. \k__q_closed__0. f__q_closed__0)
+      (\f__q_wo__0. 
+        \k__q_closed__2. \k__q_wo__2. f__q_wo__0 k__q_closed__2 k__q_wo__2)
+     /\ F__q_untracked__0 true (\k__q_untracked__0. k__q_untracked__0)
+         (\k__q_untracked__0. k__q_untracked__0).
+F88__q_any__2 y__q_any__0 k__q_any__2 =v
+  y__q_any__0 Acc_close96__q_any__0 k__q_any__2.
+F88__q_closed__2 y__q_closed__0 k__q_closed__0 =v
+  y__q_closed__0 false k__q_closed__0.
+F88__q_ro__2 y__q_ro__0 k__q_ro__0 =v y__q_ro__0 k__q_ro__0.
+F88__q_untracked__2 y__q_untracked__0 k__q_untracked__0 =v
+  y__q_untracked__0 k__q_untracked__0.
+F88__q_wo__2 y__q_wo__0 k__q_closed__2 k__q_wo__2 =v
+  y__q_wo__0 (\k2__q_closed__2. \k2__q_wo__2. k2__q_closed__2) k__q_closed__2
+   k__q_wo__2.
+F87__q_any__2 y__q_any__0 y__q_any__2 k__q_any__2 x__q_any__2 =v
+  y__q_any__0 (\k2__q_any__2. k2__q_any__2)
+   (F__q_any__0 k__q_any__2 x__q_any__2 y__q_any__2).
+F87__q_closed__2 y__q_closed__0 y__q_closed__2 k__q_closed__2 x__q_closed__2 =v
+  y__q_closed__0 false
+   (F__q_closed__0 k__q_closed__2 x__q_closed__2 y__q_closed__2).
+F87__q_ro__2 y__q_closed__2 y__q_ro__0 y__q_ro__2 k__q_closed__2 k__q_ro__2 x__q_closed__2 x__q_ro__2 =v
+  y__q_ro__0
+   (F__q_ro__0 k__q_closed__2 k__q_ro__2 x__q_closed__2 x__q_ro__2
+     y__q_closed__2 y__q_ro__2).
+F87__q_untracked__2 y__q_untracked__0 y__q_untracked__2 k__q_untracked__2 x__q_untracked__2 =v
+  y__q_untracked__0
+   (F__q_untracked__0 k__q_untracked__2 x__q_untracked__2 y__q_untracked__2).
+F87__q_wo__2 y__q_closed__2 y__q_wo__0 y__q_wo__2 k__q_closed__2 k__q_wo__2 x__q_closed__2 x__q_wo__2 =v
+  y__q_wo__0 (\k2__q_closed__2. \k2__q_wo__2. k2__q_wo__2)
+   (F__q_closed__0 k__q_closed__2 x__q_closed__2 y__q_closed__2)
+   (F__q_wo__0 k__q_closed__2 k__q_wo__2 x__q_closed__2 x__q_wo__2
+     y__q_closed__2 y__q_wo__2).
+Acc_read__q_any__2 x__q_any__0 k__q_any__2 =v
+  x__q_any__0 (\k2__q_any__2. k2__q_any__2) k__q_any__2.
+Acc_read__q_closed__2 x__q_closed__0 k__q_closed__0 =v
+  x__q_closed__0 false k__q_closed__0.
+Acc_read__q_ro__2 x__q_ro__0 k__q_closed__2 k__q_ro__2 =v
+  x__q_ro__0 (\k2__q_closed__2. \k2__q_ro__2. k2__q_ro__2) k__q_closed__2
+   k__q_ro__2.
+Acc_read__q_untracked__2 x__q_untracked__0 k__q_untracked__0 =v
+  x__q_untracked__0 k__q_untracked__0.
+Acc_read__q_wo__2 x__q_wo__0 k__q_wo__0 =v x__q_wo__0 k__q_wo__0.
+Acc_close__q_any__2 x__q_any__0 k__q_any__2 =v
+  x__q_any__0 Acc_close96__q_any__0 k__q_any__2.
+Acc_close__q_closed__2 x__q_closed__0 k__q_closed__0 =v
+  x__q_closed__0 false k__q_closed__0.
+Acc_close__q_ro__2 x__q_ro__0 k__q_closed__2 k__q_ro__2 =v
+  x__q_ro__0 (\k2__q_closed__2. \k2__q_ro__2. k2__q_closed__2) k__q_closed__2
+   k__q_ro__2.
+Acc_close__q_untracked__2 x__q_untracked__0 k__q_untracked__0 =v
+  x__q_untracked__0 k__q_untracked__0.
+Acc_close__q_wo__2 x__q_wo__0 k__q_wo__0 =v x__q_wo__0 k__q_wo__0.
+F__q_any__0 k__q_any__2 x__q_any__2 y__q_any__2 =v
+  Acc_close__q_any__2 x__q_any__2 (F88__q_any__2 y__q_any__2 k__q_any__2)
+  /\ Acc_read__q_any__2 x__q_any__2
+      (F87__q_any__2 y__q_any__2 y__q_any__2 k__q_any__2 x__q_any__2).
+F__q_closed__0 k__q_closed__2 x__q_closed__2 y__q_closed__2 =v
+  Acc_close__q_closed__2 x__q_closed__2
+   (F88__q_closed__2 y__q_closed__2 k__q_closed__2)
+  /\ Acc_read__q_closed__2 x__q_closed__2
+      (F87__q_closed__2 y__q_closed__2 y__q_closed__2 k__q_closed__2
+        x__q_closed__2).
+F__q_ro__0 k__q_closed__2 k__q_ro__2 x__q_closed__2 x__q_ro__2 y__q_closed__2 y__q_ro__2 =v
+  Acc_close__q_ro__2 x__q_ro__2
+   (F88__q_closed__2 y__q_closed__2 k__q_closed__2)
+   (F88__q_ro__2 y__q_ro__2 k__q_ro__2)
+  /\ Acc_read__q_ro__2 x__q_ro__2
+      (F87__q_closed__2 y__q_closed__2 y__q_closed__2 k__q_closed__2
+        x__q_closed__2)
+      (F87__q_ro__2 y__q_closed__2 y__q_ro__2 y__q_ro__2 k__q_closed__2
+        k__q_ro__2 x__q_closed__2 x__q_ro__2).
+F__q_untracked__0 k__q_untracked__2 x__q_untracked__2 y__q_untracked__2 =v
+  Acc_close__q_untracked__2 x__q_untracked__2
+   (F88__q_untracked__2 y__q_untracked__2 k__q_untracked__2)
+  /\ Acc_read__q_untracked__2 x__q_untracked__2
+      (F87__q_untracked__2 y__q_untracked__2 y__q_untracked__2
+        k__q_untracked__2 x__q_untracked__2).
+F__q_wo__0 k__q_closed__2 k__q_wo__2 x__q_closed__2 x__q_wo__2 y__q_closed__2 y__q_wo__2 =v
+  Acc_close__q_wo__2 x__q_wo__2
+   (F88__q_wo__2 y__q_wo__2 k__q_closed__2 k__q_wo__2)
+  /\ Acc_read__q_wo__2 x__q_wo__2
+      (F87__q_wo__2 y__q_closed__2 y__q_wo__2 y__q_wo__2 k__q_closed__2
+        k__q_wo__2 x__q_closed__2 x__q_wo__2).
+Acc_close96__q_any__0 k2__q_any__2 =v k2__q_any__2.

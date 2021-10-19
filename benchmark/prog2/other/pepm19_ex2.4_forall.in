@@ -1,0 +1,11 @@
+%HES
+Sentry =v
+  ∀x48. 
+   Lam_2223__q0__1 x48 3 (Repeat__q0__1 (Lam_2223__q0__1 x48))
+   /\ Repeat__q0__1 (Lam_2223__q0__1 x48) 2.
+Lam_2223__q0__1 y x k__q0__0 =u k__q0__0 (x - (y + 1)).
+Repeat__q0__1 f__q0__1 x =u
+  (x > 0 \/ Fin__q0__0)
+  /\ (x <= 0
+      \/ f__q0__1 x (Repeat__q0__1 f__q0__1) /\ Repeat__q0__1 f__q0__1 (x - 1)).
+Fin__q0__0  =v true.

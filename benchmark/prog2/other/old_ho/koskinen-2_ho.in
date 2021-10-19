@@ -1,0 +1,32 @@
+%HES
+Sentry =v
+  ∀x1928. 
+   ∀x1933. 
+    Update__q0__0 (\i. \k___q0__0. k___q0__0 0) 0 x1928
+     (\ar_a__q0__1. 
+       Update__q0__0 (\i. \k___q0__0. k___q0__0 0) 0 x1933
+        (\ar_b__q0__1. 
+          Rumble__q0__0 ar_b__q0__1 ar_a__q0__1
+           (\ar_r__q0__1. 
+             Rumble__q0__0 ar_a__q0__1 ar_r__q0__1 (\ar_r2__q0__1. true)))).
+Rumble135__q0__1 ar_x__q0__1 ar_y__q0__1 k__q0__0 k__q0__1 b =u
+  (b != 1
+   \/ ar_x__q0__1 0
+       (\x. 
+         Update__q0__0 ar_x__q0__1 0 (x + 1)
+          (\ar_x___q0__1. Rumble__q0__0 ar_x___q0__1 ar_y__q0__1 k__q0__1))
+      /\ ar_y__q0__1 0
+          (\x. 
+            Update__q0__0 ar_y__q0__1 0 (x - 1)
+             (\ar_y___q0__1. Rumble__q0__0 ar_x__q0__1 ar_y___q0__1 k__q0__1)))
+  /\ (b = 1 \/ k__q0__0 ar_x__q0__1).
+Update149__q0__1 i x ar__q0__0 j k___q0__0 =u
+  (j != i \/ k___q0__0 x) /\ (j = i \/ ar__q0__0 j k___q0__0).
+Check__q0__1 ar_x__q0__1 ar_y__q0__1 k__q0__1 =u
+  ar_x__q0__1 0
+   (\x. ar_y__q0__1 0 (\y. (x > y \/ k__q0__1 1) /\ (x <= y \/ k__q0__1 0))).
+Rumble__q0__0 ar_x__q0__1 ar_y__q0__1 k__q0__1 =v
+  Check__q0__1 ar_x__q0__1 ar_y__q0__1
+   (Rumble135__q0__1 ar_x__q0__1 ar_y__q0__1 k__q0__1 k__q0__1).
+Update__q0__0 ar__q0__1 i x k__q0__1 =v
+  k__q0__1 (Update149__q0__1 i x ar__q0__1).

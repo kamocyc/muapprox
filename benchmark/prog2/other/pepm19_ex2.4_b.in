@@ -1,0 +1,18 @@
+%HES
+Sentry =v Input__q0__0 1 (G__q0__1 3) (G__q0__3 3).
+G__q0__3 z x =u Repeat__q0__0 (Sub__q0__1 x) z.
+Input__q1__3 x k__q0__1 k__q0__3 =u
+  k__q0__1 x \/ Input__q1__3 (x - 1) k__q0__3 k__q0__3.
+Repeat__q0__1 f__q0__1 x =u
+  (x > 0 \/ Fin__q0__0)
+  /\ (x <= 0
+      \/ f__q0__1 x (Repeat__q0__1 f__q0__1) /\ Repeat__q0__1 f__q0__1 (x - 1)).
+Sub__q0__1 x y k__q0__0 =u k__q0__0 (y - x).
+G__q0__1 z x =u Repeat__q0__0 (Sub__q0__1 x) z.
+Repeat__q0__0 f__q0__1 x =v
+  (x > 0 \/ Fin__q0__0)
+  /\ (x <= 0
+      \/ f__q0__1 x (Repeat__q0__1 f__q0__1) /\ Repeat__q0__1 f__q0__1 (x - 1)).
+Fin__q0__0  =v true.
+Input__q0__0 x k__q0__1 k__q0__3 =v
+  k__q0__1 x \/ Input__q1__3 (x - 1) k__q0__3 k__q0__3.

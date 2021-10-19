@@ -1,0 +1,29 @@
+%HES
+Sentry =v
+  ∀x1694. 
+   F__q_ic__0 (Const__q_called__1 (\k__q_ic__0. k__q_ic__0 x1694))
+   /\ Xx__q_ic__0 (Const__q_called__1 (\k__q_ic__0. k__q_ic__0 x1694)).
+Const__q_called__1 x__q_ic__1 k__q_called__1 =u
+  k__q_called__1 x__q_ic__1 x__q_ic__1.
+F67__q_called__1 fn__q_ic__0 fn__q_ic__1 =u
+  fn__q_ic__0
+   (Check69__q_ic__0
+     (\b. 
+       b != 1
+       \/ F__q_ic__0
+           (Const__q_called__1
+             (\k__q_ic__0. fn__q_ic__1 (\x. k__q_ic__0 (x - 1))))))
+  /\ Check__q_ic__0 fn__q_ic__0
+      (\b. 
+        b != 1
+        \/ F__q_ic__0
+            (Const__q_called__1
+              (\k__q_ic__0. fn__q_ic__1 (\x. k__q_ic__0 (x - 1))))).
+F__q_ic__0 g__q_called__1 =v g__q_called__1 F67__q_called__1.
+Xx__q_ic__0 g__q_called__1 =v
+  F__q_ic__0 g__q_called__1 /\ Xx__q_ic__0 g__q_called__1.
+Check__q_ic__0 f___q_ic__0 k__q_ic__0 =v
+  f___q_ic__0 (Check69__q_ic__0 k__q_ic__0)
+  /\ Check__q_ic__0 f___q_ic__0 k__q_ic__0.
+Check69__q_ic__0 k__q_ic__0 x =v
+  (x <= 0 \/ k__q_ic__0 1) /\ (x > 0 \/ k__q_ic__0 0).

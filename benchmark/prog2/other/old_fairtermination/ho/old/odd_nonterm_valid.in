@@ -1,0 +1,41 @@
+%HES
+Sentry =v
+  ∀x3625. 
+   x3625 <= 0
+   \/ F__q_ic__0 (\k__q_called__0. k__q_called__0 x3625)
+       (\k__q_called__0. k__q_called__0 x3625)
+       (\k__q_called__0. k__q_called__0 x3625) true true true
+      /\ Xx__q_ic__0 (\k__q_called__0. k__q_called__0 x3625)
+          (\k__q_called__0. k__q_called__0 x3625)
+          (\k__q_called__0. k__q_called__0 x3625) true true true.
+F__qb__3 fx__q_called__1 fx__q_called__2 fx__q_called__3 k__q_called__1 k__q_called__2 k__q_called__3 =u
+  Check__q_called__1 fx__q_called__1
+   (F51__q_called__1 k__q_called__1 k__q_called__2 k__q_called__3
+     fx__q_called__2 fx__q_called__3).
+Pred1__q_called__3 fx__q_called__0 k__q_called__0 =u
+  fx__q_called__0 (\x. k__q_called__0 (x - 1)).
+F__qa__2 fx__q_called__1 fx__q_called__2 fx__q_called__3 k__q_called__1 k__q_called__2 k__q_called__3 =v
+  Check__q_called__1 fx__q_called__1
+   (F51__q_called__1 k__q_called__1 k__q_called__2 k__q_called__3
+     fx__q_called__2 fx__q_called__3).
+F51__q_called__1 k__q_called__0 k__q_called__2 k__q_called__3 fx__q_called__2 fx__q_called__3 b =u
+  (b != 1 \/ k__q_called__0)
+  /\ (b = 1
+      \/ F__qa__2 fx__q_called__2 fx__q_called__2 fx__q_called__3
+          k__q_called__2 k__q_called__2 k__q_called__3
+         /\ F__qb__3 (Pred1__q_called__3 fx__q_called__3)
+             (Pred1__q_called__3 fx__q_called__3)
+             (Pred1__q_called__3 fx__q_called__3) k__q_called__3 k__q_called__3
+             k__q_called__3).
+Check__q_called__1 fx__q_called__0 k__q_called__0 =u
+  fx__q_called__0
+   (\x. (x != 0 \/ k__q_called__0 1) /\ (x = 0 \/ k__q_called__0 0)).
+F__q_ic__0 fx__q_called__1 fx__q_called__2 fx__q_called__3 k__q_called__1 k__q_called__2 k__q_called__3 =v
+  Check__q_called__1 fx__q_called__1
+   (F51__q_called__1 k__q_called__1 k__q_called__2 k__q_called__3
+     fx__q_called__2 fx__q_called__3).
+Xx__q_ic__0 fx__q_called__1 fx__q_called__2 fx__q_called__3 k__q_called__1 k__q_called__2 k__q_called__3 =v
+  F__q_ic__0 fx__q_called__1 fx__q_called__2 fx__q_called__3 k__q_called__1
+   k__q_called__2 k__q_called__3
+  /\ Xx__q_ic__0 fx__q_called__1 fx__q_called__2 fx__q_called__3 k__q_called__1
+      k__q_called__2 k__q_called__3.

@@ -1,0 +1,24 @@
+%HES
+Sentry =v ∀x1373. Life__q0__0 x1373.
+App__qp__1 f__qp__1 x i k__qp__1 =u
+  f__qp__1 x (\x. \k2__qp__0. k2__qp__0 (x - i)) k__qp__1.
+Walk__qp__1 x f__qp__1 k__qp__1 =u
+  (x >= 0 \/ k__qp__1)
+  /\ (x < 0 \/ f__qp__1 x (Walk81__qp__1 f__qp__1 k__qp__1)).
+Walk81__qp__1 f__qp__1 k__qp__1 x_ =u
+  (x_ >= 0 \/ k__qp__1)
+  /\ (x_ < 0 \/ f__qp__1 x_ (Walk81__qp__1 f__qp__1 k__qp__1)).
+Run__qp__1 x f__qp__1 k__qp__1 =u
+  (x >= 0 \/ k__qp__1)
+  /\ (x < 0 \/ f__qp__1 x (Run82__qp__1 f__qp__1 f__qp__1 k__qp__1)).
+Run82__qp__1 f__qp__0 f__qp__1 k__qp__1 x_ =u
+  f__qp__0 x_
+   (\x__. 
+     (x__ >= 0 \/ k__qp__1)
+     /\ (x__ < 0 \/ f__qp__1 x__ (Run82__qp__1 f__qp__1 f__qp__1 k__qp__1))).
+Life85__qp__1  =u true.
+Life84__qp__1  =u true.
+Life__q0__0 x =v
+  (x >= 0 \/ App__qp__1 Walk__qp__1 x 1 Life85__qp__1)
+  /\ (x < 0 \/ App__qp__1 Run__qp__1 x 1 Life84__qp__1)
+  /\ Life__q0__0 x.

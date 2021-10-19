@@ -1,0 +1,15 @@
+%HES
+Sentry =v
+  F__q0__0 (\k__q0__0. \k__qf__1. k__qf__1 /\ k__q0__0) (\k__q0__0. k__q0__0)
+   true 0 true.
+Loop__qf__1 i y__qf__0 y__qf__1 n =u
+  (i >= n \/ Loop__qf__1 (i + 1) y__qf__1 y__qf__1 n) /\ (i < n \/ y__qf__0).
+F56__qf__1 y__qf__0 y__qf__1 n =u
+  (0 >= n \/ Loop__qf__1 1 y__qf__1 y__qf__1 n) /\ (0 < n \/ y__qf__0).
+Loop__q0__0 i y__q0__0 n k__q0__0 =v
+  (i >= n \/ Loop__q0__0 (i + 1) y__q0__0 n k__q0__0)
+  /\ (i < n \/ y__q0__0 k__q0__0).
+G__q0__0 y__q0__0 n k__q0__0 =v Loop__q0__0 0 y__q0__0 n k__q0__0.
+F__q0__0 x__q0__0 y__q0__0 y__qf__1 n k__q0__0 =v
+  F__q0__0 x__q0__0 y__q0__0 y__qf__1 (n + 1) k__q0__0
+  /\ x__q0__0 (G__q0__0 y__q0__0 n k__q0__0) (F56__qf__1 y__qf__1 y__qf__1 n).

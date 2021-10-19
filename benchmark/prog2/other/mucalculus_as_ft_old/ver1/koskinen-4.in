@@ -1,0 +1,66 @@
+%HES
+Sentry =v
+  ∀x5869. 
+   (∀x5876. Life86__q_fin_p__2 x5869 x5876)
+   \/ (∀x5883. Life86__q_inf_p__1 x5869 x5883).
+App__q_fin_p_p__3 f__q_fin_p_p__3 x i k__q_fin_p_p__3 =u
+  f__q_fin_p_p__3 x (\x. \k2__q_fin_p_p__0. k2__q_fin_p_p__0 (x - i))
+   k__q_fin_p_p__3.
+Walk__q_fin_p_p__3 x f__q_fin_p_p__3 k__q_fin_p_p__3 =u
+  (x >= 0 \/ k__q_fin_p_p__3)
+  /\ (x < 0
+      \/ f__q_fin_p_p__3 x
+          (Walk83__q_fin_p_p__3 f__q_fin_p_p__3 k__q_fin_p_p__3)).
+Walk83__q_fin_p_p__3 f__q_fin_p_p__3 k__q_fin_p_p__3 x_ =u
+  (x_ >= 0 \/ k__q_fin_p_p__3)
+  /\ (x_ < 0
+      \/ f__q_fin_p_p__3 x_
+          (Walk83__q_fin_p_p__3 f__q_fin_p_p__3 k__q_fin_p_p__3)).
+Run__q_fin_p_p__3 x f__q_fin_p_p__3 k__q_fin_p_p__3 =u
+  (x >= 0 \/ k__q_fin_p_p__3)
+  /\ (x < 0
+      \/ f__q_fin_p_p__3 x
+          (Run84__q_fin_p_p__3 f__q_fin_p_p__3 f__q_fin_p_p__3 k__q_fin_p_p__3)).
+Run84__q_fin_p_p__3 f__q_fin_p_p__0 f__q_fin_p_p__3 k__q_fin_p_p__3 x_ =u
+  f__q_fin_p_p__0 x_
+   (\x__. 
+     (x__ >= 0 \/ k__q_fin_p_p__3)
+     /\ (x__ < 0
+         \/ f__q_fin_p_p__3 x__
+             (Run84__q_fin_p_p__3 f__q_fin_p_p__3 f__q_fin_p_p__3
+               k__q_fin_p_p__3))).
+Life8688__q_fin_p_p__3  =u false.
+Life8687__q_fin_p_p__3  =u false.
+Life86__q_fin_p__2 x y =v
+  (y <= 0
+   \/ (x >= 0
+       \/ App__q_fin_p_p__3 Walk__q_fin_p_p__3 x 1 Life8688__q_fin_p_p__3)
+      /\ (x < 0
+          \/ App__q_fin_p_p__3 Run__q_fin_p_p__3 x 1 Life8687__q_fin_p_p__3))
+  /\ (y > 0 \/ (∀x5886. Life86__q_fin_p__2 x x5886)).
+App__q_inf_p__1 f__q_inf_p__1 x i k__q_inf_p__1 =u
+  f__q_inf_p__1 x (\x. \k2__q_inf_p__0. k2__q_inf_p__0 (x - i)) k__q_inf_p__1.
+Walk__q_inf_p__1 x f__q_inf_p__1 k__q_inf_p__1 =u
+  (x >= 0 \/ k__q_inf_p__1)
+  /\ (x < 0 \/ f__q_inf_p__1 x (Walk83__q_inf_p__1 f__q_inf_p__1 k__q_inf_p__1)).
+Walk83__q_inf_p__1 f__q_inf_p__1 k__q_inf_p__1 x_ =u
+  (x_ >= 0 \/ k__q_inf_p__1)
+  /\ (x_ < 0
+      \/ f__q_inf_p__1 x_ (Walk83__q_inf_p__1 f__q_inf_p__1 k__q_inf_p__1)).
+Run__q_inf_p__1 x f__q_inf_p__1 k__q_inf_p__1 =u
+  (x >= 0 \/ k__q_inf_p__1)
+  /\ (x < 0
+      \/ f__q_inf_p__1 x
+          (Run84__q_inf_p__1 f__q_inf_p__1 f__q_inf_p__1 k__q_inf_p__1)).
+Run84__q_inf_p__1 f__q_inf_p__0 f__q_inf_p__1 k__q_inf_p__1 x_ =u
+  f__q_inf_p__0 x_
+   (\x__. 
+     (x__ >= 0 \/ k__q_inf_p__1)
+     /\ (x__ < 0
+         \/ f__q_inf_p__1 x__
+             (Run84__q_inf_p__1 f__q_inf_p__1 f__q_inf_p__1 k__q_inf_p__1))).
+Life86__q_inf_p__1 x y =u
+  (y <= 0
+   \/ (x >= 0 \/ App__q_inf_p__1 Walk__q_inf_p__1 x 1 true)
+      /\ (x < 0 \/ App__q_inf_p__1 Run__q_inf_p__1 x 1 true))
+  /\ (y > 0 \/ (∀x5888. Life86__q_inf_p__1 x x5888)).

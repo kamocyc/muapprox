@@ -1,0 +1,31 @@
+%HES
+Sentry =v
+  F__q_0__1 (\k__q_close1__2. k__q_close1__2 1) true true 1
+  /\ F71__q_close1__2 true true true 0 1.
+Loop___q_close1__2 flag i n y__q_0__1 y__q_0__2 y__q_close1__0 y__q_close1__2 =u
+  (i > n
+   \/ (flag != 1
+       \/ Loop___q_close1__2 flag (i + 1) n y__q_0__2 y__q_0__2 y__q_close1__2
+           y__q_close1__2)
+      /\ (flag = 1
+          \/ Loop___q_0__1 flag (i + 1) n y__q_0__1 y__q_0__1 y__q_0__2
+              y__q_close1__2))
+  /\ (i <= n \/ y__q_close1__0).
+F71__q_close1__2 y__q_0__1 y__q_0__2 y__q_close1__2 n flag =u
+  (flag != 1
+   \/ Loop___q_close1__2 flag 1 n y__q_0__2 y__q_0__2 y__q_close1__2
+       y__q_close1__2)
+  /\ (flag = 1
+      \/ Loop___q_0__1 flag 1 n y__q_0__1 y__q_0__1 y__q_0__2 y__q_close1__2).
+Loop___q_0__1 flag i n y__q_0__0 y__q_0__1 y__q_0__2 y__q_close1__2 =v
+  (i > n
+   \/ (flag != 1
+       \/ Loop___q_close1__2 flag (i + 1) n y__q_0__2 y__q_0__2 y__q_close1__2
+           y__q_close1__2)
+      /\ (flag = 1
+          \/ Loop___q_0__1 flag (i + 1) n y__q_0__1 y__q_0__1 y__q_0__2
+              y__q_close1__2))
+  /\ (i <= n \/ y__q_0__0).
+F__q_0__1 x__q_0__1 y__q_0__2 y__q_close1__2 n =v
+  F__q_0__1 x__q_0__1 y__q_0__2 y__q_close1__2 (n + 1)
+  /\ x__q_0__1 (F71__q_close1__2 y__q_0__2 y__q_0__2 y__q_close1__2 n).

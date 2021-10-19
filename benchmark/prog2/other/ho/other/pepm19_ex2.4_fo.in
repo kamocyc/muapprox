@@ -1,0 +1,28 @@
+%HES
+Sentry =v
+  (∀x697. Xx__q_ic__0 0 x697 /\ Repeat__q_ic__0 (Xx33__q_ic__0 0) x697)
+  \/ Integer38__q1__3 1
+      (\x36. 
+        ∀x697. 
+         Xx__q_ic__0 x36 x697 /\ Repeat__q_ic__0 (Xx33__q_ic__0 x36) x697)
+      (\x36. 
+        ∀x697. 
+         Xx__q_ic__0 x36 x697 /\ Repeat__q_ic__0 (Xx33__q_ic__0 x36) x697)
+     \/ Integer38__q1__3 (-1)
+         (\x36. 
+           ∀x697. 
+            Xx__q_ic__0 x36 x697 /\ Repeat__q_ic__0 (Xx33__q_ic__0 x36) x697)
+         (\x36. 
+           ∀x697. 
+            Xx__q_ic__0 x36 x697 /\ Repeat__q_ic__0 (Xx33__q_ic__0 x36) x697).
+Integer38__q1__3 x36 k37__q0__1 k37__q0__3 =u
+  k37__q0__1 x36
+  \/ Integer38__q1__3 (x36 + 1) k37__q0__3 k37__q0__3
+     \/ Integer38__q1__3 (x36 - 1) k37__q0__3 k37__q0__3.
+Repeat__q_ic__0 f__q_ic__0 x =v
+  x <= 0
+  \/ f__q_ic__0 x (Repeat__q_ic__0 f__q_ic__0)
+     /\ Repeat__q_ic__0 f__q_ic__0 (x - 1).
+Xx__q_ic__0 fy fz =v
+  Xx__q_ic__0 fy fz /\ Repeat__q_ic__0 (Xx33__q_ic__0 fy) fz.
+Xx33__q_ic__0 fy x k__q_ic__0 =v k__q_ic__0 (x - (fy + 1)).

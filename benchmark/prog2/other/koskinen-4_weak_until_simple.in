@@ -1,0 +1,26 @@
+%HES
+Sentry =v
+  ∀x172. 
+   ((x172 >= 0 \/ Walk__t0_s2__2 x172) /\ x172 < 0
+    \/ x172 >= 0 /\ (x172 < 0 \/ Run__accept_S3__2 x172)
+       \/ (x172 >= 0 \/ Walk__accept_S4__2 x172) /\ x172 < 0
+          \/ x172 >= 0 /\ (x172 < 0 \/ Run__t1_s5__2 x172))
+   /\ Life__accept_init__2 x172.
+Walk__accept_S4__2 x =v x != 0 /\ (x = 0 \/ Walk__accept_S4__2 (x - 1)).
+Walk__t0_s2__2 x =v
+  (x != 0 \/ Ha1__t0_s2__1) /\ (x = 0 \/ Walk__t0_s2__1 (x - 1)).
+Run__accept_S3__2 x =v x != 0 /\ (x = 0 \/ Run__accept_S3__2 (x - 1)).
+Run__t1_s5__2 x =v
+  (x != 0 \/ Ha2__t1_s5__1) /\ (x = 0 \/ Run__t1_s5__1 (x - 1)).
+Life__accept_init__2 x =v
+  ((x >= 0 \/ Walk__t0_s2__2 x) /\ x < 0
+   \/ x >= 0 /\ (x < 0 \/ Run__accept_S3__2 x)
+      \/ (x >= 0 \/ Walk__accept_S4__2 x) /\ x < 0
+         \/ x >= 0 /\ (x < 0 \/ Run__t1_s5__2 x))
+  /\ Life__accept_init__2 x.
+Ha1__t0_s2__1  =u true.
+Ha2__t1_s5__1  =u true.
+Walk__t0_s2__1 x =u
+  (x != 0 \/ Ha1__t0_s2__1) /\ (x = 0 \/ Walk__t0_s2__1 (x - 1)).
+Run__t1_s5__1 x =u
+  (x != 0 \/ Ha2__t1_s5__1) /\ (x = 0 \/ Run__t1_s5__1 (x - 1)).

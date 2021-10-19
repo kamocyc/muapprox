@@ -1,0 +1,9 @@
+%HES
+Sentry =v Call_twice__qa__2 F__q_called__2 F__qb__3 true.
+Call_twice15__qb__3 f___qb__0 k__qb__3 =u f___qb__0 k__qb__3.
+F__qb__3 k__qb__3 =u
+  k__qb__3 /\ Call_twice__qa__2 F__q_called__2 F__qb__3 k__qb__3.
+Call_twice__qa__2 f___q_called__1 f___qb__3 k__qb__3 =v
+  f___q_called__1 (Call_twice15__qb__3 f___qb__3 k__qb__3).
+F__q_called__2 k__qb__3 =v
+  k__qb__3 /\ Call_twice__qa__2 F__q_called__2 F__qb__3 k__qb__3.

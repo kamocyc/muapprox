@@ -1,0 +1,33 @@
+%HES
+Sentry =v
+  ∀x2285. 
+   Ev_a__q_called__1
+    (Cont__qa__2 (\k__q_called__0. k__q_called__0 x2285)
+      (\k__q_called__0. k__q_called__0 x2285)
+      (\k__q_called__0. k__q_called__0 x2285))
+    (Cont__qb__3 (\k__q_called__0. k__q_called__0 x2285)
+      (\k__q_called__0. k__q_called__0 x2285)
+      (\k__q_called__0. k__q_called__0 x2285)).
+Cont__qb__3 x___q_called__1 x___q_called__2 x___q_called__3 =u
+  ∀x2288. 
+   Cont47__q_called__1 x___q_called__1 x___q_called__2 x___q_called__3 x2288.
+Cont4748__q_called__3 y k__q_called__0 =u k__q_called__0 y.
+Cont__qa__2 x___q_called__1 x___q_called__2 x___q_called__3 =v
+  ∀x2290. 
+   Cont47__q_called__1 x___q_called__1 x___q_called__2 x___q_called__3 x2290.
+Cont4748__q_called__2 y k__q_called__0 =v k__q_called__0 y.
+Ev_a__q_called__1 k__qa__2 k__qb__3 =u k__qa__2.
+Ev_b__q_called__1 k__qa__2 k__qb__3 =u k__qb__3.
+Cont47__q_called__1 x___q_called__0 x___q_called__2 x___q_called__3 y =u
+  x___q_called__0
+   (\x. 
+     (x >= y
+      \/ Ev_b__q_called__1
+          (Cont__qa__2 (Cont4748__q_called__2 y) (Cont4748__q_called__2 y)
+            (Cont4748__q_called__3 y))
+          (Cont__qb__3 (Cont4748__q_called__3 y) (Cont4748__q_called__3 y)
+            (Cont4748__q_called__3 y)))
+     /\ (x < y
+         \/ Ev_a__q_called__1
+             (Cont__qa__2 x___q_called__2 x___q_called__2 x___q_called__3)
+             (Cont__qb__3 x___q_called__3 x___q_called__3 x___q_called__3))).

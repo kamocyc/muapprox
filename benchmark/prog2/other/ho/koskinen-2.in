@@ -1,0 +1,25 @@
+%HES
+Sentry =v
+  ∀x1827. 
+   ∀x1834. 
+    Rumble__q_ic__0 (\k__q0__0. k__q0__0 x1834) (\k__q0__0. k__q0__0 x1827)
+     (Xx66__q0__1 (\k__q0__0. k__q0__0 x1827))
+    /\ Xx__q_ic__0 (\k__q0__0. k__q0__0 x1827) (\k__q0__0. k__q0__0 x1834).
+Rumble__q0__1 fx__q0__1 fy__q0__1 k__q0__1 =u
+  fx__q0__1 (Rumble62__q0__1 fy__q0__1 fy__q0__1 k__q0__1 k__q0__1 fx__q0__1).
+Rumble62__q0__1 fy__q0__0 fy__q0__1 k__q0__0 k__q0__1 fx__q0__1 x =u
+  fy__q0__0
+   (\y. 
+     (x >= y
+      \/ Rumble__q0__1 (\k2__q0__0. k2__q0__0 (x + 1)) fy__q0__1 k__q0__1
+         /\ Rumble__q0__1 fx__q0__1 (\k2__q0__0. k2__q0__0 (y - 1)) k__q0__1)
+     /\ (x < y \/ k__q0__0 fx__q0__1)).
+Xx66__q0__1 fa__q0__1 fr__q0__1 =u
+  fa__q0__1
+   (Rumble62__q0__1 fr__q0__1 fr__q0__1 (\fr2__q0__1. true) (\fr2__q0__1. true)
+     fa__q0__1).
+Rumble__q_ic__0 fx__q0__1 fy__q0__1 k__q0__1 =v
+  fx__q0__1 (Rumble62__q0__1 fy__q0__1 fy__q0__1 k__q0__1 k__q0__1 fx__q0__1).
+Xx__q_ic__0 fa__q0__1 fb__q0__1 =v
+  Rumble__q_ic__0 fb__q0__1 fa__q0__1 (Xx66__q0__1 fa__q0__1)
+  /\ Xx__q_ic__0 fa__q0__1 fb__q0__1.
