@@ -1,4 +1,4 @@
-/* invalid */
+/* valid */
 %PROGRAM
 let pred x k = event called; k (x - 1)
 

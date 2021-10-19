@@ -1,5 +1,5 @@
-/* invalid */
-/* because there is an infinite sequence baba... */
+/* valid */
+/* there is an infinite sequence baba... */
 %PROGRAM
 let call_twice f_ k = event called; f_ (\. f_ k)
 

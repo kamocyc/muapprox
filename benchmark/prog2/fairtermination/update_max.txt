@@ -1,4 +1,4 @@
-/* invalid */
+/* valid */
 %PROGRAM
 let update_max x =
   event called;

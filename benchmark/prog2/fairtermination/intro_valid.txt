@@ -1,4 +1,4 @@
-/* valid */
+/* invalid */
 %PROGRAM
 let rand k =
   event called;

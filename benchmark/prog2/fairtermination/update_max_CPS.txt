@@ -1,4 +1,4 @@
-/* invalid */
+/* valid */
 %PROGRAM
 let ev_a k = event called; event a; k
 

@@ -1,4 +1,4 @@
-/* valid */
+/* invalid */
 %PROGRAM
 let repeat g k =
   event called;

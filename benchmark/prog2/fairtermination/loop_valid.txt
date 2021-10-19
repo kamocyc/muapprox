@@ -1,4 +1,4 @@
-/* valid */
+/* invalid */
 %PROGRAM
 let app_unit f x = event called; f x
 

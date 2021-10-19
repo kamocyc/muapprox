@@ -1,4 +1,4 @@
-/* invalid */
+/* valid */
 %PROGRAM
 let succ x k = event called; k (x + 1)
 

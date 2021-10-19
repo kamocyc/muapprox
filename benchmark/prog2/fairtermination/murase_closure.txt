@@ -1,4 +1,4 @@
-/* vaild */
+/* invaild */
 %PROGRAM
 let const x k = event called; k x
 
