@@ -1,9 +1,3 @@
-module Random = struct
-  let int _ = read_int ()
-end
-
-let () =
-
 let check (f:unit->int):int=
   let x = f () in
   if x > 0 then 1

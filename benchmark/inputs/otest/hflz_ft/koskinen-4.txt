@@ -1,4 +1,4 @@
-/* invalidであってほしい */
+/* should be invalid */
 %PROGRAM
 let app f x_ i kk =
   event called;

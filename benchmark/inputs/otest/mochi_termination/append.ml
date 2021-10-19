@@ -1,9 +1,3 @@
-module Random = struct
-  let int _ = read_int ()
-end
-
-let _ =
-
 let pred (fx:unit->int):(unit->int) =
   let x = fx () in
   (fun u -> (x - 1))

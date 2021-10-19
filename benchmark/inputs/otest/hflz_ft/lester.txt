@@ -1,4 +1,4 @@
-/* invalidであってほしい */
+/* should be invalid */
 %PROGRAM
 let loop flag i_ n_ y =
   event called;

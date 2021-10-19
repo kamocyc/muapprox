@@ -1,3 +1,4 @@
+/* should be invalid */
 %PROGRAM
 let print x_ =
   event called;

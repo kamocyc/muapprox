@@ -1,4 +1,3 @@
-let event s = print_string s
 
 let rec xx (flag:int) (g:(unit -> int) -> unit) (fx:unit->int):unit =
   if flag = 1 then
@@ -26,7 +25,8 @@ let rec f (fx:unit->int):unit =
   else
     event "A"
 
-(* let () =
-  repeat f *)
-
 let main = repeat f
+
+(*{SPEC}
+  fairness: (A, Never)
+{SPEC}*)
