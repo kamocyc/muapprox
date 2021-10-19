@@ -9,7 +9,7 @@ killall -9 eld
 killall -9 java
 killall -9 hflmc3.sh
 killall -9 para_aux.sh
-killall -9 sh
+# killall -9 sh
 killall -9 timeout
 killall -9 horsat2
 killall -9 less
