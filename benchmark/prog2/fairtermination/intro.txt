@@ -50,7 +50,7 @@ q_b -> 2.
 
 /*
 /* simplified */
-/* inavlid (solved in 4.3 sec) */
+/* invalid (solved in 4.3 sec) */
 %HES
 Sentry =v
   Rand__q_0__0 (Randpos21__q_a__1)
