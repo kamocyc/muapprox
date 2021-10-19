@@ -1,3 +1,0 @@
-%HES
-Sentry =v (\g. g (\x. x = 0)) X.
-X f =u f 0.

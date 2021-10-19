@@ -1,4 +1,4 @@
-module Random = struct let int _ =read_int () end
+
 let pred (fx:unit->int):(unit->int) =
   let x = fx () in
   (fun u -> (x - 1))
@@ -31,5 +31,3 @@ let main () =
   let m = Random.int 0 in
   let n = Random.int 0 in
   xx 0 (fun u -> m) (fun u -> n)
-
-let () = main ()

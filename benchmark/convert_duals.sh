@@ -1,16 +1,21 @@
 #!/bin/bash
 
-DIRPATH=benchmark/inputs/otest/hflz_ft/
+if [ $# != 2 ]; then
+  echo "Error: specify target directory and maxdepth"
+  exit 1
+fi
 
-rm $DIRPATH/*_dual.in
+DIRPATH=$1
+MAXDEPTH=$2
 
-for ORGFILE in $(find $DIRPATH -maxdepth 2 -name "*.in")
+rm "$DIRPATH"/*_dual.in
+
+for ORGFILE in $(find $DIRPATH -maxdepth $MAXDEPTH -name "*.in")
 do
   echo $ORGFILE
   dune exec bin2/dual.exe --  $ORGFILE > /dev/null
   
   FILE="${ORGFILE%.*}"_dual.in
   RENAMED=$(echo $FILE | sed -e "s/_dual//")
-  echo $RENAMED
   mv $FILE $RENAMED
 done
