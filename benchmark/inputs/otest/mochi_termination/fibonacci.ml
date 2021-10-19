@@ -1,4 +1,3 @@
-
 let pred2 (fx:unit->int):unit->int =
   let x = fx () in
   (fun u -> x - 2)

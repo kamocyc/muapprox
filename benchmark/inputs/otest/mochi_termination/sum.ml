@@ -1,4 +1,3 @@
-
 let check1 f =
   let x = f () in
   if x <= 0 then 1

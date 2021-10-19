@@ -1,4 +1,3 @@
-
 let check1 f =
   let x = f () in
   if x <= 0 then 1
@@ -32,3 +31,4 @@ let rec xx (flag:int) fxs fys =
 in
 let m x y = xx 0 (fun u -> x) (fun u -> y) in
 m (Random.int 0) (Random.int 0)
+
