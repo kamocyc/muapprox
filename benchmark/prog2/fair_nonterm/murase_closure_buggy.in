@@ -1,0 +1,7 @@
+%HES
+Sentry =v ∃x518. F__q_0__0 (Const__q_0__0 x518).
+Const__q_0__0 x k__q_0__0 =v k__q_0__0 x.
+Finish__q_0__0  =v false.
+F__q_0__0 g__q_0__0 =v
+  g__q_0__0
+   (\n. (n <= 0 \/ F__q_0__0 (Const__q_0__0 n)) /\ (n > 0 \/ Finish__q_0__0)).

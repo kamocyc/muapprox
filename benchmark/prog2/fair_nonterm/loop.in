@@ -1,0 +1,9 @@
+%HES
+Sentry =v ∃x134. Loop10__q_0__0 x134.
+App_unit__q_b__2 f__q_0__0 =v f__q_0__0.
+Loop__q_0__2  =v ∃x128. Loop10__q_0__0 x128.
+App_unit__q_a__1 f__q_0__0 =u f__q_0__0.
+Loop__q_0__1  =u ∃x131. Loop10__q_0__0 x131.
+Loop10__q_0__0 x =v
+  (x <= 0 \/ App_unit__q_a__1 Loop__q_0__1)
+  /\ (x > 0 \/ App_unit__q_b__2 Loop__q_0__2).

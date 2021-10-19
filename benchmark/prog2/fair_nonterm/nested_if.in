@@ -1,10 +1,10 @@
 %HES
 Sentry =v
-  Ev_a__q_0__0 (F24__q_a__1 true true true true)
-   (F24__q_b__2 true true true true).
-F24__q_b__2 k__q_a__1 k__q_a__2 k__q_b__0 k__q_b__2 =u
-  ∀x687. 
-   ∀x702. 
+  Ev_a__q_0__0 (F24__q_a__1 false false false false)
+   (F24__q_b__2 false false false false).
+F24__q_b__2 k__q_a__1 k__q_a__2 k__q_b__0 k__q_b__2 =v
+  ∃x687. 
+   ∃x702. 
     (x687 >= x702
      \/ (x687 <= x702 + 1 \/ k__q_b__0)
         /\ (x687 > x702 + 1
@@ -14,9 +14,9 @@ F24__q_b__2 k__q_a__1 k__q_a__2 k__q_b__0 k__q_b__2 =u
     /\ (x687 < x702
         \/ Ev_a__q_0__0 (F24__q_a__1 k__q_a__1 k__q_a__1 k__q_a__2 k__q_b__2)
             (F24__q_b__2 k__q_a__2 k__q_a__2 k__q_b__2 k__q_b__2)).
-F24__q_a__1 k__q_a__0 k__q_a__1 k__q_a__2 k__q_b__2 =v
-  ∀x692. 
-   ∀x701. 
+F24__q_a__1 k__q_a__0 k__q_a__1 k__q_a__2 k__q_b__2 =u
+  ∃x692. 
+   ∃x701. 
     (x692 >= x701
      \/ (x692 <= x701 + 1 \/ k__q_a__0)
         /\ (x692 > x701 + 1
@@ -26,5 +26,5 @@ F24__q_a__1 k__q_a__0 k__q_a__1 k__q_a__2 k__q_b__2 =v
     /\ (x692 < x701
         \/ Ev_a__q_0__0 (F24__q_a__1 k__q_a__1 k__q_a__1 k__q_a__2 k__q_b__2)
             (F24__q_b__2 k__q_a__2 k__q_a__2 k__q_b__2 k__q_b__2)).
-Ev_a__q_0__0 k__q_a__1 k__q_b__2 =u k__q_a__1.
-Ev_b__q_0__0 k__q_a__1 k__q_b__2 =u k__q_b__2.
+Ev_a__q_0__0 k__q_a__1 k__q_b__2 =v k__q_a__1.
+Ev_b__q_0__0 k__q_a__1 k__q_b__2 =v k__q_b__2.

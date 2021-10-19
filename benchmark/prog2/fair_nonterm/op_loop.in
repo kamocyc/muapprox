@@ -1,0 +1,11 @@
+%HES
+Sentry =v ∃x334. Op_loop20__q_0__0 (\x. \k__q_0__0. k__q_0__0 (x + 1)) x334.
+Succ__q_0__2 x k__q_0__0 =v k__q_0__0 (x + 1).
+Op_loop__q_b__2 op__q_0__0 =v ∃x330. Op_loop20__q_0__0 op__q_0__0 x330.
+Succ__q_0__1 x k__q_0__0 =u k__q_0__0 (x + 1).
+Op_loop__q_a__1 op__q_0__0 =u ∃x332. Op_loop20__q_0__0 op__q_0__0 x332.
+Op_loop20__q_0__0 op__q_0__0 x =v
+  op__q_0__0 x
+   (\y. 
+     (y <= 0 \/ Op_loop__q_a__1 Succ__q_0__1)
+     /\ (y > 0 \/ Op_loop__q_b__2 Succ__q_0__2)).

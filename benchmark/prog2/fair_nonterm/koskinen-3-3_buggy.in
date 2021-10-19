@@ -1,0 +1,9 @@
+%HES
+Sentry =v
+  ∃x100. 
+   Foo__q_0__1 0
+   \/ (x100 <= 0 \/ Bar__q_bar__2 x100 (\r. (r > 0 \/ Foo__q_0__1 r) /\ r <= 0))
+      /\ (x100 > 0 \/ (x100 > 0 \/ Foo__q_0__1 x100) /\ x100 <= 0).
+Bar__q_bar__2 x k__q_bar__2 =v
+  (x <= 0 \/ Bar__q_bar__2 x k__q_bar__2) /\ (x > 0 \/ k__q_bar__2 x).
+Foo__q_0__1 x =u (x > 0 \/ Foo__q_0__1 x) /\ x <= 0.

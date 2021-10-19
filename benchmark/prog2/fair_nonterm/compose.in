@@ -1,0 +1,11 @@
+%HES
+Sentry =v
+  ∃x705. 
+   x705 != 0
+   /\ (x705 = 0 \/ Compose__q_b__2 F__q_0__2 Pred__q_0__2 x705 false false).
+Pred__q_0__2 x k__q_0__0 =v k__q_0__0 (x - 1).
+Compose__q_b__2 f___q_0__0 g__q_0__0 x k__q_a__1 k__q_a__2 =v
+  g__q_0__0 x (\r. f___q_0__0 r k__q_a__1 k__q_a__2).
+F__q_0__2 c k__q_a__1 k__q_a__2 =v
+  (c != 0 \/ k__q_a__1)
+  /\ (c = 0 \/ Compose__q_b__2 F__q_0__2 Pred__q_0__2 c k__q_a__2 k__q_a__2).

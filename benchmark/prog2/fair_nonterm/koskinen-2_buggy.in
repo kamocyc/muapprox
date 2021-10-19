@@ -1,0 +1,7 @@
+%HES
+Sentry =v
+  ∃x115. 
+   ∃x118. Rumble__q_0__0 x115 x118 (\r. Rumble__q_0__0 x115 r (\r2. false)).
+Rumble__q_0__0 x y k__q_0__0 =v
+  (x >= y \/ Rumble__q_0__0 (x + 1) y k__q_0__0 \/ Rumble__q_0__0 x y k__q_0__0)
+  /\ (x < y \/ k__q_0__0 x).

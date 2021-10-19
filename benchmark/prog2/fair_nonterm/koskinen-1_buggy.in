@@ -1,7 +1,7 @@
 %HES
-Sentry =v ∀x161. Explore__q_0__0 x161 (\x. \k__q_0__0. k__q_0__0 (x - 2)).
-Finish__q_0__0  =u true.
-Explore__q_0__0 x r__q_0__0 =u
+Sentry =v ∃x161. Explore__q_0__0 x161 (\x. \k__q_0__0. k__q_0__0 (x - 2)).
+Finish__q_0__0  =v false.
+Explore__q_0__0 x r__q_0__0 =v
   (x > 0
    \/ (x != 0 \/ Finish__q_0__0) /\ (x = 0 \/ Explore__q_0__0 x r__q_0__0))
   /\ (x <= 0
