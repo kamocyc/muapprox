@@ -1,0 +1,18 @@
+%HES
+Sentry  =v
+  ∃r_499.
+   UNFOLDR_SUM
+    (\n_517.
+      \k_pred_518.
+       (n_517 != 0 \/ k_pred_518 0 0 0)
+       /\ (n_517 = 0 \/ k_pred_518 1 1 (n_517 - 1)))
+    r_499 (\x_485.false).
+UNFOLDR_SUM f seed k_unfoldr_sum_29 =v
+  f seed
+   (\r_f0_503.
+     \r_f1_504.
+      \r_f2_505.
+       (r_f0_503 = 0 \/ k_unfoldr_sum_29 0)
+       /\ (r_f0_503 != 0
+           \/ UNFOLDR_SUM f r_f2_505
+               (\x_494.k_unfoldr_sum_29 (r_f1_504 + x_494)))).

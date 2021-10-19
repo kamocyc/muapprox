@@ -1,0 +1,18 @@
+%HES
+Sentry =v
+  ∀n_992. 
+   XX 0 (\u_980. \k_main___981. k_main___981 n_992)
+    (\fn_994. 
+      \k_gt_995. 
+       fn_994 0
+        (\n_987. (n_987 <= 0 \/ k_gt_995 1) /\ (n_987 > 0 \/ k_gt_995 0)))
+    (\x_974. true).
+F fx p_3 k_f_130 =u
+  p_3 fx
+   (\b_954. 
+     (b_954 != 1
+      \/ fx 0
+          (\x_962. F (\u_970. \k_pred_971. k_pred_971 (x_962 - 1)) p_3 k_f_130))
+     /\ (b_954 = 1 \/ k_f_130 0)).
+XX flag fn p k_xx_283 =u
+  (flag != 1 \/ F fn p k_xx_283) /\ (flag = 1 \/ XX 1 fn p k_xx_283).

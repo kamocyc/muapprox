@@ -1,0 +1,14 @@
+%HES
+Sentry  =v
+  ∃r_453.
+   FIX
+    (\n_461.
+      \k_to_zero_462.
+       (n_461 != 0 \/ k_to_zero_462 0)
+       /\ (n_461 = 0 \/ k_to_zero_462 (n_461 - 1)))
+    r_453 (\x_437.false).
+FIX f n_3 k_fix_31 =v
+  f n_3
+   (\n2_444.
+     (n2_444 != n_3 \/ k_fix_31 n_3)
+     /\ (n2_444 = n_3 \/ FIX f n2_444 k_fix_31)).

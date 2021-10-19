@@ -1,0 +1,7 @@
+%HES
+Sentry =v ∀l1_454. ∀l2_449. ZIP l1_454 l2_449 (\x_442. true).
+ZIP xs ys k_zip_26 =u
+  (xs > 0 \/ k_zip_26 0)
+  /\ (xs <= 0
+      \/ (ys > 0 \/ k_zip_26 0)
+         /\ (ys <= 0 \/ ZIP (xs - 1) (ys - 1) (\x_458. k_zip_26 (1 + x_458)))).

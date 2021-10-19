@@ -1,0 +1,8 @@
+%HES
+Sentry =v ∀x_421. LOOP2 x_421 (\x_410. true).
+LOOP1 n1 k_loop1_24 =u
+  (n1 <= 0 \/ LOOP1 (n1 - 1) k_loop1_24) /\ (n1 > 0 \/ k_loop1_24 0).
+LOOP2 n2 k_loop2_45 =u
+  (n2 <= 0
+   \/ LOOP1 n2 (\x_416. LOOP2 (n2 - 1) (\x_407. k_loop2_45 (x_416 + x_407))))
+  /\ (n2 > 0 \/ k_loop2_45 0).

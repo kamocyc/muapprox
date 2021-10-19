@@ -1,0 +1,34 @@
+%HES
+Sentry =v
+  ∀x_1473. 
+   ∀x_1455. 
+    XX 0 (\u_1421. \k_m_1422. k_m_1422 x_1455)
+     (\u_1426. \k_m_1427. k_m_1427 x_1473) (\x_1432. x_1432 0 (\x_1448. true)).
+CHECK1 f k_check1_79 =u
+  f 0
+   (\x_1397. (x_1397 > 0 \/ k_check1_79 1) /\ (x_1397 <= 0 \/ k_check1_79 0)).
+PRED fx_13 k_pred_112 =u
+  fx_13 0
+   (\x_1475. k_pred_112 (\u_1457. \k_pred_1458. k_pred_1458 (x_1475 - 1))).
+XX flag fxs fys k_xx_455 =u
+  (flag != 1 \/ ZIP fxs fys k_xx_455) /\ (flag = 1 \/ XX 1 fxs fys k_xx_455).
+ZIP fxs_8 fys_7 k_zip_189 =u
+  CHECK1 fxs_8
+   (\bx_1479. 
+     CHECK1 fys_7
+      (\by_1468. 
+        (bx_1479 != 1 \/ k_zip_189 (\u_1435. \k_zip_1436. k_zip_1436 0))
+        /\ (bx_1479 = 1
+            \/ (by_1468 != 1 \/ k_zip_189 (\u_1439. \k_zip_1440. k_zip_1440 0))
+               /\ (by_1468 = 1
+                   \/ PRED fys_7
+                       (\x_1445. 
+                         PRED fxs_8
+                          (\x_1417. 
+                            ZIP x_1417 x_1445
+                             (\r_1412. 
+                               r_1412 0
+                                (\x_1408. 
+                                  k_zip_189
+                                   (\u_1403. 
+                                     \k_succ_1404. k_succ_1404 (x_1408 + 1)))))))))).

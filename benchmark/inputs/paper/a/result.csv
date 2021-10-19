@@ -1,0 +1,62 @@
+termination,ackermann,5.126,Terminating!
+termination,any_down,0.142,Terminating!
+termination,append,0.143,Terminating!
+termination,binomial,0.636,Terminating!
+termination,fibonacci,0.159,Terminating!
+termination,foldr,1.225,Terminating!
+termination,indirect,1.203,Terminating!
+termination,indirectHO,8.120,Terminating!
+termination,indirectIntro,27.025,Terminating!
+termination,loop2,0.483,Terminating!
+termination,map,2.000,Terminating!
+termination,mc91,3.568,Terminating!
+termination,mult,0.145,Terminating!
+termination,nested_loop,0.334,Terminating!
+termination,partial,1.514,Terminating!
+termination,quicksort,900.004,-
+termination,sum,0.121,Terminating!
+termination,toChurch,0.611,Terminating!
+termination,up_down,0.593,Terminating!
+termination,x_plus_2_n,1.794,Terminating!
+termination,zip,0.156,Terminating!
+nonterm,alternate,0.125,Non-terminating!
+nonterm,fib_CPS_nonterm,0.156,Non-terminating!
+nonterm,fixpoint_nonterm,0.273,Non-terminating!
+nonterm,foldr_nonterm,310.933,-
+nonterm,indirectHO_e,0.125,Non-terminating!
+nonterm,indirect_e,0.123,Non-terminating!
+nonterm,inf_closure,10.664,Non-terminating!
+nonterm,loopHO,1.552,Non-terminating!
+nonterm,passing_cond,8.297,Non-terminating!
+nonterm,unfoldr_nonterm,12.152,Non-terminating!
+fair_termination,closure,12.051,Fair terminating!
+fair_termination,hofmann-1,0.205,Fair terminating!
+fair_termination,hofmann-2,1.066,Fair terminating!
+fair_termination,intro,11.869,Fair terminating!
+fair_termination,koskinen-1,900.002,-
+fair_termination,koskinen-2,3.181,Fair terminating!
+fair_termination,koskinen-3-1,2.771,Fair terminating!
+fair_termination,koskinen-3-2,2.204,Fair terminating!
+fair_termination,koskinen-3-3,5.266,Fair terminating!
+fair_termination,koskinen-4,156.584,Fair terminating!
+fair_termination,lester,900.002,-
+fair_termination,repeat,2.371,Fair terminating!
+fair_nonterm,call-twice,1.047,Fair Infinite Execution found!
+fair_nonterm,compose,0.863,Fair Infinite Execution found!
+fair_nonterm,intro,3.990,Fair Infinite Execution found!
+fair_nonterm,koskinen-1-buggy,3.551,Fair Infinite Execution found!
+fair_nonterm,koskinen-2-buggy,4.396,Fair Infinite Execution found!
+fair_nonterm,koskinen-3-1-buggy,2.067,Fair Infinite Execution found!
+fair_nonterm,koskinen-3-2-buggy-annot,1.050,Fair Infinite Execution found!
+fair_nonterm,koskinen-3-2-buggy,900.002,-
+fair_nonterm,koskinen-3-3-buggy,9.343,Fair Infinite Execution found!
+fair_nonterm,loop-CPS,1.547,Fair Infinite Execution found!
+fair_nonterm,loop,0.946,Fair Infinite Execution found!
+fair_nonterm,murase-closure-buggy,1.009,Fair Infinite Execution found!
+fair_nonterm,murase-repeat-buggy,1.203,Fair Infinite Execution found!
+fair_nonterm,nested-if,1.474,Fair Infinite Execution found!
+fair_nonterm,odd-nonterm-annot,5.248,Fair Infinite Execution found!
+fair_nonterm,odd-nonterm,900.001,-
+fair_nonterm,op-loop,1.631,Fair Infinite Execution found!
+fair_nonterm,update-max-CPS,1.760,Fair Infinite Execution found!
+fair_nonterm,update-max,1.105,Fair Infinite Execution found!

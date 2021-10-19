@@ -1,0 +1,21 @@
+%HES
+Sentry  =v
+  ∃r_602.
+   ∃n_597.
+    (r_602 <= 0
+     \/ F
+         (\n_609.
+           \k_isPositive_610.
+            (n_609 <= 0 \/ k_isPositive_610 1)
+            /\ (n_609 > 0 \/ k_isPositive_610 0))
+         n_597 (\x_586.false))
+    /\ (r_602 > 0
+        \/ F
+            (\n_605.
+              \k_isNegative_606.
+               (n_605 >= 0 \/ k_isNegative_606 1)
+               /\ (n_605 < 0 \/ k_isNegative_606 0))
+            n_597 (\x_586.false)).
+F cond x_3 k_f_61 =v
+  cond x_3
+   (\x_579.(x_579 = 0 \/ F cond (x_3 - 1) k_f_61) /\ (x_579 != 0 \/ k_f_61 0)).

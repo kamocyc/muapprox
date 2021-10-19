@@ -1,0 +1,12 @@
+%HES
+Sentry =v
+  ∀l_606. 
+   (l_606 < 0
+    \/ (∀x_593. 
+         FOLDR (\m_612. \n_613. \k_sum_614. k_sum_614 (m_612 + n_613)) x_593
+          l_606 (\x_586. true)))
+   /\ (l_606 >= 0 \/ true).
+FOLDR h e l_2 k_foldr_41 =u
+  (l_2 != 0 \/ k_foldr_41 e)
+  /\ (l_2 = 0
+      \/ FOLDR h e (l_2 - 1) (\x_598. ∀x_583. h x_583 x_598 k_foldr_41)).

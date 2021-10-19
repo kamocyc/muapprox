@@ -1,0 +1,72 @@
+/* invalid */
+%PROGRAM
+let finish =
+  event called;
+  event a;
+  finish
+
+let reduce x_ r k =
+  event called;
+  check 0 x_ (\b.
+    if b = 1 then k x_ else r x_ k
+  )
+
+let explore x_ r =
+  event called;
+  /* event explore; */
+  reduce x_ r (\y_.
+    check 0 y_ (\b.
+      if b = 1 then finish
+      else explore y_ r
+    )
+  )
+
+let check flag x_ k =
+  event called;
+  if flag = 1 then
+    x_ (\x.
+      if x <= 0 then k 1 else k 0
+    )
+  else
+    check 1 x_ k
+
+/*
+let check2 flag x_ k =
+  event called;
+  if flag = 1 then
+    x_ (\x.
+      if x = 0 then k 1 else k 0
+    )
+  else
+    check 1 x_ k
+*/
+
+let xx flag x_ k = 
+  event called;
+  if flag = 1 then
+    explore x_ k
+  else
+    xx 1 x_ k
+
+let () =
+  let x = <_exists> * in
+  xx 0 (\k. k x) (\x_ k.
+    x_ (\x.
+      k (\k2. k2 (x - 2))
+    )
+  )
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_a called -> (1, q_0).
+
+q_0 a -> (1, q_a).
+q_a a -> (1, q_a).
+
+q_0 nullary -> false.
+q_a nullary -> false.
+
+%PRIORITY
+/* {(a, never)} */
+q_0 -> 0.
+q_a -> 1.

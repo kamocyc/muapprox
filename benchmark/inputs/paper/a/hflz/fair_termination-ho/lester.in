@@ -1,0 +1,77 @@
+%HES
+Sentry =v
+  Xx__q_0__0 0 (\k__q_close1__2. k__q_close1__2 1) true true
+   (\k__q_0__0. k__q_0__0 0) (\k__q_close1__0. k__q_close1__0 0).
+Loop___q_close1__2 flag i___q_0__1 i___q_0__2 i___q_close1__0 i___q_close1__2 n___q_0__1 n___q_0__2 n___q_close1__0 n___q_close1__2 y__q_0__1 y__q_0__2 y__q_close1__0 y__q_close1__2 =u
+  i___q_close1__0
+   (\i. 
+     n___q_close1__0
+      (\n. 
+        (i > n
+         \/ (flag != 1
+             \/ Loop___q_close1__2 flag (Succ__q_0__2 i___q_0__2)
+                 (Succ__q_0__2 i___q_0__2) (Succ__q_close1__2 i___q_close1__2)
+                 (Succ__q_close1__2 i___q_close1__2) n___q_0__2 n___q_0__2
+                 n___q_close1__2 n___q_close1__2 y__q_0__2 y__q_0__2
+                 y__q_close1__2 y__q_close1__2)
+            /\ (flag = 1
+                \/ Loop___q_0__1 flag (Succ__q_0__1 i___q_0__1)
+                    (Succ__q_0__1 i___q_0__1) (Succ__q_0__2 i___q_0__2)
+                    (Succ__q_close1__2 i___q_close1__2) n___q_0__1 n___q_0__1
+                    n___q_0__2 n___q_close1__2 y__q_0__1 y__q_0__1 y__q_0__2
+                    y__q_close1__2))
+        /\ (i <= n \/ y__q_close1__0))).
+G128__q_0__2 k__q_0__0 =u k__q_0__0 1.
+G128__q_close1__2 k__q_close1__0 =u k__q_close1__0 1.
+F129__q_close1__2 y__q_0__1 y__q_0__2 y__q_close1__2 n___q_0__1 n___q_0__2 n___q_close1__2 flag =u
+  (flag != 1
+   \/ Loop___q_close1__2 flag G128__q_0__2 G128__q_0__2 G128__q_close1__2
+       G128__q_close1__2 n___q_0__2 n___q_0__2 n___q_close1__2 n___q_close1__2
+       y__q_0__2 y__q_0__2 y__q_close1__2 y__q_close1__2)
+  /\ (flag = 1
+      \/ Loop___q_0__1 flag (\k__q_0__0. k__q_0__0 1) (\k__q_0__0. k__q_0__0 1)
+          G128__q_0__2 G128__q_close1__2 n___q_0__1 n___q_0__1 n___q_0__2
+          n___q_close1__2 y__q_0__1 y__q_0__1 y__q_0__2 y__q_close1__2).
+Succ__q_0__2 n___q_0__0 k__q_0__0 =u n___q_0__0 (Succ130__q_0__0 k__q_0__0).
+Succ__q_close1__2 n___q_close1__0 k__q_close1__0 =u
+  n___q_close1__0 (\n. k__q_close1__0 (n + 1)).
+Loop___q_0__1 flag i___q_0__0 i___q_0__1 i___q_0__2 i___q_close1__2 n___q_0__0 n___q_0__1 n___q_0__2 n___q_close1__2 y__q_0__0 y__q_0__1 y__q_0__2 y__q_close1__2 =v
+  i___q_0__0
+   (\i. 
+     n___q_0__0
+      (\n. 
+        (i > n
+         \/ (flag != 1
+             \/ Loop___q_close1__2 flag (Succ__q_0__2 i___q_0__2)
+                 (Succ__q_0__2 i___q_0__2) (Succ__q_close1__2 i___q_close1__2)
+                 (Succ__q_close1__2 i___q_close1__2) n___q_0__2 n___q_0__2
+                 n___q_close1__2 n___q_close1__2 y__q_0__2 y__q_0__2
+                 y__q_close1__2 y__q_close1__2)
+            /\ (flag = 1
+                \/ Loop___q_0__1 flag (Succ__q_0__1 i___q_0__1)
+                    (Succ__q_0__1 i___q_0__1) (Succ__q_0__2 i___q_0__2)
+                    (Succ__q_close1__2 i___q_close1__2) n___q_0__1 n___q_0__1
+                    n___q_0__2 n___q_close1__2 y__q_0__1 y__q_0__1 y__q_0__2
+                    y__q_close1__2))
+        /\ (i <= n \/ y__q_0__0))).
+F__q_0__1 x__q_0__1 y__q_0__2 y__q_close1__2 n___q_0__2 n___q_close1__2 =v
+  F__q_0__1 x__q_0__1 y__q_0__2 y__q_close1__2 (Succ__q_0__2 n___q_0__2)
+   (Succ__q_close1__2 n___q_close1__2)
+  /\ x__q_0__1
+      (F129__q_close1__2 y__q_0__2 y__q_0__2 y__q_close1__2 n___q_0__2
+        n___q_0__2 n___q_close1__2).
+Succ__q_0__1 n___q_0__0 k__q_0__0 =v n___q_0__0 (Succ130__q_0__0 k__q_0__0).
+F__q_0__0 x__q_0__1 y__q_0__2 y__q_close1__2 n___q_0__2 n___q_close1__2 =u
+  F__q_0__1 x__q_0__1 y__q_0__2 y__q_close1__2 (Succ__q_0__2 n___q_0__2)
+   (Succ__q_close1__2 n___q_close1__2)
+  /\ x__q_0__1
+      (F129__q_close1__2 y__q_0__2 y__q_0__2 y__q_close1__2 n___q_0__2
+        n___q_0__2 n___q_close1__2).
+Succ130__q_0__0 k__q_0__0 n =u k__q_0__0 (n + 1).
+Xx__q_0__0 flag s2__q_0__1 t2__q_0__2 t2__q_close1__2 n___q_0__2 n___q_close1__2 =u
+  (flag != 1
+   \/ F__q_0__0 s2__q_0__1 t2__q_0__2 t2__q_close1__2 n___q_0__2
+       n___q_close1__2)
+  /\ (flag = 1
+      \/ Xx__q_0__0 1 s2__q_0__1 t2__q_0__2 t2__q_close1__2 n___q_0__2
+          n___q_close1__2).

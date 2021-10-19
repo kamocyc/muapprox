@@ -1,0 +1,5 @@
+%HES
+Sentry =v ∀x_331. SUM x_331 (\x_323. true).
+SUM n k_sum_20 =u
+  (n > 0 \/ k_sum_20 0)
+  /\ (n <= 0 \/ SUM (n - 1) (\x_334. k_sum_20 (n + x_334))).

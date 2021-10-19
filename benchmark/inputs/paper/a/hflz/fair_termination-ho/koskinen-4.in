@@ -1,0 +1,48 @@
+%HES
+Sentry =v ∀x6172. Xx__q_0__0 0 (\k__q_p__0. k__q_p__0 x6172).
+App122__q_p__2 i x2___q_p__0 k2__q_p__0 =u
+  x2___q_p__0
+   (\x2. 
+     k2__q_p__0 (\k3__q_p__0. k3__q_p__0 (x2 - i))
+      (\k3__q_p__0. k3__q_p__0 (x2 - i))).
+Walk__q_p__2 x___q_p__2 f__q_p__2 k__q_p__2 =u
+  Check__q_p__2 x___q_p__2
+   (Walk125__q_p__2 k__q_p__2 k__q_p__2 x___q_p__2 f__q_p__2 f__q_p__2).
+Walk125__q_p__2 k__q_p__0 k__q_p__2 x___q_p__0 f__q_p__0 f__q_p__2 b =u
+  (b != 1 \/ k__q_p__0)
+  /\ (b = 1
+      \/ f__q_p__0 x___q_p__0
+          (\x2__q_p__0. 
+            \x2__q_p__2. 
+             Check__q_p__2 x2__q_p__2
+              (Walk125__q_p__2 k__q_p__2 k__q_p__2 x2__q_p__2 f__q_p__2
+                f__q_p__2))).
+Run__q_p__2 x___q_p__2 f__q_p__2 k__q_p__2 =u
+  Check__q_p__2 x___q_p__2
+   (Run127__q_p__2 k__q_p__2 k__q_p__2 x___q_p__2 f__q_p__2 f__q_p__2).
+Run127__q_p__2 k__q_p__0 k__q_p__2 x___q_p__0 f__q_p__0 f__q_p__2 b =u
+  (b != 1 \/ k__q_p__0)
+  /\ (b = 1
+      \/ f__q_p__0 x___q_p__0
+          (\x2__q_p__0. 
+            \x2__q_p__2. 
+             f__q_p__0 x2__q_p__0
+              (\x3__q_p__0. 
+                \x3__q_p__2. 
+                 Check__q_p__2 x3__q_p__2
+                  (Run127__q_p__2 k__q_p__2 k__q_p__2 x3__q_p__2 f__q_p__2
+                    f__q_p__2)))).
+Life130__q_p__2 x___q_p__2 b =u
+  (b != 1 \/ Walk__q_p__2 x___q_p__2 (App122__q_p__2 1) true)
+  /\ (b = 1 \/ Run__q_p__2 x___q_p__2 (App122__q_p__2 1) true).
+Check__q_p__2 x___q_p__0 k__q_p__0 =u
+  x___q_p__0 (\x. (x >= 0 \/ k__q_p__0 1) /\ (x < 0 \/ k__q_p__0 0)).
+Life__q_0__1 x___q_p__2 =v
+  Check__q_p__2 x___q_p__2 (Life130__q_p__2 x___q_p__2)
+  /\ Life__q_0__1 x___q_p__2.
+Life__q_0__0 x___q_p__2 =u
+  Check__q_p__2 x___q_p__2 (Life130__q_p__2 x___q_p__2)
+  /\ Life__q_0__1 x___q_p__2.
+Xx__q_0__0 flag x___q_p__2 =u
+  (flag != 1 \/ Life__q_0__0 x___q_p__2)
+  /\ (flag = 1 \/ Xx__q_0__0 1 x___q_p__2).

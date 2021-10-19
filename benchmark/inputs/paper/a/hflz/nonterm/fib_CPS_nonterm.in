@@ -1,0 +1,13 @@
+%HES
+Sentry  =v
+  ∃r_626.
+   FIB_CPS_NONTERM r_626 (\n_627.\k_id_628.k_id_628 n_627) (\x_618.false).
+FIB_CPS_NONTERM n_3 k k_fib_CPS_nonterm_49 =v
+  (n_3 != 0 /\ n_3 != 1 \/ k 1 k_fib_CPS_nonterm_49)
+  /\ ((n_3 = 0 \/ n_3 = 1)
+      \/ FIB_CPS_NONTERM (n_3 - 1)
+          (\a_609.
+            \k_cont1_610.
+             FIB_CPS_NONTERM (n_3 - 2)
+              (\b_613.\k_cont2_614.k (a_609 + b_613) k_cont2_614) k_cont1_610)
+          k_fib_CPS_nonterm_49).

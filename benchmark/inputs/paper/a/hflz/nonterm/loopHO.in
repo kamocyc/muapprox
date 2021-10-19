@@ -1,0 +1,7 @@
+%HES
+Sentry  =v
+  ∃r_542.
+   LOOP (\n_521.\k_522.\k_app_523.k_522 n_521 k_app_523) r_542 (\x_530.false).
+LOOP h n_3 k_loop_39 =v
+  (n_3 <= 0 \/ (∃d_537.h (n_3 + d_537) (LOOP h) k_loop_39))
+  /\ (n_3 > 0 \/ k_loop_39 0).

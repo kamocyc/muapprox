@@ -1,0 +1,64 @@
+/* should be invalid */
+%PROGRAM
+let print x_ =
+  event called;
+  event print;
+  print x_
+
+let rumble x_ y_ k =
+  event called;
+  /* event rumble; */
+  check x_ y_ (\b.
+    if b = 1 then
+      if <d> * then
+        rumble (succ x_) y_ k
+      else rumble x_ (pred y_) k
+    else k x_
+  )
+
+let succ x_ k =
+  x_ (\x.
+    k (x + 1)
+  )
+
+let pred x_ k =
+  x_ (\x.
+    k (x - 1)
+  )
+
+let check x_ y_ k =
+  x_ (\x.
+    y_ (\y.
+      if x < y then k 1 else k 0
+    )
+  )
+
+let xx flag a_ b_ =
+  if flag = 1 then
+    rumble a_ b_ (\r_.
+      rumble a_ r_ (\r2_.
+        print r2_
+      )
+    )
+  else
+    xx 1 a_ b_
+    
+let () =
+  let a = <_exists> * in
+  let b = <_exists> * in
+  xx 0 (\k. k a) (\k. k b)
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_print called -> (1, q_0).
+
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_print d -> (1, q_0) \/ (2, q_0).
+
+q_0 print -> (1, q_print).
+q_print print -> (1, q_print).
+
+%PRIORITY
+/* {(print, never)} */
+q_print -> 1.
+q_0 -> 0.

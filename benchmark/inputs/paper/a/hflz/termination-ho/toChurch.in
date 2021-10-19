@@ -1,0 +1,35 @@
+%HES
+Sentry =v
+  ∀x_1875. 
+   (x_1875 < 0
+    \/ (∀y_1854. 
+         XX 0 (\u_1813. \k_main___1814. k_main___1814 x_1875)
+          (\fx_1891. 
+            \k_succ_1892. 
+             fx_1891 0
+              (\x_1877. 
+                k_succ_1892 (\u_1856. \k_succ_1857. k_succ_1857 (x_1877 + 1))))
+          (\u_1818. \k_main___1819. k_main___1819 y_1854)
+          (\x_1824. x_1824 0 (\x_1847. true))))
+   /\ (x_1875 >= 0 \/ true).
+TOCHURCH fn_7 f_6 fx_5 k_toChurch_347 =u
+  fn_7 0
+   (\x_1882. 
+     (x_1882 != 0
+      \/ (1 != 1 \/ k_toChurch_347 fx_5)
+         /\ (1 = 1
+             \/ fn_7 0
+                 (\x_1862. 
+                   TOCHURCH (\u_1833. \k_pred_1834. k_pred_1834 (x_1862 - 1))
+                    f_6 fx_5 (\x_1804. f_6 x_1804 k_toChurch_347))))
+     /\ (x_1882 = 0
+         \/ (0 != 1 \/ k_toChurch_347 fx_5)
+            /\ (0 = 1
+                \/ fn_7 0
+                    (\x_1867. 
+                      TOCHURCH
+                       (\u_1843. \k_pred_1844. k_pred_1844 (x_1867 - 1)) f_6
+                       fx_5 (\x_1809. f_6 x_1809 k_toChurch_347))))).
+XX flag fn f fx k_xx_712 =u
+  (flag != 1 \/ TOCHURCH fn f fx k_xx_712)
+  /\ (flag = 1 \/ XX 1 fn f fx k_xx_712).

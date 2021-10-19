@@ -1,0 +1,13 @@
+%HES
+Sentry =v
+  ∀l_669. 
+   (l_669 < 0
+    \/ MAP (\x_639. \k_compose_640. k_compose_640 (1 + (2 + x_639))) l_669
+        (\x_653. true))
+   /\ (l_669 >= 0 \/ true).
+MAP f_4 xs k_map_46 =u
+  (xs != 0 \/ k_map_46 0)
+  /\ (xs = 0
+      \/ (∀x_673. 
+           f_4 x_673
+            (\x_661. MAP f_4 (xs - 1) (\x_650. k_map_46 (x_661 + x_650))))).

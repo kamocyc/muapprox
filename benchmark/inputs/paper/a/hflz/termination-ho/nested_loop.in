@@ -1,0 +1,34 @@
+%HES
+Sentry =v
+  ∀x_1450. 
+   X_3 0 (\u_1425. \k_m_1426. k_m_1426 x_1450)
+    (\x_1430. x_1430 0 (\x_1419. true)).
+CHECK1 f k_check1_71 =u
+  f 0
+   (\x_1380. (x_1380 <= 0 \/ k_check1_71 1) /\ (x_1380 > 0 \/ k_check1_71 0)).
+LOOP1 fn1 k_loop1_201 =u
+  CHECK1 fn1
+   (\b_1436. 
+     (b_1436 != 1 \/ PRED fn1 (\x_1406. LOOP1 x_1406 k_loop1_201))
+     /\ (b_1436 = 1 \/ k_loop1_201 (\u_1408. \k_loop1_1409. k_loop1_1409 0))).
+LOOP2 fn2 k_loop2_316 =u
+  CHECK1 fn2
+   (\b_1442. 
+     (b_1442 != 1
+      \/ LOOP1 fn2
+          (\r1_1413. 
+            PRED fn2
+             (\x_1403. 
+               LOOP2 x_1403
+                (\r2_1399. 
+                  r1_1413 0
+                   (\x1_1395. 
+                     r2_1399 0
+                      (\x2_1391. 
+                        k_loop2_316
+                         (\u_1386. \k_add_1387. k_add_1387 (x1_1395 + x2_1391))))))))
+     /\ (b_1442 = 1 \/ k_loop2_316 (\u_1415. \k_loop2_1416. k_loop2_1416 0))).
+PRED fx k_pred_104 =u
+  fx 0 (\x_1452. k_pred_104 (\u_1432. \k_pred_1433. k_pred_1433 (x_1452 - 1))).
+X_3 flag fn k_x_524 =u
+  (flag != 1 \/ LOOP2 fn k_x_524) /\ (flag = 1 \/ X_3 1 fn k_x_524).

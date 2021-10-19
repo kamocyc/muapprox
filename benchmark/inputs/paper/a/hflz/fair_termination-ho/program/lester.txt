@@ -1,0 +1,82 @@
+/* should be invalid */
+%PROGRAM
+let loop flag i_ n_ y =
+  event called;
+  if flag = 1 then (
+    event close1;
+    loop_ flag i_ n_ y
+  ) else
+    loop_ flag i_ n_ y
+
+let loop_ flag i_ n_ y =
+  check i_ n_ (\b.
+    if b = 1 then loop flag (succ i_) n_ y else y 0
+  )
+
+let check i_ n_ k =
+  i_ (\i.
+    n_ (\n.
+      if i<=n then k 1 else k 0
+    )
+  )
+
+let g flag y n_ =
+  event called;
+  loop flag (\k. k 1) n_ y
+
+let f x y n_ =
+  event called;
+  if <d> * then
+     f x y (succ n_)
+  else
+    x (\flag.
+      g flag y n_
+    )
+
+let succ n_ k =
+  n_ (\n.
+    k (n + 1)
+  )
+  
+let t dummy =
+  event called;
+  event close2;
+  t dummy
+
+let s k =
+  event called;
+  event close1;
+  k 1
+
+let xx flag s2 t2 n_ =
+  if flag = 1 then
+    f s2 t2 n_
+  else
+    xx 1 s2 t2 n_
+
+let () =
+  xx 0 s t (\k. k 0)
+
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_close1 called -> (1, q_0).
+q_close2 called -> (1, q_0).
+
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_close1 d -> (1, q_0) \/ (2, q_0).
+q_close2 d -> (1, q_0) \/ (2, q_0).
+
+q_0 close1 -> (1, q_close1).
+q_close1 close1 -> (1, q_close1).
+q_close2 close1 -> (1, q_close1).
+
+q_0 close2 -> (1, q_close2).
+q_close1 close2 -> (1, q_close2).
+q_close2 close2 -> (1, q_close2).
+
+%PRIORITY
+/* {(always, close1); (close2, never)}  =  close2 is finite && close1 is infinite */
+q_0 -> 1.
+q_close1 -> 2.
+q_close2 -> 3.

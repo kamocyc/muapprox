@@ -1,0 +1,58 @@
+/* invalid */
+%PROGRAM
+let inner_loop i_ s_ k =
+  event called;
+  check i_ s_ (\b.
+    if b = 1 then (
+      let s = <_exists> * in
+      inner_loop (succ i_) (\k2. k2 s) k
+    ) else (
+      event c;
+      k
+    )
+  )
+
+let succ i_ k =
+  i_ (\i.
+    k (i + 1)
+  )
+
+let check i_ s_ k =
+  i_ (\i.
+    s_ (\s.
+      if i<1024 && s<>0 then k 1 else k 0
+    )
+  )
+
+let loop =
+  event called;
+  inner_loop (\k. k 0) (\k. k 0) (\.
+    event b;
+    loop
+  )
+
+let () =
+  loop
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_b called -> (1, q_0).
+q_c called -> (1, q_0).
+
+q_0 d -> (1, q_0) \/ (2, q_0).
+q_b d -> (1, q_0) \/ (2, q_0).
+q_c d -> (1, q_0) \/ (2, q_0).
+
+q_0 b -> (1, q_b).
+q_b b -> (1, q_b).
+q_c b -> (1, q_b).
+
+q_0 c -> (1, q_c).
+q_b c -> (1, q_c).
+q_c c -> (1, q_c).
+
+%PRIORITY
+/* {(b, never); (always, c)}  =  b is finite && c is infinite */
+q_0 -> 1.
+q_c -> 2.
+q_b -> 3.

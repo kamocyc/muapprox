@@ -1,0 +1,137 @@
+/* should be invalid */
+%PROGRAM
+let app f x_ i kk =
+  event called;
+  event p;
+  f x_ (\x2_ k2. x2_ (\x2. k2 (\k3. k3 (x2 - i)))) kk
+
+let ha1 x =
+  event called;
+  event p;
+  event ha;
+  ha1 x
+
+let ha2 x =
+  event called;
+  event p;
+  event ha;
+  ha2 x
+
+let walk x_ f k =
+  event called;
+  event p;
+  check x_ (\b.
+    if b = 1 then k x_
+    else f x_ (\x2. walk x2 f k)
+  )
+
+let run x_ f k =
+  event called;
+  event p;
+  check x_ (\b.
+    if b = 1 then k x_
+    else f x_ (\x2. f x2 (\x3. run x3 f k))
+  )
+
+let life x_ =
+  event called;
+  if <d2> * then (
+    event p;
+    check x_ (\b.
+      if b = 1 then app walk x_ 1 (\x__. ha1 x__)
+      else app run x_ 1 (\x__. ha2 x__)
+    )
+  ) else life x_
+
+let check x_ k =
+  x_ (\x.
+    if x < 0 then k 1 else k 0
+  )
+
+let xx flag x_ =
+  if flag = 1 then
+    life x_
+  else
+    xx 1 x_
+  
+let () =
+  let x = <_exists> * in
+  xx 0 (\k. k x)
+
+
+%TRANSITION
+q_0 called -> (1, q_0).
+q_p called -> (1, q_0).
+q_ha called -> (1, q_0).
+
+q_0 d2 -> (1, q_0) \/ (2, q_0).
+q_p d2 -> (1, q_0) \/ (2, q_0).
+q_ha d2 -> (1, q_0) \/ (2, q_0).
+
+q_0 p -> (1, q_p).
+q_p p -> (1, q_p).
+q_ha p -> (1, q_p).
+
+q_0 ha -> (1, q_ha).
+q_p ha -> (1, q_ha).
+q_ha ha -> (1, q_ha).
+
+%PRIORITY
+/* {(always, p); (ha, never)}  =  ha is finite && p is infinite */
+q_0 -> 1.
+q_p -> 2.
+q_ha -> 3.
+
+
+/*
+/* かんたんにしようとして途中 */
+%HES
+Sentry =v
+  ∀x3830_25. 
+   x3830_25 >= 0
+   /\ Run82_6 (\x_30. \k2_31. k2_31 (x_30 - 1))
+            (\x_30. \k2_31. k2_31 (x_30 - 1)) (x3830_25 - 1)
+   /\ Run_20 x3830_25 (\x_63. \k2_64. k2_64 (x_63 - 1))
+   /\ Life_22 x3830_25
+   
+    \/ (x3830_25 >= 0
+       \/ x3830_25 < 0
+          \/ Walk81_19 (\x_63. \k2_64. k2_64 (x_63 - 1)) (x3830_25 - 1))
+    /\ (x3830_25 < 0
+        \/ x3830_25 < 0
+            \/ Run82_21 (\x_63. \k2_64. k2_64 (x_63 - 1)) (x3830_25 - 1))
+    /\ Life_12 x3830_25.
+
+Walk81_4 f_35 x_37 =v
+  x_37 >= 0 /\ f_35 x_37 (Walk81_4 f_35).
+
+Run82_6 f_41 f_42 x_44 =v
+  f_41 x_44
+   (\x_45. 
+     x_45 >= 0 /\ f_42 x_45 (Run82_6 f_42 f_42)).
+
+Life_12 x_56 =u
+  x_56 >= 0
+  /\ Run82_6 (\x_30. \k2_31. k2_31 (x_30 - 1))
+           (\x_30. \k2_31. k2_31 (x_30 - 1)) (x_56 - 1)
+  /\ Run_20 x_56 (\x_63. \k2_64. k2_64 (x_63 - 1))
+  /\ Life_22 x_56
+  \/
+  (x_56 < 0 \/ Run82_21 (\x_63. \k2_64. k2_64 (x_63 - 1)) (x_56 - 1))
+  /\ Life_12 x_56.
+
+Walk_18 x_65 f_66 =v
+  x_65 < 0 \/ f_66 x_65 (Walk81_19 f_66).
+
+Walk81_19 f_68 x_70 =v Walk_18 x_70 f_68.
+
+Run_20 x_71 f_72 =v
+  x_71 < 0 \/ f_72 x_71 (Run82_21 f_72).
+
+Run82_21 f_74 x_76 =v f_74 x_76 (\x_77. Run_20 x_77 f_74).
+
+Life_22 x_78 =v
+  (x_78 >= 0 \/ Walk_18 x_78 (\x_63. \k2_64. k2_64 (x_63 - 1)))
+  /\ (x_78 < 0 \/ Run_20 x_78 (\x_63. \k2_64. k2_64 (x_63 - 1))).
+*/
+

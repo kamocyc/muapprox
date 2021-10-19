@@ -1,0 +1,25 @@
+%HES
+Sentry =v
+  ∀x485. 
+   Xx__q_0__0 0 (\k__q_0__0. k__q_0__0 x485) (\k__q_foo__0. k__q_foo__0 x485).
+Pred__q_foo__1 x___q_foo__0 k__q_foo__0 =v
+  x___q_foo__0 (\x. k__q_foo__0 (x - 1)).
+Foo79__q_foo__1 x___q_foo__1 b =v
+  b = 1 /\ Check2__q_foo__1 x___q_foo__1 (Foo79__q_foo__1 x___q_foo__1).
+Check2__q_foo__1 x___q_foo__0 k__q_foo__0 =v
+  x___q_foo__0 (\x. (x > 0 \/ k__q_foo__0 1) /\ (x <= 0 \/ k__q_foo__0 0)).
+Xx82__q_foo__1 k__q_foo__0 =v k__q_foo__0 0.
+Bar__q_0__0 x___q_0__0 x___q_foo__1 k__q_0__0 =u
+  x___q_0__0
+   (\x. 
+     (x <= 0
+      \/ Bar__q_0__0 (\k__q_0__0. x___q_0__0 (\x. k__q_0__0 (x - 1)))
+          (Pred__q_foo__1 x___q_foo__1) k__q_0__0)
+     /\ (x > 0 \/ k__q_0__0 x___q_foo__1)).
+Foo__q_0__0 x___q_foo__1 =u
+  Check2__q_foo__1 x___q_foo__1 (Foo79__q_foo__1 x___q_foo__1).
+Xx__q_0__0 flag x___q_0__0 x___q_foo__1 =u
+  flag = 1 /\ Foo__q_0__0 Xx82__q_foo__1
+  /\ Bar__q_0__0 x___q_0__0 x___q_foo__1
+      (\r___q_foo__1. Foo__q_0__0 r___q_foo__1)
+  \/ flag != 1 /\ Xx__q_0__0 1 x___q_0__0 x___q_foo__1.

@@ -1,0 +1,18 @@
+%HES
+Sentry  =v
+  ∃xs_655.
+   (xs_655 <= 0
+    \/ FOLDR
+        (\x_672.
+          \y_673.
+           \k_sum_may_nonterm_674.
+            ∃isTerminate_663.
+             (isTerminate_663 <= 0 \/ k_sum_may_nonterm_674 (x_672 + y_673))
+             /\ (isTerminate_663 > 0 \/ true))
+        0 xs_655 (\x_639.false))
+   /\ (xs_655 > 0 \/ false).
+FOLDR f acc xs_4 k_foldr_45 =v
+  (xs_4 != 0 \/ k_foldr_45 acc)
+  /\ (xs_4 = 0
+      \/ (∃elem_647.
+           FOLDR f acc (xs_4 - 1) (\x_636.f elem_647 x_636 k_foldr_45))).

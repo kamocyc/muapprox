@@ -1,0 +1,38 @@
+%HES
+Sentry =v
+  ∀t1_1459. 
+   ∀t2_1451. 
+    (t1_1459 <= 0
+     \/ X_APP_DOWN 0 (\u_1423. \k_main___1424. k_main___1424 t1_1459)
+         (\x_1440. true))
+    /\ (t1_1459 > 0
+        \/ (t2_1451 >= 0
+            \/ X_APP_UP 0 (\u_1428. \k_main___1429. k_main___1429 t2_1451)
+                (\x_1440. true))
+           /\ (t2_1451 < 0 \/ true)).
+CHECK1 f_11 k_check1_155 =u
+  f_11 0
+   (\x_1400. (x_1400 != 0 \/ k_check1_155 1) /\ (x_1400 = 0 \/ k_check1_155 0)).
+DOWN fx_8 k_down_233 =u
+  CHECK1 fx_8
+   (\b_1405. 
+     (b_1405 != 1 \/ k_down_233 0)
+     /\ (b_1405 = 1
+         \/ fx_8 0
+             (\x_1411. 
+               DOWN (\u_1418. \k_pred_1419. k_pred_1419 (x_1411 - 1))
+                k_down_233))).
+UP fx k_up_325 =u
+  CHECK1 fx
+   (\b_1462. 
+     (b_1462 != 1 \/ k_up_325 0)
+     /\ (b_1462 = 1
+         \/ fx 0
+             (\x_1454. 
+               UP (\u_1436. \k_succ_1437. k_succ_1437 (x_1454 + 1)) k_up_325))).
+X_APP_DOWN flag_6 x_5 k_x_App_Down_417 =u
+  (flag_6 != 1 \/ DOWN x_5 k_x_App_Down_417)
+  /\ (flag_6 = 1 \/ X_APP_DOWN 1 x_5 k_x_App_Down_417).
+X_APP_UP flag x_4 k_x_App_Up_493 =u
+  (flag != 1 \/ UP x_4 k_x_App_Up_493)
+  /\ (flag = 1 \/ X_APP_UP 1 x_4 k_x_App_Up_493).

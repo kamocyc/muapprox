@@ -1,0 +1,70 @@
+%HES
+Sentry =v
+  ∀x_3232. 
+   XX 0
+    (\fx_3078. 
+      \fy_3079. 
+       \k_comp_3080. 
+        fx_3078 0
+         (\x_3088. 
+           fy_3079 0
+            (\y_3094. 
+              (x_3088 < y_3094 \/ k_comp_3080 1)
+              /\ (x_3088 >= y_3094 \/ k_comp_3080 0))))
+    (\u_3195. \k_mm_3196. k_mm_3196 x_3232) (\x_3200. x_3200 0 (\x_3189. true)).
+CHECK1 f_21 k_check1_298 =u
+  f_21 0
+   (\x_3083. (x_3083 > 0 \/ k_check1_298 1) /\ (x_3083 <= 0 \/ k_check1_298 0)).
+PAR cmp_17 fx_16 fl_15 fr_14 fxs_13 k_par_814 =u
+  CHECK1 fxs_13
+   (\bxs_3239. 
+     (bxs_3239 != 1
+      \/ QS cmp_17 fl_15
+          (\r__3205. 
+            QS cmp_17 fr_14
+             (\r___3159. 
+               r__3205 0
+                (\x1_3125. 
+                  r___3159 0
+                   (\x2_3103. 
+                     k_par_814
+                      (\u_3098. 
+                        \k_addP1_3099. k_addP1_3099 (x1_3125 + 1 + x2_3103)))))))
+     /\ (bxs_3239 = 1
+         \/ (∀m_3213. 
+              cmp_17 (\u_3162. \k_par_r__3163. k_par_r__3163 m_3213) fx_16
+               (\r__3172. 
+                 (r__3172 != 1
+                  \/ PRED fxs_13
+                      (\x_3134. 
+                        SUCC fl_15
+                         (\x_3112. 
+                           PAR cmp_17 fx_16 x_3112 fr_14 x_3134 k_par_814)))
+                 /\ (r__3172 = 1
+                     \/ PRED fxs_13
+                         (\x_3143. 
+                           SUCC fr_14
+                            (\x_3121. 
+                              PAR cmp_17 fx_16 fl_15 x_3121 x_3143 k_par_814))))))).
+PRED fx_27 k_pred_227 =u
+  fx_27 0
+   (\x_3248. k_pred_227 (\u_3215. \k_pred_3216. k_pred_3216 (x_3248 - 1))).
+QS cmp fn_7 k_qs_401 =u
+  CHECK1 fn_7
+   (\b_3252. 
+     (b_3252 != 1 \/ k_qs_401 (\u_3218. \k_qs_3219. k_qs_3219 0))
+     /\ (b_3252 = 1
+         \/ (∀m_3224. 
+              PRED fn_7
+               (\x_3186. 
+                 X2 0 cmp (\u_3146. \k_qs_3147. k_qs_3147 m_3224)
+                  (\u_3150. \k_qs_3151. k_qs_3151 0)
+                  (\u_3154. \k_qs_3155. k_qs_3155 0) x_3186 k_qs_401)))).
+SUCC fx_24 k_succ_264 =u
+  fx_24 0
+   (\x_3258. k_succ_264 (\u_3226. \k_succ_3227. k_succ_3227 (x_3258 + 1))).
+X2 flag_9 cmp_8 fx fl fr fxs k_x2_600 =u
+  (flag_9 != 1 \/ PAR cmp_8 fx fl fr fxs k_x2_600)
+  /\ (flag_9 = 1 \/ X2 1 cmp_8 fx fl fr fxs k_x2_600).
+XX flag f fn k_xx_1477 =u
+  (flag != 1 \/ QS f fn k_xx_1477) /\ (flag = 1 \/ XX 1 f fn k_xx_1477).

@@ -1,0 +1,15 @@
+%HES
+Sentry  =v
+  ∃r_540.
+   F r_540
+    (\n_543.
+      \k_is_zero_544.
+       (n_543 != 0 \/ k_is_zero_544 1) /\ (n_543 = 0 \/ k_is_zero_544 0))
+    (\x_532.false).
+F n cond k_f_72 =v
+  cond n
+   (\x_525.
+     (x_525 = 0 \/ k_f_72 0)
+     /\ (x_525 != 0
+         \/ F n (\n_551.\k_succ_app_552.cond (n_551 + 1) k_succ_app_552)
+             k_f_72)).

@@ -1,0 +1,5 @@
+%HES
+Sentry =v ∀l1_433. ∀l2_428. APPEND l1_433 l2_428 (\x_421. true).
+APPEND xs ys k_append_26 =u
+  (xs > 0 \/ k_append_26 ys)
+  /\ (xs <= 0 \/ APPEND (xs - 1) ys (\x_418. k_append_26 (1 + x_418))).

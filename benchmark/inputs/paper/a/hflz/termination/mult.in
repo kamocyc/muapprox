@@ -1,0 +1,8 @@
+%HES
+Sentry =v
+  ∀n_445. 
+   ∀m_440. 
+    (m_440 <= 0 \/ MULT m_440 n_445 (\x_429. true)) /\ (m_440 > 0 \/ true).
+MULT m_4 n_3 k_mult_29 =u
+  (m_4 <= 0 \/ MULT (m_4 - 1) n_3 (\x_449. k_mult_29 (n_3 + x_449)))
+  /\ (m_4 > 0 \/ k_mult_29 0).

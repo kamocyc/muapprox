@@ -1,0 +1,15 @@
+%HES
+Sentry =v
+  ∀x_751. 
+   (x_751 < 0
+    \/ TOCHURCH x_751 (\x_761. \k_succ_762. k_succ_762 (x_761 + 1))
+        (\tos_743. true))
+   /\ (x_751 >= 0 \/ true).
+TOCHURCH n f k_toChurch_104 =u
+  (n != 0 \/ k_toChurch_104 (\x_756. \k_id_757. k_id_757 x_756))
+  /\ (n = 0
+      \/ TOCHURCH (n - 1) f
+          (\x_755. 
+            k_toChurch_104
+             (\x_719. 
+               \k_compose_720. x_755 x_719 (\x_728. f x_728 k_compose_720)))).
