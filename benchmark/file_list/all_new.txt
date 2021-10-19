@@ -17,3 +17,6 @@ otest/hflz_ft/z/koskinen-2.in
 otest/hflz_ft/z/koskinen-3-3.in
 otest/hflz_ft/murase_closure.in
 otest/hflz_ft/koskinen-1.in
+otest/hflz_termination/ackermann.in
+otest/hflz_termination/mc91.in
+otest/hflz_termination/quicksort.in

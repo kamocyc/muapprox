@@ -5,6 +5,7 @@ import subprocess
 import time
 import re
 import argparse
+import glob
 
 def is_process_running(process_name):
     os.system("ps -ef | grep \"" + process_name + "\" | grep -v grep | awk '{ print $2 }' > __result2.tmp")
@@ -155,11 +156,11 @@ def search_status_from_last(lines, max_lines = 10):
     
     return 'other'
 
-def get_data(file):
+def get_data(file, result):
     def get_1(mode):
         try:
             with open(mode + '.tmp', 'r') as f:
-                [_, pid, iter_count, coe1, coe2, path, file_] = f.read().split(',')
+                [_, pid, iter_count, coe1, coe2, path, file_, t_count, s_count] = f.read().split(',')
                 if os.path.basename(file) == os.path.basename(file_):
                     return {
                         "pid": int(pid),
@@ -167,6 +168,8 @@ def get_data(file):
                         "coe1": int(coe1),
                         "coe2": int(coe2),
                         "path": path,
+                        "t_count": int(t_count),
+                        "s_count": int(s_count)
                     }
                 else:
                     return {}
@@ -190,12 +193,56 @@ def get_data(file):
             print("get_2 (post): not found (" + mode + ")")
             return []
     
+    def get_3(mode, d):
+        # try:
+            files = glob.glob("output2_" + os.path.splitext(os.path.basename(file))[0] + "_" + mode + "_*_output2.tmp")
+            res = []
+            for file2 in files:
+                print("file: " + file2)
+                with open(file2, 'r') as f:
+                    [_, pid, iter_count, coe1, coe2, file_, t_count, s_count, elapse_all] = f.read().split(',')
+                    if os.path.basename(file) == os.path.basename(file_):
+                        res.append({
+                            "iter_count": int(iter_count),
+                            "t_count": int(t_count),
+                            "s_count": int(s_count),
+                            "elapse_all": float(elapse_all),
+                        })
+                    else:
+                        raise ValueError
+            
+            if res == []:
+                {}
+            else:
+                result2 = result['result']
+                match = (result2 == 'invalid' and mode == 'disprover') or  (result2 == 'valid' and mode == 'prover')
+                cs = [r["iter_count"] for r in res]
+                if max(cs) > d['iter_count'] or (match and max(cs) != d['iter_count']):
+                    print(d['iter_count'])
+                    print(max(cs))
+                    raise ValueError
+                    
+                for i in range(max(cs)):
+                    if cs.count(i+1) != 1:
+                        raise ValueError
+                return {
+                    "t_count": res[0]["t_count"],
+                    "s_count": res[0]["s_count"],
+                    "elapse_all": sum([c["elapse_all"] for c in res]),
+                }                    
+        # except:
+        #     print("get_3 (output2): not found (" + mode + ")")
+        #     return {}
+            
     data = {}
     data['prover'] = get_1('prover')
     data['disprover'] = get_1('disprover')
     
     data['prover_post'] = get_2('prover')
     data['disprover_post'] = get_2('disprover')
+    
+    data['prover_output2'] = get_3('prover', data['prover'])
+    data['disprover_output2'] = get_3('disprover', data['disprover'])
     
     
     return data
@@ -252,10 +299,11 @@ def handle(exe_path, file):
             "stdout": stdout,
             "stderr": stderr,
         }
-        
+    
+    print({'result': result})
     result['time'] = t
     if BENCH_SET == 6:
-        result['data'] = get_data(file)
+        result['data'] = get_data(file, result)
         
     append({'result': result})
     
@@ -318,11 +366,18 @@ def main():
             prove_iter_count: .data.prover.iter_count,
             disprove_iter_count: .data.disprover.iter_count,
             prove_iters: .data.prover_post | map({iter_index: .iter_count, time: .time}),
-            disprove_iters: .data.disprover_post | map({iter_index: .iter_count, time: .time})}]
-            | .[] | "\\(.prove_iter_count)\t\\(.disprove_iter_count)"' 0bench_out_full.txt > """ + OUTPUT_FILE_NAME + "_iter_count.txt")
+            disprove_iters: .data.disprover_post | map({iter_index: .iter_count, time: .time}),
+            prover_t_count: .data.prover.t_count,
+            prover_s_count: .data.prover.s_count,
+            disprover_t_count: .data.disprover.t_count,
+            disprover_s_count: .data.disprover.s_count,
+            prover_elapse_all: .data.prover_output2.elapse_all,
+            disprover_elapse_all: .data.disprover_output2.elapse_all}]
+            | .[] | "\\(.prove_iter_count)\t\\(.disprove_iter_count)\t\\(.prover_t_count)\t\\(.prover_s_count)\t\\(.disprover_t_count)\t\\(.disprover_s_count)\t\\(.prover_elapse_all)\t\\(.disprover_elapse_all)"' 0bench_out_full.txt > """ + OUTPUT_FILE_NAME + "_iter_count.txt")
     
     os.system("paste " + OUTPUT_FILE_NAME + '_table.txt' + ' ' + OUTPUT_FILE_NAME + "_iter_count.txt > " + OUTPUT_FILE_NAME + "_summary.txt")
     
+    # prove_iter_count,disprove_iter_count,prover_t_count,prover_s_count,disprover_t_count,disprover_s_count,prover_elapse_all,disprover_elapse_all
     print("time: " + os.path.join(os.getcwd(), OUTPUT_FILE_NAME + "_summary.txt"))
     print("list: " + os.path.join(os.getcwd(), lists_path))
     print("full: " + os.path.join(os.getcwd(), "0bench_out_full.txt"))
