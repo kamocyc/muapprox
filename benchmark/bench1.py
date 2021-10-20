@@ -127,7 +127,7 @@ def readfile(path):
 def run(cmd):
     time.sleep(3.0)
     print("CMD: ")
-    print(cmd)
+    print(cmd, flush=True)
     
     st = time.perf_counter()
     elapsed = timeout
@@ -144,7 +144,7 @@ def run(cmd):
     
     # for name in KILL_PROCESS_NAMES:
     #     os.system('killall -9 ' + name)
-    os.system('../../killp.sh')
+    os.system('../../killp.sh 2> /dev/null')
         
     return stdout, elapsed, stderr, timed_out
 
@@ -209,7 +209,7 @@ def get_data(file, result):
                             "elapse_all": float(elapse_all),
                         })
                     else:
-                        raise ValueError
+                        print("WARN 1")
             
             if res == []:
                 {}
@@ -220,11 +220,11 @@ def get_data(file, result):
                 if max(cs) > d['iter_count'] or (match and max(cs) != d['iter_count']):
                     print(d['iter_count'])
                     print(max(cs))
-                    raise ValueError
+                    print("WARN 2")
                     
                 for i in range(max(cs)):
                     if cs.count(i+1) != 1:
-                        raise ValueError
+                        print("WARN 3")
                 return {
                     "t_count": res[0]["t_count"],
                     "s_count": res[0]["s_count"],
@@ -282,7 +282,7 @@ def log_file(file):
     
 results = []
 def handle(exe_path, file):
-    print("file: " + file)
+    print("file: " + file, flush=True)
     append({'file': file})
     log_file(file)
     
@@ -300,7 +300,7 @@ def handle(exe_path, file):
             "stderr": stderr,
         }
     
-    print({'result': result})
+    # print({'result': result})
     result['time'] = t
     if BENCH_SET == 6:
         result['data'] = get_data(file, result)
