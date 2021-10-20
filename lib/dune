@@ -5,7 +5,6 @@
     hflmc2_options
     hflmc2_syntax
     ltl_program
-    raw_program_2
     branching_time_program
     muapprox.muapprox_prover
     )
