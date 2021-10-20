@@ -1,7 +1,0 @@
-
-(library
-  (name bes)
-  (public_name muapprox.fptprover.bes)
-  (modules Bes)
-  (libraries extlib core)
-  (synopsis "Boolean Expression Simplifier"))

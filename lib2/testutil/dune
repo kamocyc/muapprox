@@ -1,6 +1,0 @@
-(library
-  (name testutil)
-  (libraries
-    oUnit
-  )
-  (synopsis "utility definitions for test"))
