@@ -35,7 +35,6 @@ type options =
     add_arguments: bool;
     no_elim: bool;
     unused_arguments_elimination: bool;
-    adding_arguments_optimization: bool;
     use_all_variables: bool;
     replacer: string;
     auto_existential_quantifier_instantiation: bool;

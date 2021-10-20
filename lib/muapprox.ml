@@ -95,7 +95,6 @@ let get_solve_options file =
     add_arguments = !Options.add_arguments;
     no_elim = !Options.no_elim;
     unused_arguments_elimination = !Options.unused_arguments_elimination;
-    adding_arguments_optimization = !Options.adding_arguments_optimization;
     use_all_variables = !Options.use_all_variables;
     replacer = !Options.replacer;
     auto_existential_quantifier_instantiation = !Options.auto_existential_quantifier_instantiation;

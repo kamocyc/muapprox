@@ -613,7 +613,7 @@ let count_occuring (*id_type_map:(unit Hflz_convert_rev.Id.t, Manipulate.Hflz_ut
   |> List.fold_left (fun acc c -> acc + c) 0
   
 let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
-  let {no_elim; adding_arguments_optimization;
+  let {no_elim;
     use_all_variables; unused_arguments_elimination;
     assign_values_for_exists_at_first_iteration; approx_parameter;_ } = solve_options in
   (* TODO: use 2nd return value of add_arguments *)
@@ -623,11 +623,7 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
   let t_count = ref 0 in
   
   let add_arguments hes =
-    if adding_arguments_optimization then
-      Manipulate.Add_arguments_infer_partial_application.infer solve_options.with_partial_analysis solve_options.with_usage_analysis hes add_arg_coe1 add_arg_coe2
-    else
-      let hes, id_type_map = Manipulate.Add_arguments_old.add_arguments hes add_arg_coe1 add_arg_coe2 false false in
-      (hes, id_type_map, [])
+    Manipulate.Add_arguments_infer_partial_application.infer solve_options.with_partial_analysis solve_options.with_usage_analysis hes add_arg_coe1 add_arg_coe2
   in
   
   if no_elim then begin

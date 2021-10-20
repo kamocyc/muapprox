@@ -27,8 +27,7 @@ let disable_lexicographic = ref (Obj.magic())
 let add_arguments = ref (Obj.magic())
 let coe_arguments = ref (Obj.magic())
 let no_elim = ref (Obj.magic())
-let unused_arguments_elimination = ref (Obj.magic()) 
-let adding_arguments_optimization = ref (Obj.magic ())
+let unused_arguments_elimination = ref (Obj.magic())
 let use_all_variables = ref (Obj.magic())
 let replacer = ref (Obj.magic())
 let auto_existential_quantifier_instantiation = ref (Obj.magic())
@@ -162,7 +161,6 @@ let set_up_params params =
   set_ref use_all_variables params.use_all_variables;
   set_ref add_arguments (not params.disable_add_arguments);
   set_ref unused_arguments_elimination (not params.no_unused_arguments_elimination);
-  set_ref adding_arguments_optimization (not params.no_adding_arguments_optimization);
   set_ref replacer params.replacer;
   set_ref auto_existential_quantifier_instantiation (not params.no_auto_existential_quantifier_instantiation);
   set_ref with_partial_analysis (not params.no_partial_analysis);
