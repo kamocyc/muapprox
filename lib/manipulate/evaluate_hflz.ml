@@ -330,7 +330,7 @@ let rec evaluate_hflz env expansions (expr : unit Type.ty thflz) ls =
     (to_opt_expansions expansions, []), VFun (x, e, ref env, expansions, d)
   | Forall (x, e) -> begin
     let values_to_try = [1; 2; 4; 8] in
-    let datas, vs =
+    let datas, _vs =
       List.map
         (fun value ->
           evaluate_hflz (Env.update [x, VInt value] env) expansions e ls
@@ -347,7 +347,7 @@ let rec evaluate_hflz env expansions (expr : unit Type.ty thflz) ls =
       | [] -> assert false in
     data, VUndefined
   end
-  | Exists (x, e) -> failwith "ni"
+  | Exists _ -> failwith "ni"
   | Pred _ -> assert false
 
 let evaluate_hes_ (hes : Type.simple_ty thflz * Type.simple_ty thes_rule list) =

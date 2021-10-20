@@ -337,7 +337,7 @@ let rec to_int_type x = match x with
   | Var v -> Var {v with Id.ty=`Int}
   | Op (op, xs) -> Op (op, List.map to_int_type xs)
 
-let rec get_free_variables_in_arith a =
+let get_free_variables_in_arith a =
   let rec go a = match a with
     | Arith.Op (_, xs) -> List.map go xs |> List.flatten
     | Int _ -> []

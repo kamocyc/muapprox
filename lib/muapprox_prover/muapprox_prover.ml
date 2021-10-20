@@ -130,7 +130,7 @@ module FptProverRecLimitSolver : BackendSolver = struct
 end
 
 module SolverCommon = struct
-  let output_pre_debug_info hes debug_context dry_run path =
+  let output_pre_debug_info hes debug_context path =
     let path' = 
       match debug_context with 
       | Some debug_context ->
@@ -246,7 +246,7 @@ module KatsuraSolver : BackendSolver = struct
       | Error _ -> failwith "is_valid_replacer_name: illegal result"
     )
     
-  let save_hes_to_file hes replacer debug_context dry_run with_usage_analysis with_partial_analysis =
+  let save_hes_to_file hes replacer debug_context with_usage_analysis with_partial_analysis =
     let should_use_replacer =
       if replacer <> "" then
         is_valid_replacer_name replacer
@@ -285,14 +285,14 @@ module KatsuraSolver : BackendSolver = struct
               | Ok () ->
                 let stdout = String.trim stdout in
                 log_string @@ "REPLACED!!: " ^ stdout;
-                output_pre_debug_info hes debug_context dry_run stdout;
+                output_pre_debug_info hes debug_context stdout;
                 stdout
               | Error _ -> failwith @@ "replacer error (filepath: " ^ path ^ " ): " ^ stdout
             )
           )
         end else
           let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
-          output_pre_debug_info hes debug_context dry_run path;
+          output_pre_debug_info hes debug_context path;
           Deferred.return path in
       path
     )
@@ -330,7 +330,7 @@ module KatsuraSolver : BackendSolver = struct
     )
     
   let run solve_options debug_context hes _ stop_if_intractable = 
-    save_hes_to_file hes (if Option.map (fun d -> d.mode) debug_context = Some "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.dry_run solve_options.with_usage_analysis solve_options.with_partial_analysis
+    save_hes_to_file hes (if Option.map (fun d -> d.mode) debug_context = Some "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.with_usage_analysis solve_options.with_partial_analysis
     >>= (fun path ->
       let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
       let command = solver_command path solve_options stop_if_intractable in
@@ -371,10 +371,10 @@ module IwayamaSolver : BackendSolver = struct
     | None -> failwith "Please set environment variable `iwayama_solver_path`"
     | Some s -> s
   
-  let save_hes_to_file hes debug_context dry_run =
+  let save_hes_to_file hes debug_context =
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
     let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes in
-    output_pre_debug_info hes debug_context dry_run path;
+    output_pre_debug_info hes debug_context path;
     path
     
   let solver_command hes_path solver_options =
@@ -398,7 +398,7 @@ module IwayamaSolver : BackendSolver = struct
     )
   
   let run solve_options debug_context hes _ _ = 
-    let path = save_hes_to_file hes debug_context solve_options.dry_run in
+    let path = save_hes_to_file hes debug_context in
     let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
     run_command_with_timeout solve_options.timeout command (Option.map (fun c -> c.mode) debug_context)
@@ -416,11 +416,11 @@ module SuzukiSolver : BackendSolver = struct
     | None -> failwith "Please set environment variable `suzuki_solver_path`"
     | Some s -> s
   
-  let save_hes_to_file hes debug_context dry_run =
+  let save_hes_to_file hes debug_context =
     Hflmc2_syntax.Print.global_not_output_zero_minus_as_negative_value := true;
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
     let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes in
-    output_pre_debug_info hes debug_context dry_run path;
+    output_pre_debug_info hes debug_context path;
     path
     
   let solver_command hes_path solver_options =
@@ -451,7 +451,7 @@ module SuzukiSolver : BackendSolver = struct
     )
   
   let run solve_options debug_context hes _ _ = 
-    let path = save_hes_to_file hes debug_context solve_options.dry_run in
+    let path = save_hes_to_file hes debug_context in
     let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
     run_command_with_timeout ~no_quote:true solve_options.timeout command (Option.map (fun c -> c.mode) debug_context)
