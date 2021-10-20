@@ -72,9 +72,9 @@ let get_solve_options file =
     get_approx_parameter !Options.coe !Options.coe_arguments !Options.default_lexicographic_order in
   {
     no_backend_inlining = !Options.no_backend_inlining;
+    log_level = !Options.log_level;
     no_disprove = true;
     timeout = !Options.timeout;
-    print_for_debug = !Options.print_for_debug;
     separate_original_formula_in_exists = not !Options.no_separate_original_formula_in_exists;
     solver = get_solver !Options.solver;
     first_order_solver = get_first_order_solver !Options.first_order_solver;

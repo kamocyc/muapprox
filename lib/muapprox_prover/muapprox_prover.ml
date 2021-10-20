@@ -117,11 +117,15 @@ module FptProverRecLimitSolver : BackendSolver = struct
     output_debug debug_context path_;
     (* Global.config := Config.update_hoice true Global.config; *)
     (* 1, 2番目の引数は使われていない *)
+    let debug_output =
+      match option.log_level with
+      | Some Info | Some Debug -> true
+      | _ -> false in
     if with_par then
-      Rfunprover.Solver.solve_onlynu_onlyforall_par false option.timeout option.print_for_debug hes
+      Rfunprover.Solver.solve_onlynu_onlyforall_par false option.timeout debug_output hes
         >>| (fun status -> convert_status status)
     else
-      Rfunprover.Solver.solve_onlynu_onlyforall_z3 true option.timeout option.print_for_debug hes 
+      Rfunprover.Solver.solve_onlynu_onlyforall_z3 true option.timeout debug_output hes 
         >>| (fun status -> convert_status status)
 end
 

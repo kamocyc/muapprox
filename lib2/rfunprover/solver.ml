@@ -86,6 +86,9 @@ module CU = struct
     | name::arguments -> sync_command timeout name arguments []
 end *)
 
+let print_endline_if_true f s =
+  if f then print_endline s else ()
+
 let rec get_status_from_hoice_output result =
   match result with
   | [] -> failwith "no result"
@@ -443,7 +446,7 @@ let hoice_com solver ctx entry_funname entry_bounds is_need_example _ is_print_f
           with _ -> ("hoice", Status.Unknown))
 
 
-let z3_com solver ctx entry_funname entry_bounds _ _ _ =
+let z3_com solver ctx entry_funname entry_bounds _ _ is_print_for_debug =
   let params = Params.mk_params ctx in
   Params.add_bool params (Symbol.mk_string ctx "print_fixedpoint_extensions") false;
   Z3.Fixedpoint.set_parameters solver params;
@@ -478,8 +481,8 @@ let z3_com solver ctx entry_funname entry_bounds _ _ _ =
     (s^"in.smt2", s^"out.txt")
   in
   let _ = write_strings inputs z3_infile in
-  print_endline (String.concat "," inputs);
-  (print_string ((Core.Pid.to_string(Unix.getpid()))^"\n");
+  print_endline_if_true is_print_for_debug (String.concat "," inputs);
+  (print_endline_if_true is_print_for_debug ((Core.Pid.to_string(Unix.getpid()))^"\n");
      Unix.system ("z3 "^z3_infile^" > "^z3_outfile))
   >>| (fun _ ->
        try
@@ -564,7 +567,6 @@ let solve_onlynu_onlyforall_z3 _ timeout is_print_for_debug hes =
   (*
   let hoice_command = hoice_com solver ctx entry_funname bounds false timeout is_print_for_debug in
    *)
-   print_endline "AAA";
   (if !Global.config.usehoice then
      hoice_com solver ctx entry_funname bounds false timeout is_print_for_debug
    else z3_com solver ctx entry_funname bounds false timeout is_print_for_debug)

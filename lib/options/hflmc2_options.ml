@@ -8,7 +8,6 @@ open Hflmc2_util
 
 let format = ref (Obj.magic())
 let timeout = ref (Obj.magic())
-let print_for_debug = ref (Obj.magic())
 let no_backend_inlining = ref (Obj.magic())
 let no_separate_original_formula_in_exists = ref (Obj.magic())
 let solver = ref (Obj.magic())
@@ -37,6 +36,8 @@ let with_partial_analysis = ref (Obj.magic())
 let with_usage_analysis = ref (Obj.magic())
 let always_add_arguments = ref (Obj.magic())
 let agg = ref (Obj.magic())
+let log_level = ref (Obj.magic())
+
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -56,9 +57,6 @@ type params =
   
   ; timeout : int [@default 600]
   (** Timeout for a backend solver *)
-  
-  ; print_for_debug : bool [@default true]
-  (** Print for debug *)
   
   ; no_separate_original_formula_in_exists : bool [@default true]
   (** If specified, when approximating exists, do not create new predicate that reduces the formula size *)
@@ -143,7 +141,6 @@ type params =
 let set_up_params params =
   set_ref format                   params.format;
   set_ref timeout                  params.timeout;
-  set_ref print_for_debug          params.print_for_debug;
   set_ref no_separate_original_formula_in_exists params.no_separate_original_formula_in_exists;
   set_ref no_backend_inlining      params.no_inlining_backend;
   set_ref solver                   params.solver;
@@ -196,6 +193,8 @@ let term_setup_log () =
     
     let reporter = get_reporter "@[<v 2>[%a]@ @]" in
     Logs.set_reporter reporter;
+    
+    log_level := level;
     
     Logs.set_level level
   in

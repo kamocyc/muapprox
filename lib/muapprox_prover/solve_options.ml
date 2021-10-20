@@ -12,12 +12,12 @@ type approx_parameter = {
 type options = 
   {
     no_backend_inlining : bool;
+    log_level: Logs.level option;
     no_disprove: bool;
     timeout : int;
     approx_parameter: approx_parameter;
     use_custom_parameter: bool;
     oneshot: bool;
-    print_for_debug : bool;
     separate_original_formula_in_exists : bool;
     solver : solver_type;
     backend_solver: string option;
