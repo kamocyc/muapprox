@@ -22,7 +22,7 @@ end = struct
 
   let show_curr_pos lexbuf =
     let pos = Lexing.(lexbuf.lex_curr_p) in
-    Fmt.strf "%s%d:%d"
+    Fmt.str "%s%d:%d"
       (if pos.pos_fname="" then "" else pos.pos_fname^":")
       pos.pos_lnum
       (pos.pos_cnum - pos.pos_bol)
@@ -131,7 +131,7 @@ end = struct
       match checkpoint with
       | I.HandlingError env ->
           raise @@ ParseError begin
-            Fmt.strf "@[<v>Parse Error at %s:@;Cousumed input:@;%a@]@."
+            Fmt.str "@[<v>Parse Error at %s:@;Cousumed input:@;%a@]@."
               (show_curr_pos lexbuf)
               pp_env env
           end
@@ -146,7 +146,7 @@ end = struct
         loop lexbuf (P.Incremental.main lexbuf.lex_curr_p)
       with Failure s ->
         raise @@ LexingError begin
-          Print.strf "@[<v>Lexing Error at %s:@;%s@]@."
+          Print.str "@[<v>Lexing Error at %s:@;%s@]@."
             (show_curr_pos lexbuf) s
         end
     in

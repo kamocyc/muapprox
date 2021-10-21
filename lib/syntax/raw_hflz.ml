@@ -380,7 +380,7 @@ module Typing = struct
             try
               StrMap.add_exn id_env ~key:rule.var ~data:(new_id())
             with _ ->
-              error @@ Fmt.strf "%s is defined twice" rule.var
+              error @@ Fmt.str "%s is defined twice" rule.var
           end
         in
         match List.map hes ~f:(self#hes_rule id_env) with
@@ -412,11 +412,11 @@ module Typing = struct
 
     method id : unit Id.t -> simple_ty Id.t =
       fun x -> match IntMap.find ty_env x.id with
-        | None -> failwith @@ Fmt.strf "%s" (Id.to_string x)
+        | None -> failwith @@ Fmt.str "%s" (Id.to_string x)
         | Some ty -> { x with ty = self#ty (Id.to_string x) ty }
     method arg_id : unit arg Id.t -> simple_ty arg Id.t =
       fun x -> match IntMap.find ty_env x.id with
-        | None -> failwith @@ Fmt.strf "%s" (Id.to_string x)
+        | None -> failwith @@ Fmt.str "%s" (Id.to_string x)
         | Some tv -> { x with ty = self#arg_ty (Id.to_string x) tv }
 
     method term : unit Hflz.Sugar.t -> simple_ty Hflz.Sugar.t = function
