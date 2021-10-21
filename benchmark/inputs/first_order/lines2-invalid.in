@@ -1,0 +1,10 @@
+/*
+  forall a, b. F a b
+  F a b =mu G a b \/ F (a + 2) (b + 1)
+  G a b =nu a > b /\ G (a + 2) (b + 1) /\ F b a
+*/
+
+%HES
+Sentry =v ∀m6. ∀n7. F n7 m6.
+F a8 b9 =u G a8 b9 \/ F (a8 + 2) (b9 + 1).
+G a10 b11 =v a10 > b11 /\ G (a10 + 2) (b11 + 1) /\ F a10 a10.

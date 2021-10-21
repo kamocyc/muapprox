@@ -1,0 +1,6 @@
+/* なぜかSAS19のoptimizeでエラーが出る */
+
+%HES
+Sentry =v ∃m6. ∃k7. m6 <= 0 \/ (∀n8. F n8 m6 k7).
+F n9 m10 k11 =u n9 <= 0 \/ m10 <= 0 \/ k11 <= 0 \/ G n9.
+G n12 =u n12 >= 0 \/ F n12 n12 n12.

@@ -1,0 +1,10 @@
+/*
+forall (x: int). x >= 0 <=> F x
+s.t.
+F (x: int): bool =mu x = 0 \/ F (x - 1);
+*/
+
+%HES
+Sentry =v ∀x4. (x4 < 0 \/ F x4) /\ (x4 >= 0 \/ F_ap_ x4).
+F x5 =u x5 = 0 \/ F (x5 - 1).
+F_ap_ x6 =v x6 != 0 /\ F_ap_ (x6 - 1).

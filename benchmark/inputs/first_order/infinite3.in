@@ -1,0 +1,4 @@
+%HES
+Sentry =v ∀n4. F n4.
+F x5 =v G x5.
+G y6 =u F (y6 - 1) /\ (y6 >= 0 \/ G (y6 + 1)).

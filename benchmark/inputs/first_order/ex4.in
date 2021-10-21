@@ -1,0 +1,6 @@
+%HES
+Sentry =v P0.
+P0  =v P1.
+P1  =u P2.
+P2  =u P3.
+P3  =u P1.

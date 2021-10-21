@@ -1,8 +1,0 @@
-F_0_ff
-where
-F_0_tt (x: int): bool =nu forall (sh_exists_r: int). sh_exists_r < 1 \/ F_0_tt_exc x sh_exists_r;
-F_0_tt_exc (x: int) (sh_exists_r: int): bool =nu (G_0_ff_1 x sh_exists_r /\ F_0_tt sh_exists_r \/ G_0_ff_1 x (-sh_exists_r) /\ F_0_tt (-sh_exists_r) \/ F_0_tt_exc x (sh_exists_r - 1)) /\ sh_exists_r >= 0;
-F_0_ff: bool =nu forall (sh_exists_r: int). sh_exists_r < 1 \/ F_0_ff_exc sh_exists_r;
-F_0_ff_exc (sh_exists_r: int): bool =nu (G_0_ff_1 10 sh_exists_r /\ F_0_tt sh_exists_r \/ G_0_ff_1 10 (-sh_exists_r) /\ F_0_tt (-sh_exists_r) \/ F_0_ff_exc (sh_exists_r - 1)) /\ sh_exists_r >= 0;
-G_0_ff_1 (x: int) (r: int): bool =nu x >= 0 /\ (forall (rec_exc_G_1_ff_1: int). rec_exc_G_1_ff_1 < 1 * r + 1 \/ rec_exc_G_1_ff_1 < -1 * r + 1 \/ rec_exc_G_1_ff_1 < 1 * (x - 1) + 1 \/ rec_exc_G_1_ff_1 < -1 * (x - 1) + 1 \/ G_1_ff_1 rec_exc_G_1_ff_1 (x - 1) r) \/ x < 0 /\ r = 5;
-G_1_ff_1 (rec_exc_G_1_ff_1: int) (x: int) (r: int): bool =nu rec_exc_G_1_ff_1 > 0 /\ (x >= 0 /\ G_1_ff_1 (rec_exc_G_1_ff_1 - 1) (x - 1) r \/ x < 0 /\ r = 5);

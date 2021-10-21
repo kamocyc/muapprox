@@ -1,0 +1,4 @@
+/* valid */
+%HES
+Sentry =v ∀x2. x2 = 0 \/ F_0_ff x2.
+F_0_ff x3 =u ∃r4. r4 != 0 /\ x3 + r4 = 0.

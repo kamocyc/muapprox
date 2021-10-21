@@ -1,0 +1,27 @@
+/*
+Taken from
+Hofmann and Chen, "Buchi Types for Infinite Traces and Liveness", CSL-LICS 2014
+
+Program:
+
+let rec f () = A; B; f ()
+let main () = f ()
+
+Spec \phi:
+B occurs infinitely often
+
+Buchi automaton \neg \phi:
+(A | B)^* A^omega
+
+q0 A -> q0
+q0 B -> q0
+q0 A -> q1
+q1 A -> q1
+
+q1 in F
+*/
+
+%HES
+Sentry =v ∃x4. F_0_ff x4.
+F_0_tt x5 =v F_0_ff x5.
+F_0_ff x6 =u F_0_ff x6.

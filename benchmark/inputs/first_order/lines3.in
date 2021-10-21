@@ -1,0 +1,4 @@
+%HES
+Sentry =v ∀m6. ∀n7. n7 <= m6 \/ G n7 m6.
+G a8 b9 =v a8 > b9 /\ G (a8 + 2) (b9 + 1) /\ F b9 a8.
+F a10 b11 =u G a10 b11 \/ F (a10 + 2) (b11 + 1).

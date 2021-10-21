@@ -1,0 +1,10 @@
+/*
+  y = ax + b
+  y = cx + d
+  forall a, b, c, d. a > b => exists x >= 0. forall x'. x > x' => ax' + b > cx' + d
+*/
+
+%HES
+Sentry =v ∀a10. ∀b11. ∀c12. ∀d13. a10 <= b11 \/ F a10 b11 c12 d13.
+F a14 b15 c16 d17 =u G a14 b15 c16 d17 \/ F a14 b15 (c16 + a14) (d17 + b15).
+G a18 b19 c20 d21 =v c20 > d21 /\ G a18 b19 (c20 + a18) (d21 + b19).

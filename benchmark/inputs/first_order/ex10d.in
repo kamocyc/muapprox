@@ -1,0 +1,70 @@
+/* A(FG x=0 \/ FG x=1)
+
+negation: E(GF x/=0 /\ GF xF x/=1)
+is expressed by:
+nu X.mu Y.(<>Y \/ (x=/=0 /\ mu Z.<>Z \/ (x=/=1 /\ <>X)))
+(there is a path in which both x=/=0 and x=/=1 happen infinitely often)
+
+Thus, A(FG x=0 \/ FG x=1)
+is expressed by:
+mu X.nu Y.([]Y /\ (x=0 \/ nu Z.[]Z /\ (x=1\/[]X)))
+*/
+
+%HES
+Sentry =v X0 0.
+X0 x112 =u Y0 x112.
+X1 x113 =u Y1 x113.
+X2 x114 =u Y2 x114.
+X3 x115 =u Y3 x115.
+X4 x116 =u Y4 x116.
+X5 x117 =u Y5 x117.
+X6 x118 =u Y6 x118.
+Y0 x119 =v Y10 x119 /\ Y20 x119.
+Y1 x120 =v Y11 x120 /\ Y21 x120.
+Y2 x121 =v Y12 x121 /\ Y22 x121.
+Y3 x122 =v Y13 x122 /\ Y23 x122.
+Y4 x123 =v Y14 x123 /\ Y24 x123.
+Y5 x124 =v Y15 x124 /\ Y25 x124.
+Y6 x125 =v Y16 x125 /\ Y26 x125.
+Y10 x126 =v Y1 1.
+Y11 x127 =v Y1 x127 /\ Y4 x127.
+Y12 x128 =v Y5 x128 /\ Y6 x128.
+Y13 x129 =v Y3 x129.
+Y14 x130 =v Y2 0.
+Y15 x131 =v Y3 1.
+Y16 x132 =v Y3 0.
+Y20 x133 =v x133 = 0 \/ Z0 x133.
+Y21 x134 =v x134 = 0 \/ Z1 x134.
+Y22 x135 =v x135 = 0 \/ Z2 x135.
+Y23 x136 =v x136 = 0 \/ Z3 x136.
+Y24 x137 =v x137 = 0 \/ Z4 x137.
+Y25 x138 =v x138 = 0 \/ Z5 x138.
+Y26 x139 =v x139 = 0 \/ Z6 x139.
+Z0 x140 =v Z10 x140 /\ Z20 x140.
+Z1 x141 =v Z11 x141 /\ Z21 x141.
+Z2 x142 =v Z12 x142 /\ Z22 x142.
+Z3 x143 =v Z13 x143 /\ Z23 x143.
+Z4 x144 =v Z14 x144 /\ Z24 x144.
+Z5 x145 =v Z15 x145 /\ Z25 x145.
+Z6 x146 =v Z16 x146 /\ Z26 x146.
+Z10 x147 =v Z1 1.
+Z11 x148 =v Z1 x148 /\ Z4 x148.
+Z12 x149 =v Z5 x149 /\ Z6 x149.
+Z13 x150 =v Z3 x150.
+Z14 x151 =v Z2 0.
+Z15 x152 =v Z3 1.
+Z16 x153 =v Z3 0.
+Z20 x154 =v x154 = 1 \/ Z220 x154.
+Z21 x155 =v x155 = 1 \/ Z221 x155.
+Z22 x156 =v x156 = 1 \/ Z222 x156.
+Z23 x157 =v x157 = 1 \/ Z223 x157.
+Z24 x158 =v x158 = 1 \/ Z224 x158.
+Z25 x159 =v x159 = 1 \/ Z225 x159.
+Z26 x160 =v x160 = 1 \/ Z226 x160.
+Z220 x161 =v X1 1.
+Z221 x162 =v X1 x162 /\ X4 x162.
+Z222 x163 =v X5 x163 /\ X6 x163.
+Z223 x164 =v X3 x164.
+Z224 x165 =v X2 0.
+Z225 x166 =v X3 1.
+Z226 x167 =v X3 0.

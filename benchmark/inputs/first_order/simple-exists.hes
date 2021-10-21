@@ -1,4 +1,0 @@
-/* valid */
-forall (x: int). x = 0 \/ F_0_ff x
-s.t.
-F_0_ff (x: int): bool =mu exists (r: int). r != 0 /\ x + r = 0;

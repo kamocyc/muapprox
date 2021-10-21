@@ -1,0 +1,92 @@
+/*
+Taken from
+Murase et al., "Temporal Verification of Higher-order Functional Programs", POPL 2016
+
+Program:
+
+let rec f x =
+  B;
+  if x < 0 then 0
+  else if x = 0 then (A; 0)
+  else let _ = f 0 in f 1
+let rec loop () = C; loop ()
+let rec main () = let x = * in let _ = f x in loop ()
+
+Spec \phi:
+A or C occurs infinitely often
+
+Buchi automaton:
+(A | B | C)^* B^omega
+
+q0 A -> q0
+q0 B -> q0
+q0 C -> q0
+q0 B -> q1
+q1 B -> q1
+
+q1 in F
+
+*/
+
+%HES
+Sentry =v ∃x23. F_0_ff x23.
+F_0_tt x24 =v
+  x24 > 0
+  /\ (F_0_ff 0
+      \/ (∃r29. F_0_ff_0 0 r29 /\ F_0_ff 1)
+         \/ (∃r28. F_0_tt_0 0 r28 /\ F_0_tt 1)
+            \/ (∃r27. F_0_tt_1 0 r27 /\ F_1_tt 1)
+               \/ F_1_tt 0
+                  \/ (∃r26. F_1_tt_0 0 r26 /\ F_0_tt 1)
+                     \/ (∃r25. F_1_tt_1 0 r25 /\ F_1_tt 1)).
+F_1_tt x30 =v
+  x30 > 0
+  /\ (F_1_tt 0
+      \/ (∃r32. F_1_tt_0 0 r32 /\ F_0_tt 1)
+         \/ (∃r31. F_1_tt_1 0 r31 /\ F_1_tt 1)).
+F_0_ff x33 =u
+  x33 > 0
+  /\ (F_0_ff 0
+      \/ (∃r38. F_0_ff_0 0 r38 /\ F_0_ff 1)
+         \/ (∃r37. F_0_tt_0 0 r37 /\ F_0_tt 1)
+            \/ (∃r36. F_0_tt_1 0 r36 /\ F_1_tt 1)
+               \/ F_1_tt 0
+                  \/ (∃r35. F_1_tt_0 0 r35 /\ F_0_tt 1)
+                     \/ (∃r34. F_1_tt_1 0 r34 /\ F_1_tt 1)).
+F_1_ff x39 =u
+  x39 > 0
+  /\ (F_1_tt 0
+      \/ (∃r41. F_1_tt_0 0 r41 /\ F_0_tt 1)
+         \/ (∃r40. F_1_tt_1 0 r40 /\ F_1_tt 1)).
+F_0_ff_0 x42 r43 =u
+  x42 < 0 /\ r43 = 0
+  \/ x42 = 0 /\ r43 = 0
+     \/ x42 > 0 /\ (∃s44. F_0_ff_0 0 s44 /\ F_0_ff_0 1 r43).
+F_0_tt_0 x45 r46 =u
+  x45 > 0
+  /\ ((∃s53. F_0_ff_0 0 r46 /\ F_0_tt_0 1 r46)
+      \/ (∃s52. F_0_tt_0 0 r46 /\ F_0_ff_0 1 r46)
+         \/ (∃s51. F_0_tt_0 0 r46 /\ F_0_tt_0 1 r46)
+            \/ (∃s50. F_0_tt_1 0 r46 /\ F_1_tt_0 1 r46))
+  \/ x45 > 0
+     /\ ((∃s49. F_1_tt_0 0 r46 /\ F_0_ff_0 1 r46)
+         \/ (∃s48. F_1_tt_0 0 r46 /\ F_0_tt_0 1 r46)
+            \/ (∃s47. F_1_tt_1 0 r46 /\ F_1_tt_0 1 r46)).
+F_0_tt_1 x54 r55 =u
+  x54 > 0
+  /\ ((∃s60. F_0_ff_0 0 r55 /\ F_0_tt_1 1 r55)
+      \/ (∃s59. F_0_tt_0 0 r55 /\ F_0_tt_1 1 r55)
+         \/ (∃s58. F_0_tt_1 0 r55 /\ F_1_tt_1 1 r55))
+  \/ x54 < 0
+     \/ x54 > 0
+        /\ ((∃s57. F_1_tt_0 0 r55 /\ F_0_tt_1 1 r55)
+            \/ (∃s56. F_1_tt_1 0 r55 /\ F_1_tt_1 1 r55)).
+F_1_tt_0 x61 r62 =u
+  x61 > 0
+  /\ ((∃s65. F_1_tt_0 0 r62 /\ F_0_ff_0 1 r62)
+      \/ (∃s64. F_1_tt_0 0 r62 /\ F_0_tt_0 1 r62)
+         \/ (∃s63. F_1_tt_1 0 r62 /\ F_1_tt_0 1 r62)).
+F_1_tt_1 x66 r67 =u
+  x66 > 0
+  /\ ((∃s69. F_1_tt_0 0 r67 /\ F_0_tt_1 1 r67)
+      \/ (∃s68. F_1_tt_1 0 r67 /\ F_1_tt_1 1 r67)).

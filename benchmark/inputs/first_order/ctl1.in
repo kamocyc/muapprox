@@ -1,0 +1,33 @@
+/*
+forall n, m.
+    for all timing, A and B occurs in the future
+    iff m > 0
+
+  let f x y =
+    if x > 0 then
+      A; f (x - y) y
+    else
+      B; f (x + y) y
+*/
+/*
+  forall n, m. m > 0 <=> F n m
+  s.t.
+  F x y =nu A x y /\ B x y /\ (x > 0 => F (x - y) y) /\ (x <= 0 => F (x + y) y);
+  A x y =mu x <= 0 => A (x + y) y;
+  B x y =mu x > 0 => B (x - y) y;
+*/
+
+%HES
+Sentry =v ∀m18. ∀n19. (m18 <= 0 \/ F n19 m18) /\ (F2 n19 m18 \/ m18 > 0).
+F2 x20 y21 =u
+  A2 x20 y21
+  \/ B2 x20 y21
+     \/ x20 <= 0 /\ F2 (x20 + y21) y21 \/ x20 > 0 /\ F2 (x20 - y21) y21.
+B2 x22 y23 =v x22 > 0 /\ B2 (x22 - y23) y23.
+A2 x24 y25 =v x24 <= 0 /\ A2 (x24 + y25) y25.
+F x26 y27 =v
+  A x26 y27
+  /\ B x26 y27
+     /\ (x26 > 0 \/ F (x26 + y27) y27) /\ (x26 <= 0 \/ F (x26 - y27) y27).
+B x28 y29 =u x28 <= 0 \/ B (x28 - y29) y29.
+A x30 y31 =u x30 > 0 \/ A (x30 + y31) y31.

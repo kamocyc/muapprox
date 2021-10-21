@@ -1,0 +1,42 @@
+/*
+Taken from
+Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014
+
+Program:
+
+let rec print x = Print; print x
+let rec rumble x y =
+  Rumble;
+  if x < y then
+    if * then rumble (x + 1) y else rumble x (y - 1)
+  else x
+
+let main () =
+  let a = * in
+  let b = * in
+  print (rumble a (rumble b a)
+
+Spec \phi: F Print
+
+Buchi automaton \neg \phi:
+Rumble^omega
+
+q0 Rumble -> q0
+
+q0 in F
+*/
+
+%HES
+Sentry =v
+  ∃a10. 
+   ∃b11. 
+    Rumble_0_ff b11 a10
+    \/ (∃r12. Rumble_0_tt_0 b11 a10 r12 /\ Rumble_0_tt a10 r12).
+Rumble_0_tt x13 y14 =v
+  x13 < y14 /\ (Rumble_0_tt (x13 + 1) y14 \/ Rumble_0_tt x13 (y14 - 1)).
+Rumble_0_ff x15 y16 =u
+  x15 < y16 /\ (Rumble_0_tt (x15 + 1) y16 \/ Rumble_0_tt x15 (y16 - 1)).
+Rumble_0_tt_0 x17 y18 r19 =u
+  x17 < y18
+  /\ (Rumble_0_tt_0 (x17 + 1) y18 r19 \/ Rumble_0_tt_0 x17 (y18 - 1) r19)
+  \/ x17 >= y18 /\ r19 = x17.

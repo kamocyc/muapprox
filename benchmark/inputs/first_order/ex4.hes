@@ -1,6 +1,0 @@
-P0
-s.t.
-P0 : bool =nu P1;
-P1 : bool =mu P2;
-P2 : bool =mu P3;
-P3 : bool =mu P1;

@@ -1,0 +1,59 @@
+/*
+Taken from
+Hofmann and Chen, "Buchi Types for Infinite Traces and Liveness", CSL-LICS 2014
+
+Program:
+
+let rec inner_loop i s =
+  if i < 1024 && not (s=0) then
+    let s = * in
+    inner_loop (i+1) s
+  else (C; 0)
+let rec loop () = let _ = inner_loop 0 0 in B; loop ()
+let main () = loop ()
+
+Spec \phi:
+if C occurs infinitely often, so does B
+
+Buchi automaton \neg \phi:
+(B | C)^* C^omega
+
+q0 B -> q0
+q0 C -> q0
+q0 C -> q1
+q1 C -> q1
+
+q1 in F
+*/
+
+%HES
+Sentry =v Loop_0_ff 0.
+Loop_0_tt dummy37 =v
+  Inner_loop_0_ff 0 0
+  \/ (∃r39. Inner_loop_0_ff_0 0 0 r39 /\ Loop_0_ff 0)
+     \/ (∃r38. Inner_loop_0_tt_0 0 0 r38 /\ Loop_0_tt 0).
+Inner_loop_1_tt i40 s41 =v
+  i40 < 1024 /\ s41 != 0 /\ (∃ss42. Inner_loop_1_ff (i40 + 1) ss42).
+Loop_0_ff dummy43 =u
+  Inner_loop_0_ff 0 0
+  \/ (∃r45. Inner_loop_0_ff_0 0 0 r45 /\ Loop_0_ff 0)
+     \/ (∃r44. Inner_loop_0_tt_0 0 0 r44 /\ Loop_0_tt 0).
+Inner_loop_0_ff i46 s47 =u
+  i46 < 1024 /\ s47 != 0 /\ (∃ss48. Inner_loop_0_ff (i46 + 1) ss48).
+Inner_loop_1_ff i49 s50 =u
+  i49 < 1024 /\ s50 != 0 /\ (∃ss51. Inner_loop_1_ff (i49 + 1) ss51).
+Inner_loop_0_ff_0 i52 s53 r54 =u
+  i52 < 1024 /\ s53 != 0 /\ (∃ss55. Inner_loop_0_ff_0 (i52 + 1) ss55 r54)
+  \/ (i52 >= 1024 \/ s53 = 0) /\ r54 = 0.
+Inner_loop_0_tt_0 i56 s57 r58 =u
+  i56 < 1024 /\ s57 != 0 /\ (∃ss59. Inner_loop_0_tt_0 (i56 + 1) ss59 r58).
+Inner_loop_0_tt_1 i60 s61 r62 =u
+  i60 < 1024 /\ s61 != 0 /\ (∃ss63. Inner_loop_0_tt_1 (i60 + 1) ss63 r62)
+  \/ (i60 >= 1024 \/ s61 = 0) /\ r62 = 0.
+Inner_loop_1_ff_0 i64 s65 r66 =u
+  i64 < 1024 /\ s65 != 0 /\ (∃ss67. Inner_loop_1_ff_0 (i64 + 1) ss67 r66).
+Inner_loop_1_tt_0 i68 s69 r70 =u
+  i68 < 1024 /\ s69 != 0 /\ (∃ss71. Inner_loop_1_tt_0 (i68 + 1) ss71 r70).
+Inner_loop_1_tt_1 i72 s73 r74 =u
+  i72 < 1024 /\ s73 != 0 /\ (∃ss75. Inner_loop_1_tt_1 (i72 + 1) ss75 r74)
+  \/ (i72 >= 1024 \/ s73 = 0) /\ r74 = 0.

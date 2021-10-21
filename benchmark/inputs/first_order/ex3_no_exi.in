@@ -1,0 +1,27 @@
+%HES
+Sentry =v ∀v_exists_x18. v_exists_x18 < 1 \/ Exists v_exists_x18.
+Exists v_exists_x19 =v
+  (F_0_ff v_exists_x19 \/ F_0_ff (-v_exists_x19) \/ Exists (v_exists_x19 - 1))
+  /\ v_exists_x19 >= 0.
+F_0_tt x20 =v
+  ∀v_exists_r21. 
+   v_exists_r21 < 1
+   \/ v_exists_r21 < 1 * x20
+      \/ v_exists_r21 < -1 * x20 \/ F_0_tt_ap x20 v_exists_r21.
+F_0_tt_ap x22 v_exists_r23 =v
+  (G_0_ff_1 x22 v_exists_r23 /\ F_0_tt v_exists_r23
+   \/ G_0_ff_1 x22 (-v_exists_r23) /\ F_0_tt (-v_exists_r23)
+      \/ F_0_tt_ap x22 (v_exists_r23 - 1))
+  /\ v_exists_r23 >= 0.
+F_0_ff x24 =u
+  ∀v_exists_r25. 
+   v_exists_r25 < 1
+   \/ v_exists_r25 < 1 * x24
+      \/ v_exists_r25 < -1 * x24 \/ F_0_ff_ap x24 v_exists_r25.
+F_0_ff_ap x26 v_exists_r27 =v
+  (G_0_ff_1 x26 v_exists_r27 /\ F_0_tt v_exists_r27
+   \/ G_0_ff_1 x26 (-v_exists_r27) /\ F_0_tt (-v_exists_r27)
+      \/ F_0_ff_ap x26 (v_exists_r27 - 1))
+  /\ v_exists_r27 >= 0.
+G_0_ff_1 x28 r29 =u x28 >= 0 /\ G_1_ff_1 (x28 - 1) r29 \/ x28 < 0 /\ r29 = 5.
+G_1_ff_1 x30 r31 =u x30 >= 0 /\ G_1_ff_1 (x30 - 1) r31 \/ x30 < 0 /\ r31 = 5.

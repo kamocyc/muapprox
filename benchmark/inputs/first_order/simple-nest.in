@@ -1,0 +1,5 @@
+/* X n => n >= 0 */
+%HES
+Sentry =v ∀n4. X n4 \/ n4 >= 0.
+X x5 =u X (x5 + 1) \/ Y x5.
+Y y6 =v y6 != 0 /\ Y (y6 - 1).

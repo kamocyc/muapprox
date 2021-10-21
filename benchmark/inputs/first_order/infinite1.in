@@ -1,0 +1,13 @@
+/*
+  'A' infinitely executes in
+  let f n m =
+    if n < m then
+      A; f (n + 1) m
+    else
+      f n (m + 1)
+*/
+
+%HES
+Sentry =v ∀m6. ∀n7. F n7 m6.
+F n8 m9 =v (n8 >= m9 \/ F (n8 + 1) m9) /\ (n8 < m9 \/ G n8 (m9 + 1)).
+G n10 m11 =u (n10 >= m11 \/ F (n10 + 1) m11) /\ (n10 < m11 \/ G n10 (m11 + 1)).

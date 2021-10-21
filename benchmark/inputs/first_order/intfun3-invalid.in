@@ -1,0 +1,14 @@
+/*
+  'A' executes infinitely in g x for some x >= 0
+  where g is defined below:
+
+  let f x = if x = 0 then 2 else f (x - 3) in
+  let g x =
+    if x >= 0 then
+      A; let a = f x in g (x + a)
+*/
+
+%HES
+Sentry =v ∃x5. G x5.
+G x6 =v x6 >= 0 /\ F x6 x6.
+F x7 y8 =u x7 = 0 /\ G (y8 + 2) \/ x7 != 0 /\ F (x7 - 3) y8.
