@@ -9,7 +9,7 @@ open Core
   Stdlib.Filename.concat dir (base ^ ext) *)
 
 let main path1 =
-  let phi1 = Muapprox.parse path1 false in
+  let phi1 = Muapprox.parse path1 in
   let phi1 = Muapprox.Manipulate.Evaluate_hflz.evaluate_hes phi1 in
   ignore @@ phi1
 

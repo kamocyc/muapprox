@@ -1,7 +1,7 @@
 open Core
 
 let main path1 =
-  let phi1 = Muapprox.parse path1 false in
+  let phi1 = Muapprox.parse path1 in
   Muapprox.Manipulate.Hflz_typecheck.ensure_no_shadowing phi1;
   print_endline "OK"
 

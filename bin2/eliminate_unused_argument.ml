@@ -8,8 +8,8 @@ let map_file_path path converter =
   let dir, base, ext = converter (dir, base, ext) in
   Stdlib.Filename.concat dir (base ^ ext)
 
-let main filepath is_hes =
-  let hes = Muapprox.parse filepath is_hes in
+let main filepath =
+  let hes = Muapprox.parse filepath in
   (* let path2 = map_file_path filepath (fun (a, b, c) -> (a, b ^ "_elim_org", c)) in
   ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 true hes; *)
   (* let hes = Muapprox.infer_type hes in *)
@@ -25,9 +25,8 @@ let command =
     Command.Let_syntax.(
       let%map_open
           filepath = anon ("filepath" %: string)
-      and is_hes = flag "--hes" no_arg ~doc:"Load hes format"
       in
-      (fun () -> main filepath is_hes)
+      (fun () -> main filepath)
     )
 
 let () = Command.run command

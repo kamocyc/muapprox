@@ -9,8 +9,7 @@ let map_file_path path converter =
   Stdlib.Filename.concat dir (base ^ ext)
 
 let main path1 debug simplified_type no_abbrev =
-  let is_hes = Muapprox.check_format path1 "auto" in
-  let phi1 = Muapprox.parse path1 is_hes in
+  let phi1 = Muapprox.parse path1 in
   let path2 = map_file_path path1 (fun (a, b, c) -> (a, b ^ "_infer_flag_2", c)) in
   let phi1, id_type_map, id_ho_map =
     Muapprox.Manipulate.Add_arguments_definition.output_debug_info := debug;

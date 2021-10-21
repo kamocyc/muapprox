@@ -10,8 +10,8 @@ let map_file_path path converter =
   let dir, base, ext = converter (dir, base, ext) in
   Stdlib.Filename.concat dir (base ^ ext)
 
-let main filepath is_hes optimization agg show_style trivial_only_agg =
-  let hes = Muapprox.parse filepath is_hes in
+let main filepath optimization agg show_style trivial_only_agg =
+  let hes = Muapprox.parse filepath in
   let hes =
     if optimization then Muapprox.eliminate_unused_argument hes else hes in
   let hes = Muapprox.Manipulate.Hes_optimizer.simplify_all hes in
@@ -22,10 +22,7 @@ let main filepath is_hes optimization agg show_style trivial_only_agg =
     | Abbrev_id -> Muapprox.abbrev_variable_names hes
     | Asis_id -> hes in
   let path2 = map_file_path filepath (fun (a, b, c) -> (a, b ^ "_simplified", c)) in
-  if is_hes then (
-    ignore @@ Muapprox.Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:path2 hes
-  ) else (
-    ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 ~without_id:(Stdlib.(=) show_style Abbrev_id) true hes);
+  ignore @@ Muapprox.Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path2 ~without_id:(Stdlib.(=) show_style Abbrev_id) true hes;
   print_endline @@ "Simplified to " ^ path2
 
 let read_show_style = 
@@ -41,14 +38,13 @@ let command =
     Command.Let_syntax.(
       let%map_open
           filepath = anon ("filepath" %: string)
-      and is_hes = flag "--hes" no_arg ~doc:"Load hes format"
       and optimization = flag "--optimization" no_arg ~doc:"eliminatate unused arguments"
       and agg = flag "--agg" no_arg ~doc:"aggressive inlining"
       and trivial_only_agg = flag "--trivial-only-agg" no_arg ~doc:""
       and show_style =
         flag "--show-style" (optional_with_default Asis_id read_show_style) ~doc:"output id without escaping (for debug)"
       in
-      (fun () -> main filepath is_hes optimization agg show_style trivial_only_agg)
+      (fun () -> main filepath optimization agg show_style trivial_only_agg)
     )
 
 let () = Command.run command

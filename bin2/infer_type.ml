@@ -22,7 +22,7 @@ let main filepath output_style =
     Printf.sprintf "/tmp/%d.tmp" r in
   write_file file buf;
   print_endline @@ "file: " ^ file;
-  let program, _ = Muapprox.ltl_parse_file file  in
+  let program, _ = Muapprox.ltl_parse_file file in
   let program = Muapprox.convert_all program in
   let path2 = map_file_path filepath (fun (a, b, c) -> (a, b ^ "_out", c)) in
   let buf =
