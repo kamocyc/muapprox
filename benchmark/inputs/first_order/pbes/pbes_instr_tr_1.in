@@ -1,0 +1,4 @@
+%HES
+Sentry =v X 1.
+X b4 =v ∃n5. Y n5 /\ b4 > 0.
+Y n6 =u X (n6 - 9).

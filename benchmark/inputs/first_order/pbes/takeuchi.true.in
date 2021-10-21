@@ -1,0 +1,15 @@
+%HES
+Sentry =v T 3 2 1 3.
+T x30 y31 z32 w33 =u
+  x30 <= y31 /\ y31 = w33 \/ x30 > y31 /\ T_search x30 y31 z32 w33.
+T_search x34 y35 z36 w37 =u
+  ∃t138. 
+   ∃t239. 
+    ∃t340. 
+     T1 t138 t239 t340 w37
+     /\ T (x34 - 1) y35 z36 t138
+        /\ T3 (z36 - 1) x34 y35 t340 /\ T4 (y35 - 1) z36 x34 t239.
+T1 x41 y42 z43 w44 =u T x41 y42 z43 w44.
+T2 x45 y46 z47 w48 =u T x45 y46 z47 w48.
+T3 x49 y50 z51 w52 =u T x49 y50 z51 w52.
+T4 x53 y54 z55 w56 =u T x53 y54 z55 w56.

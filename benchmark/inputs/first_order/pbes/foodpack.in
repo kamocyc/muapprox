@@ -1,0 +1,56 @@
+%HES
+Sentry =v Y_s 20 10 10.
+Y_a truckload_X1116 a_X1117 b_X1118 =v
+  (∃m_X1119. 
+    1 <= b_X1118
+    /\ b_X1118 - (1 + m_X1119) <= 10
+       /\ 1 <= m_X1119
+          /\ m_X1119 <= truckload_X1116
+             /\ 0 <= truckload_X1116 /\ 0 <= a_X1117 /\ 0 <= b_X1118
+    /\ Y_b (truckload_X1116 - m_X1119) (a_X1117 - 1) (b_X1118 - (1 + m_X1119)))
+  \/ 0 <= truckload_X1116 /\ 0 <= a_X1117 /\ 0 <= b_X1118
+     /\ Y_c truckload_X1116 (a_X1117 - 1) (b_X1118 - 1)
+     \/ 0 <= truckload_X1116 /\ 0 <= a_X1117 /\ 0 <= b_X1118
+        /\ Y_s 20 (a_X1117 - 2) (b_X1118 - 2).
+Y_b truckload_X1120 a_X1121 b_X1122 =v
+  (∃m_X1123. 
+    1 <= a_X1121
+    /\ a_X1121 - (1 + m_X1123) <= 10
+       /\ 1 <= m_X1123
+          /\ m_X1123 <= truckload_X1120
+             /\ 0 <= truckload_X1120 /\ 0 <= a_X1121 /\ 0 <= b_X1122
+    /\ Y_a (truckload_X1120 - m_X1123) (a_X1121 - (1 + m_X1123)) (b_X1122 - 1))
+  \/ 0 <= truckload_X1120 /\ 0 <= a_X1121 /\ 0 <= b_X1122
+     /\ Y_c truckload_X1120 (a_X1121 - 1) (b_X1122 - 1)
+     \/ 0 <= truckload_X1120 /\ 0 <= a_X1121 /\ 0 <= b_X1122
+        /\ Y_s 20 (a_X1121 - 2) (b_X1122 - 2).
+Y_c truckload_X1124 a_X1125 b_X1126 =v
+  ∃m_X1127. 
+   1 <= a_X1125
+   /\ a_X1125 - (1 + m_X1127) <= 10
+      /\ 1 <= m_X1127
+         /\ m_X1127 <= truckload_X1124
+            /\ 0 <= truckload_X1124 /\ 0 <= a_X1125 /\ 0 <= b_X1126
+   /\ Y_a (truckload_X1124 - m_X1127) (a_X1125 - (1 + m_X1127)) (b_X1126 - 1)
+   \/ 1 <= b_X1126
+      /\ b_X1126 - (1 + m_X1127) <= 10
+         /\ 1 <= m_X1127
+            /\ m_X1127 <= truckload_X1124
+               /\ 0 <= truckload_X1124 /\ 0 <= a_X1125 /\ 0 <= b_X1126
+      /\ Y_b (truckload_X1124 - m_X1127) (a_X1125 - 1)
+          (b_X1126 - (1 + m_X1127)).
+Y_s truckload_X1128 a_X1129 b_X1130 =v
+  ∃m_X1131. 
+   2 <= b_X1130
+   /\ b_X1130 - (2 + m_X1131) <= 10
+      /\ 1 <= m_X1131
+         /\ m_X1131 <= truckload_X1128
+            /\ 0 <= truckload_X1128 /\ 0 <= a_X1129 /\ 0 <= b_X1130
+   /\ Y_b (truckload_X1128 - m_X1131) (a_X1129 - 2) (b_X1130 - (2 + m_X1131))
+   \/ 2 <= a_X1129
+      /\ a_X1129 - (2 + m_X1131) <= 10
+         /\ 1 <= m_X1131
+            /\ m_X1131 <= truckload_X1128
+               /\ 0 <= truckload_X1128 /\ 0 <= a_X1129 /\ 0 <= b_X1130
+      /\ Y_a (truckload_X1128 - m_X1131) (a_X1129 - (2 + m_X1131))
+          (b_X1130 - 2).

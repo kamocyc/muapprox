@@ -1,0 +1,3 @@
+%HES
+Sentry =v X 0.
+X n2 =v n2 != 1 /\ X (n2 + 1).
