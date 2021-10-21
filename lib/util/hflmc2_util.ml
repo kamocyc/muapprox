@@ -535,3 +535,24 @@ let project_root_directory =
       | `Unknown -> failwith "find_util_dune_project" in
     find_util_dune_project cwd
   )
+
+let time_store =
+  String.Table.create ()
+
+let measure_time key mes =
+  let time = Unix.gettimeofday () in
+  String.Table.update
+    time_store
+    key
+    ~f:(fun v_opt ->
+      match v_opt with
+      | None -> [time]
+      | Some ls -> begin
+        (match ls with
+        | x::_ ->
+          print_endline @@ key ^ ": " ^ (string_of_float (time -. x)) ^ " (" ^ mes ^ ")"
+        | [] ->
+          print_endline @@ key ^ ": (" ^ mes ^ ")");
+        time::ls
+      end
+    )
