@@ -1,5 +1,5 @@
 (menhir
- (flags --graph --dump --explain --table --inspection)
+ (flags --dump --explain --table --inspection)
  (modules parser))
 (ocamllex
  (modules lexer))
@@ -14,7 +14,6 @@
    core
    fmt
    logs
-   logs.fmt
    lwt
    lwt.unix
    menhirLib)
