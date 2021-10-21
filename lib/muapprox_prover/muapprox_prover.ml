@@ -3,8 +3,6 @@ module Fixpoint = Hflmc2_syntax.Fixpoint
 module Status = Status
 module Solve_options = Solve_options
 module Hflz_mani = Manipulate.Hflz_manipulate
-module Hflz_convert = Hflz_convert
-module Hflz_convert_rev = Hflz_convert_rev
 module Check_formula_equality = Check_formula_equality
 module Abbrev_variable_numbers = Abbrev_variable_numbers
 
@@ -30,7 +28,7 @@ type debug_context = {
   temp_file: string;
   backend_solver: string option;
   default_lexicographic_order: int;
-  exists_assignment: (unit Hflz_convert_rev.Id.t * int) list option;
+  exists_assignment: (unit Hflmc2_syntax.Id.t * int) list option;
   t_count: int;
   s_count: int;
   elapsed_all: float;
@@ -98,35 +96,42 @@ module type BackendSolver = sig
 end
 
 module FptProverRecLimitSolver : BackendSolver = struct
-  let convert_status (s : Fptprover.Status.t) : Status.t =
-    match s with
-    | Valid -> Valid
-    | Invalid -> Invalid
-    | Unknown -> Unknown
-    | Sat | UnSat -> assert false
+  let get_first_order_solver_path () =
+    match Stdlib.Sys.getenv_opt "first_order_solver_path" with
+    | None -> failwith "Please set environment variable `first_order_solver_path`"
+    | Some s -> s
   
-  let run option debug_context (hes : 'a Hflz.hes) with_par _ =
-    log_string "FIRST-ORDER";
-    let path_ = Manipulate.Print_syntax.FptProverHes.save_hes_to_file hes in
-    log_string @@ "HES PATH: " ^ path_;
-    let hes = Hflz_convert_rev.of_hes hes in
-    log_string @@ "Converted Hes: " ^ Convert.Hesutil.str_of_hes hes;
-    let hes' = Hflz_convert.of_hes hes in
-    let path_ = Manipulate.Print_syntax.FptProverHes.save_hes_to_file hes' in
-    log_string @@ "HES PATH 2: " ^ path_;
-    output_debug debug_context path_;
-    (* Global.config := Config.update_hoice true Global.config; *)
-    (* 1, 2番目の引数は使われていない *)
+  let run option _debug_context (hes : 'a Hflz.hes) with_par _ =
+    let solver_path = get_first_order_solver_path () in
     let debug_output =
       match option.log_level with
       | Some Info | Some Debug -> true
       | _ -> false in
-    if with_par then
-      Rfunprover.Solver.solve_onlynu_onlyforall_par false option.timeout debug_output hes
-        >>| (fun status -> convert_status status)
-    else
-      Rfunprover.Solver.solve_onlynu_onlyforall_z3 true option.timeout debug_output hes 
-        >>| (fun status -> convert_status status)
+    let path = Manipulate.Print_syntax.FptProverHes.save_hes_to_file hes in
+    let command =
+      [solver_path; path; "--timeout"; string_of_int option.timeout]
+      @ (if with_par then ["--paralell"] else [])
+      @ (if debug_output then ["--debug-output"] else [])
+      in
+    Unix_command.unix_system (option.timeout + 5) (Array.of_list command) None
+    >>| (fun (code, _elapsed, stdout, _stderr) ->
+      match code with
+      | Ok () -> begin
+        if debug_output then print_endline stdout;
+        let reg = Str.regexp "^Verification Result: \\([a-z]+\\)$" in
+        try
+          ignore @@ Str.search_forward reg stdout 0;
+          Status.of_string @@ Str.matched_group 1 stdout
+        with
+        | Not_found ->
+          log_string "Failure in parsing output";
+          Status.Fail
+      end
+      | Error code -> begin
+        log_string @@ "Error status (" ^ Unix_command.show_code (Error code) ^ ")";
+        Status.Fail
+      end
+    )
 end
 
 module SolverCommon = struct
@@ -582,7 +587,7 @@ let should_instantiate_exists original_hes =
     )
   )
   
-let count_occuring (*id_type_map:(unit Hflz_convert_rev.Id.t, Manipulate.Hflz_util.variable_type, Hflmc2_syntax.IdMap.Key.comparator_witness) Base.Map.t*) hes s =
+let count_occuring (*id_type_map:(unit Hflmc2_syntax.Id.t, Manipulate.Hflz_util.variable_type, Hflmc2_syntax.IdMap.Key.comparator_witness) Base.Map.t*) hes s =
   let open Hflmc2_syntax in
   (* let ids =
     IdMap.filter id_type_map ~f:(fun ty -> match ty with VTHigherInfo _ -> true | VTVarMax _ -> false) in *)

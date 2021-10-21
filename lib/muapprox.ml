@@ -49,20 +49,11 @@ let check_predicate_name (_, psi) =
       if var.name ="Sentry" then failwith "You cannot use name \"Sentry\" except the first predicate."
     )
   
-let parse file is_hes =
+let parse file =
   let psi = 
-    if is_hes then (
-      let psi =
-        match Hes.HesParser.from_file file with
-        | Ok hes -> Muapprox_prover.Hflz_convert.of_hes hes
-        | Error _ -> failwith "hes_parser" in
-      Log.info begin fun m -> m ~header:"hes Input" "%a" Print.(hflz_hes simple_ty_) psi end;
-      psi
-    ) else (
-      let psi, _ = Syntax.parse_file file in
-      Log.info begin fun m -> m ~header:"Input" "%a" Print.(hflz_hes simple_ty_) psi end;
-      psi
-    ) in
+    let psi, _ = Syntax.parse_file file in
+    Log.info begin fun m -> m ~header:"Input" "%a" Print.(hflz_hes simple_ty_) psi end;
+    psi in
   check_predicate_name psi;
   psi
 
@@ -103,32 +94,6 @@ let get_solve_options file =
     always_add_arguments = !Options.always_add_arguments;
   }
 
-let check_format file format_type =
-  (* TODO: not use boolean to add more formats *)
-  match format_type with 
-  | "hes" -> true
-  | "in"  -> false
-  | "auto" -> begin
-    (* TODO: improve *)
-    let in_channel = open_in file in
-    let is_hes = ref true in
-    (try
-      while true do
-        let line = input_line in_channel in
-        if Stdlib.String.trim line = "%HES" then (
-          is_hes := false;
-          raise End_of_file
-        ) else if Stdlib.String.trim line = "s.t." || Stdlib.String.trim line = "where" then (
-          is_hes := true;
-          raise End_of_file
-        )
-      done
-    with End_of_file ->
-      close_in in_channel);
-    !is_hes
-  end
-  | _ -> failwith "format should be \"hes\", \"in\" or \"auto\""
-
 let simplify_agg_ hes =
   let hes =
     Ltl_program.eliminate_unused_argument hes in
@@ -139,13 +104,12 @@ let simplify_agg_ hes =
     Printf.sprintf "/tmp/%d.tmp" r in
   ignore @@ Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:path ~without_id:false true hes;
   log_string @@ "simplified formula: " ^ path;
-  let hes = parse path false in
+  let hes = parse path in
   hes
   
 let main file cont =
   let solve_options = get_solve_options file in
-  let is_hes = check_format file !Options.format in
-  let psi = parse file is_hes in
+  let psi = parse file in
   (* coefficients's default values are 1, 1 (defined in solve_options.ml) *)
   (* for debug *)
   (* let psi = if inlining then (

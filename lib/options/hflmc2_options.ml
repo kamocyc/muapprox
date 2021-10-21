@@ -6,7 +6,6 @@ open Hflmc2_util
 (* Options                                                                    *)
 (******************************************************************************)
 
-let format = ref (Obj.magic())
 let timeout = ref (Obj.magic())
 let no_backend_inlining = ref (Obj.magic())
 let no_separate_original_formula_in_exists = ref (Obj.magic())
@@ -47,9 +46,6 @@ type params =
   {
   input : string list [@pos 0] [@docv "FILE"]
   (** input file path *)
-  
-  ; format : string [@default "auto"]
-  (** input file format ("auto" / "hes" / "in". Default is "auto") *)
 
   ; no_inlining_backend : bool [@default false]
   (** Disable inlining in a backend solver *)
@@ -138,7 +134,6 @@ type params =
 [@@deriving cmdliner,show]
 
 let set_up_params params =
-  set_ref format                   params.format;
   set_ref timeout                  params.timeout;
   set_ref no_separate_original_formula_in_exists params.no_separate_original_formula_in_exists;
   set_ref no_backend_inlining      params.no_inlining_backend;
