@@ -427,8 +427,6 @@ let set_use_tag (rules : ptype thes_rule list): ptype thes_rule list =
   rules
   
 let infer with_partial_analysis with_usage_analysis (hes : 'a Hflz.hes) add_arg_coe1 add_arg_coe2 =
-  let hes = Hes_optimizer.eliminate_unreachable_predicates hes in
-  let hes = Eliminate_unused_argument.eliminate_unused_argument hes in
   let original_rules = Hflz.merge_entry_rule hes in
   
   let rules =

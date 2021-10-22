@@ -18,12 +18,11 @@ type options =
     approx_parameter: approx_parameter;
     use_custom_parameter: bool;
     oneshot: bool;
-    separate_original_formula_in_exists : bool;
     solver : solver_type;
     backend_solver: string option;
     first_order_solver: first_order_solver_type option;
     dry_run : bool;
-    no_simplify: bool;
+    eliminate_unused_arguments: bool;
     stop_on_unknown: bool;
     pid: int;
     file: string;
@@ -34,7 +33,6 @@ type options =
     disable_lexicographic: bool;
     add_arguments: bool;
     no_elim: bool;
-    unused_arguments_elimination: bool;
     use_all_variables: bool;
     replacer: string;
     auto_existential_quantifier_instantiation: bool;

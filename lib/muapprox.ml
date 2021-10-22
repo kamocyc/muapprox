@@ -66,7 +66,6 @@ let get_solve_options file =
     log_level = !Options.log_level;
     no_disprove = true;
     timeout = !Options.timeout;
-    separate_original_formula_in_exists = not !Options.no_separate_original_formula_in_exists;
     solver = get_solver !Options.solver;
     first_order_solver = get_first_order_solver !Options.first_order_solver;
     backend_solver = get_backend_solver !Options.backend_solver (get_solver !Options.solver);
@@ -74,7 +73,7 @@ let get_solve_options file =
     use_custom_parameter = use_custom_parameter;
     oneshot = use_custom_parameter || !Options.oneshot;
     dry_run = !Options.dry_run;
-    no_simplify = !Options.no_simplify;
+    eliminate_unused_arguments = !Options.eliminate_unused_arguments;
     stop_on_unknown = !Options.stop_on_unknown;
     pid = Unix.getpid();
     file = file;
@@ -85,7 +84,6 @@ let get_solve_options file =
     disable_lexicographic = !Options.disable_lexicographic;
     add_arguments = !Options.add_arguments;
     no_elim = !Options.no_elim;
-    unused_arguments_elimination = !Options.unused_arguments_elimination;
     use_all_variables = !Options.use_all_variables;
     replacer = !Options.replacer;
     auto_existential_quantifier_instantiation = !Options.auto_existential_quantifier_instantiation;
@@ -95,8 +93,6 @@ let get_solve_options file =
   }
 
 let simplify_agg_ hes =
-  let hes =
-    Ltl_program.eliminate_unused_argument hes in
   let hes = Manipulate.Hes_optimizer.simplify_all hes in
   let hes = Manipulate.Hes_optimizer.simplify_agg false hes in
   let path =
@@ -117,7 +113,11 @@ let main file cont =
     Log.info begin fun m -> m ~header:"Simplified" "%a" Print.(hflz_hes simple_ty_) psi end;
     psi
   ) else psi in *)
-  let psi = if !Options.agg then simplify_agg_ psi else psi in
+  let psi =
+    if !Options.eliminate_unused_arguments || !Options.aggressive_simplification then
+      Ltl_program.eliminate_unused_argument psi
+    else psi in
+  let psi = if !Options.aggressive_simplification then simplify_agg_ psi else psi in
   Muapprox_prover.check_validity solve_options psi (fun (s1, info) -> cont (s1, info))
 
 let assign_serial_to_vars_hes = Muapprox_prover.Check_formula_equality.assign_serial_to_vars_hes

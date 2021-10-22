@@ -8,14 +8,13 @@ open Hflmc2_util
 
 let timeout = ref (Obj.magic())
 let no_backend_inlining = ref (Obj.magic())
-let no_separate_original_formula_in_exists = ref (Obj.magic())
 let solver = ref (Obj.magic())
 let backend_solver = ref (Obj.magic())
 let first_order_solver = ref (Obj.magic())
 let coe = ref (Obj.magic())
 let dry_run = ref (Obj.magic())
 let oneshot = ref (Obj.magic())
-let no_simplify = ref (Obj.magic())
+let eliminate_unused_arguments = ref (Obj.magic())
 let stop_on_unknown = ref (Obj.magic())
 let always_approximate = ref (Obj.magic())
 let assign_values_for_exists_at_first_iteration = ref (Obj.magic())
@@ -26,14 +25,13 @@ let disable_lexicographic = ref (Obj.magic())
 let add_arguments = ref (Obj.magic())
 let coe_arguments = ref (Obj.magic())
 let no_elim = ref (Obj.magic())
-let unused_arguments_elimination = ref (Obj.magic())
 let use_all_variables = ref (Obj.magic())
 let replacer = ref (Obj.magic())
 let auto_existential_quantifier_instantiation = ref (Obj.magic())
 let with_partial_analysis = ref (Obj.magic())
 let with_usage_analysis = ref (Obj.magic())
 let always_add_arguments = ref (Obj.magic())
-let agg = ref (Obj.magic())
+let aggressive_simplification = ref (Obj.magic())
 let log_level = ref (Obj.magic())
 
 (******************************************************************************)
@@ -47,14 +45,11 @@ type params =
   input : string list [@pos 0] [@docv "FILE"]
   (** input file path *)
 
-  ; no_inlining_backend : bool [@default false]
+  ; no_backend_inlining : bool [@default false]
   (** Disable inlining in a backend solver *)
   
   ; timeout : int [@default 600]
   (** Timeout for a backend solver *)
-  
-  ; no_separate_original_formula_in_exists : bool [@default true]
-  (** If specified, when approximating exists, do not create new predicate that reduces the formula size *)
   
   ; solver : string [@default "katsura"]
   (** Choose background nu-only-HFLz solver. Available: katsura, iwayama, suzuki *)
@@ -74,8 +69,8 @@ type params =
   ; oneshot : bool [@default false]
   (** Try to solve only once **)
   
-  ; no_simplify : bool [@default false]
-  (** Do not simplify formula. It seems to get better results when false. (default: false) *)
+  ; eliminate_unused_arguments : bool [@default false]
+  (** Do optimization of elimination of unused arguments. (default: false) *)
   
   ; stop_on_unknown : bool [@default false]
   (** If false, skip "Unknown" result from a backend solver (the same behaviour as "Invalid" result). If true, stop solving when get "Unknown". (default: false) *)
@@ -107,20 +102,14 @@ type params =
   ; no_elim : bool [@default false]
   (** DON'T eliminate mu and exists (debug purpose) *)
   
-  ; no_adding_arguments_optimization : bool [@default false]
-  (** DON'T analyze partial applications and unsed adding arguments to optimize added arguments *)
-  
   ; use_all_variables : bool [@default false]
   (** Use all variables (not only variables which are occured in arguments of application) to guess a recursion bound to approximate least-fixpoints. (This may (or may not) help Hoice.) *)
-  
-  ; no_unused_arguments_elimination : bool [@default false]
-  (** DON'T eliminate unused arguments using type-based analysis (when adding arguments, the solver always eliminates unused arguments ) *)
   
   ; replacer : string [@default ""]
   (** Ad-hoc replacement of approximated forumula (for katsura-solver only) *)
   
-  ; no_auto_existential_quantifier_instantiation : bool [@default false]
-  (** DON'T instantiate existential quantifiers even if instantiation seems to be effective *)
+  ; auto_existential_quantifier_instantiation : bool [@default false]
+  (** Instantiate existential quantifiers even if instantiation seems to be effective *)
   
   ; no_partial_analysis : bool [@default false]
   
@@ -128,40 +117,38 @@ type params =
   
   ; always_add_arguments : bool [@default false]
   
-  ; agg : bool [@default false]
+  ; aggressive_simplification : bool [@default false]
   (* for debug *)
   }
 [@@deriving cmdliner,show]
 
 let set_up_params params =
-  set_ref timeout                  params.timeout;
-  set_ref no_separate_original_formula_in_exists params.no_separate_original_formula_in_exists;
-  set_ref no_backend_inlining      params.no_inlining_backend;
-  set_ref solver                   params.solver;
-  set_ref backend_solver           params.backend_solver;
-  set_ref first_order_solver       params.first_order_solver;
-  set_ref coe                      params.coe;
-  set_ref dry_run                  params.dry_run;
-  set_ref oneshot                  params.oneshot;
-  set_ref no_simplify              params.no_simplify;
-  set_ref stop_on_unknown           params.stop_on_unknown;
-  set_ref always_approximate       params.always_approximate;
+  set_ref timeout                     params.timeout;
+  set_ref no_backend_inlining         params.no_backend_inlining;
+  set_ref solver                      params.solver;
+  set_ref backend_solver              params.backend_solver;
+  set_ref first_order_solver          params.first_order_solver;
+  set_ref coe                         params.coe;
+  set_ref dry_run                     params.dry_run;
+  set_ref oneshot                     params.oneshot;
+  set_ref eliminate_unused_arguments  params.eliminate_unused_arguments;
+  set_ref stop_on_unknown             params.stop_on_unknown;
+  set_ref always_approximate          params.always_approximate;
   set_ref assign_values_for_exists_at_first_iteration params.instantiate_exists;
   set_ref default_lexicographic_order params.lexicographic_order;
-  set_ref simplify_bound       params.simplify_bound;
+  set_ref simplify_bound              params.simplify_bound;
   set_ref use_simple_encoding_when_lexico_is_one params.use_simple_encoding_when_lexico_is_one;
-  set_ref disable_lexicographic params.disable_lexicographic;
-  set_ref coe_arguments params.coe_arguments;
-  set_ref no_elim params.no_elim;
-  set_ref use_all_variables params.use_all_variables;
-  set_ref add_arguments (not params.disable_add_arguments);
-  set_ref unused_arguments_elimination (not params.no_unused_arguments_elimination);
-  set_ref replacer params.replacer;
-  set_ref auto_existential_quantifier_instantiation (not params.no_auto_existential_quantifier_instantiation);
-  set_ref with_partial_analysis (not params.no_partial_analysis);
-  set_ref with_usage_analysis (not params.no_usage_analysis);
-  set_ref always_add_arguments params.always_add_arguments;
-  set_ref agg params.agg;
+  set_ref disable_lexicographic       params.disable_lexicographic;
+  set_ref coe_arguments               params.coe_arguments;
+  set_ref no_elim                     params.no_elim;
+  set_ref use_all_variables           params.use_all_variables;
+  set_ref add_arguments               (not params.disable_add_arguments);
+  set_ref replacer                    params.replacer;
+  set_ref auto_existential_quantifier_instantiation params.auto_existential_quantifier_instantiation;
+  set_ref with_partial_analysis       (not params.no_partial_analysis);
+  set_ref with_usage_analysis         (not params.no_usage_analysis);
+  set_ref always_add_arguments        params.always_add_arguments;
+  set_ref aggressive_simplification   params.aggressive_simplification;
   if params.disable_add_arguments && params.always_add_arguments then failwith "illegal parameter combination (disable_add_arguments and always_add_arguments)";
   params.input
 
@@ -174,7 +161,6 @@ let term_set_up_params () =
 
 module Logs     = Logs
 module Logs_cli = Logs_cli
-module Logs_fmt = Logs_fmt
 
 (* Log *)
   

@@ -478,14 +478,6 @@ let is_first_order_hes hes =
   |> List.for_all (fun { Hflz.var; _} -> is_first_order_function_type var.ty)
   
 let solve_onlynu_onlyforall solve_options debug_context hes with_par stop_if_intractable =
-  let hes =
-    if solve_options.no_simplify
-    then hes
-    else (
-      let hes = Manipulate.Hes_optimizer.simplify hes in
-      Log.info begin fun m -> m ~header:("Simplified") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-      hes) in
-  (* let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in *)
   let run =
     if is_first_order_hes hes && solve_options.first_order_solver = Some FptProverRecLimit then (
       FptProverRecLimitSolver.run
@@ -619,7 +611,7 @@ let count_occuring (*id_type_map:(unit Hflmc2_syntax.Id.t, Manipulate.Hflz_util.
   
 let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
   let {no_elim;
-    use_all_variables; unused_arguments_elimination;
+    use_all_variables;
     assign_values_for_exists_at_first_iteration; approx_parameter;_ } = solve_options in
   (* TODO: use 2nd return value of add_arguments *)
   let {coe1; coe2; add_arg_coe1; add_arg_coe2; lexico_pair_number} = approx_parameter in
@@ -686,20 +678,13 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
         if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu" in
 
       let hes =
-        if unused_arguments_elimination || should_add_arguments then
-          let hes =
-            Manipulate.Eliminate_unused_argument.eliminate_unused_argument
-              ~id_type_map:(if solve_options.with_usage_analysis then id_type_map else Hflmc2_syntax.IdMap.empty)
-              hes in
+        if should_add_arguments then
           let occuring_count = count_occuring hes Manipulate.Add_arguments_adding.extra_param_name in
           t_count := occuring_count;
           log_string @@ "occuring_count: " ^ string_of_int occuring_count;
           let occuring_count = count_occuring hes Manipulate.Add_arguments_adding.extra_arg_name in
           s_count := occuring_count;
           log_string @@ "occuring_count s: " ^ string_of_int occuring_count;
-          let () =
-            Log.info begin fun m -> m ~header:("Eliminate unused arguments (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-            ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu_with_rec.txt") hes in
           hes
         else
           hes
