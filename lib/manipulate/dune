@@ -7,6 +7,8 @@
    hflmc2_syntax
    hflmc2_util
    menhirLib)
- (preprocess (pps ppx_deriving.std ppx_compare ppx_sexp_conv ppx_inline_test ppx_expect)))
+ (preprocess (pps ppx_deriving.std ppx_compare ppx_sexp_conv ppx_inline_test ppx_expect))
+ ; (instrumentation (backend landmarks --auto))
+ )
 
 (env (dev (flags (:standard -warn-error -a+31))))
