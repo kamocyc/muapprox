@@ -53,7 +53,6 @@ WORKDIR $ROOT_PATH
 RUN --mount=type=secret,id=ssh,target=/home/opam/.ssh/id_rsa,uid=1000,gid=1000 ls /home/opam/.ssh/id_rsa
 RUN --mount=type=secret,id=ssh,target=/home/opam/.ssh/id_rsa,uid=1000,gid=1000 git clone git@github.com:kamocyc/muapprox.git
 WORKDIR $ROOT_PATH/muapprox
-RUN git checkout develop
 RUN eval $(opam env) && dune build bin/muapprox_main.exe
 
 # PCSat (in fptprover repository), which is used by Katsura solver
