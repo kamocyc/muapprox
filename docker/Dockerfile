@@ -1,35 +1,21 @@
-# syntax=docker/dockerfile:1.2
+# syntax = docker/dockerfile:experimental
 
-FROM ocaml/opam2:ubuntu-lts as builder
+FROM ocaml/opam:ubuntu-20.04-ocaml-4.12 as builder
 ENV LANG C.UTF-8
 ENV ROOT_PATH $HOME/repos
 
 RUN mkdir $HOME/repos
 
-RUN sudo apt update && \
-    sudo apt install -y software-properties-common wget build-essential m4 libgmp-dev python2.7 default-jre \
-                        libblas-dev liblapack-dev pkg-config libffi-dev libglpk-dev
+RUN sudo apt update && sudo apt install wget -y
+RUN eval $(opam env) && opam install dune cmdliner core fmt logs lwt menhirLib ppx_compare \
+  ppx_deriving ppx_deriving_cmdliner ppx_let ppx_sexp_conv menhir async yojson -y
 
-RUN sudo add-apt-repository ppa:avsm/ppa -y && \
-    sudo apt update && \
-    sudo apt install -y opam
-
-RUN opam init -y && \
-    opam update && \
-    opam switch create hflz_solver_4_08_1 4.08.1 && \
-    eval $(opam env)
-
-RUN opam repo set-url default https://opam.ocaml.org && opam update
-
-RUN opam install dune.1.11.4 cmdliner.1.0.4 core.v0.13.0 \
-    ppx_deriving_cmdliner.0.4.1 fmt logs lwt ppx_compare ppx_deriving.4.5 ppx_let ppx_sexp_conv \
-    z3.4.8.4 bignum.v0.13.0 async extlib menhir.20190924 yojson.1.7.0 -y
-
+# katsura-solver
 WORKDIR $ROOT_PATH
 RUN git clone https://github.com/kamocyc/hflmc2.git hflmc2_mora
 WORKDIR $ROOT_PATH/hflmc2_mora
-RUN eval $(opam env) && dune build
-    
+RUN eval $(opam env) && dune build bin/main.exe
+
 # rustup (for hoice)
 WORKDIR /tmp
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rustup.sh && \
@@ -64,29 +50,32 @@ RUN mkdir -p -m 0700 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts && s
 
 # Tanahashi solver
 WORKDIR $ROOT_PATH
+RUN --mount=type=secret,id=ssh,target=/home/opam/.ssh/id_rsa,uid=1000,gid=1000 ls /home/opam/.ssh/id_rsa
 RUN --mount=type=secret,id=ssh,target=/home/opam/.ssh/id_rsa,uid=1000,gid=1000 git clone git@github.com:kamocyc/muapprox.git
 WORKDIR $ROOT_PATH/muapprox
-RUN eval $(opam env) && dune build
+RUN git checkout develop
+RUN eval $(opam env) && dune build bin/muapprox_main.exe
 
 # PCSat (in fptprover repository), which is used by Katsura solver
-# Need to enter password
 WORKDIR $ROOT_PATH
 RUN --mount=type=secret,id=ssh,target=/home/opam/.ssh/id_rsa,uid=1000,gid=1000 git clone -b develop --depth 1 git@bitbucket.org:ketanahashi/fptprove.git
 WORKDIR $ROOT_PATH/fptprove
-RUN opam switch create hflz_solver_4_08_1_latest_dune 4.08.1
-RUN eval $(opam env) && \
-    opam install libsvm lp lp-glpk lp-gurobi minisat ocamlgraph ppx_deriving_yojson async core num z3 zarith -y
-RUN eval $(opam env) && \
-    dune build main.exe
-RUN opam switch hflz_solver_4_08_1 && eval $(opam env)
+RUN sudo apt install libblas-dev libgmp-dev liblapack-dev pkg-config python2.7 libffi-dev libglpk-dev libmpfr-dev -y
+RUN eval $(opam env) && opam install oUnit ocamlgraph ppx_deriving_yojson z3 zarith libsvm lp lp-glpk lp-gurobi minisat apronext -y
+RUN eval $(opam env) && dune build main.exe
 
-## TODO: Why this does not work?
-WORKDIR $ROOT_PATH/muapprox
 
-# Set environment variables
-## TODO: Why this does not work?
-RUN echo "export katsura_solver_path=$ROOT_PATH/hflmc2_mora/_build/default/bin/main.exe" >> ~/.profile && \
-    echo "export fptprove=$ROOT_PATH/fptprove" >>  ~/.profile && \
-    . ~/.profile
+ENV katsura_solver_path=$ROOT_PATH/hflmc2_mora/_build/default/bin/main.exe \
+    fptprove=$ROOT_PATH/fptprove
 
-CMD $ROOT_PATH/muapprox/x
+ENV CMD_PATH /usr/bin/muapprox_main
+RUN sudo touch $CMD_PATH && \
+    sudo chown opam:opam $CMD_PATH && \
+    echo "#!/bin/bash" > $CMD_PATH && \
+    echo "cd $ROOT_PATH/muapprox" >> $CMD_PATH && \
+    echo "_build/default/bin/muapprox_main.exe \$@" >> $CMD_PATH && \
+    chmod +x $CMD_PATH
+
+WORKDIR $ROOT_PATH
+
+CMD ["muapprox_main"]
