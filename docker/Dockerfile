@@ -50,7 +50,6 @@ RUN mkdir -p -m 0700 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts && s
 
 # Tanahashi solver
 WORKDIR $ROOT_PATH
-RUN --mount=type=secret,id=ssh,target=/home/opam/.ssh/id_rsa,uid=1000,gid=1000 ls /home/opam/.ssh/id_rsa
 RUN --mount=type=secret,id=ssh,target=/home/opam/.ssh/id_rsa,uid=1000,gid=1000 git clone git@github.com:kamocyc/muapprox.git
 WORKDIR $ROOT_PATH/muapprox
 RUN eval $(opam env) && dune build bin/muapprox_main.exe
@@ -74,6 +73,10 @@ RUN sudo touch $CMD_PATH && \
     echo "cd $ROOT_PATH/muapprox" >> $CMD_PATH && \
     echo "_build/default/bin/muapprox_main.exe \$@" >> $CMD_PATH && \
     chmod +x $CMD_PATH
+
+RUN sudo cp $ROOT_PATH/muapprox/killp.sh /usr/bin/killp.sh && sudo chown opam:opam /usr/bin/killp.sh
+
+RUN sudo apt install psmisc
 
 WORKDIR $ROOT_PATH
 
