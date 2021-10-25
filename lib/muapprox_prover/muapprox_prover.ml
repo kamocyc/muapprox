@@ -225,8 +225,8 @@ module SolverCommon = struct
     message_string ~header:"Result" @@ Status.string_of res ^ " / " ^ log_message;
     res
   
-  let run_command_with_timeout timeout command mode =
-    unix_system timeout command mode
+  let run_command_with_timeout ?env timeout command mode =
+    unix_system ?env timeout command mode
     
 end
 
@@ -431,7 +431,6 @@ module SuzukiSolver : BackendSolver = struct
   let solver_command hes_path solver_options =
     let solver_path = get_solver_path () in
     Array.of_list (
-      "RUST_LOG=\" \" "::
       solver_path::
         (List.filter_map (fun x -> x)
           [if solver_options.no_backend_inlining then Some "--no-inlining" else None]) @
@@ -459,12 +458,11 @@ module SuzukiSolver : BackendSolver = struct
     let path = save_hes_to_file hes debug_context in
     let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
     let command = solver_command path solve_options in
-    failwith "not implemented"
-    (* run_command_with_timeout ~no_quote:true solve_options.timeout command (Option.map (fun c -> c.mode) debug_context)
+    run_command_with_timeout ~env:["RUST_LOG", " "] solve_options.timeout command (Option.map (fun c -> c.mode) debug_context)
     >>| (fun (status_code, elapsed, stdout, stderr) ->
         try
           parse_results (status_code, stdout, stderr) debug_context elapsed
-          with _ -> Status.Unknown) *)
+          with _ -> Status.Unknown)
 end
 
 let rec is_first_order_function_type (ty : Hflmc2_syntax.Type.simple_ty) =

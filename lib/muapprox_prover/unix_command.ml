@@ -64,7 +64,7 @@ let kill_processes mode =
           ()
         end
         | Error code -> begin
-          warn_string @@ "Error status (kill_processes, " ^ show_code (Error code) ^ ")"
+          log_string @@ "Error status (kill_processes, " ^ show_code (Error code) ^ ")"
       end
       )
     end
@@ -93,7 +93,7 @@ let () =
     shutdown 0
   )
   
-let unix_system timeout commands mode =
+let unix_system ?env timeout commands mode =
   let open Core in
   let module Proc = Async_unix.Process in
   let command, arguments =
@@ -113,7 +113,12 @@ let unix_system timeout commands mode =
   
   let start_time = Stdlib.Sys.time () in
   
-  Proc.create ~prog:command ~args:arguments ()
+  let env =
+    match env with
+    | None -> []
+    | Some e -> e in
+    
+  Proc.create ~prog:command ~args:arguments ~env:(`Extend env) ()
   >>= (fun process_opt ->
     match process_opt with
     | Ok process -> begin
