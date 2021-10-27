@@ -436,9 +436,18 @@ let encode_body_exists_formula_sub new_pred_name_cand coe1 coe2 hes_preds hfl (i
       log_string @@ Hflmc2_util.show_list (fun (t, id) -> "(" ^ t.Id.name ^ ", " ^ id.Id.name ^ ")") id_type_map';
       let guessed_terms =
         get_guessed_terms id_type_map [hfl] (if use_all_scoped_variables then env else []) (id_ho_map @ id_type_map')
-        |> List.filter (fun arith_t ->
-          not @@ IdSet.exists ~f:(fun id -> List.exists (fun bound_var -> Id.eq bound_var id) bound_vars) (Hflz.fvs (Arith arith_t))
-        ) in
+        |> List.map (fun arith_t ->
+          let fvs = Hflz.fvs (Arith arith_t) in
+          let bound_vars, not_bound_vars =
+            IdSet.partition_tf ~f:(fun id -> List.exists (fun bound_var -> Id.eq bound_var id) bound_vars) fvs in
+          if IdSet.is_empty bound_vars then
+            [arith_t]
+          else
+            IdSet.fold not_bound_vars ~init:[] ~f:(fun acc x -> (Arith.Var {x with ty=`Int})::acc)
+        )
+        |> List.concat
+        |> Hflmc2_util.remove_duplicates (=) in
+      log_string @@ "guessed_terms: " ^ (List.map (fun rr -> (show_hflz (Arith rr))) guessed_terms |> String.concat ",");
       get_guessed_conditions coe1 coe2 guessed_terms in
     
     (* 各要素が x < 1 + c \/ ... という形式 *)
