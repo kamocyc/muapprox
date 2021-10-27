@@ -242,16 +242,16 @@ let get_katsura_solver_path () =
 module KatsuraSolver : BackendSolver = struct
   include SolverCommon
   
-  let replacer_path =
+  let replacer_path () =
     (Lazy.force Hflmc2_util.project_root_directory) ^ "/benchmark/replacer.py"
     
   let is_valid_replacer_name replacer =
-    let command = "python3 " ^ replacer_path ^ " " ^ replacer ^ " __dummy --check-target-name-only > /dev/null" in
+    let command = "python3 " ^ replacer_path () ^ " " ^ replacer ^ " __dummy --check-target-name-only > /dev/null" in
     Unix.system command >>| (fun code ->
       match code with
       | Ok () -> true
       | Error (`Exit_non_zero 3) -> false
-      | Error (`Exit_non_zero 2) -> failwith @@ replacer_path ^ " not found (python3 returned exit code 2)"
+      | Error (`Exit_non_zero 2) -> failwith @@ replacer_path () ^ " not found (python3 returned exit code 2)"
       | Error _ -> failwith "is_valid_replacer_name: illegal result"
     )
     
@@ -285,7 +285,7 @@ module KatsuraSolver : BackendSolver = struct
               else
                 "noboth"
             ) in
-          let command = "python3 " ^ replacer_path ^ " --mode=" ^ flag ^ " " ^ replacer ^ " " ^ path ^ " > " ^ stdout_name in
+          let command = "python3 " ^ replacer_path () ^ " --mode=" ^ flag ^ " " ^ replacer ^ " " ^ path ^ " > " ^ stdout_name in
           log_string @@ "command: " ^ command;
           Unix.system command
           >>= (fun code ->

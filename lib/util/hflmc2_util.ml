@@ -526,13 +526,16 @@ let get_reporter header_format =
 
 let project_root_directory =
   lazy (
+    let error_messsage = "find_util_dune_project (replacer can be used only in muapprox directory)" in
     let dune_project = "dune-project" in
     let cwd = Sys.getcwd() in
     let rec find_util_dune_project dir =
       match Sys.file_exists (dir ^ "/" ^ dune_project) with
       | `Yes -> dir
-      | `No -> find_util_dune_project (Filename.dirname dir)
-      | `Unknown -> failwith "find_util_dune_project" in
+      | `No ->
+        if String.(=) (Filename.dirname dir) dir then failwith error_messsage
+        else find_util_dune_project (Filename.dirname dir)
+      | `Unknown -> failwith error_messsage in
     find_util_dune_project cwd
   )
 
