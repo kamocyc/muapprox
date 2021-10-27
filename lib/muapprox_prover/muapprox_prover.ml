@@ -166,13 +166,15 @@ module SolverCommon = struct
       ]) in
     output_json data (get_file_name "pre" dbg.file dbg.mode 0)
     
-  let output_pre_debug_info hes debug_context path =
+  let output_pre_debug_info hes debug_context path no_temp_files =
     let path' = 
       let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in
       let file = Filename.basename debug_context.file ^ "__" ^ debug_context.mode ^ "__" ^ string_of_int debug_context.iter_count ^ ".in" in
-      Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:true true hes in
+      if not no_temp_files then
+        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:true true hes
+      else file in
     message_string ~header:"SolveInfo" @@ "νHFLz, " ^ (show_debug_context {debug_context with temp_file = path}) ^ ": " ^ path';
-    output_pre_debug_info_sub debug_context path';
+    if not no_temp_files then output_pre_debug_info_sub debug_context path';
     ()
     
   let output_post_debug_info tmp_res elapsed stdout stderr debug_context =
@@ -195,7 +197,7 @@ module SolverCommon = struct
   
   type solver_error_category = S_ParseError | S_TypeError | S_OtherError
   
-  let parse_results_inner (exit_status, stdout, stderr) debug_context elapsed status_parser =
+  let parse_results_inner (exit_status, stdout, stderr) debug_context elapsed no_temp_files status_parser =
     let res, tmp_res, log_message = 
       match exit_status with 
       | Ok () -> begin
@@ -225,7 +227,7 @@ module SolverCommon = struct
         "Error status (" ^ Unix_command.show_code (Error code) ^ ")"
       end
     in
-    output_post_debug_info tmp_res elapsed stdout stderr debug_context;
+    if not no_temp_files then output_post_debug_info tmp_res elapsed stdout stderr debug_context;
     message_string ~header:"Result" @@ Status.string_of res ^ " / " ^ log_message;
     res
   
@@ -255,7 +257,7 @@ module KatsuraSolver : BackendSolver = struct
       | Error _ -> failwith "is_valid_replacer_name: illegal result"
     )
     
-  let save_hes_to_file hes replacer debug_context with_usage_analysis with_partial_analysis =
+  let save_hes_to_file hes replacer debug_context with_usage_analysis with_partial_analysis no_temp_files =
     let should_use_replacer =
       if replacer <> "" then
         is_valid_replacer_name replacer
@@ -294,14 +296,14 @@ module KatsuraSolver : BackendSolver = struct
               | Ok () ->
                 let stdout = String.trim stdout in
                 log_string @@ "REPLACED!!: " ^ stdout;
-                output_pre_debug_info hes debug_context stdout;
+                output_pre_debug_info hes debug_context stdout no_temp_files;
                 stdout
               | Error _ -> failwith @@ "replacer error (filepath: " ^ path ^ " ): " ^ stdout
             )
           )
         end else
           let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
-          output_pre_debug_info hes debug_context path;
+          output_pre_debug_info hes debug_context path no_temp_files;
           Deferred.return path in
       path
     )
@@ -320,8 +322,8 @@ module KatsuraSolver : BackendSolver = struct
         [hes_path]
     )
 
-  let parse_results result debug_context elapsed =
-    parse_results_inner result debug_context elapsed (fun stdout ->
+  let parse_results result debug_context elapsed no_temp_files =
+    parse_results_inner result debug_context elapsed no_temp_files (fun stdout ->
       let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nProfiling:$" in
       try
         ignore @@ Str.search_forward reg stdout 0;
@@ -339,7 +341,7 @@ module KatsuraSolver : BackendSolver = struct
     )
     
   let run solve_options (debug_context: debug_context) hes _ stop_if_intractable = 
-    save_hes_to_file hes (if debug_context.mode = "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.with_usage_analysis solve_options.with_partial_analysis
+    save_hes_to_file hes (if debug_context.mode = "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.with_usage_analysis solve_options.with_partial_analysis solve_options.no_temp_files
     >>= (fun path ->
       let debug_context = { debug_context with temp_file = path } in
       let command = solver_command path solve_options stop_if_intractable in
@@ -367,7 +369,7 @@ module KatsuraSolver : BackendSolver = struct
           | S_TypeError -> failwith @@ "Type Error (" ^ show_debug_context debug_context ^ ")"
           | _ ->
             try
-              parse_results (status_code, stdout, stderr) debug_context elapsed
+              parse_results (status_code, stdout, stderr) debug_context elapsed solve_options.no_temp_files
             with _ -> Status.Unknown)
     )
 end
@@ -380,10 +382,10 @@ module IwayamaSolver : BackendSolver = struct
     | None -> failwith "Please set environment variable `iwayama_solver_path`"
     | Some s -> s
   
-  let save_hes_to_file hes debug_context =
+  let save_hes_to_file hes debug_context no_temp_files =
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
     let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes in
-    output_pre_debug_info hes debug_context path;
+    output_pre_debug_info hes debug_context path no_temp_files;
     path
     
   let solver_command hes_path solver_options =
@@ -395,8 +397,8 @@ module IwayamaSolver : BackendSolver = struct
         [hes_path]
     )
 
-  let parse_results result debug_context elapsed =
-    parse_results_inner result debug_context elapsed (fun stdout -> 
+  let parse_results result debug_context elapsed no_temp_files =
+    parse_results_inner result debug_context elapsed no_temp_files (fun stdout -> 
       (* Verification Result: の行を探す。 *)
       let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nLoop Count:$" in
       try
@@ -407,13 +409,13 @@ module IwayamaSolver : BackendSolver = struct
     )
   
   let run solve_options debug_context hes _ _ = 
-    let path = save_hes_to_file hes debug_context in
+    let path = save_hes_to_file hes debug_context solve_options.no_temp_files in
     let debug_context = { debug_context with temp_file = path } in
     let command = solver_command path solve_options in
     run_command_with_timeout solve_options.timeout command (Some debug_context.mode)
     >>| (fun (status_code, elapsed, stdout, stderr) ->
         try
-          parse_results (status_code, stdout, stderr) debug_context elapsed
+          parse_results (status_code, stdout, stderr) debug_context elapsed solve_options.no_temp_files
           with _ -> Status.Unknown)
 end
 
@@ -425,11 +427,11 @@ module SuzukiSolver : BackendSolver = struct
     | None -> failwith "Please set environment variable `suzuki_solver_path`"
     | Some s -> s
   
-  let save_hes_to_file hes debug_context =
+  let save_hes_to_file hes debug_context no_temp_files =
     Hflmc2_syntax.Print.global_not_output_zero_minus_as_negative_value := true;
     let hes = Manipulate.Hflz_manipulate.encode_body_forall_except_top hes in
     let path = Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false false hes in
-    output_pre_debug_info hes debug_context path;
+    output_pre_debug_info hes debug_context path no_temp_files;
     path
     
   let solver_command hes_path solver_options =
@@ -441,8 +443,8 @@ module SuzukiSolver : BackendSolver = struct
         [hes_path]
     )
 
-  let parse_results result debug_context elapsed =
-    parse_results_inner result debug_context elapsed (fun stdout -> 
+  let parse_results result debug_context elapsed no_temp_files =
+    parse_results_inner result debug_context elapsed no_temp_files (fun stdout -> 
       let reg = Str.regexp "^\\(Sat\\|UnSat\\)$" in
       try
         ignore @@ Str.search_forward reg stdout 0;
@@ -459,13 +461,13 @@ module SuzukiSolver : BackendSolver = struct
     )
   
   let run solve_options debug_context hes _ _ = 
-    let path = save_hes_to_file hes debug_context in
+    let path = save_hes_to_file hes debug_context solve_options.no_temp_files in
     let debug_context = { debug_context with temp_file = path }  in
     let command = solver_command path solve_options in
     run_command_with_timeout ~env:["RUST_LOG", " "] solve_options.timeout command (Some debug_context.mode)
     >>| (fun (status_code, elapsed, stdout, stderr) ->
         try
-          parse_results (status_code, stdout, stderr) debug_context elapsed
+          parse_results (status_code, stdout, stderr) debug_context elapsed solve_options.no_temp_files
           with _ -> Status.Unknown)
 end
 
@@ -623,7 +625,7 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
   let t_count = ref 0 in
   
   let add_arguments hes =
-    Manipulate.Add_arguments_infer_partial_application.infer solve_options.with_partial_analysis solve_options.with_usage_analysis hes add_arg_coe1 add_arg_coe2
+    Manipulate.Add_arguments_infer_partial_application.infer solve_options.with_partial_analysis solve_options.with_usage_analysis hes add_arg_coe1 add_arg_coe2 solve_options.no_temp_files
   in
   
   if no_elim then begin
@@ -642,7 +644,9 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
     
     let () =
       Log.info begin fun m -> m ~header:("Extra arguments added HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-      ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_extra_arguments_added.txt") hes in
+      if not solve_options.no_temp_files then
+        ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_extra_arguments_added.txt") hes
+      in
     
     let () =
       let open Hflmc2_syntax in
@@ -671,13 +675,16 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
     List.map (fun (hes, acc) ->
       let () =
         Log.info begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-        ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes in
+        if not solve_options.no_temp_files then
+          ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes
+        in
 
       let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables id_ho_map solve_options.z3_path in
       
       let () =
         Log.info begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
-        ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes;
+        if not solve_options.no_temp_files then
+          ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_elim_mu.txt") hes;
         if not @@ Hflz.ensure_no_mu_exists hes then failwith "elim_mu" in
 
       let hes =
@@ -895,7 +902,8 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
       let debug_contexts = List.flatten debug_contexts in
       let debug_contexts =
         List.map (fun d -> {d with elapsed_all}) debug_contexts in
-      merge_debug_contexts debug_contexts |> output_post_merged_debug_info;
+      if not solve_options.no_temp_files then
+        merge_debug_contexts debug_contexts |> output_post_merged_debug_info;
       let retry approx_param =
         if !has_solved then
           return (Status.Unknown, debug_contexts)

@@ -16,7 +16,7 @@ let main path1 debug simplified_type no_abbrev =
     Muapprox.Manipulate.Add_arguments_definition.simplified_type := simplified_type;
     let phi1 = Muapprox.Manipulate.Hes_optimizer.eliminate_unreachable_predicates phi1 in
     let phi1 = Muapprox.Manipulate.Eliminate_unused_argument.eliminate_unused_argument phi1 in
-    Muapprox.Manipulate.Add_arguments_infer_partial_application.infer true true phi1 1 0
+    Muapprox.Manipulate.Add_arguments_infer_partial_application.infer true true phi1 1 0 false
   in
   print_endline @@ Hflmc2_util.fmt_string (fun fmt -> Manipulate.Print_syntax.(hflz_hes simple_ty_) fmt) phi1;
   let () =

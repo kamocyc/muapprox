@@ -34,6 +34,7 @@ let always_add_arguments = ref (Obj.magic())
 let aggressive_simplification = ref (Obj.magic())
 let log_level = ref (Obj.magic())
 let z3_path = ref (Obj.magic())
+let no_temp_files = ref (Obj.magic())
 
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -121,6 +122,8 @@ type params =
   ; aggressive_simplification : bool [@default false]
   
   ; z3_path : string [@default ""]
+  
+  ; no_temp_files : bool [@default false]
   }
 [@@deriving cmdliner,show]
 
@@ -153,6 +156,7 @@ let set_up_params params =
   set_ref aggressive_simplification   params.aggressive_simplification;
   if params.disable_add_arguments && params.always_add_arguments then failwith "illegal parameter combination (disable_add_arguments and always_add_arguments)";
   set_ref z3_path                     (if params.z3_path = "" then "z3" else params.z3_path);
+  set_ref no_temp_files               params.no_temp_files;
   params.input
 
 (******************************************************************************)

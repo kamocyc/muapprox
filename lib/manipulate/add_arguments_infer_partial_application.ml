@@ -426,7 +426,7 @@ let set_use_tag (rules : ptype thes_rule list): ptype thes_rule list =
   let rules = set_tag_in_undetermined_tags rules TUse in
   rules
   
-let infer with_partial_analysis with_usage_analysis (hes : 'a Hflz.hes) add_arg_coe1 add_arg_coe2 =
+let infer with_partial_analysis with_usage_analysis (hes : 'a Hflz.hes) add_arg_coe1 add_arg_coe2 no_temp_files =
   let original_rules = Hflz.merge_entry_rule hes in
   
   let rules =
@@ -448,9 +448,10 @@ let infer with_partial_analysis with_usage_analysis (hes : 'a Hflz.hes) add_arg_
           (Print_temp.hflz_hes pp_ptype) rules; *)
       (* print_endline "result (full)";
       print_endline @@ show_s_thes_rules rules; *)
-      save_to_file "tmp_t7.txt" @@
-        Hflmc2_util.fmt_string
-          (Print_temp.hflz_hes pp_ptype) rules;
+      if not no_temp_files then
+        save_to_file "tmp_t7.txt" @@
+          Hflmc2_util.fmt_string
+            (Print_temp.hflz_hes pp_ptype) rules;
       check_thflz_type rules;
       in
     Add_arguments_definition.show_tag_as_separator := false;
@@ -469,9 +470,10 @@ let infer with_partial_analysis with_usage_analysis (hes : 'a Hflz.hes) add_arg_
       print_endline @@
         Hflmc2_util.fmt_string
           (Print_temp.hflz_hes_in_out pp_ptype2) rules; *)
-      Add_arguments_definition.save_to_file "tmp_t8.txt" @@
-        Hflmc2_util.fmt_string
-          (Add_arguments_tuple.Print_temp.hflz_hes_in_out Add_arguments_tuple.pp_ptype2) rules;
+      if not no_temp_files then
+        Add_arguments_definition.save_to_file "tmp_t8.txt" @@
+          Hflmc2_util.fmt_string
+            (Add_arguments_tuple.Print_temp.hflz_hes_in_out Add_arguments_tuple.pp_ptype2) rules;
     in
     rules in
   

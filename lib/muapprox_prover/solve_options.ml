@@ -40,6 +40,7 @@ type options =
     with_usage_analysis: bool;
     always_add_arguments: bool;
     z3_path: string;
+    no_temp_files: bool;
   }
 let get_solver solver_name = 
   match solver_name with

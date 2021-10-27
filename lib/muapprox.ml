@@ -91,6 +91,7 @@ let get_solve_options file =
     with_usage_analysis = !Options.with_usage_analysis;
     always_add_arguments = !Options.always_add_arguments;
     z3_path = !Options.z3_path;
+    no_temp_files = !Options.no_temp_files;
   }
 
 let simplify_agg_ hes =
