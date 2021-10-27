@@ -43,6 +43,7 @@ let show_code (code : (unit, [ `Exit_non_zero of int | `Signal of Hflmc2_util.Co
 
 let kill_processes mode =
   (* eld and java are not executed when ran with --no-disprove because they are used only to prove invalid *)
+  log_string @@ "kill. mode: " ^ mode;
   match Hashtbl.find_opt pids mode with
   | None -> Deferred.return ()
   | Some pid_filenames -> begin
@@ -51,9 +52,11 @@ let kill_processes mode =
     let command = {|
     for pid in `echo |} ^ comma_sep_pid_filenames ^ {| | sed "s/,/ /g"`
     do
-      kill -`cat $pid` 2> /dev/null
+      # echo KILL: `cat $pid`
+      kill -TERM -`cat $pid` 2> /dev/null
     done
     |} in
+    log_string @@ command;
     Unix.system @@ command
     >>| (fun code ->
       match code with
@@ -74,8 +77,8 @@ let () =
     let command = {|
     for pid in `echo |} ^ comma_sep_pid_filenames ^ {| | sed "s/,/ /g"`
     do
-      echo KILL2: "-|} ^ Signal.to_string signal ^ {| `cat $pid`"
-      bash -c "kill -|} ^ Signal.to_string signal ^ {| `cat $pid`" # 2> /dev/null
+      # echo KILL2: "-|} ^ Signal.to_string signal ^ {| -`cat $pid`"
+      bash -c "kill -|} ^ Signal.to_string signal ^ {| -`cat $pid`" 2> /dev/null
     done
     |} in
     let code = Unix_old.system command in

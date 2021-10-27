@@ -119,12 +119,12 @@ def run(cmd):
     st = time.perf_counter()
     elapsed = timeout
     timed_out = False
-    try:
-        _ = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=preexec_fn, encoding='utf8', timeout=timeout)
+    result = subprocess.run(["timeout", str(timeout)] + cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=preexec_fn, encoding='utf8')
+    if result.returncode == 124:
+        timed_out = True
+    else:
         ed = time.perf_counter()
         elapsed = ed - st
-    except subprocess.TimeoutExpired:
-        timed_out = True
 
     stdout = readfile("/tmp/stdout_1.txt")
     stderr = readfile("/tmp/stderr_1.txt")
