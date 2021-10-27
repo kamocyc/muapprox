@@ -827,7 +827,7 @@ let replace_occurences
     | Bool _ | Pred _ | Arith _ | Var _ -> fml in
   go [] [] fml
 
-let remove_duplicate_bounds (phi : Type.simple_ty Hflz.t) =
+let remove_duplicate_bounds z3_path (phi : Type.simple_ty Hflz.t) =
   let rec go phi = match phi with
     | Bool _ | Var _ | Arith _ | Pred _ -> phi
     | Or (p1, p2) -> begin
@@ -850,7 +850,7 @@ let remove_duplicate_bounds (phi : Type.simple_ty Hflz.t) =
         let xs =
           if !simplify_bound then
             Hflmc2_util.remove_duplicates (=) xs
-            |> Simplify_bound.simplify_bound_with_z3
+            |> Simplify_bound.simplify_bound_with_z3 z3_path
           else
             Hflmc2_util.remove_duplicates (=) xs
         in
@@ -945,7 +945,7 @@ let remove_redundant_bounds id_type_map (phi : Type.simple_ty Hflz.t) =
   in 
   go phi
    
-let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map use_all_scoped_variables id_ho_map =
+let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map use_all_scoped_variables id_ho_map z3_path =
   (* calc outer_mu_funcs *)
   let rules = Hflz.merge_entry_rule (entry, rules) in
   let outer_mu_funcs = get_outer_mu_funcs rules in
@@ -1042,7 +1042,7 @@ let elim_mu_with_rec (entry, rules) coe1 coe2 lexico_pair_number id_type_map use
       print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) (body |> (remove_redundant_bounds id_type_map) |> Hflz_util.beta |> remove_duplicate_bounds); *)
       (* print_endline "body (after beta 4)";
       print_endline @@ Hflmc2_util.fmt_string Print.(hflz simple_ty_) (body |> (remove_redundant_bounds id_type_map) |> Hflz_util.beta |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds); *)
-      {fix=Greatest; var=mypvar; body=body' |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds}
+      {fix=Greatest; var=mypvar; body=body' |> (remove_redundant_bounds id_type_map) |> remove_duplicate_bounds z3_path}
     )
     rules
   in

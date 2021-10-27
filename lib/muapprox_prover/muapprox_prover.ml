@@ -36,52 +36,28 @@ type debug_context = {
 
 let has_solved = ref false
 
-let save_string_to_file path buf =
-  let oc = Stdlib.open_out path in
-  Stdlib.output_string oc buf;
-  Stdlib.close_out oc
-      
-let output_debug (dbg : debug_context option) path =
-  let tos = string_of_int in
-  match dbg with
-  | Some dbg -> begin
-    save_string_to_file (dbg.mode ^ ".tmp") (dbg.mode ^ "," ^ tos dbg.pid ^ "," ^ tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2 ^ "," ^ path ^ "," ^ dbg.file ^ "," ^ tos dbg.t_count ^ "," ^ tos dbg.s_count)
-  end
-  | None -> ()
-  
-let output_debug_2 (dbg : debug_context) =
-  let tos = string_of_int in
-  (* match dbg with
-  | Some dbg -> begin *)
-    save_string_to_file ("output2_" ^ Filename.remove_extension (Filename.basename dbg.file) ^ "_" ^ dbg.mode ^ "_" ^ tos dbg.iter_count ^ "_output2.tmp") (dbg.mode ^ "," ^ tos dbg.pid ^ "," ^ tos dbg.iter_count ^ "," ^ tos dbg.coe1 ^ "," ^ tos dbg.coe2  ^ "," ^ dbg.file ^ "," ^ tos dbg.t_count ^ "," ^ tos dbg.s_count ^ "," ^ string_of_float dbg.elapsed_all)
-  (* end
-  | None -> () *)
-
 let show_debug_context debug =
-  match debug with
-  | None -> ""
-  | Some debug ->
-    let show assoc =
-      let rec go = function 
-        | [] -> []
-        | (k, v)::xs -> (k ^ ": " ^ v)::(go xs) in
-      "(" ^ (go assoc |> String.concat ", ") ^ ")"
-    in
-    let soi = string_of_int in
-    let unwrap_or alt opt = match opt with None -> alt | Some s -> s in
-    debug.mode ^ "-" ^ soi debug.iter_count ^ " (" ^ (Option.value debug.backend_solver ~default:"-") ^ "): " ^
-    show [
-      ("coe1", soi debug.coe1);
-      ("coe2", soi debug.coe2);
-      ("add_arg_coe1", if debug.add_arg_coe1 = 0 then "-" else soi debug.add_arg_coe1);
-      ("add_arg_coe2", if debug.add_arg_coe1 = 0 then "-" else soi debug.add_arg_coe2);
-      ("default_lexicographic_order", string_of_int debug.default_lexicographic_order);
-      ("exists_assignment", Option.map (fun m -> "[" ^ ((List.map (fun (id, v) -> id.Hflmc2_syntax.Id.name ^ "=" ^ string_of_int v) m) |> String.concat "; ") ^ "]") debug.exists_assignment |> unwrap_or "-");
-      ("t_count", soi debug.t_count);
-      ("s_count", soi debug.s_count);
-      ("elapsed_all", string_of_float debug.elapsed_all);
-      ("temp_file", debug.temp_file);
-    ]
+  let show assoc =
+    let rec go = function 
+      | [] -> []
+      | (k, v)::xs -> (k ^ ": " ^ v)::(go xs) in
+    "(" ^ (go assoc |> String.concat ", ") ^ ")"
+  in
+  let soi = string_of_int in
+  let unwrap_or alt opt = match opt with None -> alt | Some s -> s in
+  debug.mode ^ "-" ^ soi debug.iter_count ^ " (" ^ (Option.value debug.backend_solver ~default:"-") ^ "): " ^
+  show [
+    ("coe1", soi debug.coe1);
+    ("coe2", soi debug.coe2);
+    ("add_arg_coe1", if debug.add_arg_coe1 = 0 then "-" else soi debug.add_arg_coe1);
+    ("add_arg_coe2", if debug.add_arg_coe1 = 0 then "-" else soi debug.add_arg_coe2);
+    ("default_lexicographic_order", string_of_int debug.default_lexicographic_order);
+    ("exists_assignment", Option.map (fun m -> "[" ^ ((List.map (fun (id, v) -> id.Hflmc2_syntax.Id.name ^ "=" ^ string_of_int v) m) |> String.concat "; ") ^ "]") debug.exists_assignment |> unwrap_or "-");
+    ("t_count", soi debug.t_count);
+    ("s_count", soi debug.s_count);
+    ("elapsed_all", string_of_float debug.elapsed_all);
+    ("temp_file", debug.temp_file);
+  ]
 
 let show_debug_contexts debugs =
   List.map
@@ -92,7 +68,7 @@ let show_debug_contexts debugs =
   String.concat ", "
   
 module type BackendSolver = sig
-  val run : options -> debug_context option -> Hflmc2_syntax.Type.simple_ty Hflz.hes -> bool -> bool -> Status.t Deferred.t
+  val run : options -> debug_context -> Hflmc2_syntax.Type.simple_ty Hflz.hes -> bool -> bool -> Status.t Deferred.t
 end
 
 module FptProverRecLimitSolver : BackendSolver = struct
@@ -134,20 +110,29 @@ module FptProverRecLimitSolver : BackendSolver = struct
     )
 end
 
-module SolverCommon = struct
-  let output_pre_debug_info hes debug_context path =
-    let path' = 
-      match debug_context with 
-      | Some debug_context ->
-        let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in
-        let file = Filename.basename debug_context.file ^ "__" ^ debug_context.mode ^ "__" ^ string_of_int debug_context.iter_count ^ ".in" in
-        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:true true hes 
-      | None ->
-        Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~without_id:false true hes in
-    message_string ~header:"SolveInfo" @@ "νHFLz, " ^ (show_debug_context (Option.map (fun d -> {d with temp_file = path}) debug_context)) ^ ": " ^ path';
-    output_debug debug_context path';
-    ()
+let output_json data file_path =
+  let oc = Stdio.Out_channel.create ~append:true (file_path) in
+  Yojson.Basic.pretty_to_channel oc data;
+  Stdio.Out_channel.close oc
+
+let get_file_name prefix file mode iter_count =
+  prefix ^ "_" ^ Filename.remove_extension (Filename.basename file) ^ "_" ^ mode ^ "_" ^ string_of_int iter_count ^ ".tmp"
+
+let output_post_merged_debug_info (dbg : debug_context) =
+  let data = 
+    `Assoc ([
+      ("mode", `String dbg.mode);
+      ("pid", `Int dbg.pid);
+      ("file", `String dbg.file);
+      
+      ("iter_count", `Int dbg.iter_count);
+      ("t_count", `Int dbg.t_count);
+      ("s_count", `Int dbg.s_count);
+      ("elapsed_all", `Float dbg.elapsed_all)]) in
+  output_json data (get_file_name "post_merged" dbg.file dbg.mode dbg.iter_count)
   
+module SolverCommon = struct
+
   type temp_result_type =
     | TValid
     | TInvalid
@@ -163,31 +148,50 @@ module SolverCommon = struct
     | TTerminated -> "terminated"
     | TFail -> "fail"
     | TError -> "error"
+  
+  let output_pre_debug_info_sub (dbg : debug_context) path =
+    let data =
+      `Assoc ([
+        ("mode", `String dbg.mode);
+        ("pid", `Int dbg.pid);
+        ("path", `String path);
+        ("file", `String dbg.file);
+        ("backend_solver", `String (Option.value dbg.backend_solver ~default:""));
+        
+        ("iter_count", `Int dbg.iter_count);
+        ("coe1", `Int dbg.coe1);
+        ("coe2", `Int dbg.coe2);
+        ("t_count", `Int dbg.t_count);
+        ("s_count", `Int dbg.s_count);
+      ]) in
+    output_json data (get_file_name "pre" dbg.file dbg.mode 0)
+    
+  let output_pre_debug_info hes debug_context path =
+    let path' = 
+      let hes = Abbrev_variable_numbers.abbrev_variable_numbers_hes hes in
+      let file = Filename.basename debug_context.file ^ "__" ^ debug_context.mode ^ "__" ^ string_of_int debug_context.iter_count ^ ".in" in
+      Manipulate.Print_syntax.MachineReadable.save_hes_to_file ~file:file ~without_id:true true hes in
+    message_string ~header:"SolveInfo" @@ "νHFLz, " ^ (show_debug_context {debug_context with temp_file = path}) ^ ": " ^ path';
+    output_pre_debug_info_sub debug_context path';
+    ()
     
   let output_post_debug_info tmp_res elapsed stdout stderr debug_context =
-    let open Yojson in
     let data = 
-      `Assoc (List.concat [[
+      `Assoc ([
         ("result", `String (to_string_result tmp_res));
         ("time", `Float elapsed);
         ("stdout", `String stdout);
-        ("stderr", `String stderr);];
-        match debug_context with
-        | None -> []
-        | Some debug_context ->
-          [
-          ("iter_count", `Int debug_context.iter_count);
-          ("mode", `String debug_context.mode);
-          ("backend_solver", `String (Option.value debug_context.backend_solver ~default:""));
-          ("file", `String debug_context.file);
-          ("coe1", `Int debug_context.coe1);
-          ("coe2", `Int debug_context.coe2);
-          ("pid", `Int debug_context.pid)]
-        ]) in
-    let mode_string = match debug_context with | None -> "none" | Some d -> d.mode in
-    let oc = Stdio.Out_channel.create ~append:true ("post_" ^ mode_string ^ ".tmp") in
-    Basic.pretty_to_channel oc data;
-    Stdio.Out_channel.close oc
+        ("stderr", `String stderr);
+        
+        ("iter_count", `Int debug_context.iter_count);
+        ("mode", `String debug_context.mode);
+        ("backend_solver", `String (Option.value debug_context.backend_solver ~default:""));
+        ("file", `String debug_context.file);
+        ("coe1", `Int debug_context.coe1);
+        ("coe2", `Int debug_context.coe2);
+        ("pid", `Int debug_context.pid)
+      ]) in
+    output_json data (get_file_name "post" debug_context.file debug_context.mode 0)
   
   type solver_error_category = S_ParseError | S_TypeError | S_OtherError
   
@@ -334,13 +338,13 @@ module KatsuraSolver : BackendSolver = struct
       end
     )
     
-  let run solve_options debug_context hes _ stop_if_intractable = 
-    save_hes_to_file hes (if Option.map (fun d -> d.mode) debug_context = Some "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.with_usage_analysis solve_options.with_partial_analysis
+  let run solve_options (debug_context: debug_context) hes _ stop_if_intractable = 
+    save_hes_to_file hes (if debug_context.mode = "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.with_usage_analysis solve_options.with_partial_analysis
     >>= (fun path ->
-      let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
+      let debug_context = { debug_context with temp_file = path } in
       let command = solver_command path solve_options stop_if_intractable in
       if solve_options.dry_run then failwith @@ "DRY RUN (" ^ show_debug_context debug_context ^ ") / command: " ^ (Array.to_list command |> String.concat " ");
-      run_command_with_timeout solve_options.timeout command (Option.map (fun c -> c.mode) debug_context) >>|
+      run_command_with_timeout solve_options.timeout command (Some debug_context.mode) >>|
         (fun (status_code, elapsed, stdout, stderr) ->
           let r =
             match status_code with
@@ -404,9 +408,9 @@ module IwayamaSolver : BackendSolver = struct
   
   let run solve_options debug_context hes _ _ = 
     let path = save_hes_to_file hes debug_context in
-    let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
+    let debug_context = { debug_context with temp_file = path } in
     let command = solver_command path solve_options in
-    run_command_with_timeout solve_options.timeout command (Option.map (fun c -> c.mode) debug_context)
+    run_command_with_timeout solve_options.timeout command (Some debug_context.mode)
     >>| (fun (status_code, elapsed, stdout, stderr) ->
         try
           parse_results (status_code, stdout, stderr) debug_context elapsed
@@ -456,9 +460,9 @@ module SuzukiSolver : BackendSolver = struct
   
   let run solve_options debug_context hes _ _ = 
     let path = save_hes_to_file hes debug_context in
-    let debug_context = Option.map (fun d -> { d with temp_file = path }) debug_context in
+    let debug_context = { debug_context with temp_file = path }  in
     let command = solver_command path solve_options in
-    run_command_with_timeout ~env:["RUST_LOG", " "] solve_options.timeout command (Option.map (fun c -> c.mode) debug_context)
+    run_command_with_timeout ~env:["RUST_LOG", " "] solve_options.timeout command (Some debug_context.mode)
     >>| (fun (status_code, elapsed, stdout, stderr) ->
         try
           parse_results (status_code, stdout, stderr) debug_context elapsed
@@ -553,20 +557,20 @@ let count_exists (entry, rules) =
   go entry
   + List.fold_left (fun acc {Hflz.body; _} -> acc + go body) 0 rules
   
-let should_instantiate_exists original_hes =
+let should_instantiate_exists original_hes z3_path =
   let existential_quantifier_number_threthold = 3 in
   let coe1, coe2, lexico_pair_number = (1, 1, 1) in
   
   let exists_count_prover = count_exists original_hes in
   let hes_ = Hflz_mani.encode_body_exists coe1 coe2 original_hes Hflmc2_syntax.IdMap.empty [] false in
-  let hes_ = Hflz_mani.elim_mu_with_rec hes_ coe1 coe2 lexico_pair_number Hflmc2_syntax.IdMap.empty false [] in
+  let hes_ = Hflz_mani.elim_mu_with_rec hes_ coe1 coe2 lexico_pair_number Hflmc2_syntax.IdMap.empty false [] z3_path in
   if not @@ Hflz.ensure_no_mu_exists hes_ then failwith "elim_mu";
   is_nu_only_tractable hes_
   >>= (fun t_prover ->
     let dual_hes = Hflz_mani.get_dual_hes original_hes in
     let exists_count_disprover = count_exists dual_hes in
     let dual_hes = Hflz_mani.encode_body_exists coe1 coe2 dual_hes Hflmc2_syntax.IdMap.empty [] false  in
-    let dual_hes = Hflz_mani.elim_mu_with_rec dual_hes coe1 coe2 lexico_pair_number Hflmc2_syntax.IdMap.empty false [] in
+    let dual_hes = Hflz_mani.elim_mu_with_rec dual_hes coe1 coe2 lexico_pair_number Hflmc2_syntax.IdMap.empty false [] z3_path in
     if not @@ Hflz.ensure_no_mu_exists dual_hes then failwith "elim_mu";
     is_nu_only_tractable dual_hes
     >>| (fun t_disprover ->
@@ -669,7 +673,7 @@ let elim_mu_exists solve_options (hes : 'a Hflz.hes) name =
         Log.info begin fun m -> m ~header:("Exists-Encoded HES (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
         ignore @@ Manipulate.Print_syntax.FptProverHes.save_hes_to_file ~file:("muapprox_" ^ name ^ "_exists_encoded.txt") hes in
 
-      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables id_ho_map in
+      let hes = Hflz_mani.elim_mu_with_rec hes coe1 coe2 lexico_pair_number id_type_map use_all_variables id_ho_map solve_options.z3_path in
       
       let () =
         Log.info begin fun m -> m ~header:("Eliminate Mu (" ^ name ^ ")") "%a" Manipulate.Print_syntax.FptProverHes.hflz_hes' hes end;
@@ -760,8 +764,8 @@ let get_next_approx_parameter ?param ?(iter_count=0) with_add_arguments =
       }
   end
 
-let merge_debug_contexts cs =
-  match cs with 
+let merge_debug_contexts cs_ =
+  match cs_ with 
   | c::cs -> begin
     List.iter
       (fun c' ->
@@ -790,7 +794,7 @@ let merge_debug_contexts cs =
       backend_solver = None;
       default_lexicographic_order = c.default_lexicographic_order;
       exists_assignment = None;
-      temp_file = "";
+      temp_file = String.concat "," (List.map (fun c -> c.temp_file) cs_);
       t_count = c.t_count;
       s_count = c.s_count;
       elapsed_all = c.elapsed_all;
@@ -803,7 +807,7 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
   Hflz_mani.simplify_bound := solve_options.simplify_bound;
   let nu_only_heses = elim_mu_exists solve_options hes mode_name in
   let approx_param = solve_options.approx_parameter in
-  let debug_context_ = Some {
+  let debug_context_ = {
     mode = mode_name;
     iter_count = iter_count;
     coe1 = approx_param.coe1;
@@ -825,31 +829,31 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
     If either of hoice and z3 returned some result other than "fail," then the result of the current iteration is the result returned by the solvers.
     If one of instantiation of existential variables has returned "valid," then result of current iteration is "valid."
   *)
-  let (solvers: (Status.t * debug_context option) Deferred.t list list) = 
+  let (solvers: (Status.t * debug_context) Deferred.t list list) = 
     match solve_options.backend_solver with
     | None ->
       List.map (fun (nu_only_hes, exists_assignment, (t_count, s_count)) ->
-        let debug_context_ = Option.map (fun d -> {d with t_count; s_count}) debug_context_ in
+        let debug_context_ = {debug_context_ with t_count; s_count} in
         [
           solve_onlynu_onlyforall
             { solve_options with backend_solver = Some "hoice" }
-            (Option.map (fun o -> { o with backend_solver = Some "hoice"; exists_assignment = Some exists_assignment }) debug_context_)
+            ({ debug_context_ with backend_solver = Some "hoice"; exists_assignment = Some exists_assignment })
             nu_only_hes
             false
             false;
           solve_onlynu_onlyforall
             { solve_options with backend_solver = Some "z3" }
-            (Option.map (fun o -> { o with backend_solver = Some "z3"; exists_assignment = Some exists_assignment }) debug_context_)
+            ({ debug_context_ with backend_solver = Some "z3"; exists_assignment = Some exists_assignment })
             nu_only_hes
             false
             true (* if the formula is intractable in katsura-solver, stop either of the two solving processes to save computational resources *)
         ]
       ) nu_only_heses
     | Some _ ->
-      List.map (fun (nu_only_hes, _, (t_count, s_count)) -> [solve_onlynu_onlyforall solve_options (Option.map (fun d -> {d with t_count; s_count}) debug_context_) nu_only_hes false false]) nu_only_heses in
-  let (is_valid : (Status.t * debug_context option list) list Ivar.t) = Ivar.create () in
+      List.map (fun (nu_only_hes, _, (t_count, s_count)) -> [solve_onlynu_onlyforall solve_options {debug_context_ with t_count; s_count} nu_only_hes false false]) nu_only_heses in
+  let (is_valid : (Status.t * debug_context list) list Ivar.t) = Ivar.create () in
   let deferred_is_valid = Ivar.read is_valid in
-  let (deferred_all : (Status.t * debug_context option list) list Deferred.t) =
+  let (deferred_all : (Status.t * debug_context list) list Deferred.t) =
     Deferred.all (
       List.map (fun s ->
         let mixed_solvers_result = Ivar.create () in
@@ -884,19 +888,14 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
     ) in
   let start_time_all = Unix.gettimeofday () in
   Deferred.any [deferred_is_valid; deferred_all]
-  >>= (fun results -> kill_processes (Option.map (fun a -> a.mode) debug_context_)
+  >>= (fun results -> kill_processes (debug_context_.mode)
   >>= (fun _ ->
       let elapsed_all = Unix.gettimeofday () -. start_time_all in
       let result, debug_contexts = summarize_results results in
       let debug_contexts = List.flatten debug_contexts in
       let debug_contexts =
-        List.map (fun d_opt ->
-          Option.map (fun d ->
-            {d with elapsed_all}
-          ) d_opt
-        )
-        debug_contexts in
-      merge_debug_contexts (List.filter_map (fun x -> x) debug_contexts) |> output_debug_2;
+        List.map (fun d -> {d with elapsed_all}) debug_contexts in
+      merge_debug_contexts debug_contexts |> output_post_merged_debug_info;
       let retry approx_param =
         if !has_solved then
           return (Status.Unknown, debug_contexts)
@@ -927,8 +926,8 @@ let check_validity_full (solve_options : Solve_options.options) hes iter_count_o
   dresult >>=
     (fun ri ->
       has_solved := true; (* anyでいずれかがdetermineしても全てのdeferredがすぐに停止するとは限らない(？)ため、dualのソルバを停止させる *)
-      kill_processes (Some "prover") >>=
-        (fun _ -> kill_processes (Some "disprover") >>|
+      kill_processes "prover" >>=
+        (fun _ -> kill_processes "disprover" >>|
           (fun _ -> ri)
         )
     )
@@ -962,16 +961,13 @@ let check_validity_full_oneshot (solve_options : Solve_options.options) hes =
       match ris with
       | [ri] -> begin
         log_string "with deferred_got_result";
-        match List.hd @@ snd ri with
-        | Some ({mode; _}) -> begin
-          match mode with
-          | "prover" -> ri
-          | "disprover" ->
-            let (s, d) = ri in
-            (Status.flip s, d)
-          | _ -> assert false
-        end
-        | None -> assert false
+        let {mode;_ } = List.hd @@ snd ri in
+        match mode with
+        | "prover" -> ri
+        | "disprover" ->
+          let (s, d) = ri in
+          (Status.flip s, d)
+        | _ -> assert false
       end
       | [prover_ri; disprover_ri] -> begin
         match fst prover_ri, fst disprover_ri with
@@ -992,8 +988,8 @@ let check_validity_full_oneshot (solve_options : Solve_options.options) hes =
   dresult >>=
     (fun ri ->
       has_solved := true; (* anyでいずれかがdetermineしても全てのdeferredがすぐに停止するとは限らない(？)ため、dualのソルバを停止させる *)
-      kill_processes (Some "prover") >>=
-        (fun _ -> kill_processes (Some "disprover") >>|
+      kill_processes "prover" >>=
+        (fun _ -> kill_processes "disprover" >>|
           (fun _ -> ri)
         )
     )
@@ -1007,7 +1003,7 @@ let solve_onlynu_onlyforall_with_schedule (solve_options : Solve_options.options
       no_elim = true; no_disprove = false; oneshot = true } in
   let dresult = mu_elim_solver 1 solve_options nu_only_hes "solver" 0 in
   dresult >>=
-    (fun ri -> kill_processes (Some "solver") >>|
+    (fun ri -> kill_processes "solver" >>|
         (fun _ -> ri))
   
 (* let solve_onlynu_onlyforall_with_schedule solve_options nu_only_hes cont =
@@ -1029,7 +1025,7 @@ let check_validity solve_options (hes : 'a Hflz.hes) cont =
   
   let dresult =
     (if solve_options.auto_existential_quantifier_instantiation && not solve_options.assign_values_for_exists_at_first_iteration then
-      should_instantiate_exists hes
+      should_instantiate_exists hes solve_options.z3_path
       >>| (fun f ->
         if f then { solve_options with assign_values_for_exists_at_first_iteration = true } else solve_options
       )

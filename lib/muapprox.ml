@@ -90,6 +90,7 @@ let get_solve_options file =
     with_partial_analysis = !Options.with_partial_analysis;
     with_usage_analysis = !Options.with_usage_analysis;
     always_add_arguments = !Options.always_add_arguments;
+    z3_path = !Options.z3_path;
   }
 
 let simplify_agg_ hes =
@@ -105,6 +106,7 @@ let simplify_agg_ hes =
   
 let main file cont =
   let solve_options = get_solve_options file in
+  log_string @@ "z3_path: " ^ solve_options.z3_path;
   let psi = parse file in
   (* coefficients's default values are 1, 1 (defined in solve_options.ml) *)
   (* for debug *)

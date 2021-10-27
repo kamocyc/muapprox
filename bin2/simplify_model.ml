@@ -32,7 +32,7 @@ let simplify_body acc args body =
   (* print_endline @@ "file: " ^ s; *)
   let output_path = get_random_file_name () in
   (* these options prevent z3 from using "let" expressions *)
-  ignore @@ Unix.system @@ "z3 " ^ s ^ " pp.max_depth=10000 pp.min-alias-size=10000 > " ^ output_path;
+  ignore @@ Unix.system @@ !Hflmc2_options.z3_path ^ " " ^ s ^ " pp.max_depth=10000 pp.min-alias-size=10000 > " ^ output_path;
   let s = read_file output_path in
   match Sexplib.Sexp.parse s with
   | Done (model, _) -> begin

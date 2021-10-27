@@ -39,6 +39,7 @@ type options =
     with_partial_analysis: bool;
     with_usage_analysis: bool;
     always_add_arguments: bool;
+    z3_path: string;
   }
 let get_solver solver_name = 
   match solver_name with

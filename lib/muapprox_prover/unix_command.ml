@@ -42,32 +42,28 @@ let show_code (code : (unit, [ `Exit_non_zero of int | `Signal of Hflmc2_util.Co
   end
 
 let kill_processes mode =
-  match mode with
+  (* eld and java are not executed when ran with --no-disprove because they are used only to prove invalid *)
+  match Hashtbl.find_opt pids mode with
   | None -> Deferred.return ()
-  | Some mode -> begin
-    (* eld and java are not executed when ran with --no-disprove because they are used only to prove invalid *)
-    match Hashtbl.find_opt pids mode with
-    | None -> Deferred.return ()
-    | Some pid_filenames -> begin
-      Hashtbl.remove pids mode;
-      let comma_sep_pid_filenames = List.map String.trim pid_filenames |> (String.concat ",") in
-      let command = {|
-      for pid in `echo |} ^ comma_sep_pid_filenames ^ {| | sed "s/,/ /g"`
-      do
-        kill -`cat $pid` 2> /dev/null
-      done
-      |} in
-      Unix.system @@ command
-      >>| (fun code ->
-        match code with
-        | Ok () -> begin
-          ()
-        end
-        | Error code -> begin
-          log_string @@ "Error status (kill_processes, " ^ show_code (Error code) ^ ")"
+  | Some pid_filenames -> begin
+    Hashtbl.remove pids mode;
+    let comma_sep_pid_filenames = List.map String.trim pid_filenames |> (String.concat ",") in
+    let command = {|
+    for pid in `echo |} ^ comma_sep_pid_filenames ^ {| | sed "s/,/ /g"`
+    do
+      kill -`cat $pid` 2> /dev/null
+    done
+    |} in
+    Unix.system @@ command
+    >>| (fun code ->
+      match code with
+      | Ok () -> begin
+        ()
       end
-      )
+      | Error code -> begin
+        log_string @@ "Error status (kill_processes, " ^ show_code (Error code) ^ ")"
     end
+    )
   end
 
 let () =

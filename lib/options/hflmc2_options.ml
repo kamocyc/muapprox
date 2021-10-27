@@ -33,6 +33,7 @@ let with_usage_analysis = ref (Obj.magic())
 let always_add_arguments = ref (Obj.magic())
 let aggressive_simplification = ref (Obj.magic())
 let log_level = ref (Obj.magic())
+let z3_path = ref (Obj.magic())
 
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -118,7 +119,8 @@ type params =
   ; always_add_arguments : bool [@default false]
   
   ; aggressive_simplification : bool [@default false]
-  (* for debug *)
+  
+  ; z3_path : string [@default ""]
   }
 [@@deriving cmdliner,show]
 
@@ -150,6 +152,7 @@ let set_up_params params =
   set_ref always_add_arguments        params.always_add_arguments;
   set_ref aggressive_simplification   params.aggressive_simplification;
   if params.disable_add_arguments && params.always_add_arguments then failwith "illegal parameter combination (disable_add_arguments and always_add_arguments)";
+  set_ref z3_path                     (if params.z3_path = "" then "z3" else params.z3_path);
   params.input
 
 (******************************************************************************)

@@ -265,7 +265,7 @@ let get_const_bound exprs =
   in
   go exprs
   
-let simplify_bound_with_z3 (exprs : 'a t list) =
+let simplify_bound_with_z3 z3_path (exprs : 'a t list) =
   let const_bounds = get_const_bound exprs in
   let buf, variables, not_useds = convert_to_smt2 exprs in
   match buf with
@@ -278,7 +278,7 @@ let simplify_bound_with_z3 (exprs : 'a t list) =
     print_endline file_name;
     Hflmc2_util.write_file file_name buf;
     let output_path = get_random_file_name () in
-    ignore @@ Unix.system @@ "z3 " ^ file_name ^ " pp.max_depth=10000 pp.min-alias-size=10000 > " ^ output_path;
+    ignore @@ Unix.system @@ z3_path ^ " " ^ file_name ^ " pp.max_depth=10000 pp.min-alias-size=10000 > " ^ output_path;
     print_endline "output file_name";
     print_endline output_path;
     let s = Hflmc2_util.read_file output_path in
