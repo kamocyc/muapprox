@@ -1,0 +1,8 @@
+/* timeout */
+/* ORでつながったApp ... の節が2つなら解けた (負の係数があると解けない？) */
+%HES
+S =v ∀n. App (1 + 1 * n) (Eq n) n \/ App (1 + (-1) * n) (Eq n) n \/ App (-1 + (-1) * n) (Eq n) n \/ App (-1 + (-1) * n) (Eq n) n.
+
+App _i f x =v f x.
+
+Eq m n =v m = n.

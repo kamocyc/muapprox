@@ -1,0 +1,17 @@
+/* validだが、係数の探索範囲が足りない */
+%HES
+S =v
+  ∀i.
+    (1 + 1 * i <  0 \/ E1_p (1 + 1 * i) i) /\
+    (1 + 1 * i >= 0 \/ E1_n (1 + 1 * i) i).
+
+E1_p e i =v
+  (App e (Check i) i \/ E1_p (e - 1) i) /\ e >= 0.
+
+E1_n e i =v
+  (App e (Check i) i \/ E1_n (e + 1) i) /\ e < 0.
+
+App _i f x =v
+  App _i f (x + 1) /\ (f x).
+
+Check x y =v x <= y.

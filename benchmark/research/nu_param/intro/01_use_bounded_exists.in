@@ -1,0 +1,14 @@
+/* timeout */
+%HES
+S =v ∀n. ∀e. e < 1 + 1 * n \/ e < 1 + (-1) * n \/ e < 1 \/ Main_e e n.
+
+Main_e e n =v
+  (
+    App e (Eq n) n \/
+    App (-e) (Eq n) n \/    /* n が負の値のときには、eも負の値にする必要 (これがないとunknown) */
+    Main_e (e - 1) n
+  ) /\ e >= 0.
+
+App e f x =v f x.
+
+Eq m n =v m = n.

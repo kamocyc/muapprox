@@ -1,0 +1,6 @@
+%HES
+S =v ∀n. App (Eq n) n.
+
+App f x =v f x.
+
+Eq m n =v m = n.

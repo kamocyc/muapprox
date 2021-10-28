@@ -1,0 +1,8 @@
+/* timeout */
+/* LIAの範囲にならない */
+%HES
+S =v ∀n. ∃c1. ∃c2. App (c1 + c2 * n) (Eq n) n.
+
+App e f x =v f x.
+
+Eq m n =v m = n.

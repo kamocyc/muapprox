@@ -1,0 +1,7 @@
+%HES
+S =v ∀i. App (Check i) i.
+
+App f x =v
+  App f (x + 1) /\ (f x).
+
+Check x y =v x <= y.

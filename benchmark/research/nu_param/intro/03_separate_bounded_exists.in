@@ -1,0 +1,14 @@
+/* timeout?? */
+%HES
+S =v ∀n.
+                             /* 負の係数を表現するためにこの節が必要。これがないと解けてvalid */
+  (n < 0  \/ Main_e   n n \/ Main_e   (-n) n) /\
+  (n >= 0 \/ Main_e_n n n \/ Main_e_n (-n) n).
+
+Main_e e n =v (App e (Eq n) n \/ Main_e (e - 1) n) /\ e >= 0.
+
+Main_e_n e n =v (App e (Eq n) n \/ Main_e_n (e + 1) n) /\ e < 0.
+
+App e f x =v f x.
+
+Eq m n =v m = n.
