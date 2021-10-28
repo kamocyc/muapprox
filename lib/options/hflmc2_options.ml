@@ -54,7 +54,7 @@ type params =
   (** Timeout for a backend solver *)
   
   ; solver : string [@default "katsura"]
-  (** Choose background nu-only-HFLz solver. Available: katsura, iwayama, suzuki *)
+  (** Choose background nu-only-HFLz solver. Available: katsura, iwayama, suzuki, mochi *)
   
   ; backend_solver : string [@default ""]
   (** --solver option on the backend solver. (only used in the katsura solver) *)

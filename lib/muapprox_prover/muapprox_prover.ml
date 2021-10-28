@@ -5,6 +5,7 @@ module Solve_options = Solve_options
 module Hflz_mani = Manipulate.Hflz_manipulate
 module Check_formula_equality = Check_formula_equality
 module Abbrev_variable_numbers = Abbrev_variable_numbers
+module Mochi_solver = Mochi_solver
 
 open Async
 open Solve_options
@@ -209,6 +210,14 @@ module SolverCommon = struct
         | _ -> TUnknown),
         "Parsed status: " ^ Status.string_of status ^ " " ^ (show_debug_context debug_context)
       end
+      | Error (`Exit_non_zero 2) -> begin
+        Status.Fail, TTerminated,
+        "Error code 2 " ^ (show_debug_context debug_context)
+      end
+      | Error (`Exit_non_zero 127) -> begin
+        Status.Fail, TTerminated,
+        "Command not found " ^ (show_debug_context debug_context)
+      end
       | Error (`Exit_non_zero 143) -> begin
         Status.Unknown, TTerminated,
         "SIGTERMed " ^ (show_debug_context debug_context)
@@ -234,6 +243,62 @@ module SolverCommon = struct
   let run_command_with_timeout ?env timeout command mode =
     unix_system ?env timeout command mode
     
+end
+
+module MochiSolver : BackendSolver = struct
+  include SolverCommon
+  
+  let get_solver_path () =
+    match Stdlib.Sys.getenv_opt "mochi_path" with
+    | None -> failwith "Please set environment variable `mochi_path`"
+    | Some s -> s
+    
+  let save_hes_to_file hes mode debug_context no_temp_files =
+    let buf =
+      Hflmc2_util.fmt_string Mochi_solver.convert_nu_hflz_to_program_with_exception hes in
+    let r = Random.int 0x10000000 in
+    Sys.getcwd ()
+    >>| (fun cwd ->
+      (* MoCHi cannot operate on a file in /tmp directory *)
+      cwd ^ "/mochi__temp__" ^ mode ^ "__" ^ string_of_int r ^ ".ml")
+    >>= (fun file ->
+      Writer.save file ~contents:buf
+      >>| (fun () ->
+        output_pre_debug_info hes debug_context file no_temp_files;
+        file
+      )
+    )
+  
+  let solver_command path _solve_options =
+    let solver_path = get_solver_path () in
+    Array.of_list (
+      solver_path :: [path]
+    )
+  
+  let parse_results result debug_context elapsed no_temp_files =
+    parse_results_inner result debug_context elapsed no_temp_files (fun stdout ->
+      let reg = Str.regexp "^\\(Safe!\\|Unsafe!\\)$" in
+      try
+        ignore @@ Str.search_forward reg stdout 0;
+        match Str.matched_group 1 stdout with
+        | "Safe!" -> Valid
+        | "Unsafe!" -> Invalid
+        | _ -> assert false
+      with
+      | Not_found ->
+        Status.Fail
+    )
+    
+  let run solve_options (debug_context: debug_context) hes _ _ = 
+    save_hes_to_file hes debug_context.mode debug_context solve_options.no_temp_files
+    >>= (fun path ->
+      let debug_context = { debug_context with temp_file = path } in
+      let command = solver_command path solve_options in
+      run_command_with_timeout solve_options.timeout command (Some debug_context.mode) >>|
+        (fun (status_code, elapsed, stdout, stderr) ->
+          parse_results (status_code, stdout, stderr) debug_context elapsed solve_options.no_temp_files
+        )
+    )
 end
 
 let get_katsura_solver_path () =
@@ -491,6 +556,7 @@ let solve_onlynu_onlyforall solve_options debug_context hes with_par stop_if_int
       | Katsura -> KatsuraSolver.run
       | Iwayama -> IwayamaSolver.run
       | Suzuki  -> SuzukiSolver.run
+      | Mochi -> MochiSolver.run
     ) in
   run solve_options debug_context hes with_par stop_if_intractable >>| (fun s -> (s, debug_context))
   
