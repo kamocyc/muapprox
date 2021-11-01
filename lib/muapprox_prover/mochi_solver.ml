@@ -19,7 +19,8 @@ let convert_nu_hflz_to_program_with_exception ppf hes =
     | Hflz.Bool true ->
       Fmt.string ppf "true"
     | Bool false ->
-      Fmt.string ppf ("raise " ^ exn_name)
+      show_paren (prec > Prec.app) ppf "%s"
+        ("raise " ^ exn_name)
     | Pred (pred, as') ->
       show_paren (prec > Prec.abs) ppf "@[<1>if@ %a@ then@ true@ else@ raise %s@]"
         formula (Formula.Pred(pred, as'))

@@ -47,7 +47,7 @@ def prepare():
     with open(OUTPUT_FILE_NAME, 'w') as f:
         pass
 
-    BACKEND_SOLVER_CANDIDATE = ['muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama', 'muapprox_suzuki', 'muapprox_katsura_replacer']
+    BACKEND_SOLVER_CANDIDATE = ['muapprox_first_order', 'muapprox_katsura', 'muapprox_iwayama', 'muapprox_suzuki', 'muapprox_katsura_replacer', 'muapprox_mochi']
 
     parser = argparse.ArgumentParser(description='benchmarker.')
     parser.add_argument('backend_solver', metavar='backend_solver', type=str, 
@@ -128,7 +128,9 @@ def run(cmd):
 
     stdout = readfile("/tmp/stdout_1.txt")
     stderr = readfile("/tmp/stderr_1.txt")
-        
+    
+    os.system('../../killp.sh')
+    
     return stdout, elapsed, stderr, timed_out
 
 def get_data(file, result):
