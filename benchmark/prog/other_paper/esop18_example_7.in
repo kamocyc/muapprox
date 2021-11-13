@@ -1,5 +1,6 @@
 /* valid */
 /* (termination) */
+/* uses non-linear arithmetic */
 %HES
 S =v ∀m. ∀n. Loop m n.
 Loop x y =u

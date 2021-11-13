@@ -1,4 +1,4 @@
-/* should be valid */
+/* valid */
 %PROGRAM
 let fb x = if x > 0 then (event a; app fa (x-1)) else (event b; app fb 5)
 let fa x = if x > 0 then (event a; app fa (x-1)) else (event b; app fb 5)

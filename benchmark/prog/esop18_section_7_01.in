@@ -1,0 +1,5 @@
+%HES
+Sentry =v F_36.
+F_34  =v ∀forall_37. (forall_37 != 0 \/ F_36) /\ (forall_37 = 0 \/ F_34).
+F5_35 x_38 =u (x_38 != 0 \/ F_36) /\ (x_38 = 0 \/ F_34).
+F_36  =u ∀forall_39. F5_35 forall_39.

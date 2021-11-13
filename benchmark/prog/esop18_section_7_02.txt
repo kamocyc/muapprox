@@ -1,0 +1,23 @@
+/* p.21 */
+/* invaild (because InfTraces(P) contains traces with finite b's) */
+/* (valid iff InfTraces(P) \subseteq (a*b)^{\omega}, i.e., all infinite sequences contains infinite b's) */
+
+%PROGRAM
+let g k =
+  let x = * in
+  /* valid if x = 0 && x != 0 */
+  if x = 0 then (event a; k) else (event b; k)
+let f = g f
+let () = f
+
+/* complement of (a*b)^{\omega}, i.e. the set of infinite sequences that contain only finitesly many b's */
+%TRANSITION
+qa a -> qa
+qa b -> qb
+
+qb a -> qa
+qb b -> qb
+
+%PRIORITY
+qa -> 0
+qb -> 1
