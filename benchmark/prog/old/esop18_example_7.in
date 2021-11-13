@@ -1,0 +1,7 @@
+/* valid */
+/* (termination) */
+%HES
+S =v ∀m. ∀n. Loop m n.
+Loop x y =u
+  (x <= 0 \/ y <= 0 => true) /\
+  (not (x <= 0 \/ y <= 0) => Loop (x - 1) (y * y) /\ Loop x (y - 1)).

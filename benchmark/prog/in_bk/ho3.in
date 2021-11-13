@@ -1,0 +1,12 @@
+%HES
+Sentry =v
+  Halt_156 /\ Halt_153 /\ Halt_153 /\ Foo_154 0 /\ Foo_151 0 /\ Foo_151 0.
+Foo_151 x_157 =u (x_157 > 0 \/ Foo_151 x_157) /\ (x_157 <= 0 \/ Halt_153).
+Halt_152  =u Halt_155.
+Halt_153  =u Halt_152.
+Foo_154 x_158 =v
+  (x_158 > 0 \/ Foo_154 x_158) /\ (x_158 <= 0 \/ Halt_156)
+  /\ (x_158 > 0 \/ Foo_151 x_158) /\ (x_158 <= 0 \/ Halt_153)
+  /\ (x_158 > 0 \/ Foo_151 x_158) /\ (x_158 <= 0 \/ Halt_153).
+Halt_155  =v Halt_155.
+Halt_156  =v Halt_156 /\ Halt_152.

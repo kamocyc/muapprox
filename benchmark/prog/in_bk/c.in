@@ -1,0 +1,4 @@
+%HES
+Sentry =v ∀forall_43. F_42 forall_43.
+Finish_41  =v Finish_41.
+F_42 x_44 =u (x_44 = 0 \/ F_42 (x_44 - 1)) /\ (x_44 != 0 \/ Finish_41).

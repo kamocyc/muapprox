@@ -1,0 +1,5 @@
+%HES
+Sentry =v F__qa__0.
+G__qb__1  =u G__qb__1.
+G__qa__0  =v G__qb__1.
+F__qa__0  =v F__qa__0 /\ G__qa__0.

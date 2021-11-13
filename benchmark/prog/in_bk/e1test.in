@@ -1,0 +1,5 @@
+%HES
+S =v F_qa_0.
+F_qb_1 =ν F_qa_0 \/ F_qb_1.
+F_qb_0 =μ F_qa_0 \/ F_qb_1.
+F_qa_0 =μ F_qa_0 \/ F_qb_1.

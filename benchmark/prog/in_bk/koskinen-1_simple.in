@@ -1,0 +1,11 @@
+%HES
+Sentry =v
+  ∀forall_311. Explore_306 forall_311 (\x_387. \k_390. k_390 (x_387 - 2)).
+Finish_296  =u Finish_296.
+Reduce_299 x_353 r_356 k_362 =v
+  (x_353 > 0 \/ k_362 x_353) /\ (x_353 <= 0 \/ r_356 x_353 k_362).
+Explore34_301 r_374 y_379 =v
+  (y_379 > 0 \/ Finish_302 /\ Finish_296)
+  /\ (y_379 <= 0 \/ Explore_306 y_379 r_374).
+Finish_302  =v Finish_302 /\ Finish_296.
+Explore_306 x_401 r_403 =u Reduce_299 x_401 r_403 (Explore34_301 r_403).

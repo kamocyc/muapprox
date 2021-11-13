@@ -1,0 +1,6 @@
+/* dual of nu-HFL(Z) */
+/* invalid */
+%HES
+S =v Main.
+Main =u ∃n. Sum n (\r. (r >= n /\ false) \/ (r < n /\ true)).
+Sum x k =u (x = 0 /\ k 0) \/ (x != 0 /\ Sum (x - 1) (\r. k (x + r))).

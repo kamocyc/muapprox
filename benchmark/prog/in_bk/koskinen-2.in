@@ -1,0 +1,16 @@
+%HES
+Sentry =v
+  ∀forall_210. 
+   ∀forall_211. Rumble_206 forall_211 forall_210 (Lam_205 forall_210).
+Loop_195  =u Loop_195.
+Rumble_200 x_227 y_228 k_230 =v
+  (x_227 >= y_228
+   \/ Rumble_200 (x_227 + 1) y_228 k_230 /\ Rumble_200 x_227 (y_228 - 1) k_230)
+  /\ (x_227 < y_228 \/ k_230 x_227).
+Print_201  =v Loop_195.
+Lam_203 r2_237 =v Print_201.
+Lam_205 a_240 r_241 =v Rumble_200 a_240 r_241 Lam_203.
+Rumble_206 x_242 y_243 k_245 =u
+  (x_242 >= y_243
+   \/ Rumble_200 (x_242 + 1) y_243 k_245 /\ Rumble_200 x_242 (y_243 - 1) k_245)
+  /\ (x_242 < y_243 \/ k_245 x_242).

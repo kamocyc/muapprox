@@ -1,0 +1,19 @@
+/* retrieved from the example in the paper (esop18_ex11) */
+%HES
+S =v F_int_ar_qa__0 5.
+
+F_int_ar_qb__1 x =v
+  (x > 0  => (
+    G_qa__0_and_qb__1_ar_qb__0 (F_int_ar_qa__0 (x-1)) (F_int_ar_qb__1 (x-1))
+  )) /\ 
+  (x <= 0 => F_int_ar_qb__1 5).
+
+F_int_ar_qa__0 x =u
+  (x > 0 => (
+    G_qa__0_and_qb__1_ar_qa__0 (F_int_ar_qa__0 (x-1)) (F_int_ar_qb__1 (x-1))
+  )) /\
+  (x <= 0 => F_int_ar_qb__1 5).
+
+G_qa__0_and_qb__1_ar_qa__0 k_qa__0 k_qb__1 =u k_qa__0 /\ k_qb__1.
+
+G_qa__0_and_qb__1_ar_qb__0 k_qa__0 k_qb__1 =u k_qa__0 /\ k_qb__1.

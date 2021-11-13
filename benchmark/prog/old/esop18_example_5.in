@@ -1,0 +1,5 @@
+/* dual of nu-HFL(Z) */
+/* invalid */
+%HES
+S =v Loop true.
+Loop x =u Loop x.

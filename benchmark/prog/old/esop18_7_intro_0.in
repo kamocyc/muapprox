@@ -1,0 +1,4 @@
+%HES
+Sentry =v F_9.
+F_8  =v F_9 /\ F_8.
+F_9  =u F_9 /\ F_8.
