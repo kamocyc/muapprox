@@ -1,0 +1,32 @@
+(set-logic HORN)
+
+; generated from sum.in__pover__1.in by katsura-solver
+; * without options: Satisfied (which is an expected result)
+; * with --raf     : Synth error: Found contradiction when simplifying the original teacher dataset in SAT, program unsafe
+; * with --resol   : Satisfied  (But the resulting model is not correct; all predicates return false)
+
+(declare-fun X1 (Int Int Int) Bool)
+(declare-fun X2 (Int Int) Bool)
+(declare-fun X3 (Int Int Int) Bool)
+(declare-fun X21 () Bool)
+(declare-fun X22 (Int) Bool)
+(declare-fun X23 (Int Int) Bool)
+(declare-fun X26 (Int Int Int) Bool)
+(declare-fun X42 (Int Int Int) Bool)
+(declare-fun X43 (Int Int) Bool)
+(assert (forall ((x27 Int)(x28 Int)) (=> (and (X2  x28 x27) (<=  x27 0)) false)))
+(assert (forall ((tmp30 Int)(x27 Int)(x28 Int)) (=> (and (=  tmp30 0) (and (X2  x28 x27) (<=  x28 0))) (X3  tmp30 x28 x27))))
+(assert (forall ((x27 Int)(x28 Int)) (=> (and (X2  x28 x27) (>  x28 0)) (X43  x28 x27))))
+(assert (forall ((x27 Int)(x28 Int)(x29 Int)) (=> (and (X2  x28 x27) (X3  x29 x28 x27)) (X1  x29 x28 x27))))
+(assert (forall ((n7 Int)(recSUM6 Int)(tmp31 Int)(tmp32 Int)) (=> (and (and (=  tmp31 (-  n7 1)) (=  tmp32 (-  recSUM6 1))) (X43  n7 recSUM6)) (X2  tmp31 tmp32))))
+(assert (forall ((n7 Int)(recSUM6 Int)(tmp33 Int)(x26 Int)) (=> (and (=  tmp33 (+  n7 x26)) (and (X43  n7 recSUM6) (X1  x26 (-  n7 1) (-  recSUM6 1)))) (X3  tmp33 n7 recSUM6))))
+(assert (forall ((x2 Int)) (=> X21 (X22  x2))))
+(assert (forall ((sssss3 Int)(x2 Int)) (=> (X22  x2) (X23  sssss3 x2))))
+(assert (forall ((recSUM4 Int)(sssss3 Int)(x2 Int)) (=> (and (X23  sssss3 x2) (>=  sssss3 1)) (X26  recSUM4 sssss3 x2))))
+(assert (forall ((recSUM4 Int)(sssss3 Int)(x2 Int)) (=> (and (X26  recSUM4 sssss3 x2) (and (and (and (and (>=  recSUM4 1) (>=  recSUM4 (+  1 (*  (-  0 1) x2)))) (>=  recSUM4 (+  1 (*  1 x2)))) (>=  recSUM4 (+  1 (*  (-  0 1) 0)))) (>=  recSUM4 (+  1 (*  1 0))))) (X42  recSUM4 sssss3 x2))))
+(assert (forall ((recSUM4 Int)(sssss3 Int)(x2 Int)) (=> (X42  recSUM4 sssss3 x2) (X2  x2 recSUM4))))
+(assert (=> false false))
+(assert (=> true X21))
+(check-sat)
+    (get-model)
+    

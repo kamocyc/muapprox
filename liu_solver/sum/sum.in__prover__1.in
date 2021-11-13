@@ -1,0 +1,14 @@
+%HES
+Sentry =v
+  ∀x. 
+   ∀sssss. 
+    sssss < 1
+    \/ (∀recSUM. 
+         recSUM < 1 + 1 * 0 \/ recSUM < 1 + (-1) * 0 \/ recSUM < 1 + 1 * x
+         \/ recSUM < 1 + (-1) * x
+         \/ recSUM < 1
+         \/ SUM recSUM x (\x2. true)).
+SUM recSUM n k_sum =v
+  recSUM > 0
+  /\ (n > 0 \/ k_sum 0)
+     /\ (n <= 0 \/ SUM (recSUM - 1) (n - 1) (\x. k_sum (n + x))).

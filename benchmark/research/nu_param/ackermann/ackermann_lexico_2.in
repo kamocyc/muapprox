@@ -1,0 +1,136 @@
+/* ackermann_lexico_1.in と同一の意味の式 (timeout) */
+%HES
+Sentry =v
+  ∀m. ∀n. 
+    (n <= 0 \/ m <= 0
+     \/ (∀recAck. 
+          ∀recAck2. 
+              recAck < 1 + 1 * n
+           \/ recAck < 1 + (-1) * n
+           \/ recAck < 1 + 1 * m
+           \/ recAck < 1 + (-1) * m
+           \/ recAck < 1
+           \/ recAck2 < 1 + 1 * n
+           \/ recAck2 < 1 + (-1) * n
+           \/ recAck2 < 1 + 1 * m
+           \/ recAck2 < 1 + (-1) * m
+           \/ recAck2 < 1
+           \/ Ack recAck recAck2 m n (\replaced. true))
+    ).
+
+Ack recAck recAck2 m n k =v
+  recAck > 0 /\ recAck2 > 0
+  /\ (m >  0 \/ k (n + 1))
+  /\ (m <= 0 \/ (
+    (n >  0 \/
+      Ack recAck (recAck2 - 1) (m - 1) 1 k \/
+      (∀recAck2_n. 
+           recAck2_n < 1 + 1 * 1
+        \/ recAck2_n < 1 + (-1) * 1
+        \/ recAck2_n < 1 + 1 * (m - 1)
+        \/ recAck2_n < 1 + (-1) * (m - 1)
+        \/ recAck2_n < 1
+        \/ Ack (recAck - 1) recAck2_n (m - 1) 1 k
+      )
+    ) /\
+    (n <= 0 \/
+      Ack recAck (recAck2 - 1) m (n - 1) (\r. 
+        Ack recAck (recAck2 - 1) (m - 1) r k \/ (
+          ∀recAck2_n2. 
+             recAck2_n2 < 1 + 1 * r
+          \/ recAck2_n2 < 1 + (-1) * r
+          \/ recAck2_n2 < 1 + 1 * (m - 1)
+          \/ recAck2_n2 < 1 + (-1) * (m - 1)
+          \/ recAck2_n2 < 1
+          \/ Ack (recAck - 1) recAck2_n2 (m - 1) r k
+        )
+      ) \/
+      (∀recAck2_n.
+           recAck2_n < 1 + 1 * (n - 1)
+        \/ recAck2_n < 1 + (-1) * (n - 1)
+        \/ recAck2_n < 1 + 1 * m
+        \/ recAck2_n < 1 + (-1) * m
+        \/ recAck2_n < 1
+        \/ Ack (recAck - 1) recAck2_n m (n - 1) (\r. 
+            Ack recAck (recAck2 - 1) (m - 1) r k \/ (
+              ∀recAck2_n2. 
+                  recAck2_n2 < 1 + 1 * r
+              \/ recAck2_n2 < 1 + (-1) * r
+              \/ recAck2_n2 < 1 + 1 * (m - 1)
+              \/ recAck2_n2 < 1 + (-1) * (m - 1)
+              \/ recAck2_n2 < 1
+              \/ Ack (recAck - 1) recAck2_n2 (m - 1) r k
+            )
+          )
+        )
+    )
+  )).                
+                
+/*
+/* 再帰引数の順番を逆にしたバージョン (timeout) */
+%HES
+Sentry =v
+  ∀m. ∀n. 
+    (n <= 0 \/ m <= 0
+     \/ (∀recAck2. ∀recAck. 
+              recAck2 < 1 + 1 * n
+           \/ recAck2 < 1 + (-1) * n
+           \/ recAck2 < 1 + 1 * m
+           \/ recAck2 < 1 + (-1) * m
+           \/ recAck2 < 1
+           \/ recAck < 1 + 1 * n
+           \/ recAck < 1 + (-1) * n
+           \/ recAck < 1 + 1 * m
+           \/ recAck < 1 + (-1) * m
+           \/ recAck < 1
+           \/ Ack recAck2 recAck m n (\replaced. true))
+    ).
+
+Ack recAck2 recAck m n k =v
+  recAck2 > 0 /\ recAck > 0
+  /\ (m >  0 \/ k (n + 1))
+  /\ (m <= 0 \/ (
+    (n >  0 \/
+      Ack (recAck2 - 1) recAck (m - 1) 1 k \/
+      (∀recAck2_n. 
+           recAck2_n < 1 + 1 * 1
+        \/ recAck2_n < 1 + (-1) * 1
+        \/ recAck2_n < 1 + 1 * (m - 1)
+        \/ recAck2_n < 1 + (-1) * (m - 1)
+        \/ recAck2_n < 1
+        \/ Ack recAck2_n (recAck - 1) (m - 1) 1 k
+      )
+    ) /\
+    (n <= 0 \/
+      Ack (recAck2 - 1) recAck m (n - 1) (\r. 
+        Ack (recAck2 - 1) recAck (m - 1) r k \/ (
+          ∀recAck2_n2. 
+             recAck2_n2 < 1 + 1 * r
+          \/ recAck2_n2 < 1 + (-1) * r
+          \/ recAck2_n2 < 1 + 1 * (m - 1)
+          \/ recAck2_n2 < 1 + (-1) * (m - 1)
+          \/ recAck2_n2 < 1
+          \/ Ack recAck2_n2 (recAck - 1) (m - 1) r k
+        )
+      ) \/
+      (∀recAck2_n.
+           recAck2_n < 1 + 1 * (n - 1)
+        \/ recAck2_n < 1 + (-1) * (n - 1)
+        \/ recAck2_n < 1 + 1 * m
+        \/ recAck2_n < 1 + (-1) * m
+        \/ recAck2_n < 1
+        \/ Ack recAck2_n (recAck - 1) m (n - 1) (\r. 
+            Ack (recAck2 - 1) recAck (m - 1) r k \/ (
+              ∀recAck2_n2. 
+                 recAck2_n2 < 1 + 1 * r
+              \/ recAck2_n2 < 1 + (-1) * r
+              \/ recAck2_n2 < 1 + 1 * (m - 1)
+              \/ recAck2_n2 < 1 + (-1) * (m - 1)
+              \/ recAck2_n2 < 1
+              \/ Ack recAck2_n2 (recAck - 1) (m - 1) r k
+            )
+          )
+        )
+    )
+  )).
+*/

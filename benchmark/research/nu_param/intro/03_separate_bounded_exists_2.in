@@ -1,0 +1,19 @@
+/* timeout?? */
+/* 追加引数1箇所につき、述語を4つ追加する？ => 各4つにつき、それぞれ4つなどとなる？ */
+/* 負の係数を表現するためにMain_e_nが必要 */
+%HES
+S =v ∀n.
+     (n  < 0 \/ Main_e     n n \/ Main_e_n n (-n))
+  /\ (n >= 0 \/ Main_e_n_2 n n \/ Main_e_2 n (-n)).
+
+Main_e n e =v (App e (Eq n) n \/ Main_e n (e - 1)) /\ e >= 0.
+
+Main_e_n n e =v (App e (Eq n) n \/ Main_e_n n (e + 1)) /\ e < 0.
+
+Main_e_2 n e =v (App e (Eq n) n \/ Main_e_2 n (e - 1)) /\ e >= 0.
+
+Main_e_n_2 n e =v (App e (Eq n) n \/ Main_e_n_2 n (e + 1)) /\ e < 0.
+
+App e f x =v f x.
+
+Eq m n =v m = n.

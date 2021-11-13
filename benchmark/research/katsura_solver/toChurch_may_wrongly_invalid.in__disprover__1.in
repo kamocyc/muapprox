@@ -1,6 +1,12 @@
+/* should be invalid */
 /* katsura-solverでvalid (AをExistsの中にinliningするとvalidになる) */
 /* iwayama solverでinvalid */
 %HES
-Sentry =v x < 1 \/ Exists201 A x.
+Sentry =v
+  ∀x.
+    x < 1 \/ Exists201 A x.
+
+/* equivalent to \n. false */
 A n =v n < 0 /\ n >= 0.
+
 Exists201 k x =v (k x \/ k (-x) \/ Exists201 k (x - 1)) /\ x >= 0.

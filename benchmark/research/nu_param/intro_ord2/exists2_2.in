@@ -1,0 +1,29 @@
+/* Unknown in 836.424087 sec (non-dual) */
+%HES
+Sentry =v
+  ∀i.
+    ∀e.
+      e < 1 + 1 * i \/
+      e < 1 + (-1) * i \/
+      e < 1 \/
+      Exists e i.
+
+Exists e i =v
+  (App e (Check i) i \/ App (-e) (Check i) i \/ Exists (e - 1) i) /\ e >= 0.
+
+App e1 f x =v
+  (
+    ∀e.
+      e < 1 + 1 * e1 \/
+      e < 1 + (-1) * e1 \/
+      e < 1 + 1 * x \/
+      e < 1 + (-1) * x \/
+      e < 1 \/
+      App_ex e f x
+  )
+  /\ f x.
+
+App_ex e f x =v
+  (App e f (x + 1) \/ App (-e) f (x + 1) \/ App_ex (e - 1) f x) /\ e >= 0.
+
+Check x y =v x <= y.

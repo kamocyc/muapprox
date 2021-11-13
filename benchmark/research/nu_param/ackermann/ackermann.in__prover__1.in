@@ -1,0 +1,138 @@
+/*
+Sentry *[tt]
+ACK int(r1) ->
+    int(r2) ->
+    int(m) ->
+    int(n) ->
+    (int(_) ->
+      *[
+        r2 >= 1 /\ r1 >= 1 /\
+        (
+          (r2 >= 1 + 2 * m) \/
+          (r2 >= 2 + 1 * m) \/
+          (n >= 1 /\ r1 >= 1 + m /\ r2 >= 1 + n /\ r2 >= 1 + m) \/
+          (n >= 0 /\ r2 = m + n + 1) \/
+          (r1 >= 1 + n /\ r1 + m >= 4 /\ r2 = m + 1)
+        )
+      ]
+    ) ->
+    *[
+        r2 >= 1 /\ r1 >= 1 /\
+        (
+          (r2 >= 1 + 2 * m) \/
+          (r2 >= 2 + 1 * m) \/
+          (n >= 1 /\ r1 >= 1 + m /\ r2 >= 1 + n /\ r2 >= 1 + m) \/
+          (n >= 0 /\ r2 = m + n + 1) \/
+          (r1 >= 1 + n /\ r1 + m >= 4 /\ r2 = m + 1)
+        )
+      ]
+*/
+/*
+Sentry *[tt]
+Ack int(r1) ->
+    int(r2) ->
+    int(m) ->
+    int(n) ->
+    (int(_) -> *[r2 >= 1 /\ r1 >= 1 /\ r1 >= 1 + m /\ r2 >= 1 + n]) ->
+    *[r2 >= 1 /\ r1 >= 1 /\ r1 >= 1 + m /\ r2 >= 1 + n]
+*/
+
+%HES
+Sentry =v
+  ∀m. 
+   ∀n. 
+    (n <= 0 \/ m <= 0
+     \/ (∀recACK. 
+          ∀recACK2. 
+              recACK < 1 + 1 * n
+           \/ recACK < 1 + (-1) * n
+           \/ recACK < 1 + 1 * m
+           \/ recACK < 1 + (-1) * m
+           \/ recACK < 1
+           \/ recACK2 < 1 + 1 * n
+           \/ recACK2 < 1 + (-1) * n
+           \/ recACK2 < 1 + 1 * m
+           \/ recACK2 < 1 + (-1) * m
+           \/ recACK2 < 1
+           \/ ACK recACK recACK2 m n (\x. true)
+        )
+    )
+    /\ (n > 0 /\ m > 0 \/ true).
+
+ACK recACK recACK2 m n k_ack =v
+  recACK > 0 /\ recACK2 > 0
+  /\ (m > 0 \/ k_ack (n + 1))
+     /\ (m <= 0
+         \/ (n > 0
+             \/ (∀recACK62_n. 
+                  ∀recACK62_2_n. 
+                   (recACK <= 1 \/ recACK62_n < recACK - 1
+                    \/ recACK62_2_n < recACK2)
+                   /\ (recACK > 1 \/ recACK62_n < 1 + 1 * 1
+                       \/ recACK62_n < 1 + (-1) * 1
+                       \/ recACK62_n < 1 + 1 * (m - 1)
+                       \/ recACK62_n < 1 + (-1) * (m - 1)
+                       \/ recACK62_n < 1
+                       \/ recACK62_2_n < recACK2 - 1)
+                   \/ ACK recACK62_n recACK62_2_n (m - 1) 1 k_ack))
+            /\ (n <= 0
+                \/ (∀recACK62_n. 
+                     ∀recACK62_2_n. 
+                      (recACK <= 1 \/ recACK62_n < recACK - 1
+                       \/ recACK62_2_n < recACK2)
+                      /\ (recACK > 1 \/ recACK62_n < 1 + 1 * (n - 1)
+                          \/ recACK62_n < 1 + (-1) * (n - 1)
+                          \/ recACK62_n < 1 + 1 * m
+                          \/ recACK62_n < 1 + (-1) * m
+                          \/ recACK62_n < 1 + 1 * (m - 1)
+                          \/ recACK62_n < 1 + (-1) * (m - 1)
+                          \/ recACK62_n < 1
+                          \/ recACK62_2_n < recACK2 - 1)
+                      \/ ACK recACK62_n recACK62_2_n m (n - 1)
+                          (\x. 
+                            ∀recACK62_n2. 
+                             ∀recACK62_2_n2. 
+                              (recACK <= 1 \/ recACK62_n2 < recACK - 1
+                               \/ recACK62_2_n2 < recACK2)
+                              /\ (recACK > 1 \/ recACK62_n2 < 1 + 1 * x
+                                  \/ recACK62_n2 < 1 + (-1) * x
+                                  \/ recACK62_n2 < 1 + 1 * (m - 1)
+                                  \/ recACK62_n2 < 1 + (-1) * (m - 1)
+                                  \/ recACK62_n2 < 1
+                                  \/ recACK62_2_n2 < recACK2 - 1)
+                              \/ ACK recACK62_n2 recACK62_2_n2 (m - 1) x k_ack)))).
+
+/* ACK recACK recACK2 m n k_ack */
+%ENV
+ACK : r1:int ->
+    r2:int ->
+    m:int ->
+    n:int ->
+    k_ack:(t:int -> bool[
+      r2 >= 1 /\ r1 >= 1 /\
+      (
+        (r2 >= 2 * m + 1) \/
+        
+        (r2 >= 1 * m + 2) \/
+        
+        (n >= 1 /\ r1 >= m + 1 /\ r2 >= n + 1 /\ r2 >= m + 1) \/
+        
+        (n >= 0 /\ m + n = r2 - 1) \/
+        
+        (r1 + r2 >= n + m + 2 /\ m = r2 - 1 /\ r1 + r2 >= 5)
+      )
+    ]) ->
+    bool[
+        r2 >= 1 /\ r1 >= 1 /\
+        (
+          (r2 >= 2 * m + 1) \/
+          
+          (r2 >= 1 * m + 2) \/
+          
+          (n >= 1 /\ r1 >= m + 1 /\ r2 >= n + 1 /\ r2 >= m + 1) \/
+          
+          (n >= 0 /\ m + n = r2 - 1) \/
+          
+          (r1 + r2 >= n + m + 2 /\ m = r2 - 1 /\ r1 + r2 >= 5)
+        )
+    ].

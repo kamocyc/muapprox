@@ -1,0 +1,50 @@
+/* disjunctionのうち、手動で必要なほうのみを残したもの。z3で解ける */
+%HES
+Sentry =v
+  ∀m. ∀n. 
+    (n <= 0 \/ m <= 0
+     \/ (∀recAck2. ∀recAck. 
+              recAck2 < 1 + 1 * n
+           \/ recAck2 < 1 + (-1) * n
+           \/ recAck2 < 1 + 1 * m
+           \/ recAck2 < 1 + (-1) * m
+           \/ recAck2 < 1
+           \/ recAck < 1 + 1 * n
+           \/ recAck < 1 + (-1) * n
+           \/ recAck < 1 + 1 * m
+           \/ recAck < 1 + (-1) * m
+           \/ recAck < 1
+           \/ Ack recAck2 recAck m n (\replaced. true))
+    ).
+
+Ack recAck2 recAck m n k =v
+  recAck2 > 0 /\ recAck > 0
+  /\ (m != 0 \/ k (n + 1))
+  /\ (m = 0 \/ (
+    (n != 0 \/
+      ∀recAck2_n. 
+           recAck2_n < 1 + 1 * 1
+        \/ recAck2_n < 1 + (-1) * 1
+        \/ recAck2_n < 1 + 1 * (m - 1)
+        \/ recAck2_n < 1 + (-1) * (m - 1)
+        \/ recAck2_n < 1
+        \/ Ack recAck2_n (recAck - 1) (m - 1) 1 k
+    ) /\
+    (n = 0 \/
+      Ack (recAck2 - 1) recAck m (n - 1) (\r.
+          ∀recAck2_n2. 
+             recAck2_n2 < 1 + 1 * r
+          \/ recAck2_n2 < 1 + (-1) * r
+          \/ recAck2_n2 < 1 + 1 * (m - 1)
+          \/ recAck2_n2 < 1 + (-1) * (m - 1)
+          \/ recAck2_n2 < 1
+          \/ Ack recAck2_n2 (recAck - 1) (m - 1) r k
+      )
+    )
+  )).
+
+%ENV
+Ack : r1:int -> r2:int -> m:int -> n:int ->
+      (t:int -> bool[n < t]) ->
+                bool[m < r2 /\ m >= 0 /\ n >= 0 /\ n < r1 /\ (r2 > 1 \/ n > 0)].
+                

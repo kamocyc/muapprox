@@ -1,0 +1,13 @@
+%HES
+S =v ∀i. App i (Check i) i.
+
+App _e f x =v
+  App x f (x + 1) /\ f x.
+
+Check x y =v x <= y.
+
+/*
+S : bool[true].
+App : _e:int -> (t16:int -> bool[t16 >= _e]) -> x18:int -> bool[x18 >= _e].
+Check : x26:int -> y27:int -> bool[y27 >= x26].
+*/

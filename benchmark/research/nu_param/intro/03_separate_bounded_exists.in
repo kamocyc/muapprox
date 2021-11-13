@@ -1,14 +1,38 @@
 /* timeout?? */
+/* 追加引数1箇所につき、述語を4つ追加する？ => 各4つにつき、それぞれ4つなどとなる？ */
+/* 負の係数を表現するためにMain_e_nが必要 */
 %HES
+/*
 S =v ∀n.
-                             /* 負の係数を表現するためにこの節が必要。これがないと解けてvalid */
-  (n < 0  \/ Main_e   n n \/ Main_e   (-n) n) /\
-  (n >= 0 \/ Main_e_n n n \/ Main_e_n (-n) n).
+     (n  < 0 \/ Main_e     n n \/ Main_e_n ((-1) * n) n)
+  /\ (n >= 0 \/ Main_e_n_2 n n \/ Main_e_2 ((-1) * n) n).
+*/
+
+/*
+S =v ∀n.
+     (2 * n  < 0 \/ Main_e     (2 * n) n \/ Main_e_n ((-2) * n) n)
+  /\ (2 * n >= 0 \/ Main_e_n_2 (2 * n) n \/ Main_e_2 ((-2) * n) n).
+*/
+
+S =v ∀n.
+     (n  < 0 \/ Main_e     (n + 1) n \/ Main_e_n (-n - 1) n)
+  /\ (n >= 0 \/ Main_e_n_2 (n - 1) n \/ Main_e_2 (-n + 1) n).
 
 Main_e e n =v (App e (Eq n) n \/ Main_e (e - 1) n) /\ e >= 0.
 
 Main_e_n e n =v (App e (Eq n) n \/ Main_e_n (e + 1) n) /\ e < 0.
 
+Main_e_2 e n =v (App e (Eq n) n \/ Main_e_2 (e - 1) n) /\ e >= 0.
+
+Main_e_n_2 e n =v (App e (Eq n) n \/ Main_e_n_2 (e + 1) n) /\ e < 0.
+
 App e f x =v f x.
 
 Eq m n =v m = n.
+
+%ENV
+/* S : bool[true]. /* この行があるとFailになるのは、hoiceのバグのようだ */ */
+Main_e : e29:int -> n30:int -> bool[0 <= e29].
+Main_e_n : e39:int -> n40:int -> bool[e39 < 0].
+Main_e_2 : e49:int -> n50:int -> bool[0 <= e49].
+Main_e_n_2 : e59:int -> n60:int -> bool[e59 < 0].

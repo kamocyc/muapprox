@@ -1,0 +1,29 @@
+%HES
+Sentry =v ∀i.
+     (i <  0 \/ Exists_p_1 i i \/ Exists_n_1 (-i) i)
+  /\ (i >= 0 \/ Exists_n_2 i i \/ Exists_p_2 (-i) i).
+
+Exists_p_1 e i =v
+  (App e (Check i) i \/ Exists_p_1 (e - 1) i) /\ e >= 0.
+Exists_n_1 e i =v
+  (App e (Check i) i \/ Exists_n_1 (e + 1) i) /\ e <  0.
+Exists_p_2 e i =v
+  (App e (Check i) i \/ Exists_p_2 (e - 1) i) /\ e >= 0.
+Exists_n_2 e i =v
+  (App e (Check i) i \/ Exists_n_2 (e + 1) i) /\ e <  0.
+
+App _e f x =v
+     (x <  0 \/ App_e_p_1 x f x \/ App_e_n_1 (-x) f x)
+  /\ (x >= 0 \/ App_e_n_2 x f x \/ App_e_p_2 (-x) f x)
+  /\ f x.
+
+App_e_p_1 e f x =v
+  (App e f (x + 1) \/ App_e_p_1 (e - 1) f x) /\ e >= 0.
+App_e_n_1 e f x =v
+  (App e f (x + 1) \/ App_e_n_1 (e + 1) f x) /\ e <  0.
+App_e_p_2 e f x =v
+  (App e f (x + 1) \/ App_e_p_2 (e - 1) f x) /\ e >= 0.
+App_e_n_2 e f x =v
+  (App e f (x + 1) \/ App_e_n_2 (e + 1) f x) /\ e <  0.
+
+Check x y =v x <= y.

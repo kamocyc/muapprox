@@ -51,7 +51,7 @@ Ack r1 r2 m n k =ν
       r2p < 1 + 1 * n ||
       r2p < 1 - 1 * n ||
       r2p < 1 ||
-      Ack r1 (r2 - 1) m (n - 1) (\r.
+      Ack r1 r2p m (n - 1) (\r.
         Ack r1 (r2 - 1) (m - 1) r k || (∀r2pp.
         r2pp < 1 + m ||
         r2pp < 1 - m ||
