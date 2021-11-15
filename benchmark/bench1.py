@@ -165,7 +165,9 @@ def get_data(file, result):
             for file2 in files:
                 print("file: " + file2)
                 data = load_jsons_data(file2)
-                assert(len(data) == 1)
+                if not (len(data) == 1):
+                    print("ERROR: len(data) <> 1")
+                
                 res.append(data[0])
                 os.remove(file2)
         

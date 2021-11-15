@@ -1,9 +1,0 @@
-nontermination/fib_CPS_nonterm.in
-nontermination/fixpoint_nonterm.in
-nontermination/foldr_nonterm.in
-nontermination/indirectHO_e.in
-nontermination/indirect_e.in
-nontermination/inf_closure.in
-nontermination/loopHO.in
-nontermination/passing_cond.in
-nontermination/unfoldr_nonterm.in

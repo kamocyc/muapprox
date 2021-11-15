@@ -49,7 +49,8 @@ q_a -> 1.
 q_b -> 2.
 
 /*
-/* disprover-1を以下のように変えると解ける */
+/* prover-1を以下のように
+Update_max_CPS__qを2つに分ける変形をすると解ける (13 sec) */
 %HES
 Sentry =v ∀x. x < 1 \/ Exists x.
 Exists x =v
@@ -91,14 +92,11 @@ Cont__q_a__1_e recCont__q_a x x2 =v
   /\ x2 >= 0.
 Ev_a__q k__q_a k__q_b =v k__q_a.
 Ev_b__q k__q_a k__q_b =v k__q_b.
-
 Cont28__q recCont__q_a x y =v
   (x >= y \/ Update_max_CPS__q_b recCont__q_a Ev_b__q y)
   /\ (x < y \/ Update_max_CPS__q recCont__q_a Ev_a__q x).
-
 Update_max_CPS__q recCont__q_a ev__q x =v
   ev__q (Cont__q_a (recCont__q_a - 1) x) (Cont__q_b x).
-
 Update_max_CPS__q_b recCont__q_a ev__q x =v
   ev__q (Cont__q_a (recCont__q_a - 1) x) (Cont__q_b x).
 */

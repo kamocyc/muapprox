@@ -1,0 +1,9 @@
+paper/nonterm/fib_CPS_nonterm.in
+paper/nonterm/fixpoint_nonterm.in
+paper/nonterm/foldr_nonterm.in
+paper/nonterm/indirectHO_e.in
+paper/nonterm/indirect_e.in
+paper/nonterm/inf_closure.in
+paper/nonterm/loopHO.in
+paper/nonterm/passing_cond.in
+paper/nonterm/unfoldr_nonterm.in

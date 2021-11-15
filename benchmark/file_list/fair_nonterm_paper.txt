@@ -1,0 +1,16 @@
+paper/fair_nonterm/call_twice.in
+paper/fair_nonterm/compose.in
+paper/fair_nonterm/intro.in
+paper/fair_nonterm/loop_CPS.in
+paper/fair_nonterm/loop.in
+paper/fair_nonterm/murase_closure_buggy.in
+paper/fair_nonterm/murase_repeat_buggy.in
+paper/fair_nonterm/nested_if.in
+paper/fair_nonterm/odd_nonterm.in
+paper/fair_nonterm/op_loop.in
+paper/fair_nonterm/update_max.in
+paper/fair_nonterm/update_max_CPS.in
+paper/fair_nonterm/koskinen-1_buggy.in
+paper/fair_nonterm/koskinen-2_buggy.in
+paper/fair_nonterm/koskinen-3-1_buggy.in
+paper/fair_nonterm/koskinen-3-3_buggy.in
