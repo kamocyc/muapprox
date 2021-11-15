@@ -376,7 +376,7 @@ module KatsuraSolver : BackendSolver = struct
   let solver_command hes_path solver_options stop_if_intractable =
     let solver_path = get_katsura_solver_path () in
     Array.of_list (
-      solver_path :: (if solver_options.no_disprove then ["--no-disprove"] else []) @
+      solver_path :: ["--solve-dual=auto-conservative"] @ (if solver_options.no_disprove then ["--no-disprove"] else []) @
         (List.filter_map (fun x -> x)
           [
             (if solver_options.no_backend_inlining then Some "--no-inlining" else None);
