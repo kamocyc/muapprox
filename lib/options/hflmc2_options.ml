@@ -35,6 +35,7 @@ let aggressive_simplification = ref (Obj.magic())
 let log_level = ref (Obj.magic())
 let z3_path = ref (Obj.magic())
 let no_temp_files = ref (Obj.magic())
+let try_weak_subtype = ref (Obj.magic())
 
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -124,6 +125,8 @@ type params =
   ; z3_path : string [@default ""]
   
   ; no_temp_files : bool [@default false]
+  
+  ; try_weak_subtype : bool [@default false]
   }
 [@@deriving cmdliner,show]
 
@@ -157,6 +160,7 @@ let set_up_params params =
   if params.disable_add_arguments && params.always_add_arguments then failwith "illegal parameter combination (disable_add_arguments and always_add_arguments)";
   set_ref z3_path                     (if params.z3_path = "" then "z3" else params.z3_path);
   set_ref no_temp_files               params.no_temp_files;
+  set_ref try_weak_subtype            params.try_weak_subtype;
   params.input
 
 (******************************************************************************)

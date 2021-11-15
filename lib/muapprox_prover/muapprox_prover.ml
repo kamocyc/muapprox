@@ -33,6 +33,7 @@ type debug_context = {
   t_count: int;
   s_count: int;
   elapsed_all: float;
+  will_try_weak_subtype: bool;
 }
 
 let has_solved = ref false
@@ -58,6 +59,7 @@ let show_debug_context debug =
     ("s_count", soi debug.s_count);
     ("elapsed_all", string_of_float debug.elapsed_all);
     ("temp_file", debug.temp_file);
+    ("will_try_weak_subtype", string_of_bool debug.will_try_weak_subtype)
   ]
 
 let show_debug_contexts debugs =
@@ -69,7 +71,7 @@ let show_debug_contexts debugs =
   String.concat ", "
   
 module type BackendSolver = sig
-  val run : options -> debug_context -> Hflmc2_syntax.Type.simple_ty Hflz.hes -> bool -> bool -> Status.t Deferred.t
+  val run : options -> debug_context -> Hflmc2_syntax.Type.simple_ty Hflz.hes -> bool -> bool -> bool -> Status.t Deferred.t
 end
 
 module FptProverRecLimitSolver : BackendSolver = struct
@@ -78,7 +80,7 @@ module FptProverRecLimitSolver : BackendSolver = struct
     | None -> failwith "Please set environment variable `first_order_solver_path`"
     | Some s -> s
   
-  let run option _debug_context (hes : 'a Hflz.hes) with_par _ =
+  let run option _debug_context (hes : 'a Hflz.hes) with_par _ _ =
     let solver_path = get_first_order_solver_path () in
     let debug_output =
       match option.log_level with
@@ -289,7 +291,7 @@ module MochiSolver : BackendSolver = struct
         Status.Fail
     )
     
-  let run solve_options (debug_context: debug_context) hes _ _ = 
+  let run solve_options (debug_context: debug_context) hes _ _ _ = 
     save_hes_to_file hes debug_context.mode debug_context solve_options.no_temp_files
     >>= (fun path ->
       let debug_context = { debug_context with temp_file = path } in
@@ -373,15 +375,17 @@ module KatsuraSolver : BackendSolver = struct
       path
     )
     
-  let solver_command hes_path solver_options stop_if_intractable =
+  let solver_command hes_path solver_options stop_if_intractable will_try_weak_subtype =
     let solver_path = get_katsura_solver_path () in
     Array.of_list (
-      solver_path :: ["--solve-dual=auto-conservative"] @ (if solver_options.no_disprove then ["--no-disprove"] else []) @
+      solver_path :: ["--solve-dual=auto-conservative"] @
+        (if solver_options.no_disprove then ["--no-disprove"] else []) @
         (List.filter_map (fun x -> x)
           [
             (if solver_options.no_backend_inlining then Some "--no-inlining" else None);
             (match solver_options.backend_solver with None -> None | Some s -> Some ("--solver=" ^ s));
-            (if stop_if_intractable then Some "--stop-if-intractable" else None)
+            (if stop_if_intractable then Some "--stop-if-intractable" else None);
+            (if will_try_weak_subtype then Some "--mode-burn-et-al" else None)
           ]
         ) @
         [hes_path]
@@ -405,11 +409,11 @@ module KatsuraSolver : BackendSolver = struct
       end
     )
     
-  let run solve_options (debug_context: debug_context) hes _ stop_if_intractable = 
+  let run solve_options (debug_context: debug_context) hes _ stop_if_intractable will_try_weak_subtype = 
     save_hes_to_file hes (if debug_context.mode = "prover" && solve_options.approx_parameter.add_arg_coe1 <> 0 && solve_options.approx_parameter.lexico_pair_number = 1 then solve_options.replacer else "") debug_context solve_options.with_usage_analysis solve_options.with_partial_analysis solve_options.no_temp_files
     >>= (fun path ->
       let debug_context = { debug_context with temp_file = path } in
-      let command = solver_command path solve_options stop_if_intractable in
+      let command = solver_command path solve_options stop_if_intractable will_try_weak_subtype in
       if solve_options.dry_run then failwith @@ "DRY RUN (" ^ show_debug_context debug_context ^ ") / command: " ^ (Array.to_list command |> String.concat " ");
       run_command_with_timeout solve_options.timeout command (Some debug_context.mode) >>|
         (fun (status_code, elapsed, stdout, stderr) ->
@@ -473,7 +477,7 @@ module IwayamaSolver : BackendSolver = struct
         | Not_found -> failwith @@ "not matched"
     )
   
-  let run solve_options debug_context hes _ _ = 
+  let run solve_options debug_context hes _ _ _ = 
     let path = save_hes_to_file hes debug_context solve_options.no_temp_files in
     let debug_context = { debug_context with temp_file = path } in
     let command = solver_command path solve_options in
@@ -525,7 +529,7 @@ module SuzukiSolver : BackendSolver = struct
         | Not_found -> failwith @@ "not matched"
     )
   
-  let run solve_options debug_context hes _ _ = 
+  let run solve_options debug_context hes _ _ _ = 
     let path = save_hes_to_file hes debug_context solve_options.no_temp_files in
     let debug_context = { debug_context with temp_file = path }  in
     let command = solver_command path solve_options in
@@ -547,7 +551,7 @@ let is_first_order_hes hes =
   |> (fun hes -> Hflz.merge_entry_rule hes)
   |> List.for_all (fun { Hflz.var; _} -> is_first_order_function_type var.ty)
   
-let solve_onlynu_onlyforall solve_options debug_context hes with_par stop_if_intractable =
+let solve_onlynu_onlyforall solve_options debug_context hes with_par stop_if_intractable will_try_weak_subtype =
   let run =
     if is_first_order_hes hes && solve_options.first_order_solver = Some FptProverRecLimit then (
       FptProverRecLimitSolver.run
@@ -558,7 +562,7 @@ let solve_onlynu_onlyforall solve_options debug_context hes with_par stop_if_int
       | Suzuki  -> SuzukiSolver.run
       | Mochi -> MochiSolver.run
     ) in
-  run solve_options debug_context hes with_par stop_if_intractable >>| (fun s -> (s, debug_context))
+  run solve_options debug_context hes with_par stop_if_intractable will_try_weak_subtype >>| (fun s -> (s, debug_context))
   
 let fold_hflz folder phi init =
   let rec go phi acc = match phi with
@@ -853,6 +857,7 @@ let merge_debug_contexts cs_ =
         assert (c.t_count = c'.t_count);
         assert (c.s_count = c'.s_count);
         assert (c.elapsed_all = c'.elapsed_all);
+        assert (c.will_try_weak_subtype = c'.will_try_weak_subtype)
       )
       cs;
     {
@@ -871,15 +876,20 @@ let merge_debug_contexts cs_ =
       t_count = c.t_count;
       s_count = c.s_count;
       elapsed_all = c.elapsed_all;
+      will_try_weak_subtype = c.will_try_weak_subtype;
     }
   end
   | [] -> assert false
 
 (* これ以降、本プログラム側での近似が入る *)
-let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mode_name iter_count_offset =
+let rec mu_elim_solver ?(was_weak_subtype_used=false) ?(cached_formula=None) iter_count (solve_options : Solve_options.options) hes mode_name iter_count_offset =
   Hflz_mani.simplify_bound := solve_options.simplify_bound;
-  let nu_only_heses = elim_mu_exists solve_options hes mode_name in
+  let nu_only_heses =
+    match cached_formula with
+    | None -> elim_mu_exists solve_options hes mode_name
+    | Some p -> p in
   let approx_param = solve_options.approx_parameter in
+  let will_try_weak_subtype = solve_options.try_weak_subtype && not was_weak_subtype_used in
   let debug_context_ = {
     mode = mode_name;
     iter_count = iter_count;
@@ -896,6 +906,7 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
     t_count = -1;
     s_count = -1;
     elapsed_all = -1.0;
+    will_try_weak_subtype = will_try_weak_subtype;
   } in
   (* e.g. solvers = [(* an instantiation of variables quantified by exists, e.g. x1 = 0 *)[solve with hoice, solve with z3]; (* x1 = 1*)[solve with hoice, solve with z3]]
     For each instantiation, if both hoice and z3 returned "fail," then the overall result is "fail."
@@ -913,17 +924,19 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
             ({ debug_context_ with backend_solver = Some "hoice"; exists_assignment = Some exists_assignment })
             nu_only_hes
             false
-            false;
+            false
+            will_try_weak_subtype;
           solve_onlynu_onlyforall
             { solve_options with backend_solver = Some "z3" }
             ({ debug_context_ with backend_solver = Some "z3"; exists_assignment = Some exists_assignment })
             nu_only_hes
             false
             true (* if the formula is intractable in katsura-solver, stop either of the two solving processes to save computational resources *)
+            will_try_weak_subtype
         ]
       ) nu_only_heses
     | Some _ ->
-      List.map (fun (nu_only_hes, _, (t_count, s_count)) -> [solve_onlynu_onlyforall solve_options {debug_context_ with t_count; s_count} nu_only_hes false false]) nu_only_heses in
+      List.map (fun (nu_only_hes, _, (t_count, s_count)) -> [solve_onlynu_onlyforall solve_options {debug_context_ with t_count; s_count} nu_only_hes false false false]) nu_only_heses in
   let (is_valid : (Status.t * debug_context list) list Ivar.t) = Ivar.create () in
   let deferred_is_valid = Ivar.read is_valid in
   let (deferred_all : (Status.t * debug_context list) list Deferred.t) =
@@ -973,10 +986,15 @@ let rec mu_elim_solver iter_count (solve_options : Solve_options.options) hes mo
       let retry approx_param =
         if !has_solved then
           return (Status.Unknown, debug_contexts)
-        else
-          let approx_param = get_next_approx_parameter ~param:approx_param ~iter_count:(iter_count + iter_count_offset) solve_options.add_arguments in
-          let solve_options = { solve_options with approx_parameter = approx_param } in
-          mu_elim_solver (iter_count + 1) solve_options hes mode_name iter_count_offset
+        else begin
+          if will_try_weak_subtype then begin
+            mu_elim_solver ~was_weak_subtype_used:true ~cached_formula:(Some nu_only_heses) iter_count solve_options hes mode_name iter_count_offset
+          end else begin
+            let approx_param = get_next_approx_parameter ~param:approx_param ~iter_count:(iter_count + iter_count_offset) solve_options.add_arguments in
+            let solve_options = { solve_options with approx_parameter = approx_param } in
+            mu_elim_solver (iter_count + 1) solve_options hes mode_name iter_count_offset
+          end
+        end
       in
       match result with
       | Status.Valid -> return (Status.Valid, debug_contexts)

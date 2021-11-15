@@ -41,6 +41,7 @@ type options =
     always_add_arguments: bool;
     z3_path: string;
     no_temp_files: bool;
+    try_weak_subtype: bool;
   }
 let get_solver solver_name = 
   match solver_name with
