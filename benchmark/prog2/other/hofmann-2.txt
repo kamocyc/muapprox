@@ -28,7 +28,7 @@ let f =
 let g i k =
   /* event called; */
   let x = <_forall> * in
-  if x > 0 then (
+  if i < 2 && x > 0 then (
     event a;
     g (i+1) k
   ) else (

@@ -1,0 +1,133 @@
+/*
+  * result: valid
+  * time: (timeout) (we can get "valid" by manually simplifing the formula)
+  * retrieved from: Koskinen and Terauchi, "Local Temporal Reasoning", CSL-LICS 2014, Figure 10
+  * remark: systematically converted into a non-terminating program. The bug mentioned in the paper "Temporal Verification of Higher-Order Functional Programs" is fixed. (the program in the origina paper results in "invalid"). 
+*/
+
+%PROGRAM
+let loop = event called; loop
+
+let app f x i kk =
+  event called; 
+  f x (\t k.
+    k (t - i)
+  ) kk
+
+let ha1 x =
+  event called;
+  event ha1;
+  loop
+
+let ha2 x =
+  event called;
+  event ha2;
+  loop
+
+let walk x f k =
+  event called;
+  event walk;
+  if x < 0 then k x
+  else f x (\r.
+    walk r f k
+  )
+
+let run x f k =
+  event called;
+  event run;
+  if x < 0 then k x
+  else f x (\r.
+    f r (\r_.
+      run r_ f k
+    )
+  )
+
+let life x =
+  event called;
+  if <d> * then (
+    event p;
+    if x < 0 then app walk x 1 (\r. ha1 r)
+    else app run x 1 (\r. ha2 r)
+  ) else
+    life x
+
+let () =
+  life (<_forall> *)
+
+/* (G ( ( (p) && (! walk) && (! ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (walk) && (! ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (! run) && (ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (! run) && (! ha2) && (called) ) )) && (G(p -> (X(((walk || called) U ha1) || ((run || called) U ha2))))) */
+%TRANSITION
+accept_init called  -> (1, accept_init).
+accept_init d -> (1, accept_init) /\ (2, accept_init).
+accept_init run  -> (1, accept_init).
+accept_init walk  -> (1, accept_init).
+accept_init ha1  -> (1, accept_init).
+accept_init ha2  -> (1, accept_init).
+accept_init p  -> (1, t0_s2) \/ (1, t1_s3).
+
+t0_s2 walk  -> (1, t0_s2).
+t0_s2 called  -> (1, t0_s2).
+t0_s2 d -> (1, t0_s2) /\ (2, t0_s2).
+t0_s2 ha1  -> (1, accept_init).
+t0_s2 run  -> (1, qd).
+t0_s2 ha2  -> (1, qd).
+t0_s2 p  -> (1, qd).
+
+t1_s3 run  -> (1, t1_s3).
+t1_s3 d -> (1, t1_s3) /\ (2, t1_s3).
+t1_s3 ha2  -> (1, accept_init).
+t1_s3 called  -> (1, t1_s3).
+t1_s3 walk  -> (1, qd).
+t1_s3 ha1  -> (1, qd).
+t1_s3 p  -> (1, qd).
+
+qd run  -> (1, qd).
+qd d -> (1, qd) /\ (2, qd).
+qd ha2  -> (1, qd).
+qd called  -> (1, qd).
+qd walk  -> (1, qd).
+qd ha1  -> (1, qd).
+qd p  -> (1, qd).
+
+%PRIORITY
+accept_init -> 2.
+t0_s2 -> 1.
+t1_s3 -> 1.
+qd -> 1.
+
+/*
+/* simplified version of the approximated nu-HFL(Z) formula */
+/* valid in < 1.0 sec with hoice */
+/* inlining, partial evaluation, combine arguments with always the same values, inlining arguments that are effectively constants */
+%HES
+Sentry =v
+  ∀x. 
+    (x < 0
+      \/ (∀recRun81__qd. 
+            recRun81__qd < 1 + 1 * (x - 1)
+            \/ recRun81__qd < 1 + (-1) * (x - 1)
+            \/ recRun81__qd < 1
+            \/ Run81__qd recRun81__qd (x - 1)))
+    \/
+    (x >= 0
+      /\ (∀recRun81__t1_s. 
+              recRun81__t1_s < 1 + 1 * (x - 1)
+              \/ recRun81__t1_s < 1 + (-1) * (x - 1)
+              \/ recRun81__t1_s < 1
+              \/ Run81__t1_s recRun81__t1_s 
+                                            (x - 1))).
+
+Run81__qd recRun81__qd r =v
+  recRun81__qd > 0
+  /\ (\t. \k__qd. k__qd (t - 1)) r
+      (\r2. 
+        r2 >= 0
+        /\ (\t. \k__qd. k__qd (t - 1)) r2 (Run81__qd (recRun81__qd - 1))).
+
+Run81__t1_s recRun81__t1_s r =v
+  recRun81__t1_s > 0
+  /\ (\t. \k__t1_s. k__t1_s (t - 1)) r
+      (\r2. 
+        (r2 < 0
+          \/ (\t. \k__t1_s. k__t1_s (t - 1)) r2
+              (Run81__t1_s (recRun81__t1_s - 1)))).
+*/

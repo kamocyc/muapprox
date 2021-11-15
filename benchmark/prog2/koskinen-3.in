@@ -1,0 +1,26 @@
+%HES
+Sentry =v
+  ∀x166. 
+   Foo__q0__1 0
+   /\ Bar__q0__1 x166
+       (\r. 
+         (r > 0 \/ Foo__q0__1 r) /\ (r <= 0 \/ Halt__q0__1)
+         \/ (r > 0 \/ Foo__q1__2 r) /\ (r <= 0 \/ Halt__q1__2)
+         \/ (r > 0 \/ Foo__q1__2 r) /\ (r <= 0 \/ Halt__q1__2))
+       (\r. (r > 0 \/ Foo__qd__1 r) /\ r <= 0).
+Halt__q1__2  =v Halt__qd__2.
+Halt__qd__2  =v false.
+Bar__qd__2 x k__qd__1 =v
+  (x <= 0 \/ Bar__qd__1 (x - 2) k__qd__1) /\ (x > 0 \/ k__qd__1 x).
+Foo__q1__2 x =v (x > 0 \/ Foo__q1__2 x) /\ (x <= 0 \/ Halt__q1__2).
+Halt__q0__1  =u Halt__q0__1 \/ Halt__qd__2.
+Bar__q0__1 x k__q0__1 k__qd__2 =u
+  (x <= 0 \/ Bar__q0__1 (x - 2) k__q0__1 k__qd__2) /\ (x > 0 \/ k__q0__1 x)
+  \/ (x <= 0 \/ Bar__qd__2 (x - 2) k__qd__2) /\ (x > 0 \/ k__qd__2 x).
+Bar__qd__1 x k__qd__1 =u
+  (x <= 0 \/ Bar__qd__1 (x - 2) k__qd__1) /\ (x > 0 \/ k__qd__1 x).
+Foo__q0__1 x =u
+  (x > 0 \/ Foo__q0__1 x) /\ (x <= 0 \/ Halt__q0__1)
+  \/ (x > 0 \/ Foo__q1__2 x) /\ (x <= 0 \/ Halt__q1__2)
+  \/ (x > 0 \/ Foo__q1__2 x) /\ (x <= 0 \/ Halt__q1__2).
+Foo__qd__1 x =u (x > 0 \/ Foo__qd__1 x) /\ x <= 0.

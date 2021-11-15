@@ -1,0 +1,65 @@
+%HES
+Sentry =v
+  ∀x2281. 
+   ((x2281 >= 0
+     \/ App__t0_s2__2 Walk__t0_s2__2 x2281 1 Life84__qd__2 Life84__t0_s2__2)
+    /\ (x2281 < 0
+        \/ App__t0_s2__2 Run__t0_s2__2 x2281 1 Life83__qd__2 Life83__t0_s2__2)
+    \/ (x2281 >= 0
+        \/ App__t1_s3__2 Walk__t1_s3__2 x2281 1 Life84__qd__2 Life84__t1_s3__2)
+       /\ (x2281 < 0
+           \/ App__t1_s3__2 Run__t1_s3__2 x2281 1 Life83__qd__2
+               Life83__t1_s3__2))
+   /\ Life__accept_init__2 x2281.
+App__t0_s2__2 f__t0_s2__1 x i kk__qd__1 kk__t0_s2__1 =v
+  f__t0_s2__1 x (App79__qd__1 i) (\t. \k__t0_s2__0. k__t0_s2__0 (t - i))
+   kk__qd__1 kk__t0_s2__1.
+App__t1_s3__2 f__t1_s3__1 x i kk__qd__1 kk__t1_s3__1 =v
+  f__t1_s3__1 x (App79__qd__1 i) (\t. \k__t1_s3__0. k__t1_s3__0 (t - i))
+   kk__qd__1 kk__t1_s3__1.
+Walk__t0_s2__2 x f__qd__1 f__t0_s2__1 k__qd__1 k__t0_s2__1 =v
+  (x >= 0 \/ k__t0_s2__1)
+  /\ (x < 0 \/ f__t0_s2__1 x (Walk80__t0_s2__1 f__t0_s2__1 k__t0_s2__1)).
+Walk__t1_s3__2 x f__qd__1 f__t1_s3__1 k__qd__1 k__t1_s3__1 =v
+  (x >= 0 \/ k__qd__1)
+  /\ (x < 0 \/ f__qd__1 x (Walk80__qd__1 f__qd__1 k__qd__1)).
+Run__t0_s2__2 x f__qd__1 f__t0_s2__1 k__qd__1 k__t0_s2__1 =v
+  (x >= 0 \/ k__qd__1)
+  /\ (x < 0 \/ f__qd__1 x (Run81__qd__1 f__qd__1 f__qd__1 k__qd__1)).
+Run__t1_s3__2 x f__qd__1 f__t1_s3__1 k__qd__1 k__t1_s3__1 =v
+  (x >= 0 \/ k__t1_s3__1)
+  /\ (x < 0
+      \/ f__t1_s3__1 x (Run81__t1_s3__1 f__t1_s3__1 f__t1_s3__1 k__t1_s3__1)).
+Life__accept_init__2 x =v
+  ((x >= 0 \/ App__t0_s2__2 Walk__t0_s2__2 x 1 Life84__qd__2 Life84__t0_s2__2)
+   /\ (x < 0 \/ App__t0_s2__2 Run__t0_s2__2 x 1 Life83__qd__2 Life83__t0_s2__2)
+   \/ (x >= 0
+       \/ App__t1_s3__2 Walk__t1_s3__2 x 1 Life84__qd__2 Life84__t1_s3__2)
+      /\ (x < 0
+          \/ App__t1_s3__2 Run__t1_s3__2 x 1 Life83__qd__2 Life83__t1_s3__2))
+  /\ Life__accept_init__2 x.
+Life84__qd__2  =v false.
+Life84__t0_s2__2  =v true.
+Life84__t1_s3__2  =v false.
+Life83__qd__2  =v false.
+Life83__t0_s2__2  =v false.
+Life83__t1_s3__2  =v true.
+App79__qd__1 i t k__qd__0 =u k__qd__0 (t - i).
+Walk80__qd__1 f__qd__1 k__qd__1 r =u
+  (r >= 0 \/ k__qd__1)
+  /\ (r < 0 \/ f__qd__1 r (Walk80__qd__1 f__qd__1 k__qd__1)).
+Walk80__t0_s2__1 f__t0_s2__1 k__t0_s2__1 r =u
+  (r >= 0 \/ k__t0_s2__1)
+  /\ (r < 0 \/ f__t0_s2__1 r (Walk80__t0_s2__1 f__t0_s2__1 k__t0_s2__1)).
+Run81__qd__1 f__qd__0 f__qd__1 k__qd__1 r =u
+  f__qd__0 r
+   (\r_. 
+     (r_ >= 0 \/ k__qd__1)
+     /\ (r_ < 0 \/ f__qd__1 r_ (Run81__qd__1 f__qd__1 f__qd__1 k__qd__1))).
+Run81__t1_s3__1 f__t1_s3__0 f__t1_s3__1 k__t1_s3__1 r =u
+  f__t1_s3__0 r
+   (\r_. 
+     (r_ >= 0 \/ k__t1_s3__1)
+     /\ (r_ < 0
+         \/ f__t1_s3__1 r_
+             (Run81__t1_s3__1 f__t1_s3__1 f__t1_s3__1 k__t1_s3__1))).

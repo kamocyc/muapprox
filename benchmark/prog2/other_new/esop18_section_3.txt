@@ -1,0 +1,35 @@
+/* valid */
+/* Specifications were created to reflect the intent of the paper's explanation. */
+%PROGRAM
+let f y k =
+  if y = 0 then (event close; k)
+  else (event read; f (y - 1) k)
+
+let end = event end; end
+
+let () =
+  let n = <_forall> * in
+  if n >= 0 then
+    f n (\. end)
+  else (
+    event close;
+    end
+  )
+
+%TRANSITION
+q0 read -> (1, q0).
+q0 close -> (1, q1).
+q0 end -> false.
+
+q1 read -> false.
+q1 close -> false.
+q1 end -> (1, q2).
+
+q2 read -> false.
+q2 close -> false.
+q2 end -> (1, q2).
+
+%PRIORITY
+q0 -> 1.
+q1 -> 1.
+q2 -> 2.

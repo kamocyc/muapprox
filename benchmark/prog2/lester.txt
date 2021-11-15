@@ -1,0 +1,62 @@
+/*
+  * result: valid
+  * time: < 1.0 sec
+  * retrieved from: Lester, Neatherway, Ong, and Ramsay, "Model Checking Liveness Properties of Higher-Order Functional Programs", Appendix H.1
+  * remark: automaton is created to expression intention described in the original paper
+*/
+
+/* valid */
+%PROGRAM
+let read x k = event read; k
+
+let write x k = event write; k
+
+let close x k = x k
+
+let loop i y n k =
+  if i <= n then (
+    write y (\.
+      loop (i + 1) y n k
+    )
+  ) else k
+
+let g y n k = loop 1 y n (\. close y k)
+  
+let f x y n k =
+  if <d> * then (
+    read x (\.
+      f x y (n+1) k
+    )
+  ) else (
+    close x (\.
+      g y n k
+    )
+  )
+
+let () =
+  let s = (\k. event close_in; k) in
+  let t = (\k. event close_out; k) in
+  f s t 0 (\. ())
+
+/* AG (close_in => AF close_out) */
+/* branchはdemonic */
+/* q0 close_in -> で、この時点よりも後でclose_outされることをチェックするスレッドqfと、この時点より後のclose_inを見ていくq0とに分岐 */
+/* ひとたびqfになった後、close_outがやがて呼ばれないければinvalidにしたいので、qfで停止した場合=nullaryはfalse. qfが無限に繰り返す場合はodd priority */
+%TRANSITION
+q0 d -> (1, q0) /\ (2, q0).
+q0 close_in -> (1, qf) /\ (1, q0).
+q0 close_out -> (1, q0).
+q0 read -> (1, q0).
+q0 write -> (1, q0).
+q0 nullary -> true.
+
+qf d -> (1, qf) /\ (2, qf).
+qf close_in -> (1, qf).
+qf close_out -> true.
+qf read -> (1, qf).
+qf write -> (1, qf).
+qf nullary -> false.
+
+%PRIORITY
+q0 -> 0.
+qf -> 1.

@@ -1,0 +1,124 @@
+/* valid */
+
+%PROGRAM
+let loop = event called; loop
+
+let app f x i kk =
+  event called; 
+  f x (\t k.
+    k (t - i)
+  ) kk
+
+let ha1 x =
+  event called;
+  event ha1;
+  loop
+
+let ha2 x =
+  event called;
+  event ha2;
+  loop
+
+let walk x f k =
+  event called;
+  event walk;
+  if x < 0 then k x
+  else f x (\r.
+    walk r f k
+  )
+
+let run x f k =
+  event called;
+  event run;
+  if x < 0 then k x
+  else f x (\r.
+    f r (\r_.
+      run r_ f k
+    )
+  )
+
+let life x =
+  event called;
+  if <d> * then (
+    event p;
+    if x < 0 then app walk x 1 (\r. ha1 r)
+    else app run x 1 (\r. ha2 r)
+  ) else
+    life x
+
+let () =
+  life (<_forall> *)
+
+/* LTLでは、「各時刻でちょうど1つの命題変数が真になることが常に成り立つ」という条件が必要 */
+/* (G ( ( (p) && (! walk) && (! ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (walk) && (! ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (ha1) && (! run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (run) && (! ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (! run) && (ha2) && (! called) ) || ( (! p) && (! walk) && (! ha1) && (! run) && (! ha2) && (called) ) )) && (G(p -> (X(((walk || called) U ha1) || ((run || called) U ha2))))) */
+%TRANSITION
+accept_init called  -> (1, accept_init).
+accept_init d -> (1, accept_init) /\ (2, accept_init).
+accept_init run  -> (1, accept_init).
+accept_init walk  -> (1, accept_init).
+accept_init ha1  -> (1, accept_init).
+accept_init ha2  -> (1, accept_init).
+accept_init p  -> (1, t0_s2) \/ (1, t1_s3).
+
+t0_s2 walk  -> (1, t0_s2).
+t0_s2 called  -> (1, t0_s2).
+t0_s2 d -> (1, t0_s2) /\ (2, t0_s2).
+t0_s2 ha1  -> (1, accept_init).
+t0_s2 run  -> (1, qd).
+t0_s2 ha2  -> (1, qd).
+t0_s2 p  -> (1, qd).
+
+t1_s3 run  -> (1, t1_s3).
+t1_s3 d -> (1, t1_s3) /\ (2, t1_s3).
+t1_s3 ha2  -> (1, accept_init).
+t1_s3 called  -> (1, t1_s3).
+t1_s3 walk  -> (1, qd).
+t1_s3 ha1  -> (1, qd).
+t1_s3 p  -> (1, qd).
+
+qd run  -> (1, qd).
+qd d -> (1, qd) /\ (2, qd).
+qd ha2  -> (1, qd).
+qd called  -> (1, qd).
+qd walk  -> (1, qd).
+qd ha1  -> (1, qd).
+qd p  -> (1, qd).
+
+%PRIORITY
+accept_init -> 2.
+t0_s2 -> 1.
+t1_s3 -> 1.
+qd -> 1.
+
+/*
+/* prover coe=2,1 を 式変形を繰り返すと下記の形になる */
+/* timeout in PCSat (should be valid) */
+%HES
+Sentry =v
+  ∀x. 
+    x < 0 \/
+    /* この OR を1つずつ試せば解ける */
+    (
+      ∀recRun. 
+        recRun < 2 + 1 * (x - 1) \/ recRun < 2 + (-1) * (x - 1)
+        \/ recRun < 2
+        \/ Run3 recRun (\t. \k. k (t - 1)) false (x - 1)
+    ) \/
+    (
+      ∀recRun. 
+        recRun < 2 + 1 * (x - 1) \/ recRun < 2 + (-1) * (x - 1)
+        \/ recRun < 2
+        \/ Run4 recRun (\t. \k. k (t - 1)) true (x - 1)
+    )
+   .
+
+Run recRun x f k =v
+  recRun > 0 /\ (x > 0 \/ k) /\ (x <= 0 \/ f x (Run3 recRun f k)).
+
+Run2 recRun x f k =v
+  recRun > 0 /\ (x > 0 \/ k) /\ (x <= 0 \/ f x (Run4 recRun f k)).
+
+Run3 recRun f k r =v f r (\r2. Run (recRun - 1) r2 f k).
+
+Run4 recRun f k r =v f r (\r2. Run2 (recRun - 1) r2 f k).
+*/

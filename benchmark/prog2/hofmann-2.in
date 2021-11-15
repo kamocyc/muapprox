@@ -1,0 +1,6 @@
+%HES
+Sentry =v G__q_0__0 F8__q_c__1.
+F__q_b__2  =v G__q_0__0 F8__q_c__1.
+F8__q_c__1  =u F__q_b__2.
+G__q_0__0 k__q_c__1 =v G__q_a__0 k__q_c__1 /\ k__q_c__1.
+G__q_a__0 k__q_c__1 =v G__q_a__0 k__q_c__1 /\ k__q_c__1.

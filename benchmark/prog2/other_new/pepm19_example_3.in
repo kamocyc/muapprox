@@ -1,0 +1,15 @@
+%HES
+Sentry =v
+  ∀x75. 
+   x75 <= 0
+   \/ Repeat__q0__1 (\x. \k__q0__0. k__q0__0 (x - 0)) (x75 - 0)
+      /\ Repeat__q0__1 (\x. \k__q0__0. k__q0__0 (x - 0)) (x75 - 1)
+   \/ Input__q0__1 1
+       (\y. 
+         x75 <= 0
+         \/ Repeat__q0__1 (\x. \k__q0__0. k__q0__0 (x - y)) (x75 - y)
+            /\ Repeat__q0__1 (\x. \k__q0__0. k__q0__0 (x - y)) (x75 - 1)).
+Repeat__q0__1 f__q0__1 x =u
+  x <= 0
+  \/ f__q0__1 x (Repeat__q0__1 f__q0__1) /\ Repeat__q0__1 f__q0__1 (x - 1).
+Input__q0__1 y k__q0__1 =u k__q0__1 y \/ Input__q0__1 (y + 1) k__q0__1.

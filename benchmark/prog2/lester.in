@@ -1,0 +1,25 @@
+%HES
+Sentry =v
+  F__q0__0 (\k__q0__0. \k__qf__1. k__qf__1 /\ k__q0__0)
+   (\k__q0__0. \k__qf__1. k__q0__0) true 0 true false.
+Loop78__qf__1 i n k__qf__0 k__qf__1 =u Loop__qf__0 (i + 1) n k__qf__0 k__qf__1.
+G79__qf__1 y__qf__0 =u Close__qf__0 y__qf__0.
+F80__qf__1 y__qf__0 y__qf__1 n =u
+  Loop__qf__0 1 n (Close__qf__0 y__qf__0) (G79__qf__1 y__qf__1).
+Read__q0__0 k__q0__0 =v k__q0__0.
+Write__q0__0 k__q0__0 =v k__q0__0.
+Write__qf__0 k__qf__1 =v k__qf__1.
+Close__q0__0 x__q0__0 k__q0__0 k__qf__1 =v x__q0__0 k__q0__0 k__qf__1.
+Close__qf__0 x__qf__0 =v x__qf__0.
+Loop__q0__0 i n k__q0__0 =v
+  (i > n \/ Write__q0__0 (Loop__q0__0 (i + 1) n k__q0__0))
+  /\ (i <= n \/ k__q0__0).
+Loop__qf__0 i n k__qf__0 k__qf__1 =v
+  (i > n \/ Write__qf__0 (Loop78__qf__1 i n k__qf__1 k__qf__1))
+  /\ (i <= n \/ k__qf__0).
+G__q0__0 y__q0__0 n k__q0__0 k__qf__1 =v
+  Loop__q0__0 1 n (Close__q0__0 y__q0__0 k__q0__0 k__qf__1).
+F__q0__0 x__q0__0 y__q0__0 y__qf__1 n k__q0__0 k__qf__1 =v
+  Read__q0__0 (F__q0__0 x__q0__0 y__q0__0 y__qf__1 (n + 1) k__q0__0 k__qf__1)
+  /\ Close__q0__0 x__q0__0 (G__q0__0 y__q0__0 n k__q0__0 k__qf__1)
+      (F80__qf__1 y__qf__1 y__qf__1 n).

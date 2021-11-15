@@ -1,0 +1,133 @@
+/*
+  * result: valid
+  * time: < 1.0 sec
+  * retrieved from: Example 2 of Hofmann and Chen, "Buchi Types for Infinite Traces and Liveness", CSL-LICS 2014
+  * remark: the property is changed from the original one. The original program with the original property results in "invalid". Since the original property is "there exists a state such that c occurs only finitely often on every path starting from the state", the property "finitely many c" is not correctly expressed.
+*/
+
+%PROGRAM
+let f =
+  event called;
+  g (\. event b; f)
+
+let g k =
+  event called;
+  if <d> * then (
+    event a;
+    g k
+  ) else (
+    event c;
+    k
+  )
+
+let () = f
+
+/*
+/* simplified version */
+let g =
+  event called;
+  if <d> * then (
+    event a;
+    g
+  ) else (
+    event c;
+    event b;
+    g
+  )
+
+let () = g
+*/
+
+/*
+/* a variation where c, b are always called infinitely often ("valid" even if the paper's original property is used). A variation like this is used in "Temporal Verification of Higher-Order Functional Programs" paper */
+let g i =
+  /* event called; */
+  if i > 0 then (
+    if <d> * then (
+      event a;
+      g (i - 1)
+    ) else (
+      event c;
+      event b;
+      g 4
+    )
+  ) else (
+    event c;
+    event b;
+    g 4
+  )
+
+let () = g 4
+*/
+
+%TRANSITION
+/* infinitely many b or finitely many c */
+q_0 called -> (1, q_0).
+q_a called -> (1, q_0).
+q_b called -> (1, q_0).
+q_c called -> (1, q_0).
+
+q_0 d -> (1, q_0) /\ (2, q_0).
+q_a d -> (1, q_0) /\ (2, q_0).
+q_b d -> (1, q_0) /\ (2, q_0).
+q_c d -> (1, q_0) /\ (2, q_0).
+
+q_0 a -> (1, q_a).
+q_a a -> (1, q_a).
+q_b a -> (1, q_a).
+q_c a -> (1, q_a).
+
+q_0 b -> (1, q_b).
+q_a b -> (1, q_b).
+q_b b -> (1, q_b).
+q_c b -> (1, q_b).
+
+q_0 c -> (1, q_c).
+q_a c -> (1, q_c).
+q_b c -> (1, q_c).
+q_c c -> (1, q_c).
+
+%PRIORITY
+/* c is finite or b is infinite  (= not (c is inf and b is fin)) */
+/*
+c = fin, b = fin: max pr = 0
+c = fin, b = inf: max pr = 2
+c = inf, b = inf: max pr = 2
+c = inf, b = fin: max pr = 1
+*/
+
+q_0 -> 0.
+q_a -> 0.
+q_b -> 2.
+q_c -> 1.
+
+/*
+%TRANSITION
+/* the paper's original version */
+q0 a -> (1, q2) \/ (1, q0).
+q0 b -> (1, q2) \/ (1, q0) \/ (1, q1).
+q0 c -> (1, q2) \/ (1, q0).
+q0 d -> (1, q0) /\ (2, q0).
+
+q1 a -> (1, q0).
+q1 b -> (1, q0).
+q1 c -> (1, q0).
+q1 d -> (1, q1) /\ (2, q1).
+
+/* expresses "finitely many c" */
+q2 a -> (1, q2).
+q2 b -> (1, q2).
+q2 c -> (1, qd).
+q2 d -> (1, q2) /\ (2, q2).
+
+qd a -> (1, q2).
+qd b -> (1, q2).
+qd c -> (1, qd).
+qd d -> (1, qd) /\ (2, qd).
+
+%PRIORITY
+q0 -> 1.
+q1 -> 2.
+q2 -> 2.
+qd -> 3.
+*/

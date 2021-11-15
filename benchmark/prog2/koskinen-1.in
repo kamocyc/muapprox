@@ -1,0 +1,7 @@
+%HES
+Sentry =v ∀x290. Explore__q0__0 x290 (\x. \k__q0__0. k__q0__0 (x - 2)).
+Reduce__q0__1 x r__q0__1 k__q0__1 =u
+  (x > 0 \/ k__q0__1 x) /\ (x <= 0 \/ r__q0__1 x k__q0__1).
+Explore35__q0__1 r__q0__1 y =u y <= 0 \/ Explore__q0__0 y r__q0__1.
+Explore__q0__0 x r__q0__1 =v
+  Reduce__q0__1 x r__q0__1 (Explore35__q0__1 r__q0__1).
