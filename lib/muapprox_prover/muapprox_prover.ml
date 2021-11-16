@@ -194,7 +194,8 @@ module SolverCommon = struct
         ("file", `String debug_context.file);
         ("coe1", `Int debug_context.coe1);
         ("coe2", `Int debug_context.coe2);
-        ("pid", `Int debug_context.pid)
+        ("pid", `Int debug_context.pid);
+        ("will_try_weak_subtype", `Bool debug_context.will_try_weak_subtype);
       ]) in
     output_json data (get_file_name "post" debug_context.file debug_context.mode 0)
   

@@ -6,6 +6,7 @@ import time
 import re
 import argparse
 import glob
+import sys
 
 OUTPUT_FILE_NAME = "0bench_out_append.txt"
 
@@ -268,8 +269,8 @@ def to_table(data):
         lines.append(row['result'] + '\t' + str(row['time']) + '\n')
     
     return lines
-    
-def main():    
+
+def main_sub():
     with open(lists_path) as f:
         files = [line for line in [l.strip() for l in f.readlines()] if line != '' and line[0] != '#']
     
@@ -282,8 +283,16 @@ def main():
         with open(OUTPUT_FILE_NAME + '_table.txt', 'w') as f:
             f.writelines(to_table(results))
     
-    print("FINISHED")
-    
+def main():
+    try:
+        main_sub()
+        print("FINISHED")
+    except KeyboardInterrupt:
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, sys.stdout.fileno())
+    except:
+        print("Exception occured")
+        
     os.system("""
         jq -r '[.[] | {
             file: .file,
@@ -296,8 +305,10 @@ def main():
             disprover_t_count: .data.pre_disprover[-1].t_count,
             disprover_s_count: .data.pre_disprover[-1].s_count,
             prover_elapsed_all: .data.post_merged_prover.elapsed_all,
-            disprover_elapsed_all: .data.post_merged_disprover.elapsed_all}]
-            | .[] | "\\(.prove_iter_count)\t\\(.disprove_iter_count)\t\\(.prover_t_count)\t\\(.prover_s_count)\t\\(.disprover_t_count)\t\\(.disprover_s_count)\t\\(.prover_elapsed_all)\t\\(.disprover_elapsed_all)"' 0bench_out_full.txt > """ + OUTPUT_FILE_NAME + "_iter_count.txt")
+            disprover_elapsed_all: .data.post_merged_disprover.elapsed_all,
+            will_try_weak_subtype: .data.post_prover[-1].will_try_weak_subtype,
+            }]
+            | .[] | "\\(.prove_iter_count)\t\\(.disprove_iter_count)\t\\(.prover_t_count)\t\\(.prover_s_count)\t\\(.disprover_t_count)\t\\(.disprover_s_count)\t\\(.prover_elapsed_all)\t\\(.disprover_elapsed_all)\t\\(.will_try_weak_subtype)"' 0bench_out_full.txt > """ + OUTPUT_FILE_NAME + "_iter_count.txt")
     
     os.system("paste " + OUTPUT_FILE_NAME + '_table.txt' + ' ' + OUTPUT_FILE_NAME + "_iter_count.txt > " + OUTPUT_FILE_NAME + "_summary.txt")
     
