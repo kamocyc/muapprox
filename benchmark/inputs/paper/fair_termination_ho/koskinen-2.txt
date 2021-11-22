@@ -62,3 +62,463 @@ q_print print -> (1, q_print).
 /* {(print, never)} */
 q_print -> 1.
 q_0 -> 0.
+
+/*
+/* valid (1階の変数を追加し、それを近似のboundに使った) */
+%HES
+Sentry =v
+  ∀x. 
+   ∀x2. 
+     ∀recRumble__q. 
+         recRumble__q < 1 + 2 * x  \/ recRumble__q < 1 + (-2) * x
+      \/ recRumble__q < 1 + 2 * x2 \/ recRumble__q < 1 + (-2) * x2
+      \/ recRumble__q < 1
+      \/ Rumble__q recRumble__q x x2 (\k__q. k__q x) (\k__q. k__q x2)
+          (\_r.
+            \r___q. 
+              (∀recRumble__q2. 
+                    recRumble__q2 < 1 + 2 * x
+                \/ recRumble__q2 < 1 + (-2) * x
+                \/ recRumble__q2 < 1 + 2 * _r
+                \/ recRumble__q2 < 1 + (-2) * _r
+                \/ recRumble__q2 < 1
+                \/ Rumble__q recRumble__q2 x _r (\k__q. k__q x) r___q
+                    (\_r2. \r2___q. true))).
+
+Rumble__q recRumble__q _x _y x___q y___q k__q =v
+  recRumble__q > 0
+  /\ x___q
+      (\x. 
+        y___q
+         (\y. 
+           x < y
+           /\ (Rumble__q (recRumble__q - 1) (_x + 1) _y 
+                    (\k__q2. x___q (\x2. k__q2 (x2 + 1))) y___q k__q)
+           /\ (Rumble__q (recRumble__q - 1) _x (_y - 1) x___q
+                    (\k__q2. y___q (\x2. k__q2 (x2 - 1))) k__q)
+           \/ x >= y
+              /\ (k__q _x x___q))).
+*/
+
+/*
+/* 簡略化した形 */
+/* timeout (関数の結果を別の関数の引数として渡しているので、解くのに時間がかかる？) */
+%HES
+Sentry =v
+  ∀x. 
+   ∀x2. 
+     ∀recRumble__q. 
+         recRumble__q < 1 + 2 * x  \/ recRumble__q < 1 + (-2) * x
+      \/ recRumble__q < 1 + 2 * x2 \/ recRumble__q < 1 + (-2) * x2
+      \/ recRumble__q < 1
+      \/ Rumble__q recRumble__q x x2 x x2 (\k__q. k__q x) (\k__q. k__q x2)
+          (\_r. \ttttt2. 
+            \r___q. 
+              ∀sssss2. ∀sssss2_2. 
+                 sssss2 < 1 * x
+              \/ sssss2 < (-1) * x
+              \/ sssss2 < 0
+              \/ sssss2_2 < 1 * ttttt2
+              \/ sssss2_2 < (-1) * ttttt2
+              \/ sssss2_2 < 0
+              \/ (∀recRumble__q2. 
+                       recRumble__q2 < 1 + 2 * x
+                    \/ recRumble__q2 < 1 + (-2) * x
+                    \/ recRumble__q2 < 1 + 2 * ttttt2
+                    \/ recRumble__q2 < 1 + (-2) * ttttt2
+                    \/ recRumble__q2 < 1
+                    \/ Rumble__q recRumble__q2 x _r sssss2 sssss2_2 (\k__q. k__q x) r___q
+                        (\_r2. \ttttt3. \r2___q. true))).
+
+Rumble__q recRumble__q _x _y ttttt ttttt_2 x___q y___q k__q =v
+  recRumble__q > 0
+  /\ x___q
+      (\x. 
+        y___q
+         (\y. 
+           x < y
+           /\ (∀sssss. ∀sssss_2. 
+                sssss < 1 * ttttt     \/ sssss < (-1) * ttttt     \/ sssss   < 0 \/
+                sssss_2 < 1 * ttttt_2 \/ sssss_2 < (-1) * ttttt_2 \/ sssss_2 < 0
+                \/ Rumble__q (recRumble__q - 1) (_x + 1) _y sssss sssss_2
+                    (\k__q2. x___q (\x2. k__q2 (x2 + 1))) y___q k__q)
+           /\ (∀sssss. ∀sssss_2. 
+                sssss   < 1 * ttttt   \/ sssss   < (-1) * ttttt   \/ sssss   < 0 \/
+                sssss_2 < 1 * ttttt_2 \/ sssss_2 < (-1) * ttttt_2 \/ sssss_2 < 0
+                \/ Rumble__q (recRumble__q - 1) _x (_y - 1) sssss sssss_2 x___q
+                    (\k__q2. y___q (\x2. k__q2 (x2 - 1))) k__q)
+           \/ x >= y
+              /\ (∀sssss. 
+                   sssss < 1 * ttttt \/ sssss < (-1) * ttttt 
+                   \/ sssss < 0
+                   \/ k__q _x sssss x___q))).
+*/
+/*
+/* 簡略化したが解けない (型がつかない？) */
+%HES
+Sentry =v
+  ∀x. 
+   ∀x2. 
+     ∀recRumble__q. 
+         recRumble__q < 1 + 2 * x  \/ recRumble__q < 1 + (-2) * x
+      \/ recRumble__q < 1 + 2 * x2 \/ recRumble__q < 1 + (-2) * x2
+      \/ recRumble__q < 1
+      \/ Rumble__q recRumble__q x x2 x x2 (\k__q. k__q x) (\k__q. k__q x2)
+          (\_r. \ttttt2. \ttttt3.
+            \r___q. 
+              ∀sssss2. ∀sssss2_2. 
+                 sssss2 < 1 * x
+              \/ sssss2 < (-1) * x
+              \/ sssss2 < 0
+              \/ sssss2_2 < 1 * ttttt2
+              \/ sssss2_2 < (-1) * ttttt2
+              \/ sssss2_2 < 0
+              \/ (∀recRumble__q2. 
+                     recRumble__q2 < 1 + 2 * x
+                  \/ recRumble__q2 < 1 + (-2) * x
+                  \/ recRumble__q2 < 1 + 2 * ttttt2
+                  \/ recRumble__q2 < 1 + (-2) * ttttt2
+                  \/ recRumble__q2 < 1 + 2 * ttttt3
+                  \/ recRumble__q2 < 1 + (-2) * ttttt3
+                  \/ recRumble__q2 < 1
+                  \/ Rumble__q_2 recRumble__q2 x _r sssss2 sssss2_2 (\k__q. k__q x) r___q
+                      (\_r2. \ttttt3. \r2___q. true))).
+
+Rumble__q recRumble__q _x _y ttttt ttttt_2 x___q y___q k__q =v
+  recRumble__q > 0
+  /\ x___q
+      (\x. 
+        y___q
+         (\y. 
+           x < y
+           /\ (∀sssss. ∀sssss_2. 
+                sssss < 1 * ttttt + 1     \/ sssss < (-1) * ttttt + 1    \/ sssss   < 1 \/
+                sssss_2 < 1 * ttttt_2 + 1 \/ sssss_2 < (-1) * ttttt_2 + 1 \/ sssss_2 < 1
+                \/ Rumble__q (recRumble__q - 1) (_x + 1) _y sssss sssss_2
+                    (\k__q2. x___q (\x2. k__q2 (x2 + 1))) y___q k__q)
+           /\ (∀sssss. ∀sssss_2. 
+                sssss   < 1 * ttttt + 1   \/ sssss   < (-1) * ttttt + 1   \/ sssss   < 1 \/
+                sssss_2 < 1 * ttttt_2 + 1 \/ sssss_2 < (-1) * ttttt_2 + 1 \/ sssss_2 < 1
+                \/ Rumble__q (recRumble__q - 1) _x (_y - 1) sssss sssss_2 x___q
+                    (\k__q2. y___q (\x2. k__q2 (x2 - 1))) k__q)
+           \/ x >= y
+              /\ (∀sssss. ∀sssss_2. 
+                   sssss < 1 * ttttt \/ sssss < (-1) * ttttt \/ sssss < 0 \/
+                   sssss_2 < 1 * ttttt_2 \/ sssss_2 < (-1) * ttttt_2 \/ sssss_2 < 0
+                   \/ k__q _x sssss sssss_2 x___q))).
+
+
+Rumble__q_2 recRumble__q _x _y ttttt ttttt_2 x___q y___q k__q =v
+  recRumble__q > 0
+  /\ x___q
+      (\x. 
+        y___q
+         (\y. 
+           x < y
+           /\ (∀sssss. ∀sssss_2. 
+                sssss < 1 * ttttt     \/ sssss < (-1) * ttttt     \/ sssss   < 0 \/
+                sssss_2 < 1 * ttttt_2 \/ sssss_2 < (-1) * ttttt_2 \/ sssss_2 < 0
+                \/ Rumble__q_2 (recRumble__q - 1) (_x + 1) _y sssss sssss_2
+                    (\k__q2. x___q (\x2. k__q2 (x2 + 1))) y___q k__q)
+           /\ (∀sssss. ∀sssss_2. 
+                sssss   < 1 * ttttt   \/ sssss   < (-1) * ttttt   \/ sssss   < 0 \/
+                sssss_2 < 1 * ttttt_2 \/ sssss_2 < (-1) * ttttt_2 \/ sssss_2 < 0
+                \/ Rumble__q_2 (recRumble__q - 1) _x (_y - 1) sssss sssss_2 x___q
+                    (\k__q2. y___q (\x2. k__q2 (x2 - 1))) k__q)
+           \/ x >= y
+              /\ (∀sssss. 
+                   sssss < 1 * ttttt \/ sssss < (-1) * ttttt 
+                   \/ sssss < 0
+                   \/ k__q _x sssss x___q))).
+
+/*
+%ENV
+Rumble__q : recRumble__q1882:int ->
+            _x:int ->
+            _y:int ->
+            ttttt2185:int ->
+            ttttt_22286:int ->
+            (
+              (t87:int -> bool[_x + -1 * t87 = 0 /\ recRumble__q1882 >= 1]) ->
+              bool[recRumble__q1882 >= 1]
+              ) ->
+            ((t90:int -> bool[_y + -1 * t90 = 0 /\ _x - _y + recRumble__q1882 >= 1 /\ recRumble__q1882 >= 1]) ->
+              bool[recRumble__q1882 >= 1]) ->
+              (t93:int ->
+                t94:int ->
+                ((t95:int -> bool[t93 >= t95 /\ recRumble__q1882 >= 1]) -> bool[true]) ->
+                  bool[recRumble__q1882 >= 1]) ->
+              bool[recRumble__q1882 >= 1].*/
+
+/*
+Rumble__q_2 : recRumble__q195:int ->
+               _x:int ->
+                _y:int ->
+                 ttttt198:int ->
+                  ttttt_2199:int ->
+                   ((t200:int -> bool[-2 * _y + 2 * recRumble__q195 + 2 * t200 >= 2]) ->
+                     bool[recRumble__q195 >= 1]) ->
+                    ((t203:int -> bool[-1 * t203 + _y = 0]) -> bool[recRumble__q195 >= 1]) ->
+                     (t206:int ->
+                       t207:int ->
+                        ((t208:int -> bool[false]) -> bool[false]) -> bool[recRumble__q195 >= 1]) ->
+                      bool[recRumble__q195 >= 1].*/
+                      */
+/*
+/* 簡略化したが解けない (型がつかない？) */
+%HES
+/*
+/* q2だけ */
+Rumble__q2 :  recRumble__q41:int ->
+              _x:int ->
+              _y:int ->
+              ((t44:int -> bool[_x <= t44]) -> bool[(_y > 0 \/ recRumble__q41 > 2 \/ _x <= 0) /\ recRumble__q41 > 0]) ->
+              ((t47:int -> bool[t47 < _x + recRumble__q41 /\ t47 <= _y]) -> bool[(_y > 0 \/ recRumble__q41 > 2 \/ _x <= 0) /\ recRumble__q41 > 0]) ->
+              (t50:int -> ((t51:int -> bool[true]) -> bool[false]) -> bool[true]) ->
+              bool[(_y > 0 \/ recRumble__q41 > 2 \/ _x <= 0) /\ recRumble__q41 > 0].
+
+
+Rumble__q2 :  recRumble__q41:int ->
+              _x:int ->
+              _y:int ->
+              ((t44:int -> bool[_x = t44]) -> bool[recRumble__q41 >= 2]) ->
+              ((t47:int -> bool[_x + recRumble__q41 + -1 * t47 >= 2]) -> bool[recRumble__q41 >= 2]) ->
+              (t50:int -> ((t51:int -> bool[recRumble__q41 >= 2]) -> bool[true]) -> bool[recRumble__q41 >= 2]) ->
+              bool[recRumble__q41 >= 2].
+                   
+/* q1 */
+Rumble__q : recRumble__q50:int ->
+            _x:int ->
+            _y:int ->
+            __x:int ->
+            __y:int ->
+            ((t55:int -> bool[t55 = _x]) -> bool[recRumble__q50 >= 1]) ->
+            ((t58:int -> bool[_x + recRumble__q50 >= 1 + t58]) -> bool[recRumble__q50 >= 1]) ->
+            (
+              t61:int ->
+              t62:int ->
+              ((t63:int -> bool[t63 >= _x /\ recRumble__q50 >= 1]) -> bool[true]) ->
+              bool[recRumble__q50 >= 1]) ->
+            bool[recRumble__q50 >= 1].
+*/
+
+Sentry =v
+  ∀x. 
+   ∀x2. 
+     ∀recRumble__q. 
+         recRumble__q < 1 + 2 * x  \/ recRumble__q < 1 + (-2) * x
+      \/ recRumble__q < 1 + 2 * x2 \/ recRumble__q < 1 + (-2) * x2
+      \/ recRumble__q < 1
+      \/ Rumble__q recRumble__q x x2 x x2 (\k__q. k__q x) (\k__q. k__q x2)
+          (\_r. \__r. \r___q. 
+            r___q (\rrr. rrr >= x)  /\
+            (
+            ∀recRumble__q2. 
+                 recRumble__q2 < 2 +  2 * x
+              \/ recRumble__q2 < 2 + (-2) * x
+              \/ recRumble__q2 < 2 +   2 * __r
+              \/ recRumble__q2 < 2 + (-2) * __r
+              \/ recRumble__q2 < 2
+              \/ Rumble__q2 recRumble__q2 x __r (\k__q. k__q x) r___q (\__r2. \r2___q. true))
+              ).
+
+Rumble__q recRumble__q _x _y __x __y x___q y___q k__q =v
+  recRumble__q > 0
+  /\ x___q
+      (\x. 
+        y___q
+         (\y. 
+            (
+              x < y
+              /\ (
+                /* ∀s_x. ∀s_y.
+                  s_x < 1 * __x + 1 \/ s_x < (-1) * __x + 1 \/ s_x < 1 \/
+                  s_y < 1 * __y + 1 \/ s_y < (-1) * __y + 1 \/ s_y < 1 \/
+                  Rumble__q (recRumble__q - 1) (_x + 1) _y s_x s_y (\k__q2. x___q (\x2. k__q2 (x2 + 1))) y___q k__q */
+                  Rumble__q (recRumble__q - 1) (_x + 1) _y (__x + 1) (__y + 1) (\k__q2. x___q (\x2. k__q2 (x2 + 1))) y___q k__q
+              )
+              /\ (
+                /* ∀s_x. ∀s_y.
+                  s_x < 1 * __x + 1 \/ s_x < (-1) * __x + 1 \/ s_x < 1 \/
+                  s_y < 1 * __y + 1 \/ s_y < (-1) * __y + 1 \/ s_y < 1 \/
+                  Rumble__q (recRumble__q - 1) _x (_y - 1) s_x s_y x___q (\k__q2. y___q (\x2. k__q2 (x2 - 1))) k__q */
+                  Rumble__q (recRumble__q - 1) _x (_y - 1) (__x + 1) (__y + 1) x___q (\k__q2. y___q (\x2. k__q2 (x2 - 1))) k__q
+              )
+            )
+            \/ (x >= y /\ (k__q _x __x x___q))
+        )).
+
+/*
+S =v ∀x. ∀x2. ∀recRumble__q2. 
+                 recRumble__q2 < 2 +  2 * x
+              \/ recRumble__q2 < 2 + (-2) * x
+              \/ recRumble__q2 < 2 +   2 * x2
+              \/ recRumble__q2 < 2 + (-2) * x2
+              \/ recRumble__q2 < 2
+              \/ Rumble__q2 recRumble__q2 x x2 (\k__q. k__q x) (\k__q. k__q x2) (\__r2. \r2___q. true). */
+              
+Rumble__q2 recRumble__q _x _y x___q y___q k__q =v
+  recRumble__q > 0
+  /\ x___q
+      (\x. 
+        y___q
+         (\y. 
+            (
+              x < y
+              /\ (
+                Rumble__q2 (recRumble__q - 1) (_x + 1) _y (\k__q2. x___q (\x2. k__q2 (x2 + 1))) y___q k__q
+              )
+              /\ (
+                Rumble__q2 (recRumble__q - 1) _x (_y - 1) x___q (\k__q2. y___q (\x2. k__q2 (x2 - 1))) k__q
+              )
+            )
+            \/ (x >= y /\ (k__q _x x___q))
+        )).
+%ENV
+
+Rumble__q : recRumble__q50:int ->
+            _x:int ->
+            _y:int ->
+            __x:int ->
+            __y:int ->
+            ((t55:int -> bool[t55 = _x]) -> bool[recRumble__q50 >= 1]) ->
+            ((t58:int -> bool[_x + recRumble__q50 >= 1 + t58]) -> bool[recRumble__q50 >= 1]) ->
+            (
+              t61:int ->
+              t62:int ->
+              ((t63:int -> bool[_x + t62 - t63 >= 2 /\ _x + t61 - t63 >= 2 /\ recRumble__q50 >= 1]) -> bool[t61 >= 2 /\ t62 >= 2]) ->
+              bool[recRumble__q50 >= 1]) ->
+            bool[recRumble__q50 >= 1].
+
+/* Rumble__q2 :  recRumble__q41:int ->
+              _x:int ->
+              _y:int ->
+              ((t44:int -> bool[_x = t44]) -> bool[recRumble__q41 >= 2]) ->
+              ((t47:int -> bool[_x + recRumble__q41 + -1 * t47 >= 2]) -> bool[recRumble__q41 >= 2]) ->
+              (t50:int -> ((t51:int -> bool[recRumble__q41 >= 2]) -> bool[true]) -> bool[recRumble__q41 >= 2]) ->
+              bool[recRumble__q41 >= 2].
+   */           
+      /*
+%ENV
+Rumble__q : recRumble__q47:int ->
+             _x:int ->
+              _y:int ->
+               __x:int ->
+                __y:int ->
+                 ((t52:int -> bool[t52 + recRumble__q47 + -1 * _y >= 1]) ->
+                   bool[recRumble__q47 >= 1]) ->
+                  ((t55:int -> bool[_y + -1 * t55 = 0]) -> bool[recRumble__q47 >= 1]) ->
+                   (t58:int ->
+                     t59:int ->
+                      ((t60:int -> bool[t59 + -1 * __x >= 0 /\ recRumble__q47 >= 1]) -> bool[true]) ->
+                       bool[t59 + -1 * __x >= 0 /\ recRumble__q47 >= 1]) ->
+                    bool[recRumble__q47 >= 1].*/
+                
+/*
+Sentry : bool[true].
+Rumble__q : recRumble__q47:int ->
+             _x:int ->
+              _y:int ->
+               __x:int ->
+                __y:int ->
+                 ((t52:int -> bool[__x + -1 * _x = 0 /\ t52 + recRumble__q47 + -1 * _y >= 1]) ->
+                   bool[recRumble__q47 >= 1]) ->
+                  ((t55:int -> bool[_y + -1 * t55 = 0]) ->
+                    bool[__x + -1 * _x = 0 /\ recRumble__q47 >= 1]) ->
+                   (t58:int ->
+                     t59:int ->
+                      ((t60:int -> bool[t58 + -1 * __x >= 0 /\ recRumble__q47 >= 1]) -> bool[true]) ->
+                       bool[t58 + -1 * __x >= 0 /\ recRumble__q47 >= 1]) ->
+                    bool[recRumble__q47 >= 1].
+                    */
+                    
+
+/*
+
+%ENV
+
+Rumble__q : recRumble__q75:int ->
+            _x:int ->
+            _y:int ->
+            __x:int ->
+            __y:int ->
+            ((t80:int -> bool[__x + -1 * t80 = 0 /\ t80 + -1 * _x = 0]) ->
+              bool[recRumble__q75 >= 1]) ->
+            ((t83:int -> bool[__x + -1 * t83 + recRumble__q75 >= 1]) ->
+              bool[recRumble__q75 >= 1 /\ __x + -1 * _x <= 0 /\ -1 * __x + _x <= 0]) ->
+            (t86:int ->
+              t87:int ->
+              ((t88:int -> bool[t88 + -1 * t87 = 0 /\ recRumble__q75 >= 1]) -> bool[true]) ->
+                bool[recRumble__q75 >= 1]) ->
+            bool[recRumble__q75 >= 1].
+            
+
+Rumble__q2 : recRumble__q177:int ->
+              _x:int ->
+               _y:int ->
+                ((t180:int -> bool[_x + -1 * t180 = 0]) -> bool[recRumble__q177 >= 1]) ->
+                 ((t183:int -> bool[_x + -1 * t183 + recRumble__q177 >= 1]) ->
+                   bool[recRumble__q177 >= 1]) ->
+                  (t186:int ->
+                    ((t187:int -> bool[recRumble__q177 >= 1]) -> bool[true]) ->
+                     bool[recRumble__q177 >= 1]) ->
+                   bool[recRumble__q177 >= 1].
+                   */
+/*
+Rumble__q_2 recRumble__q _x _y ttttt ttttt_2 x___q y___q k__q =v
+  recRumble__q > 0
+  /\ x___q
+      (\x. 
+        y___q
+         (\y. 
+           x < y
+           /\ (∀sssss. ∀sssss_2. 
+                sssss < 1 * ttttt     \/ sssss < (-1) * ttttt     \/ sssss   < 0 \/
+                sssss_2 < 1 * ttttt_2 \/ sssss_2 < (-1) * ttttt_2 \/ sssss_2 < 0
+                \/ Rumble__q_2 (recRumble__q - 1) (_x + 1) _y sssss sssss_2
+                    (\k__q2. x___q (\x2. k__q2 (x2 + 1))) y___q k__q)
+           /\ (∀sssss. ∀sssss_2. 
+                sssss   < 1 * ttttt   \/ sssss   < (-1) * ttttt   \/ sssss   < 0 \/
+                sssss_2 < 1 * ttttt_2 \/ sssss_2 < (-1) * ttttt_2 \/ sssss_2 < 0
+                \/ Rumble__q_2 (recRumble__q - 1) _x (_y - 1) sssss sssss_2 x___q
+                    (\k__q2. y___q (\x2. k__q2 (x2 - 1))) k__q)
+           \/ x >= y
+              /\ (∀sssss. 
+                   sssss < 1 * ttttt \/ sssss < (-1) * ttttt 
+                   \/ sssss < 0
+                   \/ k__q _x sssss x___q))).
+*/
+
+/*
+%ENV
+Rumble__q : recRumble__q1882:int ->
+            _x:int ->
+            _y:int ->
+            ttttt2185:int ->
+            ttttt_22286:int ->
+            (
+              (t87:int -> bool[_x + -1 * t87 = 0 /\ recRumble__q1882 >= 1]) ->
+              bool[recRumble__q1882 >= 1]
+              ) ->
+            ((t90:int -> bool[_y + -1 * t90 = 0 /\ _x - _y + recRumble__q1882 >= 1 /\ recRumble__q1882 >= 1]) ->
+              bool[recRumble__q1882 >= 1]) ->
+              (t93:int ->
+                t94:int ->
+                ((t95:int -> bool[t93 >= t95 /\ recRumble__q1882 >= 1]) -> bool[true]) ->
+                  bool[recRumble__q1882 >= 1]) ->
+              bool[recRumble__q1882 >= 1].*/
+
+/*
+Rumble__q_2 : recRumble__q195:int ->
+               _x:int ->
+                _y:int ->
+                 ttttt198:int ->
+                  ttttt_2199:int ->
+                   ((t200:int -> bool[-2 * _y + 2 * recRumble__q195 + 2 * t200 >= 2]) ->
+                     bool[recRumble__q195 >= 1]) ->
+                    ((t203:int -> bool[-1 * t203 + _y = 0]) -> bool[recRumble__q195 >= 1]) ->
+                     (t206:int ->
+                       t207:int ->
+                        ((t208:int -> bool[false]) -> bool[false]) -> bool[recRumble__q195 >= 1]) ->
+                      bool[recRumble__q195 >= 1].*/
+                      */

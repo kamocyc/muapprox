@@ -54,3 +54,74 @@ q_a nullary -> false.
 /* {(a, never)} */
 q_0 -> 0.
 q_a -> 1.
+
+/*
+/* valid in 1 sec  --coe=1,8 --coe-arg=1,1  +  extra aruguments */
+%HES
+Sentry =v
+  ∀x. 
+   ∀sssss. 
+    sssss < 1 * x + 1 \/ sssss < (-1) * x + 1 \/ sssss < 1
+    \/ (∀sssss2. 
+         sssss2 < 1 * x + 1 \/ sssss2 < (-1) * x + 1 \/ sssss2 < 1
+         \/ (∀recXx__q. 
+              recXx__q < 8 + 1 * 0 \/ recXx__q < 8 + (-1) * 0
+              \/ recXx__q < 8 + 1 * x
+              \/ recXx__q < 8 + (-1) * x
+              \/ recXx__q < 8
+              \/ Xx__q recXx__q x sssss 0 (Const__q x sssss2 (\k__q. k__q x)))).
+
+Const__q _x ttttt x__q k__q =v
+  ∀sssss. 
+   sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+   \/ k__q _x sssss x__q.
+
+Finish__q  =v true.
+
+F__q recF__q _x g__q =v
+  recF__q > 0
+  /\ g__q
+      (\__x. \ttttt. 
+        \fn__q. 
+         ∀sssss. 
+          sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1
+          \/ sssss < 1 * 1 + 1
+          \/ sssss < (-1) * 1 + 1
+          \/ sssss < 1
+          \/ (∀recCheck__q. 
+               recCheck__q < 8 + 1 * ttttt \/ recCheck__q < 8 + 1 * 1
+               \/ recCheck__q < 8 + (-1) * ttttt
+               \/ recCheck__q < 8 + (-1) * 1
+               \/ recCheck__q < 8 + 1 * 0
+               \/ recCheck__q < 8 + (-1) * 0
+               \/ recCheck__q < 8
+               \/ Check__q recCheck__q __x 0 fn__q
+                   (\b. 
+                     (b != 1
+                      \/ (∀sssss2. 
+                           sssss2 < 1 * ttttt + 1 \/ sssss2 < (-1) * ttttt + 1
+                           \/ sssss2 < 1
+                           \/ F__q (recF__q - 1) __x
+                               (Const__q (__x - 1) sssss2
+                                 (\k__q. fn__q (\x. k__q (x - 1))))))
+                     /\ (b = 1 \/ Finish__q)))).
+
+Xx__q recXx__q _x ttttt flag g__q =v
+  recXx__q > 0
+  /\ (flag != 1
+      \/ (∀sssss. 
+           sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+           \/ (∀recF__q. 
+                recF__q < 8 + 1 * ttttt \/ recF__q < 8 + (-1) * ttttt
+                \/ recF__q < 8
+                \/ F__q recF__q _x g__q)))
+     /\ (flag = 1
+         \/ (∀sssss. 
+              sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+              \/ Xx__q (recXx__q - 1) _x sssss 1 g__q)).
+
+Check__q recCheck__q _x flag fx__q k__q =v
+  recCheck__q > 0
+  /\ (flag != 1 \/ fx__q (\x. (x <= 0 \/ k__q 1) /\ (x > 0 \/ k__q 0)))
+     /\ (flag = 1 \/ Check__q (recCheck__q - 1) _x 1 fx__q k__q).
+*/

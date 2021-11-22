@@ -84,54 +84,78 @@ q_ha -> 3.
 
 
 /*
-/* かんたんにしようとして途中 */
+/* valid in 1 sec with z3   need extra arguments unless inlining for arguments */
 %HES
 Sentry =v
-  ∀x3830_25. 
-   x3830_25 >= 0
-   /\ Run82_6 (\x_30. \k2_31. k2_31 (x_30 - 1))
-            (\x_30. \k2_31. k2_31 (x_30 - 1)) (x3830_25 - 1)
-   /\ Run_20 x3830_25 (\x_63. \k2_64. k2_64 (x_63 - 1))
-   /\ Life_22 x3830_25
-   
-    \/ (x3830_25 >= 0
-       \/ x3830_25 < 0
-          \/ Walk81_19 (\x_63. \k2_64. k2_64 (x_63 - 1)) (x3830_25 - 1))
-    /\ (x3830_25 < 0
-        \/ x3830_25 < 0
-            \/ Run82_21 (\x_63. \k2_64. k2_64 (x_63 - 1)) (x3830_25 - 1))
-    /\ Life_12 x3830_25.
+  ∀x. 
+    (x >= 0 \/
+      (∀sssss. 
+        sssss < 1 * x + 1 \/ sssss < (-1) * x + 1 \/ sssss < 1 * 1 + 1
+        \/ sssss < (-1) * 1 + 1
+        \/ sssss < 1
+        \/ Walk__q_p sssss (\k__q_p. k__q_p x) App122__q_p true)
+    )
+    /\ 
+    (x < 0 \/
+      (∀sssss. 
+          sssss < 1 * x + 1 \/ sssss < (-1) * x + 1
+          \/ sssss < 1 * 1 + 1
+          \/ sssss < (-1) * 1 + 1
+          \/ sssss < 1
+             /* App122__q_p is inlined */
+          \/ Run__q_p sssss (\k__q_p. k__q_p x) true)
+    )
+    .
+  
+App122__q_p x2___q_p k2__q_p =v
+  x2___q_p
+   (\x. k2__q_p (\k3__q_p. k3__q_p (x - 1))).
 
-Walk81_4 f_35 x_37 =v
-  x_37 >= 0 /\ f_35 x_37 (Walk81_4 f_35).
+Walk__q_p ttttt x___q_p f__q_p k__q_p =v
+  ∀sssss. 
+   sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+   \/ Check__q_p x___q_p
+       (\x. 
+         ∀recWalk125__q_p. 
+          recWalk125__q_p < 1 + 1 * ttttt \/ recWalk125__q_p < 1 + (-1) * ttttt
+          \/ recWalk125__q_p < 1 + 1 * x
+          \/ recWalk125__q_p < 1 + (-1) * x
+          \/ recWalk125__q_p < 1
+          \/ Walk125__q_p recWalk125__q_p k__q_p x___q_p f__q_p x).
 
-Run82_6 f_41 f_42 x_44 =v
-  f_41 x_44
-   (\x_45. 
-     x_45 >= 0 /\ f_42 x_45 (Run82_6 f_42 f_42)).
+Walk125__q_p recWalk125__q_p k__q_p x___q_p f__q_p b =v
+  recWalk125__q_p > 0
+  /\ (b != 1 \/ k__q_p)
+  /\ (b = 1
+      \/ f__q_p x___q_p
+          (\x2__q_p. 
+            Check__q_p x2__q_p
+              (Walk125__q_p (recWalk125__q_p - 1) k__q_p x2__q_p f__q_p))).
 
-Life_12 x_56 =u
-  x_56 >= 0
-  /\ Run82_6 (\x_30. \k2_31. k2_31 (x_30 - 1))
-           (\x_30. \k2_31. k2_31 (x_30 - 1)) (x_56 - 1)
-  /\ Run_20 x_56 (\x_63. \k2_64. k2_64 (x_63 - 1))
-  /\ Life_22 x_56
-  \/
-  (x_56 < 0 \/ Run82_21 (\x_63. \k2_64. k2_64 (x_63 - 1)) (x_56 - 1))
-  /\ Life_12 x_56.
+Run__q_p ttttt x___q_p k__q_p =v
+  ∀sssss. 
+   sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+   \/ Check__q_p x___q_p
+       (\x. 
+         ∀recRun127__q_p. 
+          recRun127__q_p < 1 + 1 * ttttt \/ recRun127__q_p < 1 + (-1) * ttttt
+          \/ recRun127__q_p < 1 + 1 * x
+          \/ recRun127__q_p < 1 + (-1) * x
+          \/ recRun127__q_p < 1
+          \/ Run127__q_p recRun127__q_p k__q_p x___q_p x).
 
-Walk_18 x_65 f_66 =v
-  x_65 < 0 \/ f_66 x_65 (Walk81_19 f_66).
+Run127__q_p recRun127__q_p k__q_p x___q_p b =v
+  recRun127__q_p > 0
+  /\ (b != 1 \/ k__q_p)
+  /\ (b = 1
+      \/ App122__q_p x___q_p
+          (\x2__q_p. 
+            App122__q_p x2__q_p
+              (\x3__q_p. 
+                Check__q_p x3__q_p
+                  (Run127__q_p (recRun127__q_p - 1) k__q_p x3__q_p)))).
 
-Walk81_19 f_68 x_70 =v Walk_18 x_70 f_68.
+Check__q_p x___q_p k__q_p =v x___q_p (\x. (x >= 0 \/ k__q_p 1) /\ (x < 0 \/ k__q_p 0)).
 
-Run_20 x_71 f_72 =v
-  x_71 < 0 \/ f_72 x_71 (Run82_21 f_72).
-
-Run82_21 f_74 x_76 =v f_74 x_76 (\x_77. Run_20 x_77 f_74).
-
-Life_22 x_78 =v
-  (x_78 >= 0 \/ Walk_18 x_78 (\x_63. \k2_64. k2_64 (x_63 - 1)))
-  /\ (x_78 < 0 \/ Run_20 x_78 (\x_63. \k2_64. k2_64 (x_63 - 1))).
 */
 

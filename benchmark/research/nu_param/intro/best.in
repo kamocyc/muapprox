@@ -1,0 +1,19 @@
+%HES
+S =v ∀n. App n (Eq n) n.
+
+App _n f x =v f x.
+
+Eq m n =v m = n.
+
+/*
+/* bool[x18 = _n] というのはなぜ必要なのかtyping ruleを見る*/
+S : bool[true].
+
+App : _n:int -> (t16:int -> bool[t16 = _n]) -> x18:int -> bool[x18 = _n].
+
+Eq : m21:int -> n22:int -> bool[n22 + -1 * m21 = 0].
+*/
+
+/*
+S =v ∀n. (\_n.\f.\x. f x) n ((\m.\n. m = n) n) n.
+*/

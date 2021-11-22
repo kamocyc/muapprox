@@ -12,3 +12,16 @@ Main_e e n =v
 App e f x =v f x.
 
 Eq m n =v m = n.
+
+/*
+S : bool[X11()].
+Main_e : e15:int -> n16:int -> bool[X1(n16,e15)].
+
+  [
+    ( 0, ( "X1", 2, ( >= v_1 1 ) ) )
+  ,
+    ( 1, ( "X11", 0, true ) )
+  ,
+    ( 2, ( "X12", 1, true ) )
+  ,
+    ( 3, ( "X13", 2, true ) ) ]*/

@@ -70,3 +70,110 @@ q_a nullary -> false.
 /* {(a, never)} */
 q_0 -> 0.
 q_a -> 1.
+
+/*
+/* --coe=8,1 --coe-arg=1,1  +  extra arugments */
+/* valid in 11 sec with z3 */
+%HES
+Sentry =v
+  ∀x. 
+   ∀sssss. 
+    sssss < 1 * x + 1 \/ sssss < (-1) * x + 1 \/ sssss < 1
+    \/ (∀recXx__q. 
+         recXx__q < 8 + 1 * 0 \/ recXx__q < 8 + (-1) * 0
+         \/ recXx__q < 8 + 1 * x
+         \/ recXx__q < 8 + (-1) * x
+         \/ recXx__q < 8
+         \/ Xx__q recXx__q x sssss 0 (\k__q. k__q x)
+             (\_x. \x___q. 
+               \k__q. 
+                x___q
+                 (\x2. 
+                   ∀sssss2. 
+                    sssss2 < 1 * x2 + 1 \/ sssss2 < (-1) * x2 + 1
+                    \/ sssss2 < 1 * (x2 - 2) + 1
+                    \/ sssss2 < (-1) * (x2 - 2) + 1
+                    \/ sssss2 < 1
+                    \/ k__q (_x - 2) sssss2 (\k2__q. k2__q (x2 - 2))))).
+
+Reduce__q _x ttttt x___q r__q k__q =v
+  ∀sssss. 
+   sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1 * 1 + 1
+   \/ sssss < (-1) * 1 + 1
+   \/ sssss < 1
+   \/ (∀recCheck__q. 
+        recCheck__q < 8 + 1 * ttttt \/ recCheck__q < 8 + 1 * 1
+        \/ recCheck__q < 8 + (-1) * ttttt
+        \/ recCheck__q < 8 + (-1) * 1
+        \/ recCheck__q < 8 + 1 * 0
+        \/ recCheck__q < 8 + (-1) * 0
+        \/ recCheck__q < 8
+        \/ Check__q recCheck__q _x 0 x___q
+            (\b. 
+              (b != 1
+               \/ (∀sssss2. 
+                    sssss2 < 1 * ttttt + 1 \/ sssss2 < (-1) * ttttt + 1
+                    \/ sssss2 < 1
+                    \/ k__q _x sssss2 x___q))
+              /\ (b = 1 \/ r__q _x x___q k__q))).
+
+Finish__q  =v true.
+
+Explore__q recExplore__q _x ttttt x___q r__q =v
+  recExplore__q > 0
+  /\ (∀sssss. 
+       sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1 * 1 + 1
+       \/ sssss < (-1) * 1 + 1
+       \/ sssss < 1
+       \/ Reduce__q _x sssss x___q r__q
+           (\__x. \ttttt2. 
+             \y___q. 
+              ∀sssss2. 
+               sssss2 < 1 * ttttt2 + 1 \/ sssss2 < (-1) * ttttt2 + 1
+               \/ sssss2 < 1 * ttttt + 1
+               \/ sssss2 < (-1) * ttttt + 1
+               \/ sssss2 < 1 * 1 + 1
+               \/ sssss2 < (-1) * 1 + 1
+               \/ sssss2 < 1
+               \/ (∀recCheck__q. 
+                    recCheck__q < 8 + 1 * ttttt2 \/ recCheck__q < 8 + 1 * ttttt
+                    \/ recCheck__q < 8 + 1 * 1
+                    \/ recCheck__q < 8 + (-1) * ttttt2
+                    \/ recCheck__q < 8 + (-1) * ttttt
+                    \/ recCheck__q < 8 + (-1) * 1
+                    \/ recCheck__q < 8 + 1 * 0
+                    \/ recCheck__q < 8 + (-1) * 0
+                    \/ recCheck__q < 8
+                    \/ Check__q recCheck__q __x 0 y___q
+                        (\b. 
+                          (b != 1 \/ Finish__q)
+                          /\ (b = 1
+                              \/ (∀sssss3. 
+                                    sssss3 < 1 * ttttt2 + 1
+                                    \/ sssss3 < (-1) * ttttt2 + 1
+                                    \/ sssss3 < 1 * ttttt + 1
+                                    \/ sssss3 < (-1) * ttttt + 1
+                                    \/ sssss3 < 1
+                                    \/ Explore__q (recExplore__q - 1) __x sssss3
+                                        y___q r__q)))))).
+
+Check__q recCheck__q _x flag x___q k__q =v
+  recCheck__q > 0
+  /\ (flag != 1 \/ x___q (\x. (x > 0 \/ k__q 1) /\ (x <= 0 \/ k__q 0)))
+     /\ (flag = 1 \/ Check__q (recCheck__q - 1) _x 1 x___q k__q).
+
+Xx__q recXx__q _x ttttt flag x___q k__q =v
+  recXx__q > 0
+  /\ (flag != 1
+      \/ (∀sssss. 
+           sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+           \/ (∀recExplore__q. 
+                recExplore__q < 8 + 1 * ttttt
+                \/ recExplore__q < 8 + (-1) * ttttt
+                \/ recExplore__q < 8
+                \/ Explore__q recExplore__q _x sssss x___q k__q)))
+     /\ (flag = 1
+         \/ (∀sssss. 
+              sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+              \/ Xx__q (recXx__q - 1) _x sssss 1 x___q k__q)).
+*/

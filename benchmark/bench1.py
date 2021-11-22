@@ -308,7 +308,7 @@ def main():
             disprover_elapsed_all: .data.post_merged_disprover.elapsed_all,
             will_try_weak_subtype: .data.post_prover[-1].will_try_weak_subtype,
             }]
-            | .[] | "\\(.prove_iter_count)\t\\(.disprove_iter_count)\t\\(.prover_t_count)\t\\(.prover_s_count)\t\\(.disprover_t_count)\t\\(.disprover_s_count)\t\\(.prover_elapsed_all)\t\\(.disprover_elapsed_all)\t\\(.will_try_weak_subtype)"' 0bench_out_full.txt > """ + OUTPUT_FILE_NAME + "_iter_count.txt")
+            | .[] | "\\(.file)\t\\(.prove_iter_count)\t\\(.disprove_iter_count)\t\\(.prover_t_count)\t\\(.prover_s_count)\t\\(.disprover_t_count)\t\\(.disprover_s_count)\t\\(.prover_elapsed_all)\t\\(.disprover_elapsed_all)\t\\(.will_try_weak_subtype)"' 0bench_out_full.txt > """ + OUTPUT_FILE_NAME + "_iter_count.txt")
     
     os.system("paste " + OUTPUT_FILE_NAME + '_table.txt' + ' ' + OUTPUT_FILE_NAME + "_iter_count.txt > " + OUTPUT_FILE_NAME + "_summary.txt")
     
