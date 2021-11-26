@@ -85,8 +85,7 @@ paper/termination_ho/toChurch.in
 paper/termination_ho/up_down.in
 paper/termination_ho/x_plus_2_n.in
 paper/termination_ho/zip.in
-#
-prog2/hofmann-1.in
+# prog2/hofmann-1.in
 prog2/hofmann-2.in
 prog2/koskinen-1-buggy.in
 prog2/koskinen-1.in

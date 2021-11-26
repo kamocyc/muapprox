@@ -64,7 +64,7 @@ q_0 -> 0.
 
 /*
 /* disprover */
-/* valid with z3 */
+/* valid in 1 sec with z3 */
 %HES
 Sentry =v
   ∀x. 
