@@ -80,3 +80,96 @@ q_close2 close2 -> (1, q_close2).
 q_0 -> 1.
 q_close1 -> 2.
 q_close2 -> 3.
+
+
+/*
+/* with extra arguments */
+/* valid in 2734 sec ~~ 45 min with hoice */
+%HES
+Sentry =v
+  ∀sssss. 
+   sssss < 1 \/ F__q 0 sssss (\k__q. k__q 0).
+
+Loop___q_close recLoop___q_close _i _n i___q n___q =v
+  recLoop___q_close > 0
+  /\ i___q
+      (\i. 
+        n___q
+         (\n. 
+           (i > n \/ Loop___q_close (recLoop___q_close - 1) (_i + 1) _n (\k__q. i___q (\i. k__q (i + 1))) n___q)
+         )
+      ).
+
+F129__q_close _n ttttt n___q =v
+  ∀sssss. 
+    sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+    \/ (∀recLoop___q_close. 
+          recLoop___q_close < 2 + 1 * ttttt
+          \/ recLoop___q_close < 2 + (-1) * ttttt
+          /* \/ recLoop___q_close < 2 + 1 * _n /* by adding this two lines, katsura solver with hoice can solve this formula in 240 sec, but hard to infer expressions of _n */
+          \/ recLoop___q_close < 2 + (-1) * _n */
+          \/ recLoop___q_close < 2 + 1 * 1
+          \/ recLoop___q_close < 2 + (-1) * 1
+          \/ recLoop___q_close < 2
+          \/ Loop___q_close recLoop___q_close 1 _n (\k__q. k__q 1) n___q).
+
+F__q _n ttttt n___q =v
+  (∀sssss. 
+    sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+    \/ F__q (_n + 1) sssss (\k__q. n___q (\n. k__q (n + 1))))
+  /\ (∀sssss. 
+    sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+    \/ F129__q_close _n sssss n___q).
+
+%ENV
+Loop___q_close : recLoop___q_close35:int ->
+                  _i:int ->
+                   _n:int ->
+                    ((t38:int -> bool[t38 + -1 * _i = 0]) -> bool[recLoop___q_close35 >= 3]) ->
+                     ((t41:int -> bool[_i + recLoop___q_close35 + -1 * t41 >= 5]) ->
+                       bool[recLoop___q_close35 >= 3]) ->
+                      bool[recLoop___q_close35 >= 3].
+F__q : _n:int ->
+        ttttt88:int -> ((t89:int -> bool[ttttt88 + -1 * t89 >= 1]) -> bool[true]) -> bool[true].
+
+*/
+
+/*
+/* without extra-arguments */
+/* unknown */
+%HES
+Sentry =v
+  ∀sssss. 
+   sssss < 1 \/ F__q sssss (\k__q. k__q 0).
+
+Loop___q_close recLoop___q_close i___q n___q =v
+  recLoop___q_close > 0
+  /\ i___q
+      (\i. 
+        n___q
+         (\n. 
+           (i > n \/ Loop___q_close (recLoop___q_close - 1) (Succ__q i___q) n___q)
+         )
+      ).
+
+F129__q_close ttttt n___q =v
+  ∀sssss. 
+    sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+    \/ (∀recLoop___q_close. 
+          recLoop___q_close < 2 + 1 * ttttt
+          \/ recLoop___q_close < 2 + (-1) * ttttt
+          \/ recLoop___q_close < 2 + 1 * 1
+          \/ recLoop___q_close < 2 + (-1) * 1
+          \/ recLoop___q_close < 2
+          \/ Loop___q_close recLoop___q_close (\k__q. k__q 1) n___q).
+
+Succ__q n___q k__q =v n___q (\n. k__q (n + 1)).
+
+F__q ttttt n___q =v
+  (∀sssss. 
+    sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+    \/ F__q sssss (Succ__q n___q))
+  /\ (∀sssss. 
+    sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+    \/ F129__q_close sssss n___q).
+*/

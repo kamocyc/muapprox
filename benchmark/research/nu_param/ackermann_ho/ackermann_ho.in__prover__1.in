@@ -1,0 +1,280 @@
+/* ackermann_ho.in__prover__1.in */
+/* original */
+%HES
+Sentry =v
+  ∀x. 
+   ∀x2. 
+    ∀sssss. 
+     sssss < 1 * x2 + 1 \/ sssss < (-1) * x2 + 1 \/ sssss < 1 * x + 1
+     \/ sssss < (-1) * x + 1
+     \/ sssss < 1
+     \/ (∀recX. 
+          ∀recX2. 
+           recX < 1 + 1 * 0 \/ recX < 1 + (-1) * 0 \/ recX < 1 + 1 * x2
+           \/ recX < 1 + 1 * x
+           \/ recX < 1 + (-1) * x2
+           \/ recX < 1 + (-1) * x
+           \/ recX < 1
+           \/ recX2 < 1 + 1 * 0
+           \/ recX2 < 1 + (-1) * 0
+           \/ recX2 < 1 + 1 * x2
+           \/ recX2 < 1 + 1 * x
+           \/ recX2 < 1 + (-1) * x2
+           \/ recX2 < 1 + (-1) * x
+           \/ recX2 < 1
+           \/ X recX recX2 sssss 0 (\ttttt. \u. \k_mm. k_mm x2)
+               (\ttttt. \u. \k_mm. k_mm x)
+               (\ttttt. \x3. ∀sssss2. sssss2 < 1 \/ x3 sssss2 0 (\x4. true))).
+ACK recACK recACK2 ttttt fm fn k_ack =v
+  recACK > 0 /\ recACK2 > 0
+  /\ (∀sssss. 
+       sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1 * 1 + 1
+       \/ sssss < (-1) * 1 + 1
+       \/ sssss < 1
+       \/ CHECK sssss fm
+           (\b. 
+             (b != 1
+              \/ (∀sssss2. 
+                   sssss2 < 1 * ttttt + 1 \/ sssss2 < (-1) * ttttt + 1
+                   \/ sssss2 < 1
+                   \/ fn sssss2 0
+                       (\x. 
+                         ∀sssss3. 
+                          sssss3 < 1 * x + 1 \/ sssss3 < (-1) * x + 1
+                          \/ sssss3 < 1 * (x + 1) + 1
+                          \/ sssss3 < (-1) * (x + 1) + 1
+                          \/ sssss3 < 1
+                          \/ k_ack sssss3
+                              (\ttttt2. \u. \k_succ. k_succ (x + 1)))))
+             /\ (b = 1
+                 \/ (∀sssss2. 
+                      sssss2 < 1 * ttttt + 1 \/ sssss2 < (-1) * ttttt + 1
+                      \/ sssss2 < 1 * 1 + 1
+                      \/ sssss2 < (-1) * 1 + 1
+                      \/ sssss2 < 1
+                      \/ CHECK sssss2 fn
+                          (\bn. 
+                            (bn != 1
+                             \/ (∀sssss3. 
+                                  sssss3 < 1 * ttttt + 1
+                                  \/ sssss3 < (-1) * ttttt + 1
+                                  \/ sssss3 < 1 * 1 + 1
+                                  \/ sssss3 < (-1) * 1 + 1
+                                  \/ sssss3 < 1
+                                  \/ PRED sssss3 fm
+                                      (\ttttt2. 
+                                        \x. 
+                                         ∀sssss4. 
+                                          sssss4 < 1 * ttttt2 + 1
+                                          \/ sssss4 < (-1) * ttttt2 + 1
+                                          \/ sssss4 < 1 * ttttt + 1
+                                          \/ sssss4 < (-1) * ttttt + 1
+                                          \/ sssss4 < 1 * 1 + 1
+                                          \/ sssss4 < (-1) * 1 + 1
+                                          \/ sssss4 < 1
+                                          \/ (∀recACK3100_n. 
+                                               ∀recACK3100_2_n. 
+                                                (recACK <= 1
+                                                 \/ recACK3100_n < recACK - 1
+                                                 \/ recACK3100_2_n < recACK2)
+                                                /\ (recACK > 1
+                                                    \/ recACK3100_n <
+                                                        1 + 1 * ttttt2
+                                                    \/ recACK3100_n <
+                                                        1 + 1 * ttttt
+                                                    \/ recACK3100_n < 1 + 1 * 1
+                                                    \/ recACK3100_n <
+                                                        1 + (-1) * ttttt2
+                                                    \/ recACK3100_n <
+                                                        1 + (-1) * ttttt
+                                                    \/ recACK3100_n <
+                                                        1 + (-1) * 1
+                                                    \/ recACK3100_n < 1
+                                                    \/ recACK3100_2_n <
+                                                        recACK2 - 1)
+                                                \/ ACK recACK3100_n
+                                                    recACK3100_2_n sssss4 x
+                                                    (\ttttt3. 
+                                                      \u. \k_ack2. k_ack2 1)
+                                                    k_ack))))
+                            /\ (bn = 1
+                                \/ (∀sssss3. 
+                                     sssss3 < 1 * ttttt + 1
+                                     \/ sssss3 < (-1) * ttttt + 1
+                                     \/ sssss3 < 1
+                                     \/ PRED sssss3 fn
+                                         (\ttttt2. 
+                                           \x. 
+                                            ∀sssss4. 
+                                             sssss4 < 1 * ttttt + 1
+                                             \/ sssss4 < (-1) * ttttt + 1
+                                             \/ sssss4 < 1 * ttttt2 + 1
+                                             \/ sssss4 < (-1) * ttttt2 + 1
+                                             \/ sssss4 < 1
+                                             \/ (∀recACK3100_n. 
+                                                  ∀recACK3100_2_n. 
+                                                   (recACK <= 1
+                                                    \/ recACK3100_n <
+                                                        recACK - 1
+                                                    \/ recACK3100_2_n < recACK2)
+                                                   /\ (recACK > 1
+                                                       \/ recACK3100_n <
+                                                           1 + 1 * ttttt
+                                                       \/ recACK3100_n <
+                                                           1 + 1 * ttttt2
+                                                       \/ recACK3100_n <
+                                                           1 + (-1) * ttttt
+                                                       \/ recACK3100_n <
+                                                           1 + (-1) * ttttt2
+                                                       \/ recACK3100_n < 1
+                                                       \/ recACK3100_2_n <
+                                                           recACK2 - 1)
+                                                   \/ ACK recACK3100_n
+                                                       recACK3100_2_n sssss4 fm
+                                                       x
+                                                       (\ttttt3. 
+                                                         \fr. 
+                                                          ∀sssss5. 
+                                                           sssss5 <
+                                                            1 * ttttt + 1
+                                                           \/ sssss5 <
+                                                               (-1) * ttttt + 1
+                                                           \/ sssss5 <
+                                                               1 * ttttt3 + 1
+                                                           \/ sssss5 <
+                                                               (-1) * ttttt3 +
+                                                                1
+                                                           \/ sssss5 < 1
+                                                           \/ PRED sssss5 fm
+                                                               (\ttttt4. 
+                                                                 \x2. 
+                                                                  ∀sssss6. 
+                                                                   sssss6 <
+                                                                    1 * ttttt4
+                                                                    + 1
+                                                                   \/ 
+                                                                   sssss6 <
+                                                                    (-1) *
+                                                                    ttttt4 + 1
+                                                                   \/ 
+                                                                   sssss6 <
+                                                                    1 * ttttt3
+                                                                    + 1
+                                                                   \/ 
+                                                                   sssss6 <
+                                                                    (-1) *
+                                                                    ttttt3 + 1
+                                                                   \/ 
+                                                                   sssss6 <
+                                                                    1 * ttttt +
+                                                                    1
+                                                                   \/ 
+                                                                   sssss6 <
+                                                                    (-1) *
+                                                                    ttttt + 1
+                                                                   \/ 
+                                                                   sssss6 < 1
+                                                                   \/ (
+                                                                   ∀recACK3100_n2. 
+                                                                    ∀recACK3100_2_n2. 
+                                                                    (
+                                                                    recACK <= 1
+                                                                    \/ 
+                                                                    recACK3100_n2
+                                                                    <
+                                                                    recACK - 1
+                                                                    \/ 
+                                                                    recACK3100_2_n2
+                                                                    < recACK2)
+                                                                    /\ (
+                                                                    recACK > 1
+                                                                    \/ 
+                                                                    recACK3100_n2
+                                                                    <
+                                                                    1 +
+                                                                    1 * ttttt4
+                                                                    \/ 
+                                                                    recACK3100_n2
+                                                                    <
+                                                                    1 +
+                                                                    1 * ttttt3
+                                                                    \/ 
+                                                                    recACK3100_n2
+                                                                    <
+                                                                    1 +
+                                                                    1 * ttttt
+                                                                    \/ 
+                                                                    recACK3100_n2
+                                                                    <
+                                                                    1 +
+                                                                    (-1) *
+                                                                    ttttt4
+                                                                    \/ 
+                                                                    recACK3100_n2
+                                                                    <
+                                                                    1 +
+                                                                    (-1) *
+                                                                    ttttt3
+                                                                    \/ 
+                                                                    recACK3100_n2
+                                                                    <
+                                                                    1 +
+                                                                    (-1) *
+                                                                    ttttt
+                                                                    \/ 
+                                                                    recACK3100_n2
+                                                                    < 1
+                                                                    \/ 
+                                                                    recACK3100_2_n2
+                                                                    <
+                                                                    recACK2 - 1)
+                                                                    \/ 
+                                                                    ACK
+                                                                    recACK3100_n2
+                                                                    recACK3100_2_n2
+                                                                    sssss6 x2
+                                                                    fr k_ack)))))))))))).
+CHECK ttttt f k_check =v
+  ∀sssss. 
+   sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1 * 1 + 1
+   \/ sssss < (-1) * 1 + 1
+   \/ sssss < 1
+   \/ f sssss 0 (\x. (x != 0 \/ k_check 1) /\ (x = 0 \/ k_check 0)).
+PRED ttttt fx k_pred =v
+  ∀sssss. 
+   sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+   \/ fx sssss 0
+       (\x. 
+         ∀sssss2. 
+          sssss2 < 1 * x + 1 \/ sssss2 < (-1) * x + 1
+          \/ sssss2 < 1 * (x - 1) + 1
+          \/ sssss2 < (-1) * (x - 1) + 1
+          \/ sssss2 < 1
+          \/ k_pred sssss2 (\ttttt2. \u. \k_pred2. k_pred2 (x - 1))).
+X recX recX2 ttttt flag fm fn k_x =v
+  recX > 0 /\ recX2 > 0
+  /\ (flag != 1
+      \/ (∀sssss. 
+           sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+           \/ (∀recACK. 
+                ∀recACK2. 
+                 recACK < 1 + 1 * ttttt \/ recACK < 1 + (-1) * ttttt
+                 \/ recACK < 1
+                 \/ recACK2 < 1 + 1 * ttttt
+                 \/ recACK2 < 1 + (-1) * ttttt
+                 \/ recACK2 < 1
+                 \/ ACK recACK recACK2 sssss fm fn k_x)))
+     /\ (flag = 1
+         \/ (∀sssss. 
+              sssss < 1 * ttttt + 1 \/ sssss < (-1) * ttttt + 1 \/ sssss < 1
+              \/ (∀recX_43103_n. 
+                   ∀recX_43103_2_n. 
+                    (recX <= 1 \/ recX_43103_n < recX - 1
+                     \/ recX_43103_2_n < recX2)
+                    /\ (recX > 1 \/ recX_43103_n < 1 + 1 * 1
+                        \/ recX_43103_n < 1 + (-1) * 1
+                        \/ recX_43103_n < 1 + 1 * ttttt
+                        \/ recX_43103_n < 1 + (-1) * ttttt
+                        \/ recX_43103_n < 1
+                        \/ recX_43103_2_n < recX2 - 1)
+                    \/ X recX_43103_n recX_43103_2_n sssss 1 fm fn k_x))).

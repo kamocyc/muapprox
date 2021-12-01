@@ -130,7 +130,7 @@ def run(cmd):
     stdout = readfile("/tmp/stdout_1.txt")
     stderr = readfile("/tmp/stderr_1.txt")
     
-    os.system('../../killp.sh')
+    os.system('../../killp.sh 2> /dev/null')
     
     return stdout, elapsed, stderr, timed_out
 
@@ -166,10 +166,10 @@ def get_data(file, result):
             for file2 in files:
                 print("file: " + file2)
                 data = load_jsons_data(file2)
-                if not (len(data) == 1):
-                    print("ERROR: len(data) <> 1")
+                # if not (len(data) == 1):
+                #     print("Warn: get_post_merged, len(data) <> 1")
                 
-                res.append(data[0])
+                res.append(data[-1])
                 os.remove(file2)
         
             if res == []:
@@ -306,13 +306,14 @@ def main():
             disprover_s_count: .data.pre_disprover[-1].s_count,
             prover_elapsed_all: .data.post_merged_prover.elapsed_all,
             disprover_elapsed_all: .data.post_merged_disprover.elapsed_all,
-            will_try_weak_subtype: .data.post_prover[-1].will_try_weak_subtype,
+            prover_will_try_weak_subtype: .data.post_prover[-1].will_try_weak_subtype,
+            disprover_will_try_weak_subtype: .data.post_disprover[-1].will_try_weak_subtype,
             }]
-            | .[] | "\\(.file)\t\\(.prove_iter_count)\t\\(.disprove_iter_count)\t\\(.prover_t_count)\t\\(.prover_s_count)\t\\(.disprover_t_count)\t\\(.disprover_s_count)\t\\(.prover_elapsed_all)\t\\(.disprover_elapsed_all)\t\\(.will_try_weak_subtype)"' 0bench_out_full.txt > """ + OUTPUT_FILE_NAME + "_iter_count.txt")
+            | .[] | "\\(.file)\t\\(.prove_iter_count)\t\\(.disprove_iter_count)\t\\(.prover_t_count)\t\\(.prover_s_count)\t\\(.disprover_t_count)\t\\(.disprover_s_count)\t\\(.prover_elapsed_all)\t\\(.disprover_elapsed_all)\t\\(.prover_will_try_weak_subtype)\t\\(.disprover_will_try_weak_subtype)"' 0bench_out_full.txt > """ + OUTPUT_FILE_NAME + "_iter_count.txt")
     
     os.system("paste " + OUTPUT_FILE_NAME + '_table.txt' + ' ' + OUTPUT_FILE_NAME + "_iter_count.txt > " + OUTPUT_FILE_NAME + "_summary.txt")
     
-    # prove_iter_count,disprove_iter_count,prover_t_count,prover_s_count,disprover_t_count,disprover_s_count,prover_elapsed_all,disprover_elapsed_all
+    # result,time,file,prove_iter_count,disprove_iter_count,prover_t_count,prover_s_count,disprover_t_count,disprover_s_count,prover_elapsed_all,disprover_elapsed_all,prover_will_try_weak_subtype,disprover_will_try_weak_subtype
     print("time: " + os.path.join(os.getcwd(), OUTPUT_FILE_NAME + "_summary.txt"))
     print("list: " + os.path.join(os.getcwd(), lists_path))
     print("full: " + os.path.join(os.getcwd(), "0bench_out_full.txt"))

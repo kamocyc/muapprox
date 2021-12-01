@@ -1,0 +1,120 @@
+%HES
+Sentry =v
+  ∀n.
+    ∀r1. ∀r2.
+      r1 < 8 + 1 * n \/
+      r1 < 8 + (-1) * n \/
+      r1 < 8 \/
+      r2 < 8 + 1 * n \/
+      r2 < 8 + (-1) * n \/
+      r2 < 8 \/
+      Qs r1 r2 Comp n (\r. true).
+
+Par r1 r2 cmp x l r xs k =ν
+  r1 > 0 /\ r2 > 0 /\
+  (xs > 0 \/
+    Qs r1 r2 cmp l
+      (\x2. Qs r1 r2 cmp r (\x3. k (x2 + 1 + x3)))
+  ) /\
+  (xs <= 0 \/
+    (∀m.
+      cmp m x
+        (\rp.
+          (rp != 1 \/
+            (
+              (
+                /* need this branch */
+                Par (r1 - 1) r2 cmp x (1 + l) r (xs - 1) k
+              ) \/
+              (
+                ∀r1_.
+                  r1_ < 8 + 1 * x \/
+                  r1_ < 8 + (-1) * x \/
+                  r1_ < 8 + 1 * (1 + l) \/
+                  r1_ < 8 + (-1) * (1 + l) \/
+                  r1_ < 8 + 1 * r \/
+                  r1_ < 8 + (-1) * r \/
+                  r1_ < 8 + 1 * (xs - 1) \/
+                  r1_ < 8 + (-1) * (xs - 1) \/
+                  r1_ < 8 \/
+                  Par r1_ (r2 - 1) cmp x (1 + l) r (xs - 1) k
+              )
+            )
+          ) /\
+          (rp  = 1 \/
+            (
+              /* need this branch */
+              Par (r1 - 1) r2 cmp x l (1 + r) (xs - 1) k
+            ) \/
+            (
+              ∀r1_.
+                r1_ < 8 + 1 * x \/
+                r1_ < 8 + (-1) * x \/
+                r1_ < 8 + 1 * l \/
+                r1_ < 8 + (-1) * l \/
+                r1_ < 8 + 1 * (1 + r) \/
+                r1_ < 8 + (-1) * (1 + r) \/
+                r1_ < 8 + 1 * (xs - 1) \/
+                r1_ < 8 + (-1) * (xs - 1) \/
+                r1_ < 8 \/
+                Par r1_ (r2 - 1) cmp x l (1 + r) (xs - 1) k
+            )
+          )
+        )
+    )
+  ).
+
+
+Qs r1 r2 cmp n k =ν
+  (n > 0 \/ k 0) /\
+  (n <= 0 \/ (
+    ∀m.
+      Par (r1 - 1) r2 cmp m 0 0 (n - 1) k \/
+      (
+        /* need this branch */
+        ∀r1_.
+          r1_ < 8 + 1 * (n - 1) \/
+          r1_ < 8 + (-1) * (n - 1) \/
+          r1_ < 8 + 1 * m \/
+          r1_ < 8 + (-1) * m \/
+          r1_ < 8 \/
+          Par r1_ (r2 - 1) cmp m 0 0 (n - 1) k
+      )
+    )
+  ).
+
+Comp x y k =v
+  (x < y \/ k 1) /\
+  (x >=y \/ k 0).
+
+
+%ENV
+/* Sentry : bool[true]. */
+
+Qs : rr:int ->
+     re230:int ->
+     (x91:int -> y92:int -> (t93:int -> bool[true]) -> bool[true]) ->
+     n31:int ->
+     (t32:int -> bool[rr >= 1 /\ re230 >= 2 /\ re230 + n31 >= 2 /\ re230 + -1 * n31 >= 2]) ->
+     bool[rr >= 1 /\ re230 >= 2 /\ re230 + n31 >= 2 /\ re230 + -1 * n31 >= 2].
+
+Par : r145:int ->
+      r246:int ->
+     (x91:int -> y92:int -> (t93:int -> bool[true]) -> bool[true]) ->
+      x47:int ->
+      l48:int ->
+      r49:int ->
+      xs50:int ->
+      (
+        t51:int ->
+        bool[
+          r145 >= 1 /\
+          xs50 >= 0 /\ r49 >= 0 /\ l48 >= 0 /\ r145 + -1 * xs50 >= 1 /\
+          r246 + -1 * xs50 + -1 * r49 + -1 * l48 >= 2
+        ]
+      ) ->
+      bool[
+        r145 >= 1 /\
+        xs50 >= 0 /\ r49 >= 0 /\ l48 >= 0 /\ r145 + -1 * xs50 >= 1 /\
+        r246 + -1 * xs50 + -1 * r49 + -1 * l48 >= 2
+      ].

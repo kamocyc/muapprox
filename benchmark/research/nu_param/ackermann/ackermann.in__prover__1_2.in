@@ -87,32 +87,3 @@ ACK : r1:int ->
         n  >= 0 /\ m  >= 0 /\
         (r2 >= 2 + m \/ (r1 >= 1 + n /\ r2 = 1 + m))
     ].
-
-/*
-/* 非決定的な場合 */
-%ENV
-ACK : r1:int ->
-    r2:int ->
-    m:int ->
-    n:int ->
-    k_ack:(t:int -> bool[n < t]) ->
-    bool[
-      r1 >= 1 /\ r2 >= 1 /\
-      n  >= 0 /\ m  >= 0 /\
-      r1 >= 1 + n /\ r2 >= 1 + m
-    ].
-*/
-
-/*
-; sat
-(assert 
-  (forall
-    ((r1 Int) (r2 Int) (m Int) (n Int))
-    (=>
-      (and (>= r1 1) (>= r2 1) (>= n 0) (>= m 0) (and (>= r2 (+ 1 m)) (>= r1 (+ 1 n))))
-      (and (>= r1 1) (>= r2 1) (>= n 0) (>= m 0) (or  (>= r2 (+ 2 m)) (and (>= r1 (+ 1 n)) (= r2 (+ 1 m)))))
-    )
-  )
-)
-(check-sat)
-*/
