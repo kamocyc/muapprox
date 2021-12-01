@@ -337,10 +337,6 @@ let to_ty argty basety =
     | x::xs -> Type.TyArrow (x, go xs) in
   go argty
 
-let is_pred pvar =
-  String.length pvar.Id.name >= 0 &&
-  String.sub pvar.Id.name 0 1 <> "_" && (String.uppercase_ascii @@ String.sub pvar.Id.name 0 1) = String.sub pvar.Id.name 0 1
-
 let get_dual_hes ((entry, rules) : Type.simple_ty hes): Type.simple_ty hes =
   let entry = Hflz.negate_formula entry in
   let results = List.map (fun rule -> Hflz.negate_rule rule) rules in
@@ -701,7 +697,7 @@ let replace_occurences
   let is_lexi_one = List.map (fun e -> List.length (snd e)) rec_lex_tvars |> List.for_all ((=)1) in
   let rec go env (apps : Type.simple_ty t list) fml : 'a Hflz.t = 
     match fml with
-    | Var pvar when is_pred pvar -> begin
+    | Var pvar when Id.is_pred_name pvar.Id.name -> begin
       let formula_type_ids = pvar.ty |> to_args |> List.rev in
       let id_ho_map = id_ho_map @
         (if List.length apps = List.length formula_type_ids then begin

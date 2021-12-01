@@ -81,7 +81,7 @@ let get_global_env {var_in_out; body; _} outer_mu_funcs global_env =
   let current_outer_pvars = lookup var_in_out outer_mu_funcs in
   let global_preds =
     get_free_variables body
-    |> List.filter (fun v -> Hflz_manipulate.is_pred v)
+    |> List.filter (fun v -> Id.is_pred_name v.Id.name)
     |> Hflmc2_util.remove_duplicates Id.eq in
   global_preds
   |> List.map (fun pvar ->

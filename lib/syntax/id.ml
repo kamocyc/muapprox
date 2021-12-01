@@ -13,9 +13,12 @@ let eq x y = String.equal x.name y.name && x.id = y.id
 let counter = new Fn.counter
 let gen_id () = counter#tick
 
+let is_pred_name pvar_name =
+  Stdlib.String.length pvar_name >= 0 &&
+  Stdlib.String.sub pvar_name 0 1 <> "_" && (Stdlib.String.uppercase_ascii @@ Stdlib.String.sub pvar_name 0 1) = Stdlib.String.sub pvar_name 0 1
+
 let to_string ?(without_id=false) id =
-  let c = String.get id.name 0 in
-  if c = Char.uppercase_ascii c || without_id
+  if is_pred_name id.name || without_id
   then id.name
   else id.name ^ string_of_int id.id (* also show id if the id is for a variable *)
 

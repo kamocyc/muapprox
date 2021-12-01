@@ -6,6 +6,7 @@ open Print_syntax
 
 let to_uident v =
   let c = String.get v 0 in
+  if c = '_' then failwith "to_uident: the initial character of identifier name should not be '_'";
   (Char.uppercase_ascii c |> String.make 1) ^ String.sub v 1 (String.length v - 1)
   
 let replace_var_name_with_upper v func_names =
