@@ -29,6 +29,10 @@ let rec x (flag:int) fm fn =
   else
     x 1 fm fn
 in
-let mm m n = x 0 (fun u -> m) (fun u -> n)
+let mm m n =
+  if m > 0 && n > 0 then
+    x 0 (fun u -> m) (fun u -> n)
+  else
+    fun u -> 0
 in
   mm (Random.int 0) (Random.int 0) ()
