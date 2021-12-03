@@ -202,45 +202,46 @@ module SolverCommon = struct
   type solver_error_category = S_ParseError | S_TypeError | S_OtherError
   
   let parse_results_inner (exit_status, stdout, stderr) debug_context elapsed no_temp_files status_parser =
-    let res, tmp_res, log_message = 
+    let res, tmp_res, log_message, stopped_when_intractable = 
       match exit_status with 
       | Ok () -> begin
-        let status = status_parser stdout in
+        let status, stopped_when_intractable = status_parser stdout in
         status, (
         match status with
         | Status.Valid -> TValid
         | Invalid -> TInvalid
         | _ -> TUnknown),
-        "Parsed status: " ^ Status.string_of status ^ " " ^ (show_debug_context debug_context)
+        "Parsed status: " ^ Status.string_of status ^ " " ^ (show_debug_context debug_context), stopped_when_intractable
       end
       | Error (`Exit_non_zero 2) -> begin
         Status.Fail, TTerminated,
-        "Error code 2 " ^ (show_debug_context debug_context)
+        "Error code 2 " ^ (show_debug_context debug_context), false
       end
       | Error (`Exit_non_zero 127) -> begin
         Status.Fail, TTerminated,
-        "Command not found " ^ (show_debug_context debug_context)
+        "Command not found " ^ (show_debug_context debug_context), false
       end
       | Error (`Exit_non_zero 143) -> begin
         Status.Unknown, TTerminated,
-        "SIGTERMed " ^ (show_debug_context debug_context)
+        "SIGTERMed " ^ (show_debug_context debug_context), false
       end
       | Error (`Exit_non_zero 128) -> begin
         (* SIGTERMed. (why 128?) *)
         Status.Unknown, TTerminated,
-        "SIGTERMed (128) " ^ (show_debug_context debug_context)
+        "SIGTERMed (128) " ^ (show_debug_context debug_context), false
       end
       | Error (`Exit_non_zero 124) -> begin
         Status.Unknown, TUnknown,
-        "Timeout " ^ (show_debug_context debug_context)
+        "Timeout " ^ (show_debug_context debug_context), false
       end
       | Error code -> begin
         Status.Unknown, TError,
-        "Error status (" ^ Unix_command.show_code (Error code) ^ ")"
+        "Error status (" ^ Unix_command.show_code (Error code) ^ ")", false
       end
     in
     if not no_temp_files then output_post_debug_info tmp_res elapsed stdout stderr debug_context;
-    message_string ~header:"Result" @@ Status.string_of res ^ " / " ^ log_message;
+    if not stopped_when_intractable then
+      message_string ~header:"Result" @@ Status.string_of res ^ " / " ^ log_message;
     res
   
   let run_command_with_timeout ?env timeout command mode =
@@ -284,12 +285,12 @@ module MochiSolver : BackendSolver = struct
       try
         ignore @@ Str.search_forward reg stdout 0;
         match Str.matched_group 1 stdout with
-        | "Safe!" -> Valid
-        | "Unsafe!" -> Invalid
+        | "Safe!" -> Valid, false
+        | "Unsafe!" -> Invalid, false
         | _ -> assert false
       with
       | Not_found ->
-        Status.Fail
+        Status.Fail, false
     )
     
   let run solve_options (debug_context: debug_context) hes _ _ _ = 
@@ -386,7 +387,8 @@ module KatsuraSolver : BackendSolver = struct
             (if solver_options.no_backend_inlining then Some "--no-inlining" else None);
             (match solver_options.backend_solver with None -> None | Some s -> Some ("--solver=" ^ s));
             (if stop_if_intractable then Some "--stop-if-intractable" else None);
-            (if will_try_weak_subtype then Some "--mode-burn-et-al" else None)
+            (if will_try_weak_subtype then Some "--mode-burn-et-al" else None);
+            (if solver_options.backend_options <> "" then Some solver_options.backend_options else None)
           ]
         ) @
         [hes_path]
@@ -397,14 +399,14 @@ module KatsuraSolver : BackendSolver = struct
       let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nProfiling:$" in
       try
         ignore @@ Str.search_forward reg stdout 0;
-        Status.of_string @@ Str.matched_group 2 stdout
+        Status.of_string @@ Str.matched_group 2 stdout, false
       with
       | Not_found -> begin
         let reg = Str.regexp "^intractable$" in
         try
           ignore @@ Str.search_forward reg stdout 0;
-          message_string @@ "stop becasuse intractable (" ^ (show_debug_context debug_context) ^ ")";
-          Status.Fail
+          message_string ~header:"Result" @@ "stop becasuse intractable (" ^ (show_debug_context debug_context) ^ ")";
+          Status.Fail, true
         with
         | Not_found -> failwith @@ "not matched"
       end
@@ -473,7 +475,7 @@ module IwayamaSolver : BackendSolver = struct
       let reg = Str.regexp "^Verification Result:\n\\( \\)*\\([a-zA-Z]+\\)\nLoop Count:$" in
       try
         ignore @@ Str.search_forward reg stdout 0;
-        Status.of_string @@ Str.matched_group 2 stdout
+        Status.of_string @@ Str.matched_group 2 stdout, false
       with
         | Not_found -> failwith @@ "not matched"
     )
@@ -525,7 +527,7 @@ module SuzukiSolver : BackendSolver = struct
           | "Sat" -> "valid"
           | "UnSat" -> "invalid"
           | _ -> failwith @@ "Illegal status string1 (" ^ s ^ ")"
-        )
+        ), false
       with
         | Not_found -> failwith @@ "not matched"
     )

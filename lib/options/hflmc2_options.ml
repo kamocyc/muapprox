@@ -36,6 +36,7 @@ let log_level = ref (Obj.magic())
 let z3_path = ref (Obj.magic())
 let no_temp_files = ref (Obj.magic())
 let try_weak_subtype = ref (Obj.magic())
+let backend_options = ref (Obj.magic())
 
 (******************************************************************************)
 (* Parser                                                                     *)
@@ -127,6 +128,9 @@ type params =
   ; no_temp_files : bool [@default false]
   
   ; try_weak_subtype : bool [@default false]
+  
+  ; backend_options : string [@default ""]
+  (** Opitons for backend nu-HFL(Z) solvers *)
   }
 [@@deriving cmdliner,show]
 
@@ -161,6 +165,7 @@ let set_up_params params =
   set_ref z3_path                     (if params.z3_path = "" then "z3" else params.z3_path);
   set_ref no_temp_files               params.no_temp_files;
   set_ref try_weak_subtype            params.try_weak_subtype;
+  set_ref backend_options             params.backend_options;
   params.input
 
 (******************************************************************************)

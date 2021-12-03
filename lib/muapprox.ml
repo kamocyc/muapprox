@@ -93,6 +93,7 @@ let get_solve_options file =
     z3_path = !Options.z3_path;
     no_temp_files = !Options.no_temp_files;
     try_weak_subtype = !Options.try_weak_subtype;
+    backend_options = !Options.backend_options;
   }
 
 let simplify_agg_ hes =
