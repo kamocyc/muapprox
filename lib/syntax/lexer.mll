@@ -20,7 +20,7 @@ rule token = parse
                            ; token lexbuf
                            }
 | "/*"                     { comment lexbuf; token lexbuf }
-| "%LTS"                   { skip_all lexbuf; token lexbuf }
+| "%LTS"|"%ENV"            { skip_all lexbuf; token lexbuf }
 | eof                      { EOF       }
 | "%HES"                   { START_HES }
 | "("                      { LPAREN    }
