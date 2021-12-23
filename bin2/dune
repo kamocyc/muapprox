@@ -1,5 +1,5 @@
 (executables
- (names check_formula_equality converter simplify abbrev ltl_converter dual simplify_model as_program eliminate_unused_argument branching_time_program_converter infer_type program2 add_arguments evaluate_hflz check_shadowing convert_nu_hflz_to_program_with_exception)
+ (names check_formula_equality converter simplify abbrev ltl_converter dual simplify_model as_program eliminate_unused_argument branching_time_program_converter infer_type program2 add_arguments evaluate_hflz check_shadowing convert_nu_hflz_to_program_with_exception remove_disjunctions)
  (libraries muapprox core)
  (preprocess (pps ppx_jane))
  ; (flags (-cclib -lstdc++))

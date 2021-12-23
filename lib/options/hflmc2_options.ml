@@ -37,7 +37,7 @@ let z3_path = ref (Obj.magic())
 let no_temp_files = ref (Obj.magic())
 let try_weak_subtype = ref (Obj.magic())
 let backend_options = ref (Obj.magic())
-
+let remove_disjunctions = ref (Obj.magic())
 (******************************************************************************)
 (* Parser                                                                     *)
 (******************************************************************************)
@@ -131,6 +131,8 @@ type params =
   
   ; backend_options : string [@default ""]
   (** Opitons for backend nu-HFL(Z) solvers *)
+  
+  ; remove_disjunctions : bool [@default false]
   }
 [@@deriving cmdliner,show]
 
@@ -166,6 +168,7 @@ let set_up_params params =
   set_ref no_temp_files               params.no_temp_files;
   set_ref try_weak_subtype            params.try_weak_subtype;
   set_ref backend_options             params.backend_options;
+  set_ref remove_disjunctions         params.remove_disjunctions;
   params.input
 
 (******************************************************************************)

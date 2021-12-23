@@ -43,6 +43,7 @@ type options =
     no_temp_files: bool;
     try_weak_subtype: bool;
     backend_options: string;
+    remove_disjunctions: bool;
   }
 let get_solver solver_name = 
   match solver_name with

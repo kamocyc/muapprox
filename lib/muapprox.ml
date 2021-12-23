@@ -94,6 +94,7 @@ let get_solve_options file =
     no_temp_files = !Options.no_temp_files;
     try_weak_subtype = !Options.try_weak_subtype;
     backend_options = !Options.backend_options;
+    remove_disjunctions = !Options.remove_disjunctions;
   }
 
 let simplify_agg_ hes =
@@ -138,3 +139,4 @@ let infer_type = Ltl_program.infer_type
 let abbrev_variable_names = Ltl_program.abbrev_variable_names
 let branching_time_program = Branching_time_program.branching_time_program
 let convert_nu_hflz_to_program_with_exception = Muapprox_prover.Mochi_solver.convert_nu_hflz_to_program_with_exception
+let remove_disjunctions = Manipulate.Remove_disjunctions.convert
